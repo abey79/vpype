@@ -1,0 +1,9 @@
+# base
+click
+numpy
+shapely[vectorized]
+svgwrite
+
+
+# dev/test
+black

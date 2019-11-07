@@ -1,0 +1,10 @@
+*.svg
+*.png
+*.jpg
+*.jpeg
+/venv
+
+.DS_Store
+/.idea
+__pycache__
+*.egg-info
