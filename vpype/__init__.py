@@ -9,4 +9,7 @@ from .generators import *
 # noinspection PyUnresolvedReferences
 from .files import *
 
+# noinspection PyUnresolvedReferences
+from .frames import *
+
 __all__ = ["cli"]
