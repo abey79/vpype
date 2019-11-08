@@ -3,6 +3,10 @@ click
 numpy
 shapely[vectorized]
 svgwrite
+matplotlib
+opencv-python
+
+git+https://github.com/abey79/hatched.git#egg=hatched
 
 
 # dev/test

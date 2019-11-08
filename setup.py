@@ -12,6 +12,7 @@ setup(
     version="0.1.0",
     description="Vector pipeline for generative art",
     long_description=readme,
+    long_description_content_type="text/markdown",
     author="Antoine Beyeler",
     url="https://github.com/abey79/vpype",
     license=license,

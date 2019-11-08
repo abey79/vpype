@@ -28,5 +28,5 @@ def frame(mls: MultiLineString, offset: float):
         ]
     )
 
-    logging.info(f"adding a frame with coordinates {bounds} (offset {offset}")
+    logging.info(f"adding a frame with coordinates {bounds} (offset {offset})")
     return MultiLineString([ls for ls in mls] + [f])

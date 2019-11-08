@@ -1,15 +1,11 @@
 from .vpype import cli, processor, generator
 
-# noinspection PyUnresolvedReferences
-from .transforms import *
-
-# noinspection PyUnresolvedReferences
+# register all commands
 from .generators import *
-
-# noinspection PyUnresolvedReferences
+from .hatch import *
+from .transforms import *
 from .files import *
-
-# noinspection PyUnresolvedReferences
 from .frames import *
+from .show import *
 
 __all__ = ["cli"]
