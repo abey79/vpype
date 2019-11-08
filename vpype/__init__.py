@@ -1,6 +1,7 @@
 from .vpype import cli, processor, generator
 
 # register all commands
+from .blocks import *
 from .generators import *
 from .hatch import *
 from .transforms import *

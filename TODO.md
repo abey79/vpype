@@ -11,15 +11,14 @@
 ## Filters
 
 - geometry: mask with rectangle, circle, etc.
-- (MVP) matrix: static, dynamic
 
 ## Output
 
 - (MVP) png
 - (MVP) svg option
-    - scale to phyisical size
+    - scale to physical size
     - output format (A4, A3, letter, etc.)
-- axidraw api
+- AxiDraw api
 
  ## hatched
  

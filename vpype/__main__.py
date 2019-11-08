@@ -1,4 +1,4 @@
-from .vpype import cli
+# from .vpype import cli
+import vpype
 
-if __name__ == '__main__':
-    cli()
+vpype.cli()
