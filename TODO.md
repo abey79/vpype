@@ -3,22 +3,22 @@
 ## Generator
 
 - (MVP) load svg
-- primitives: segment, square, circle, polygon
 - (MVP) script: python file which returns a mls!!
+- primitives: segment, square, circle, polygon
 - 3D with _lines_
 - _neonlines_
 
 ## Filters
 
 - geometry: mask with rectangle, circle, etc.
+- mask with image file + threshold (eg https://www.reddit.com/r/PlotterArt/comments/d01ro6/the_abandoned/)
+- linemerge
 
 ## Output
 
-- (MVP) png
-- (MVP) svg option
-    - scale to physical size
-    - output format (A4, A3, letter, etc.)
+- png
 - AxiDraw api
+- Gcode for custom plotter?
 
  ## hatched
  
