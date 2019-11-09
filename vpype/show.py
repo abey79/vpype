@@ -7,13 +7,13 @@ import matplotlib.pyplot as plt
 from .vpype import cli, processor
 
 
-@cli.command()
+@cli.command(group="Output")
 @click.option("-a", "--show-axes", is_flag=True, help="display matplotlib axes")
 @click.option("-g", "--show-grid", is_flag=True, help="display matplotlib grid (implies -a)")
 @processor
 def show(mls: MultiLineString, show_axes: bool, show_grid: bool):
     """
-    Display the geometry using matplotlib
+    Display the geometry using matplotlib.
     """
     logging.info(f"running matplotlib display")
 

@@ -6,12 +6,12 @@ from shapely.geometry import MultiLineString, LinearRing
 from .vpype import cli, processor
 
 
-@cli.command()
+@cli.command(group="Generators")
 @click.option("-o", "--offset", default=0.0)
 @processor
 def frame(mls: MultiLineString, offset: float):
     """
-    Add a frame to the geometry
+    Add a frame to the geometry.
     """
     bounds = list(mls.bounds)
     bounds[0] -= offset

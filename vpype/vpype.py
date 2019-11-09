@@ -6,7 +6,57 @@ import click
 from shapely.geometry import MultiLineString
 
 
-@click.group(chain=True)
+# noinspection PyShadowingBuiltins
+class GroupedGroup(click.Group):
+    """Custom group class which implements command grouping in --help display.
+
+    Based on Stephen Rauch's excellent answer: https://stackoverflow.com/a/58770064/229511
+    """
+    def command(self, *args, **kwargs):
+        """Gather the command help groups"""
+        help_group = kwargs.pop("group", None)
+        decorator = super(GroupedGroup, self).command(*args, **kwargs)
+
+        def wrapper(f):
+            cmd = decorator(f)
+            cmd.help_group = help_group
+            return cmd
+
+        return wrapper
+
+    def format_commands(self, ctx, formatter):
+        """Extra format methods for multi methods that adds all the commands
+        after the options.
+        """
+        commands = []
+        for subcommand in self.list_commands(ctx):
+            cmd = self.get_command(ctx, subcommand)
+            # What is this, the tool lied about a command.  Ignore it
+            if cmd is None:
+                continue
+            if cmd.hidden:
+                continue
+
+            commands.append((subcommand, cmd))
+
+        # allow for 3 times the default spacing
+        if len(commands):
+            longest = max(len(cmd[0]) for cmd in commands)
+            limit = formatter.width - 6 - longest
+
+            groups = {}
+            for subcommand, cmd in commands:
+                help = cmd.get_short_help_str(limit)
+                subcommand += " " * (longest - len(subcommand))
+                groups.setdefault(cmd.help_group, []).append((subcommand, help))
+
+            with formatter.section("Commands"):
+                for group_name, rows in groups.items():
+                    with formatter.section(group_name):
+                        formatter.write_dl(rows)
+
+
+@click.group(cls=GroupedGroup, chain=True)
 @click.option("-v", "--verbose", count=True)
 def cli(verbose):
     logging.basicConfig()
@@ -28,16 +78,16 @@ def execute_processors(processors) -> MultiLineString:
     """
     Execute a sequence of processors to generate a MultiLineString. For block handling, we use
     a recursive approach. Only top-level blocks are extracted and processed by block
-    processors, which, in turn, call this function again.
+    processors, which, in turn, recursively call this function.
     :param processors: iterable of processors
-    :return:
+    :return: generated geometries
     """
-    # create a stack with a base frame, which is empty and has no block processor
-    outer_processors = list()
-    top_level_processors = list()
-    block = None
-    nested_count = 0
-    expect_block = False
+
+    outer_processors = list()  # gather commands outside of top-level blocks
+    top_level_processors = list()  # gather commands inside of top-level blocks
+    block = None  # save the current top-level block's block processor
+    nested_count = 0  # block depth counter
+    expect_block = False  # set to True by `begin` command
 
     for proc in processors:
         if isinstance(proc, BlockProcessor):
@@ -81,6 +131,7 @@ def execute_processors(processors) -> MultiLineString:
                 def build_placeholder_processor(block_mls):
                     def placeholder_processor(input_mls):
                         return merge_mls([input_mls, block_mls])
+
                     return placeholder_processor
 
                 outer_processors.append(build_placeholder_processor(block_mls))
@@ -161,8 +212,13 @@ class BeginBlock:
     pass
 
 
-@cli.command()
+@cli.command(group="Block control")
 def begin():
+    """
+    Mark the start of a block. It must be followed by a block processor command (eg. `matrix`
+    or `repeat`), which indicates how the block should be processed. Blocks must be ended by a
+    `end` command and can be nested.
+    """
     return BeginBlock()
 
 
@@ -170,8 +226,11 @@ class EndBlock:
     pass
 
 
-@cli.command()
+@cli.command(group="Block control")
 def end():
+    """
+    Mark the end of a block.
+    """
     return EndBlock()
 
 

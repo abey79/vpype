@@ -8,7 +8,7 @@ from shapely.geometry import MultiLineString
 from .vpype import cli, processor
 
 
-@cli.command()
+@cli.command(group="Transforms")
 @click.argument("offset", nargs=2, type=float, required=True)
 @processor
 def translate(mls: MultiLineString, offset: Tuple[float, float]):
@@ -19,16 +19,14 @@ def translate(mls: MultiLineString, offset: Tuple[float, float]):
     return affinity.translate(mls, offset[0], offset[1])
 
 
-@cli.command()
+# noinspection PyShadowingNames
+@cli.command(group="Transforms")
 @click.argument("scale", nargs=2, type=float)
 @click.option("-d", "--centroid", is_flag=True, help="Use the centroid as origin instead.")
 @click.option("-c", "--center", nargs=2, type=float, help="Use specific origin instead.")
 @processor
 def scale(
-    mls: MultiLineString,
-    scale: Sequence[float],
-    centroid: bool,
-    center: Sequence[float],
+    mls: MultiLineString, scale: Sequence[float], centroid: bool, center: Sequence[float],
 ):
     """
     Scale the geometries using the bounding box center as origin.
@@ -43,7 +41,7 @@ def scale(
     return affinity.scale(mls, scale[0], scale[1], origin=origin)
 
 
-@cli.command()
+@cli.command(group="Transforms")
 @click.argument("angle", required=True, type=float)
 @click.option("-r", "--radian", is_flag=True, help="Angle is in radians.")
 @click.option("-d", "--centroid", is_flag=True, help="Use the centroid as origin instead.")
@@ -69,7 +67,7 @@ def rotate(
     return affinity.rotate(mls, angle, origin=origin, use_radians=radian)
 
 
-@cli.command()
+@cli.command(group="Transforms")
 @click.argument("angles", required=True, nargs=2, type=float)
 @click.option("-r", "--radian", is_flag=True, help="Angle is in radians.")
 @click.option("-d", "--centroid", is_flag=True, help="Use the centroid as origin instead.")

@@ -8,13 +8,13 @@ from shapely.geometry import MultiLineString
 from .vpype import cli, processor
 
 
-@cli.command()
+@cli.command(group="Output")
 @click.argument("output", type=click.File("w"))
 @click.option("-s", "--single-path", is_flag=True, help="generate a single compound path")
 @processor
 def svg(mls: MultiLineString, output, single_path):
     """
-    Generate random lines in [0, 1] x [0, 1] space
+    Save geometries to a SVG file.
     """
     logging.info(f"saving to {output.name}")
 

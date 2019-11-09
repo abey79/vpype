@@ -9,7 +9,7 @@ import click
 from .vpype import cli, generator
 
 
-@cli.command("hatched")
+@cli.command("hatched", group="Generators")
 @click.argument("filename", type=click.Path(exists=True))
 @click.option(
     "-l",
@@ -32,7 +32,9 @@ from .vpype import cli, generator
 @click.option(
     "-x", "--invert", is_flag=True, help="Invert the image (and levels) before processing"
 )
-@click.option("-c", "--circular", is_flag=True, help="Use circular instead of diagonal hatches")
+@click.option(
+    "-c", "--circular", is_flag=True, help="Use circular instead of diagonal hatches"
+)
 @click.option(
     "-d", "--show-plot", is_flag=True, help="Display the contours and resulting pattern"
 )
@@ -49,12 +51,12 @@ def hatched_gen(
     show_plot: bool,
 ):
     """
-    Generate hatched pattern from an image (see `hatched` library)
+    Generate hatched pattern from an image (see `hatched` library).
     """
     logging.info(f"generating hatches from {filename}")
 
     interp = cv2.INTER_LINEAR
-    if interpolation == 'nearest':
+    if interpolation == "nearest":
         interp = cv2.INTER_NEAREST
 
     return hatched.hatch(
