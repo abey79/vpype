@@ -1,11 +1,12 @@
 # base
 click
+matplotlib
 numpy
+opencv-python
 shapely[vectorized]
 svgwrite
-matplotlib
-opencv-python
 
+git+https://github.com/mathandy/svgpathtools@fd7348a1dfd88b65ea61da02325c6605aedf8c4f#egg=svgpathtools
 git+https://github.com/abey79/hatched.git#egg=hatched
 
 

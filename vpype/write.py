@@ -10,6 +10,7 @@ from .vpype import cli, processor
 
 # supported page format, size in mm
 PAGE_FORMATS = {
+    "tight": (0, 0),  # this
     "a5": (148.0, 210.0),
     "a4": (210.0, 297.0),
     "a3": (297.0, 420.0),
@@ -31,7 +32,7 @@ PAGE_FORMATS = {
     "-p",
     "--page-format",
     type=click.Choice(PAGE_FORMATS.keys(), case_sensitive=False),
-    default="none",
+    default="tight",
     help=(
         "Set the bounds of the SVG to a specific page format. If omitted, the SVG size it set "
         "to the geometry bounding box."
@@ -50,7 +51,7 @@ PAGE_FORMATS = {
     help="[--page-format only] Center the geometries within the SVG bounds",
 )
 @processor
-def svg(
+def write(
     mls: MultiLineString,
     output,
     single_path: bool,
@@ -72,7 +73,7 @@ def svg(
 
     # compute bounds
     bounds = mls.bounds
-    if page_format != "none":
+    if page_format != "tight":
         size = tuple(c * 96.0 / 25.4 for c in PAGE_FORMATS[page_format])
         if landscape:
             size = tuple(reversed(size))
@@ -85,7 +86,7 @@ def svg(
             (size[0] - (bounds[2] - bounds[0])) / 2.0 - bounds[0],
             (size[1] - (bounds[3] - bounds[1])) / 2.0 - bounds[1],
         )
-    elif page_format == "none":
+    elif page_format == "tight":
         # align geometries to (0, 0)
         corrected_mls = affinity.translate(mls, -bounds[0], -bounds[1])
     else:

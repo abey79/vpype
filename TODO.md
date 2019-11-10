@@ -1,8 +1,11 @@
 # TODO
 
+## Misc
+
+- support for file-based CLI argument (-> mini-language)
+
 ## Generator
 
-- (MVP) load svg
 - (MVP) script: python file which returns a mls!!
 - primitives: segment, square, circle, polygon
 - 3D with _lines_
@@ -16,9 +19,14 @@
 
 ## Output
 
+- output: add `-f svg|png|...` with auto-discovery
 - png
 - AxiDraw api
 - Gcode for custom plotter?
+
+## Block processors
+
+- business card: arrange geometries in business card sized slots and add cut marks
 
  ## hatched
  
