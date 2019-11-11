@@ -14,7 +14,7 @@ from .vpype import cli, processor
 @processor
 def translate(mls: MultiLineString, offset: Tuple[float, float]):
     """
-    Translate the geometries. Two offsets must be provided for X and Y axis. They understand
+    Translate the geometries. X and Y offsets must be provided. These arguments understand
     supported units.
     """
     logging.info(f"translating by {offset}")
@@ -28,17 +28,17 @@ def translate(mls: MultiLineString, offset: Tuple[float, float]):
     "--to",
     "absolute",
     is_flag=True,
-    help="Arguments are interpreted as final size instead of relative factors.",
+    help="Arguments are interpreted as absolute size instead of (relative) factors.",
 )
 @click.option(
     "-p",
     "--keep-proportions",
     is_flag=True,
-    help="[--to only] Keep the geometries proportions.",
+    help="[--to only] Maintain the geometries proportions.",
 )
-@click.option("-d", "--centroid", is_flag=True, help="Use the centroid as origin instead.")
+@click.option("-d", "--centroid", is_flag=True, help="Use the centroid as origin.")
 @click.option(
-    "-o", "--origin", "origin_coords", nargs=2, type=float, help="Use specific origin instead."
+    "-o", "--origin", "origin_coords", nargs=2, type=float, help="Use a specific origin."
 )
 @processor
 def scale(
@@ -51,12 +51,12 @@ def scale(
 ):
     """Scale the geometries.
 
-    The origin used in the bounding box center, unless the `--centroid` or `--origin` options
+    The origin used is the bounding box center, unless the `--centroid` or `--origin` options
     are used.
 
     By default, the arguments are used as relative factors (e.g. `scale 2 2` make the
-    geometries twice as big in both dimensions. With `--to`, the arguments are used as final
-    size. In the later case, argument can have the supported unit (e.g.
+    geometries twice as big in both dimensions). With `--to`, the arguments are interpreted as
+    the final size. In this case, arguments understand the supported units (e.g.
     `scale --to 10cm 10cm`).
     """
     origin = "center"
@@ -81,9 +81,9 @@ def scale(
 @cli.command(group="Transforms")
 @click.argument("angle", required=True, type=float)
 @click.option("-r", "--radian", is_flag=True, help="Angle is in radians.")
-@click.option("-d", "--centroid", is_flag=True, help="Use the centroid as origin instead.")
+@click.option("-d", "--centroid", is_flag=True, help="Use the centroid as origin.")
 @click.option(
-    "-o", "--origin", "origin_coords", nargs=2, type=float, help="Use specific origin instead."
+    "-o", "--origin", "origin_coords", nargs=2, type=float, help="Use a specific origin."
 )
 @processor
 def rotate(
@@ -96,7 +96,7 @@ def rotate(
     """
     Rotate the geometries.
 
-    The origin used in the bounding box center, unless the `--centroid` or `--origin` options
+    The origin used is the bounding box center, unless the `--centroid` or `--origin` options
     are used.
     """
     origin = "center"
@@ -112,9 +112,9 @@ def rotate(
 @cli.command(group="Transforms")
 @click.argument("angles", required=True, nargs=2, type=float)
 @click.option("-r", "--radian", is_flag=True, help="Angle is in radians.")
-@click.option("-d", "--centroid", is_flag=True, help="Use the centroid as origin instead.")
+@click.option("-d", "--centroid", is_flag=True, help="Use the centroid as origin.")
 @click.option(
-    "-o", "--origin", "origin_coords", nargs=2, type=float, help="Use specific origin instead."
+    "-o", "--origin", "origin_coords", nargs=2, type=float, help="Use a specific origin."
 )
 @processor
 def skew(
@@ -126,6 +126,8 @@ def skew(
 ):
     """
     Skew the geometries.
+
+    The geometries are sheared by the provided angles along X and Y dimensions.
 
     The origin used in the bounding box center, unless the `--centroid` or `--origin` options
     are used.

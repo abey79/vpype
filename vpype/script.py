@@ -11,7 +11,11 @@ from .vpype import cli, generator
 @generator
 def script(file) -> MultiLineString:
     """
-    Bla
+    Call an external python script to generate geometries.
+
+    The script must contain a `generate()` which will be called without arguments. It must
+    return a Shapely MultiLineString object containing the generated geometries. The
+    coordinates used are expected to be in SVG pixel units (1/96th of an inch).
     """
 
     try:

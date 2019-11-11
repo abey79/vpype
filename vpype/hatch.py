@@ -6,6 +6,7 @@ import logging
 
 import click
 
+from .utils import Length
 from .vpype import cli, generator
 
 
@@ -17,26 +18,44 @@ from .vpype import cli, generator
     nargs=3,
     type=int,
     default=(64, 128, 192),
-    help="Pixel value of the 3 threshold between black, dark, light and white (0-255)",
+    help="Pixel value of the 3 thresholds between black, dark, light and white zones (0-255).",
 )
-@click.option("-s", "--scale", default=1.0, help="Scale factor to apply to the image")
+@click.option("-s", "--scale", default=1.0, help="Scale factor to apply to the image size.")
 @click.option(
     "-i",
     "--interpolation",
     default="linear",
     type=click.Choice(["linear", "nearest"], case_sensitive=False),
-    help="Interpolation used for scaling",
-)
-@click.option("-b", "--blur", default=0, type=int, help="Blur radius to apply to the image")
-@click.option("-p", "--pitch", default=5, type=int, help="Densest hatching pitch (pixels)")
-@click.option(
-    "-x", "--invert", is_flag=True, help="Invert the image (and levels) before processing"
+    help="Interpolation used for scaling.",
 )
 @click.option(
-    "-c", "--circular", is_flag=True, help="Use circular instead of diagonal hatches"
+    "-b",
+    "--blur",
+    default=0,
+    type=int,
+    help="Blur radius to apply to the image before applying thresholds.",
 )
 @click.option(
-    "-d", "--show-plot", is_flag=True, help="Display the contours and resulting pattern"
+    "-p",
+    "--pitch",
+    default=5,
+    type=Length(),
+    help="Hatching pitch for the densest zones. This option understands supported units.",
+)
+@click.option(
+    "-x",
+    "--invert",
+    is_flag=True,
+    help="Invert the image (and levels) before applying thresholds.",
+)
+@click.option(
+    "-c", "--circular", is_flag=True, help="Use circular instead of diagonal hatches."
+)
+@click.option(
+    "-d",
+    "--show-plot",
+    is_flag=True,
+    help="Display the contours and resulting pattern using matplotlib.",
 )
 @generator
 def hatched_gen(
@@ -51,7 +70,15 @@ def hatched_gen(
     show_plot: bool,
 ):
     """
-    Generate hatched pattern from an image (see `hatched` library).
+    Generate hatched pattern from an image.
+
+    The hatches generated are in the coordinate of the input image. For example, a 100x100px
+    image with generate hatches whose bounding box coordinates are (0, 0, 100, 100). The
+    `--scale` option, by resampling the input image, indirectly affects the generated bounding
+    box. The `--pitch` parameter sets the densest hatching frequency,
+
+    This command uses the `hatched` library, please refer to the project homepage for more
+    information (https://github.com/abey79/hatched).
     """
     logging.info(f"generating hatches from {filename}")
 

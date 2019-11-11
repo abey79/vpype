@@ -16,12 +16,20 @@ from .vpype import cli, generator
     "--quantization",
     type=Length(),
     default="1mm",
-    help="Maximum length used when converting curves to segments.",
+    help="Maximum length of segments approximating curved elements.",
 )
 @generator
 def read(file, quantization: float) -> MultiLineString:
     """
-    Read geometries from a SVG file.
+    Extract geometries from a SVG file.
+
+    This command only extracts path elements as well as primitives (rectangles, ellipses,
+    lines, polylines, polygons). In particular, text and bitmap images are discarded, as well
+    as all formatting.
+
+    All curved primitives (e.g. bezier path, ellipses, etc.) are linearized and approximated
+    by polylines. The quantization length controls the maximum length of individual segments
+    (1mm by default).
     """
 
     paths, _, svg_attr = svg2paths(file, return_svg_attributes=True)

@@ -216,8 +216,8 @@ class BeginBlock:
 def begin():
     """
     Mark the start of a block. It must be followed by a block processor command (eg. `matrix`
-    or `repeat`), which indicates how the block should be processed. Blocks must be ended by a
-    `end` command and can be nested.
+    or `repeat`), which indicates how the block is processed. Blocks must be ended by a `end`
+    command and can be nested.
     """
     return BeginBlock()
 

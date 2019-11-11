@@ -8,11 +8,20 @@ from .vpype import cli, processor
 
 
 @cli.command(group="Generators")
-@click.option("-o", "--offset", default=0.0, type=Length())
+@click.option(
+    "-o",
+    "--offset",
+    default=0.0,
+    type=Length(),
+    help="Offset from the geometries' bounding box. This option understands supported units.",
+)
 @processor
 def frame(mls: MultiLineString, offset: float):
     """
-    Add a frame to the geometry.
+    Add a single-line frame around the geometry.
+
+    By default, the frame shape is the current geometries' bounding box. An optional offset can
+    be provided.
     """
     bounds = list(mls.bounds)
     bounds[0] -= offset

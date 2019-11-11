@@ -1,12 +1,23 @@
 # TODO
 
+## Known limitations
+
+- lack of tests
+- lack of error checking in many places (e.g. script!)
+
+## MUST BEFORE PUBLISH
+
+- add support for float hatching pitch to hatched, and test
+
+
 ## Misc
 
+- plugin interface
+- python API to apply a pipeline on a MLS object and get the resulting MLS
 - support for file-based CLI argument (-> mini-language)
 
 ## Generator
 
-- (MVP) script: python file which returns a mls!!
 - primitives: segment, square, circle, polygon
 - 3D with _lines_
 - _neonlines_
