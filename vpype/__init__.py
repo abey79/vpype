@@ -6,6 +6,7 @@ from .frames import *
 from .generators import *
 from .hatch import *
 from .read import *
+from .script import *
 from .show import *
 from .transforms import *
 from .write import *

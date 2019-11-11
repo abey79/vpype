@@ -3,12 +3,13 @@ from typing import Tuple
 import click
 from shapely import affinity
 
+from .utils import Length
 from .vpype import cli, block_processor, BlockProcessor, execute_processors, merge_mls
 
 
 @cli.command("matrix", group="Block processors")
 @click.option("-n", "--number", nargs=2, default=(2, 2), type=int)
-@click.option("-d", "--delta", nargs=2, default=(100, 100), type=float)
+@click.option("-d", "--delta", nargs=2, default=(100, 100), type=Length())
 @block_processor
 class MatrixBlockProcessor(BlockProcessor):
     """

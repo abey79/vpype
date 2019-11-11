@@ -5,7 +5,7 @@ import numpy as np
 from shapely.geometry import MultiLineString, LineString
 from svgpathtools import svg2paths, Line
 
-from .utils import Length
+from .utils import Length, convert
 from .vpype import cli, generator
 
 
@@ -24,7 +24,27 @@ def read(file, quantization: float) -> MultiLineString:
     Read geometries from a SVG file.
     """
 
-    paths, _ = svg2paths(file)
+    paths, _, svg_attr = svg2paths(file, return_svg_attributes=True)
+
+    if "viewBox" in svg_attr:
+        # A view box is defined so we must correctly scale from user coordinates
+        # https://css-tricks.com/scale-svg/
+        # TODO: we should honor the `preserveAspectRatio` attribute
+
+        w = convert(svg_attr["width"])
+        h = convert(svg_attr["height"])
+
+        viewbox = [float(s) for s in svg_attr["viewBox"].split()]
+
+        scale_x = w / (viewbox[2] - viewbox[0])
+        scale_y = h / (viewbox[3] - viewbox[1])
+        offset_x = -viewbox[0]
+        offset_y = -viewbox[1]
+    else:
+        scale_x = 1
+        scale_y = 1
+        offset_x = 0
+        offset_y = 0
 
     ls_array = []
     for path in paths:
@@ -39,6 +59,12 @@ def read(file, quantization: float) -> MultiLineString:
                 for i in range(step):
                     coords[i + 1] = elem.point((i + 1) / step)
 
-            ls_array.append(LineString(coords.view(dtype=float).reshape(len(coords), 2)))
+            # scale and offset according to viewBox
+            coords = coords.view(dtype=float).reshape(len(coords), 2)
+            final_coords = np.empty_like(coords)
+            final_coords[:, 0] = scale_x * (coords[:, 0] + offset_x)
+            final_coords[:, 1] = scale_y * (coords[:, 1] + offset_y)
+
+            ls_array.append(LineString(final_coords))
 
     return MultiLineString(ls_array)

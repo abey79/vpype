@@ -1,3 +1,5 @@
+from typing import Union
+
 import click
 
 UNITS = [
@@ -10,17 +12,23 @@ UNITS = [
 ]
 
 
+def convert(value: Union[str, float]):
+    """Convert a string with unit to px value. May raise exception for bad input.
+    """
+    if isinstance(value, str):
+        value = value.strip().lower()
+        for unit, factor in UNITS:
+            if value.endswith(unit):
+                return float(value.strip(unit)) * factor
+
+    return float(value)
+
+
 class Length(click.ParamType):
     name = "length"
 
     def convert(self, value, param, ctx):
         try:
-            if isinstance(value, str):
-                value = value.strip().lower()
-                for unit, factor in UNITS:
-                    if value.endswith(unit):
-                        return float(value.strip(unit)) * factor
-
-            return float(value)
+            return convert(value)
         except ValueError:
             self.fail(f"parameter {value} is an incorrect length")

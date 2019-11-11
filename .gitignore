@@ -10,3 +10,4 @@ __pycache__
 *.egg-info
 /pip-wheel-metadata
 /bug_reports
+/W3C_SVG_11_TestSuite

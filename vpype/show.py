@@ -17,6 +17,10 @@ from .vpype import cli, processor
 def show(mls: MultiLineString, show_axes: bool, show_grid: bool, colorful: bool):
     """
     Display the geometry using matplotlib.
+
+    Note: matplotlib can be rather slow when displaying a large number of lines, which
+    typically happens with lots of curved elements. For complex geometries, using `write`
+    and inspecting the resulting SVG is preferred.
     """
     logging.info(f"running matplotlib display")
 

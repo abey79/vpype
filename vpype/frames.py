@@ -3,11 +3,12 @@ import logging
 import click
 from shapely.geometry import MultiLineString, LinearRing
 
+from .utils import Length
 from .vpype import cli, processor
 
 
 @cli.command(group="Generators")
-@click.option("-o", "--offset", default=0.0)
+@click.option("-o", "--offset", default=0.0, type=Length())
 @processor
 def frame(mls: MultiLineString, offset: float):
     """
