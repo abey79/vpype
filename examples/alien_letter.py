@@ -16,7 +16,12 @@ def append_maybe(item, lst):
         lst.append(item)
 
 
-def generate():
+def generate() -> MultiLineString:
+    """
+    A python module called by the `script` command must implement this function, which takes
+    no arguments and return a MultiLineString object.
+    :return: resulting MultiLineString
+    """
     segs = []
 
     # horizontal segments
