@@ -1,8 +1,6 @@
-<img src="https://i.imgur.com/iDeZtCL.png" alt="banner" width=1200>
+<img src="https://i.imgur.com/LM2Qrc0.png" alt="banner" width=1200>
 
-<h2 align="center"><em>vpype</em></h2>
-
-
+# _vpype_
 
 _vpype_ is a tool to create and process vector graphics for pen plotters by means of easy-to-build CLI
 pipelines (pen plotters, such as the [AxiDraw](https://axidraw.com), are robotic drawing machines).
