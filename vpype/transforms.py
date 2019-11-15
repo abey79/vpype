@@ -17,6 +17,9 @@ def translate(mls: MultiLineString, offset: Tuple[float, float]):
     Translate the geometries. X and Y offsets must be provided. These arguments understand
     supported units.
     """
+    if mls.is_empty:
+        return mls
+
     logging.info(f"translating by {offset}")
     return affinity.translate(mls, offset[0], offset[1])
 
@@ -59,6 +62,10 @@ def scale(
     the final size. In this case, arguments understand the supported units (e.g.
     `scale --to 10cm 10cm`).
     """
+
+    if mls.is_empty:
+        return mls
+
     origin = "center"
     if len(origin_coords) == 2:
         origin = origin_coords
@@ -94,11 +101,14 @@ def rotate(
     origin_coords: Tuple[float, float],
 ):
     """
-    Rotate the geometries.
+    Rotate the geometries (clockwise positive).
 
     The origin used is the bounding box center, unless the `--centroid` or `--origin` options
     are used.
     """
+    if mls.is_empty:
+        return mls
+
     origin = "center"
     if len(origin_coords) == 2:
         origin = origin_coords
@@ -132,6 +142,9 @@ def skew(
     The origin used in the bounding box center, unless the `--centroid` or `--origin` options
     are used.
     """
+    if mls.is_empty:
+        return mls
+
     origin = "center"
     if len(origin_coords) == 2:
         origin = origin_coords

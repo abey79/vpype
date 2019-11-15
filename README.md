@@ -27,10 +27,14 @@ paths, at the exclusion of formatting (line color, width, etc.), filled shapes, 
 makes _vpype_ both simple and powerful at what it does.  
     
 This project is at the stage of the functional proof-of-concept and is being actively developed based on interest and 
-feedback. It relies on [Click](https://palletsprojects.com/p/click/), [Shapely](https://shapely.readthedocs.io),
-[svgwrite](https://svgwrite.readthedocs.io), [svgpathtools](https://github.com/mathandy/svgpathtools),
-[matplotlib](https://matplotlib.org), [NumPy](https://numpy.org), [hatched](https://github.com/abey79/hatched) and
-many others projects.
+feedback. It is written in Python and relies on [Click](https://palletsprojects.com/p/click/),
+[Shapely](https://shapely.readthedocs.io),
+[svgwrite](https://svgwrite.readthedocs.io),
+[svgpathtools](https://github.com/mathandy/svgpathtools),
+[matplotlib](https://matplotlib.org),
+[NumPy](https://numpy.org),
+[hatched](https://github.com/abey79/hatched)
+and many others projects.
 
 
 ## Getting Started
@@ -235,7 +239,7 @@ IDE, point its run/debug configuration to `venv/bin/bin/vpype`.
 
 ### Running the tests
 
-You can run tests (erm... when those will be available anyways) with the following command:
+You can run tests with the following command:
 
 ```bash
 $ pytest

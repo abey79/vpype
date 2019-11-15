@@ -69,7 +69,10 @@ def write(
 
     If output path is `-`, SVG content is output on stdout.
     """
-    logging.info(f"saving to {output.name}")
+
+    if mls.is_empty:
+        logging.warning("no geometry to save, no file created")
+        return mls
 
     # compute bounds
     bounds = mls.bounds

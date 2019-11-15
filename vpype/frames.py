@@ -23,6 +23,9 @@ def frame(mls: MultiLineString, offset: float):
     By default, the frame shape is the current geometries' bounding box. An optional offset can
     be provided.
     """
+    if mls.is_empty:
+        return mls
+
     bounds = list(mls.bounds)
     bounds[0] -= offset
     bounds[1] -= offset

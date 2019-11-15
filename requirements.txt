@@ -11,4 +11,5 @@ git+https://github.com/abey79/hatched.git#egg=hatched
 
 
 # dev/test
+pytest
 black

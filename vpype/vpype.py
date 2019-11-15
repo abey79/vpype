@@ -6,12 +6,12 @@ import click
 from shapely.geometry import MultiLineString
 
 
-# noinspection PyShadowingBuiltins
 class GroupedGroup(click.Group):
     """Custom group class which implements command grouping in --help display.
 
     Based on Stephen Rauch's excellent answer: https://stackoverflow.com/a/58770064/229511
     """
+
     def command(self, *args, **kwargs):
         """Gather the command help groups"""
         help_group = kwargs.pop("group", None)
@@ -46,9 +46,9 @@ class GroupedGroup(click.Group):
 
             groups = {}
             for subcommand, cmd in commands:
-                help = cmd.get_short_help_str(limit)
+                help_text = cmd.get_short_help_str(limit)
                 subcommand += " " * (longest - len(subcommand))
-                groups.setdefault(cmd.help_group, []).append((subcommand, help))
+                groups.setdefault(cmd.help_group, []).append((subcommand, help_text))
 
             with formatter.section("Commands"):
                 for group_name, rows in groups.items():
