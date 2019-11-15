@@ -1,4 +1,5 @@
 import pytest
+import numpy as np
 
 from vpype import cli
 from vpype.debug import DebugData
@@ -6,28 +7,31 @@ from vpype.debug import DebugData
 CM = 96 / 2.54
 
 MINIMAL_COMMANDS = [
-    ["frame"],
-    ["hatched", "__ROOT__/tests/data/mario.png"],
-    ["random"],
-    ["read", "__ROOT__/examples/bc_template.svg"],
-    ["write", "-"],
-    ["rotate", "0"],
-    ["scale", "1", "1"],
-    ["skew", "0", "0"],
-    ["translate", "0", "0"],
+    "frame",
+    "hatched __ROOT__/tests/data/mario.png",
+    "random",
+    "line 0 0 1 1",
+    "circle 0 0 1",
+    "read __ROOT__/examples/bc_template.svg",
+    "write -",
+    "rotate 0",
+    "scale 1 1",
+    "skew 0 0",
+    "translate 0 0",
+    "crop 0 0 1 1",
 ]
 
 
 @pytest.mark.parametrize("args", MINIMAL_COMMANDS)
 def test_commands_empty_geometry(runner, root_directory, args):
-    result = runner.invoke(cli, [s.replace("__ROOT__", root_directory) for s in args])
+    result = runner.invoke(cli, args.replace("__ROOT__", root_directory).split())
     assert result.exit_code == 0
 
 
 @pytest.mark.parametrize("args", MINIMAL_COMMANDS)
 def test_commands_random_input(runner, root_directory, args):
     result = runner.invoke(
-        cli, ["random", "-n", "100", *[s.replace("__ROOT__", root_directory) for s in args]]
+        cli, ["random", "-n", "100", *args.replace("__ROOT__", root_directory).split()]
     )
     assert result.exit_code == 0
 
@@ -35,22 +39,9 @@ def test_commands_random_input(runner, root_directory, args):
 def test_frame(runner):
     result = runner.invoke(
         cli,
-        [
-            "random",
-            "-n",
-            "100",
-            "-a",
-            "10cm",
-            "10cm",
-            "dbsample",
-            "frame",
-            "dbsample",
-            "frame",
-            "-o",
-            "1cm",
-            "dbsample",
-            "dbdump",
-        ],
+        (
+            "random -n 100 -a 10cm 10cm dbsample frame dbsample frame -o 1cm dbsample dbdump"
+        ).split(),
     )
     data = DebugData.load(result.output)
 
@@ -65,7 +56,28 @@ def test_random(runner):
 
     assert result.exit_code == 0
     assert data.count == 100
-    assert data.bounds_within(0, 0, 10 * 96 / 2.54, 10 * 96 / 2.54)
+    assert data.bounds_within(0, 0, 10 * CM, 10 * CM)
+
+
+def test_line(runner):
+    result = runner.invoke(cli, "line 0 0 10cm 10cm dbsample dbdump".split())
+    data = DebugData.load(result.output)[0]
+
+    assert result.exit_code == 0
+    assert data.count == 1
+    assert data.bounds_within(0, 0, 10 * CM, 10 * CM)
+
+
+def test_circle(runner):
+    result = runner.invoke(cli, "circle -q 0.5mm 0 0 10cm dbsample dbdump".split())
+    data = DebugData.load(result.output)[0]
+
+    assert result.exit_code == 0
+    assert data.bounds_within(-10 * CM, -10 * CM, 20 * CM, 20 * CM)
+    assert data.count == 1
+
+    vec = np.diff(np.array(data.mls[0]), axis=0)
+    assert np.all(np.sum(vec * vec, axis=1) <= 0.01 * CM)
 
 
 def test_grid(runner):

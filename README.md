@@ -132,6 +132,7 @@ enables multiple sinks to be chained (e.g. first display the result, then save i
 Here is a non-exhaustive list of important commands:
 
 - `read`: import geometries from a SVG file
+- `line`, `circle`: create the corresponding primitives 
 - `script`: execute a Python script to generate geometries (see [External scripts](#external-scripts))
 - `hatched`: generate hatching patterns based on an image (see the [hatched project](https://github.com/abey79/hatched))
 - `translate`, `rotate`, `scale`, `skew`: basic transformation commands which do exactly what you think they do

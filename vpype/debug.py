@@ -30,6 +30,7 @@ def dbsample(mls: MultiLineString):
         data["bounds"] = list(mls.bounds)
         data["geom_type"] = mls.geom_type
         data["valid"] = mls.is_valid
+        data["lines"] = [list(ls.coords) for ls in mls if not ls.is_empty]
 
     debug_data.append(data)
     return mls
@@ -65,6 +66,7 @@ class DebugData:
         self.bounds = data.get("bounds", [0, 0, 0, 0])
         self.geom_type = data.get("geom_type", "EmptyGeometry")
         self.valid = data.get("valid", False)
+        self.mls = MultiLineString(data.get("lines", []))
 
     def bounds_within(
         self, x: float, y: float, width: Union[float, None], height: Union[float, None],
