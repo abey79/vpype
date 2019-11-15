@@ -135,6 +135,7 @@ Here is a non-exhaustive list of important commands:
 - `script`: execute a Python script to generate geometries (see [External scripts](#external-scripts))
 - `hatched`: generate hatching patterns based on an image (see the [hatched project](https://github.com/abey79/hatched))
 - `translate`, `rotate`, `scale`, `skew`: basic transformation commands which do exactly what you think they do
+- `crop`: crop the geometries, removing everything outside of a rectangular area
 - `frame`: add a simple frame around the geometries
 - `show`: display the geometries in a `matplotlib` window
 - `write`: save the geometries as a SVG file

@@ -16,6 +16,7 @@
 - python API to apply a pipeline on a MLS object and get the resulting MLS
 - support for file-based CLI argument (-> mini-language)
 - add progress bar
+- move to PyGEOS
 
 
 ## Generator
