@@ -12,7 +12,7 @@
 
 ## Misc
 
-- plugin interface
+- plugin interface with [click-plugins](https://github.com/click-contrib/click-plugins)
 - python API to apply a pipeline on a MLS object and get the resulting MLS
 - support for file-based CLI argument (-> mini-language)
 - add progress bar

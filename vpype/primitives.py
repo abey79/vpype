@@ -1,7 +1,7 @@
 import math
 
 import click
-from shapely.geometry import MultiLineString, LineString, Point
+from shapely.geometry import MultiLineString, LineString, Point, LinearRing
 
 from .utils import Length
 from .vpype import cli, generator
@@ -21,6 +21,24 @@ def line(x0: float, y0: float, x1: float, y1: float):
     """
 
     return MultiLineString([LineString([(x0, y0), (x1, y1)])])
+
+
+@cli.command(group="Primitives")
+@click.argument("x", type=Length())
+@click.argument("y", type=Length())
+@click.argument("width", type=Length())
+@click.argument("height", type=Length())
+@generator
+def rect(x: float, y: float, width: float, height: float):
+    """
+    Generate a rectangle.
+
+    The rectangle is defined by its top left corner (X, Y) and its width and height.
+    """
+
+    return MultiLineString(
+        [LinearRing([(x, y), (x + width, y), (x + width, y + height), (x, y + height)])]
+    )
 
 
 @cli.command(group="Primitives")

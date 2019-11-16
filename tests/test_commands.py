@@ -11,6 +11,7 @@ MINIMAL_COMMANDS = [
     "hatched __ROOT__/tests/data/mario.png",
     "random",
     "line 0 0 1 1",
+    "rect 0 0 1 1",
     "circle 0 0 1",
     "read __ROOT__/examples/bc_template.svg",
     "write -",
@@ -61,6 +62,15 @@ def test_random(runner):
 
 def test_line(runner):
     result = runner.invoke(cli, "line 0 0 10cm 10cm dbsample dbdump".split())
+    data = DebugData.load(result.output)[0]
+
+    assert result.exit_code == 0
+    assert data.count == 1
+    assert data.bounds_within(0, 0, 10 * CM, 10 * CM)
+
+
+def test_rect(runner):
+    result = runner.invoke(cli, "rect 0 0 10cm 10cm dbsample dbdump".split())
     data = DebugData.load(result.output)[0]
 
     assert result.exit_code == 0
