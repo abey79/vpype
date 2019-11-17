@@ -1,6 +1,5 @@
 """
-Debug command to help testing.
-TODO: move this to tests directory, use as plug-in
+Hidden debug commands to help testing.
 """
 import json
 from typing import Union, Any, Dict
@@ -99,3 +98,24 @@ class DebugData:
             and self.geom_type == other.geom_type
             and self.valid == other.valid
         )
+
+
+@cli.command(hidden=True)
+@processor
+def stat(mls: MultiLineString):
+    """
+    Print human-readable statistics on the current geometries.
+    """
+    global debug_data
+
+    print("========= Stats ========= ")
+    print(f"Count: {len(mls)}")
+    if not mls.is_empty:
+        print(f"Length: {mls.length}")
+        print(f"Centroid: {[mls.centroid.x, mls.centroid.y]}")
+        print(f"Bounds: {list(mls.bounds)}")
+        print(f"Geom type: {mls.geom_type}")
+        print(f"Valid: {mls.is_valid}")
+    print("========================= ")
+
+    return mls

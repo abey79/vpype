@@ -2,11 +2,11 @@ from .vpype import cli, processor, generator
 
 # register all commands
 from .blocks import *
-from .crop import *
 from .debug import *
 from .frames import *
 from .generators import *
 from .hatch import *
+from .operations import *
 from .primitives import *
 from .read import *
 from .script import *
