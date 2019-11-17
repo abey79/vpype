@@ -111,6 +111,7 @@ def stat(mls: MultiLineString):
     print("========= Stats ========= ")
     print(f"Count: {len(mls)}")
     if not mls.is_empty:
+        print(f"Total count: {sum([len(ls.coords) - 1 for ls in mls])}")
         print(f"Length: {mls.length}")
         print(f"Centroid: {[mls.centroid.x, mls.centroid.y]}")
         print(f"Bounds: {list(mls.bounds)}")
