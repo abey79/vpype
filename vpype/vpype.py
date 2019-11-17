@@ -1,8 +1,11 @@
 import logging
+import os
+import shlex
 from functools import update_wrapper
-from typing import Iterable
+from typing import Iterable, TextIO, List, Union
 
 import click
+from click import get_os_args
 from shapely.geometry import MultiLineString
 
 
@@ -55,10 +58,18 @@ class GroupedGroup(click.Group):
                     with formatter.section(group_name):
                         formatter.write_dl(rows)
 
+    def main(self, args=None, **extra):
+        """Let's get a chance to pre-process the argument list for include options."""
+        if args is None:
+            args = get_os_args()
+        return super().main(args=preprocess_argument_list(args), **extra)
 
+
+# noinspection PyUnusedLocal
 @click.group(cls=GroupedGroup, chain=True)
 @click.option("-v", "--verbose", count=True)
-def cli(verbose):
+@click.option("-I", "--include", type=click.Path(), help="Load commands from a command file.")
+def cli(verbose, include):
     logging.basicConfig()
     if verbose == 0:
         logging.getLogger().setLevel(logging.WARNING)
@@ -70,7 +81,7 @@ def cli(verbose):
 
 # noinspection PyShadowingNames,PyUnusedLocal
 @cli.resultcallback()
-def process_pipeline(processors, verbose):
+def process_pipeline(processors, verbose, include):
     execute_processors(processors)
 
 
@@ -247,3 +258,63 @@ class BlockProcessor:
         :param processors: list of processors
         :return: compound geometries
         """
+
+
+def extract_arguments(f: TextIO) -> List[str]:
+    """Read the content of a file-like object and extract the corresponding argument list.
+
+    Everything following a '#' is ignored until end of line. Any whitespace is considered
+    to separate arguments. Single and double quote are honored, i.e. content becomes an
+    argument (but quote are removed).
+
+    :param f: file-like object
+    :return: list of argument extracted from input
+    """
+    args = []
+    for line in f.readlines():
+        idx = line.find("#")
+        if idx != -1:
+            line = line[:idx]
+
+        args.extend(shlex.split(line))
+    return args
+
+
+def preprocess_argument_list(args: List[str], cwd: Union[str, None] = None) -> List[str]:
+    """Preprocess an argument list, replacing 'include' options by the corresponding file's
+    content.
+
+    Include options are either '-I' or '--include', and must be followed by a file path. This
+    behaviour is recursive, e.g. a file could contain an include statement as well.
+
+    :param args:
+    :param cwd: current working directory, used as reference for relative file paths (use
+        actual current working directory if None)
+    :return: preprocessed list or argument
+    """
+
+    if cwd is None:
+        cwd = os.getcwd()
+
+    result = []
+
+    while len(args) > 0:
+        arg = args.pop(0)
+
+        if arg == "-I" or arg == "--include":
+            if len(args) == 0:
+                raise click.ClickException("include option must be followed by a file path")
+            else:
+                # include statement in files are relative to that file, so we need to
+                # provide the file's path to ourselves
+                file_path = args.pop(0)
+                if not os.path.isabs(file_path):
+                    file_path = os.path.join(cwd, file_path)
+                dir_path = os.path.dirname(file_path)
+
+                with open(file_path, "r") as f:
+                    result.extend(preprocess_argument_list(extract_arguments(f), dir_path))
+        else:
+            result.append(arg)
+
+    return result

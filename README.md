@@ -70,7 +70,8 @@ Usage: vpype [OPTIONS] COMMAND1 [ARGS]... [COMMAND2 [ARGS]...]...
 
 Options:
   -v, --verbose
-  --help         Show this message and exit.
+  -I, --include PATH  Load commands from a command file.
+  --help              Show this message and exit.
 
 Commands:
 
@@ -208,6 +209,51 @@ This pipeline should display the following:
 
 <img src="https://i.imgur.com/eWCUuII.png" alt="blocks of random lines" width=300>
 
+
+### Command file
+
+When pipelines become complex, the number of command-line arguments can become too large to be convenient. To address
+this, `vpype` support the inclusion of command files in the pipeline. A command file is a text file whose content is
+interpreted as if it was command-line arguments.
+
+The previous example can be converted to a command file with the following content:
+```bash
+# this is an example command file 
+begin
+  grid --offset 8cm 8cm 2 3
+    begin
+      grid --offset 2cm 2cm 3 3
+      random --count 20 --area 1cm 1cm
+      frame
+    end
+  frame --offset 0.3cm
+end
+show
+```
+
+The command file can then be loaded as argument using the `-I` or `--include` option:
+
+```bash
+$ vpype -I command_file.vpy
+``` 
+
+Newlines and indentation are ignored and useful only for readability. Everything right of a `#` character is considered
+a comment and thus ignored. Command files can be mixed with regular arguments too:
+
+```text
+$ vpype -I generate_lines.vpy write -p a4 -c output.svg
+```
+
+Finally, command files can also include other command files:
+
+```text
+# Example command file
+begin
+  grid --offset 1cm 1cm 2 2
+  -I sub_command.vpy
+end
+show
+```
 
 ## Contributing
 
