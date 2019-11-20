@@ -1,32 +1,37 @@
 import logging
-from typing import Tuple
+import math
+from typing import Tuple, Union, List
 
 import click
-from shapely import affinity
-from shapely.geometry import MultiLineString
 
+from .decorators import layer_processor, global_processor, LayerType
+from .model import LineCollection, VectorData
 from .utils import Length
-from .vpype import cli, processor
+from .vpype import cli
 
 
 @cli.command(group="Transforms")
 @click.argument("offset", nargs=2, type=Length(), required=True)
-@processor
-def translate(mls: MultiLineString, offset: Tuple[float, float]):
+@layer_processor
+def translate(lc: LineCollection, offset: Tuple[float, float]):
     """
     Translate the geometries. X and Y offsets must be provided. These arguments understand
     supported units.
     """
-    if mls.is_empty:
-        return mls
-
-    logging.info(f"translating by {offset}")
-    return affinity.translate(mls, offset[0], offset[1])
+    lc.translate(offset[0], offset[1])
+    return lc
 
 
 # noinspection PyShadowingNames
 @cli.command(group="Transforms")
 @click.argument("scale", nargs=2, type=Length())
+@click.option(
+    "-l",
+    "--layer",
+    type=LayerType(accept_multiple=True),
+    default="all",
+    help="Target layer(s).",
+)
 @click.option(
     "--to",
     "absolute",
@@ -39,41 +44,40 @@ def translate(mls: MultiLineString, offset: Tuple[float, float]):
     is_flag=True,
     help="[--to only] Maintain the geometries proportions.",
 )
-@click.option("-d", "--centroid", is_flag=True, help="Use the centroid as origin.")
 @click.option(
     "-o", "--origin", "origin_coords", nargs=2, type=float, help="Use a specific origin."
 )
-@processor
+@global_processor
 def scale(
-    mls: MultiLineString,
+    vector_data: VectorData,
     scale: Tuple[float, float],
+    layer: Union[int, List[int]],
     absolute: bool,
     keep_proportions: bool,
-    centroid: bool,
     origin_coords: Tuple[float, float],
 ):
     """Scale the geometries.
 
-    The origin used is the bounding box center, unless the `--centroid` or `--origin` options
-    are used.
+    The origin used is the bounding box center, unless the `--origin` option is used.
 
     By default, the arguments are used as relative factors (e.g. `scale 2 2` make the
     geometries twice as big in both dimensions). With `--to`, the arguments are interpreted as
     the final size. In this case, arguments understand the supported units (e.g.
     `scale --to 10cm 10cm`).
+
+    By default, act on all layers. If one or more layer IDs are provided with the `--layer`
+    option, only these layers will be affected. In this case, the bounding box is that of the
+    listed layers.
     """
 
-    if mls.is_empty:
-        return mls
+    if vector_data.is_empty():
+        return vector_data
 
-    origin = "center"
-    if len(origin_coords) == 2:
-        origin = origin_coords
-    if centroid:
-        origin = "centroid"
+    # these are the layers we want to act on
+    layer_ids = LayerType.multiple_to_layer_ids(layer, vector_data)
+    bounds = vector_data.bounds(layer_ids)
 
     if absolute:
-        bounds = mls.bounds
         factors = (scale[0] / (bounds[2] - bounds[0]), scale[1] / (bounds[3] - bounds[1]))
 
         if keep_proportions:
@@ -81,57 +85,103 @@ def scale(
     else:
         factors = scale
 
-    logging.info(f"scaling by {factors} with {origin} as origin")
-    return affinity.scale(mls, factors[0], factors[1], origin=origin)
+    if len(origin_coords) == 2:
+        origin = origin_coords
+    else:
+        origin = (
+            0.5 * (bounds[0] + bounds[2]),
+            0.5 * (bounds[1] + bounds[3]),
+        )
+
+    logging.info(f"scaling factors: {factors}, origin: {origin}")
+
+    for vid in layer_ids:
+        lc = vector_data[vid]
+        lc.translate(-origin[0], -origin[1])
+        lc.scale(factors[0], factors[1])
+        lc.translate(origin[0], origin[1])
+
+    return vector_data
 
 
 @cli.command(group="Transforms")
 @click.argument("angle", required=True, type=float)
+@click.option(
+    "-l",
+    "--layer",
+    type=LayerType(accept_multiple=True),
+    default="all",
+    help="Target layer(s).",
+)
 @click.option("-r", "--radian", is_flag=True, help="Angle is in radians.")
-@click.option("-d", "--centroid", is_flag=True, help="Use the centroid as origin.")
 @click.option(
     "-o", "--origin", "origin_coords", nargs=2, type=float, help="Use a specific origin."
 )
-@processor
+@global_processor
 def rotate(
-    mls: MultiLineString,
+    vector_data: VectorData,
     angle: float,
+    layer: Union[int, List[int]],
     radian: bool,
-    centroid: bool,
     origin_coords: Tuple[float, float],
 ):
     """
     Rotate the geometries (clockwise positive).
 
-    The origin used is the bounding box center, unless the `--centroid` or `--origin` options
-    are used.
-    """
-    if mls.is_empty:
-        return mls
+    The origin used is the bounding box center, unless the `--origin` option is used.
 
-    origin = "center"
+    By default, act on all layers. If one or more layer IDs are provided with the `--layer`
+    option, only these layers will be affected. In this case, the bounding box is that of the
+    listed layers.
+    """
+    if vector_data.is_empty():
+        return vector_data
+
+    if not radian:
+        angle *= math.pi / 180.0
+
+    # these are the layers we want to act on
+    layer_ids = LayerType.multiple_to_layer_ids(layer, vector_data)
+
+    bounds = vector_data.bounds(layer_ids)
     if len(origin_coords) == 2:
         origin = origin_coords
-    if centroid:
-        origin = "centroid"
+    else:
+        origin = (
+            0.5 * (bounds[0] + bounds[2]),
+            0.5 * (bounds[1] + bounds[3]),
+        )
 
-    logging.info(f"rotating by {angle} {'rad' if radian else 'deg'} with {origin} as origin")
-    return affinity.rotate(mls, angle, origin=origin, use_radians=radian)
+    logging.info(f"rotating origin: {origin}")
+
+    for vid in layer_ids:
+        lc = vector_data[vid]
+        lc.translate(-origin[0], -origin[1])
+        lc.rotate(angle)
+        lc.translate(origin[0], origin[1])
+
+    return vector_data
 
 
 @cli.command(group="Transforms")
 @click.argument("angles", required=True, nargs=2, type=float)
+@click.option(
+    "-l",
+    "--layer",
+    type=LayerType(accept_multiple=True),
+    default="all",
+    help="Target layer(s).",
+)
 @click.option("-r", "--radian", is_flag=True, help="Angle is in radians.")
-@click.option("-d", "--centroid", is_flag=True, help="Use the centroid as origin.")
 @click.option(
     "-o", "--origin", "origin_coords", nargs=2, type=float, help="Use a specific origin."
 )
-@processor
+@global_processor
 def skew(
-    mls: MultiLineString,
+    vector_data: VectorData,
+    layer: Union[int, List[int]],
     angles: Tuple[float, float],
     radian: bool,
-    centroid: bool,
     origin_coords: Tuple[float, float],
 ):
     """
@@ -142,14 +192,30 @@ def skew(
     The origin used in the bounding box center, unless the `--centroid` or `--origin` options
     are used.
     """
-    if mls.is_empty:
-        return mls
+    if vector_data.is_empty():
+        return vector_data
 
-    origin = "center"
+    # these are the layers we want to act on
+    layer_ids = LayerType.multiple_to_layer_ids(layer, vector_data)
+
+    bounds = vector_data.bounds(layer_ids)
     if len(origin_coords) == 2:
         origin = origin_coords
-    if centroid:
-        origin = "centroid"
+    else:
+        origin = (
+            0.5 * (bounds[0] + bounds[2]),
+            0.5 * (bounds[1] + bounds[3]),
+        )
 
-    logging.info(f"skewing by {angles} {'rad' if radian else 'deg'} with {origin} as origin")
-    return affinity.skew(mls, angles[0], angles[1], origin=origin, use_radians=radian)
+    if not radian:
+        angles = tuple(a * math.pi / 180.0 for a in angles)
+
+    logging.info(f"skewing origin: {origin}")
+
+    for vid in layer_ids:
+        lc = vector_data[vid]
+        lc.translate(-origin[0], -origin[1])
+        lc.skew(angles[0], angles[1])
+        lc.translate(origin[0], origin[1])
+
+    return vector_data

@@ -1,10 +1,11 @@
 from typing import Tuple
 
 import click
-from shapely import affinity
 
+from .decorators import block_processor
+from .model import VectorData
 from .utils import Length
-from .vpype import cli, block_processor, BlockProcessor, execute_processors, merge_mls
+from .vpype import cli, BlockProcessor, execute_processors
 
 
 @cli.command("grid", group="Block processors")
@@ -31,13 +32,15 @@ class GridBlockProcessor(BlockProcessor):
         self.offset = offset
 
     def process(self, processors):
-        mls_arr = []
+        vector_data = VectorData()
+
         for i in range(self.number[0]):
             for j in range(self.number[1]):
-                mls = execute_processors(processors)
-                mls_arr.append(affinity.translate(mls, self.offset[0] * i, self.offset[1] * j))
+                state = execute_processors(processors)
+                state.vector_data.translate(self.offset[0] * i, self.offset[1] * j)
+                vector_data.extend(state.vector_data)
 
-        return merge_mls(mls_arr)
+        return vector_data
 
 
 @cli.command("repeat", group="Block processors")
@@ -53,4 +56,10 @@ class RepeatBlockProcessor(BlockProcessor):
         self.number = number
 
     def process(self, processors):
-        return merge_mls([execute_processors(processors) for _ in range(self.number)])
+        vector_data = VectorData()
+
+        for _ in range(self.number):
+            state = execute_processors(processors)
+            vector_data.extend(state.vector_data)
+
+        return vector_data

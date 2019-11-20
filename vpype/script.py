@@ -1,28 +1,35 @@
 import importlib.util
 
 import click
-from shapely.geometry import MultiLineString
 
-from .vpype import cli, generator
+from .decorators import generator
+from .model import LineCollection
+from .vpype import cli
 
 
 @cli.command(group="Input")
 @click.argument("file", type=click.Path(exists=True, dir_okay=False))
 @generator
-def script(file) -> MultiLineString:
+def script(file) -> LineCollection:
     """
     Call an external python script to generate geometries.
 
-    The script must contain a `generate()` which will be called without arguments. It must
-    return a Shapely MultiLineString object containing the generated geometries. The
-    coordinates used are expected to be in SVG pixel units (1/96th of an inch).
+    The script must contain a `generate()` function which will be called without arguments. It
+    must return the generated geometries in one of the following format:
+
+        - Shapely's MultiLineString
+        - Iterable of Nx2 numpy float array
+        - Iterable of Nx1 numpy complex array (where the real and imag part corresponds to
+          the x, resp. y coordinates)
+
+    All coordinates are expected to be in SVG pixel units (1/96th of an inch).
     """
 
     try:
         spec = importlib.util.spec_from_file_location("<external>", file)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        mls = module.generate()
+        return LineCollection(module.generate())
     except Exception as exc:
         raise click.ClickException(
             (
@@ -30,5 +37,3 @@ def script(file) -> MultiLineString:
                 f"function ({str(exc)})"
             )
         )
-
-    return mls

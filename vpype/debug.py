@@ -2,46 +2,49 @@
 Hidden debug commands to help testing.
 """
 import json
-from typing import Union, Any, Dict
+from typing import Union, Any, Dict, Iterable, Sequence
 
-from shapely.geometry import MultiLineString
+import numpy as np
 
-from .vpype import cli, processor
+from .decorators import global_processor
+from .model import VectorData, as_vector, LineCollection
+from .vpype import cli
 
 debug_data = []
 
 
 @cli.command(hidden=True)
-@processor
-def dbsample(mls: MultiLineString):
+@global_processor
+def dbsample(vector_data: VectorData):
     """
     Show statistics on the current geometries in JSON format.
     """
     global debug_data
 
     data = {}
-    if mls.is_empty:
+    if vector_data.is_empty():
         data["count"] = 0
     else:
-        data["count"] = len(mls)
-        data["length"] = mls.length
-        data["centroid"] = [mls.centroid.x, mls.centroid.y]
-        data["bounds"] = list(mls.bounds)
-        data["geom_type"] = mls.geom_type
-        data["valid"] = mls.is_valid
-        data["lines"] = [list(ls.coords) for ls in mls if not ls.is_empty]
+        data["count"] = sum(len(lc) for lc in vector_data.layers.values())
+        data["layer_count"] = len(vector_data.layers)
+        data["length"] = vector_data.length()
+        data["bounds"] = vector_data.bounds()
+        data["layers"] = {
+            layer_id: [as_vector(line).tolist() for line in layer]
+            for layer_id, layer in vector_data.layers.items()
+        }
 
     debug_data.append(data)
-    return mls
+    return vector_data
 
 
 @cli.command(hidden=True)
-@processor
-def dbdump(mls: MultiLineString):
+@global_processor
+def dbdump(vector_data: VectorData):
     global debug_data
     print(json.dumps(debug_data))
     debug_data = []
-    return mls
+    return vector_data
 
 
 class DebugData:
@@ -61,11 +64,14 @@ class DebugData:
     def __init__(self, data: Dict[str, Any]):
         self.count = data["count"]
         self.length = data.get("length", 0)
-        self.centroid = data.get("centroid", [0, 0])
         self.bounds = data.get("bounds", [0, 0, 0, 0])
-        self.geom_type = data.get("geom_type", "EmptyGeometry")
-        self.valid = data.get("valid", False)
-        self.mls = MultiLineString(data.get("lines", []))
+        self.layers = data.get("layers", {})
+
+        self.vector_data = VectorData()
+        for vid, lines in self.layers.items():
+            self.vector_data[int(vid)] = LineCollection(
+                [np.array([x + 1j * y for x, y in line]) for line in lines]
+            )
 
     def bounds_within(
         self, x: float, y: float, width: Union[float, None], height: Union[float, None],
@@ -92,31 +98,43 @@ class DebugData:
             return other.count == 0
 
         return (
-            self.bounds == other.bounds
+            np.all(np.isclose(np.array(self.bounds), np.array(other.bounds)))
             and self.length == other.length
-            and self.centroid == other.centroid
-            and self.geom_type == other.geom_type
-            and self.valid == other.valid
         )
+
+    def has_layer(self, lid: int) -> bool:
+        return self.has_layers([lid])
+
+    def has_layers(self, lids: Iterable[int]) -> bool:
+        return all(str(lid) in self.layers for lid in lids)
+
+    def has_layer_only(self, lid: int) -> bool:
+        return self.has_layers_only([lid])
+
+    def has_layers_only(self, lids: Sequence[int]) -> bool:
+        return self.has_layers(lids) and len(self.layers.keys()) == len(lids)
 
 
 @cli.command(hidden=True)
-@processor
-def stat(mls: MultiLineString):
+@global_processor
+def stat(vector_data: VectorData):
     """
     Print human-readable statistics on the current geometries.
     """
     global debug_data
 
     print("========= Stats ========= ")
-    print(f"Count: {len(mls)}")
-    if not mls.is_empty:
-        print(f"Total count: {sum([len(ls.coords) - 1 for ls in mls])}")
-        print(f"Length: {mls.length}")
-        print(f"Centroid: {[mls.centroid.x, mls.centroid.y]}")
-        print(f"Bounds: {list(mls.bounds)}")
-        print(f"Geom type: {mls.geom_type}")
-        print(f"Valid: {mls.is_valid}")
+    print(f"Layer count: {len(vector_data.layers)}")
+    for layer_id in sorted(vector_data.layers.keys()):
+        layer = vector_data.layers[layer_id]
+        print(f"Layer {layer_id}")
+        print(f"  Length: {layer.length()}")
+        print(f"  Count: {len(layer)}")
+        print(f"  Bounds: {layer.bounds()}")
+    print(f"Totals")
+    print(f"  Length: {vector_data.length()}")
+    print(f"  Count: {sum(len(layer) for layer in vector_data.layers.values())}")
+    print(f"  Bounds: {vector_data.bounds()}")
     print("========================= ")
 
-    return mls
+    return vector_data

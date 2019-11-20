@@ -1,12 +1,12 @@
-import logging
 from typing import Tuple
 
 import click
 import numpy as np
-from shapely.geometry import asMultiLineString
 
+from .decorators import generator
+from .model import LineCollection
 from .utils import Length
-from .vpype import cli, generator
+from .vpype import cli
 
 
 @cli.command(group="Generators")
@@ -27,8 +27,8 @@ def random(n: int, area: Tuple[float, float]):
     By default, 10 lines are randomly placed in a square with corners at (0, 0) and
     (10mm, 10mm). Use the `--area` option to specify the destination area.
     """
-    logging.info(f"generating {n} random lines")
-    coords = np.random.rand(n, 2, 2)
-    coords[:, :, 0] *= area[0]
-    coords[:, :, 1] *= area[1]
-    return asMultiLineString(coords)
+
+    lines = np.random.rand(n, 2) + 1j * np.random.rand(n, 2)
+    lines[:, 0] *= area[0]
+    lines[:, 1] *= area[1]
+    return LineCollection(lines)

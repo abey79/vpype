@@ -1,19 +1,18 @@
-import cv2
-import hatched
-
-
 import logging
 
 import click
+import cv2
+import hatched
 
+from .decorators import generator
+from .model import LineCollection
 from .utils import Length
-from .vpype import cli, generator
+from .vpype import cli
 
 
 @cli.command("hatched", group="Generators")
 @click.argument("filename", type=click.Path(exists=True))
 @click.option(
-    "-l",
     "--levels",
     nargs=3,
     type=int,
@@ -86,16 +85,18 @@ def hatched_gen(
     if interpolation == "nearest":
         interp = cv2.INTER_NEAREST
 
-    return hatched.hatch(
-        file_path=filename,
-        levels=levels,
-        image_scale=scale,
-        interpolation=interp,
-        blur_radius=blur,
-        hatch_pitch=pitch,
-        invert=invert,
-        circular=circular,
-        show_plot=show_plot,
-        h_mirror=False,  # this is best handled by vpype
-        save_svg=False,  # this is best handled by vpype
+    return LineCollection(
+        hatched.hatch(
+            file_path=filename,
+            levels=levels,
+            image_scale=scale,
+            interpolation=interp,
+            blur_radius=blur,
+            hatch_pitch=pitch,
+            invert=invert,
+            circular=circular,
+            show_plot=show_plot,
+            h_mirror=False,  # this is best handled by vpype
+            save_svg=False,  # this is best handled by vpype
+        )
     )

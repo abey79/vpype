@@ -23,7 +23,7 @@ setup(
         'opencv-python',
         'shapely[vectorized]',
         'svgwrite',
-        'svgpathtools @ git+https://github.com/mathandy/svgpathtools@fd7348a1dfd88b65ea61da02325c6605aedf8c4f',
+        'svgpathtools @ git+https://github.com/abey79/svgpathtools@vpype-fixes',
         'hatched @ git+https://github.com/abey79/hatched.git',
     ],
     entry_points='''

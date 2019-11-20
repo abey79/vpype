@@ -1,12 +1,12 @@
+import copy
 import logging
 
 import click
 import svgwrite
-from shapely import affinity
-from shapely.geometry import MultiLineString
 
-from .vpype import cli, processor
-
+from .decorators import global_processor
+from .model import VectorData, as_vector
+from .vpype import cli
 
 # supported page format, size in mm
 PAGE_FORMATS = {
@@ -50,9 +50,9 @@ PAGE_FORMATS = {
     is_flag=True,
     help="[--page-format only] Center the geometries within the SVG bounds",
 )
-@processor
+@global_processor
 def write(
-    mls: MultiLineString,
+    vector_data: VectorData,
     output,
     single_path: bool,
     page_format: str,
@@ -70,12 +70,12 @@ def write(
     If output path is `-`, SVG content is output on stdout.
     """
 
-    if mls.is_empty:
+    if vector_data.is_empty():
         logging.warning("no geometry to save, no file created")
-        return mls
+        return vector_data
 
     # compute bounds
-    bounds = mls.bounds
+    bounds = vector_data.bounds()
     if page_format != "tight":
         size = tuple(c * 96.0 / 25.4 for c in PAGE_FORMATS[page_format])
         if landscape:
@@ -84,38 +84,49 @@ def write(
         size = (bounds[2] - bounds[0], bounds[3] - bounds[1])
 
     if center:
-        corrected_mls = affinity.translate(
-            mls,
+        corrected_vector_data = copy.deepcopy(vector_data)
+        corrected_vector_data.translate(
             (size[0] - (bounds[2] - bounds[0])) / 2.0 - bounds[0],
             (size[1] - (bounds[3] - bounds[1])) / 2.0 - bounds[1],
         )
     elif page_format == "tight":
-        # align geometries to (0, 0)
-        corrected_mls = affinity.translate(mls, -bounds[0], -bounds[1])
+        corrected_vector_data = copy.deepcopy(vector_data)
+        corrected_vector_data.translate(-bounds[0], -bounds[1])
     else:
-        corrected_mls = mls
+        corrected_vector_data = vector_data
 
     # output SVG
     dwg = svgwrite.Drawing(size=size, profile="tiny", debug=False)
-    if single_path:
-        dwg.add(
-            dwg.path(
-                " ".join(
-                    ("M" + " L".join(f"{x},{y}" for x, y in ls.coords)) for ls in corrected_mls
-                ),
-                fill="none",
-                stroke="black",
-            )
-        )
-    else:
-        for ls in corrected_mls:
-            dwg.add(
+    dwg.attribs["xmlns:inkscape"] = "http://www.inkscape.org/namespaces/inkscape"
+    for layer_id in sorted(corrected_vector_data.layers.keys()):
+        layer = corrected_vector_data.layers[layer_id]
+
+        group = dwg.g(style="display:inline", id=f"layer{layer_id}")
+        group.attribs["inkscape:groupmode"] = "layer"
+        group.attribs["inkscape:label"] = str(layer_id)
+
+        if single_path:
+            group.add(
                 dwg.path(
-                    "M" + " L".join(f"{x},{y}" for x, y in ls.coords),
+                    " ".join(
+                        ("M" + " L".join(f"{x},{y}" for x, y in as_vector(line)))
+                        for line in layer
+                    ),
                     fill="none",
                     stroke="black",
                 )
             )
+        else:
+            for line in layer:
+                group.add(
+                    dwg.path(
+                        "M" + " L".join(f"{x},{y}" for x, y in as_vector(line)),
+                        fill="none",
+                        stroke="black",
+                    )
+                )
 
-    dwg.write(output)
-    return mls
+        dwg.add(group)
+
+    dwg.write(output, pretty=True)
+    return vector_data

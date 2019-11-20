@@ -2,11 +2,12 @@ import math
 
 import click
 import numpy as np
-from shapely.geometry import MultiLineString, LineString
 from svgpathtools import Line, Document
 
+from .decorators import generator
+from .model import LineCollection
 from .utils import Length, convert
-from .vpype import cli, generator
+from .vpype import cli
 
 
 @cli.command(group="Input")
@@ -19,7 +20,7 @@ from .vpype import cli, generator
     help="Maximum length of segments approximating curved elements.",
 )
 @generator
-def read(file, quantization: float) -> MultiLineString:
+def read(file, quantization: float) -> LineCollection:
     """
     Extract geometries from a SVG file.
 
@@ -59,7 +60,7 @@ def read(file, quantization: float) -> MultiLineString:
         offset_x = 0
         offset_y = 0
 
-    ls_array = []
+    lc = LineCollection()
     for result in results:
         for elem in result.path:
             if isinstance(elem, Line):
@@ -69,16 +70,15 @@ def read(file, quantization: float) -> MultiLineString:
                 step = int(math.ceil(elem.length() / quantization))
                 coords = np.empty(step + 1, dtype=complex)
                 coords[0] = elem.start
-                for i in range(step-1):
+                for i in range(step - 1):
                     coords[i + 1] = elem.point((i + 1) / step)
                 coords[-1] = elem.end
 
-            # convert complex to coordinates
-            coords = coords.view(dtype=float).reshape(len(coords), 2)
-            final_coords = np.empty_like(coords)
-            final_coords[:, 0] = scale_x * (coords[:, 0] + offset_x)
-            final_coords[:, 1] = scale_y * (coords[:, 1] + offset_y)
+            # transform
+            coords += offset_x + 1j * offset_y
+            coords.real *= scale_x
+            coords.imag *= scale_y
 
-            ls_array.append(LineString(final_coords))
+            lc.append(coords)
 
-    return MultiLineString(ls_array)
+    return lc

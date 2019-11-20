@@ -1,9 +1,13 @@
+import logging
+
 import click
 import shapely.ops
-from shapely.geometry import MultiLineString, Polygon
+from shapely.geometry import Polygon, LineString
 
+from .decorators import layer_processor
+from .model import LineCollection, as_vector
 from .utils import Length
-from .vpype import cli, processor
+from .vpype import cli
 
 
 @cli.command(group="Operations")
@@ -11,46 +15,51 @@ from .vpype import cli, processor
 @click.argument("y", type=Length(), required=True)
 @click.argument("width", type=Length(), required=True)
 @click.argument("height", type=Length(), required=True)
-@processor
-def crop(mls: MultiLineString, x: float, y: float, width: float, height: float):
+@layer_processor
+def crop(lines: LineCollection, x: float, y: float, width: float, height: float):
     """
     Crop the geometries.
 
     The crop area is defined by the (X, Y) top-left corner and the WIDTH and HEIGHT arguments.
     All arguments understand supported units.
     """
-    if mls.is_empty:
-        return mls
+    if lines.is_empty():
+        return lines
 
-    p = Polygon([(x, y), (x + width, y), (x + width, y + height), (x, y + height)])
-
-    # Because of this bug, we cannot use the simpler `mls.intersection(p)` function
+    # Because of this bug, we cannot use shapely at MultiLineString level
     # https://github.com/Toblerity/Shapely/issues/779
-    ls_arr = []
-    for ls in mls:
-        res = ls.intersection(p)
+    # I should probably implement it directly anyways...
+    p = Polygon([(x, y), (x + width, y), (x + width, y + height), (x, y + height)])
+    new_lines = LineCollection()
+    for line in lines:
+        res = LineString(as_vector(line)).intersection(p)
         if res.geom_type == "MultiLineString":
-            ls_arr.extend(res)
+            new_lines.extend(res)
         elif not res.is_empty:
-            ls_arr.append(res)
+            new_lines.append(res)
 
-    return MultiLineString(ls_arr)
+    return new_lines
 
 
 @cli.command(group="Operations")
-@processor
-def linemerge(mls: MultiLineString):
+@layer_processor
+def linemerge(lines: LineCollection):
     """
     (BETA) Merge lines whose ending overlap.
 
-    The current implementation relies on `shapely.ops.linemerge()` which as several limitation. It ignore nodes where
-    more than 2 lines join and doesn't accept a distance threshold. 
+    The current implementation relies on `shapely.ops.linemerge()` which as several limitation.
+    It ignore nodes where more than 2 lines join and doesn't accept a distance threshold.
     """
-    if mls.is_empty:
-        return mls
+    if lines.is_empty():
+        return lines
 
-    geom = shapely.ops.linemerge(mls)
-    if geom.geom_type == "LineString":
-        return MultiLineString([geom])
+    mls = shapely.ops.linemerge(lines.as_mls())
+    new_lines = LineCollection()
+    if mls.geom_type == "LineString":
+        new_lines.append(mls)
     else:
-        return geom
+        new_lines.extend(mls)
+
+    logging.info(f"linemerge: reduced from {len(lines)} lines to {len(new_lines)} lines")
+
+    return new_lines

@@ -1,10 +1,12 @@
 import math
 
 import click
-from shapely.geometry import MultiLineString, LineString, Point, LinearRing
+import numpy as np
 
+from .model import LineCollection
 from .utils import Length
-from .vpype import cli, generator
+from .vpype import cli
+from .decorators import generator
 
 
 @cli.command(group="Primitives")
@@ -13,14 +15,13 @@ from .vpype import cli, generator
 @click.argument("x1", type=Length())
 @click.argument("y1", type=Length())
 @generator
-def line(x0: float, y0: float, x1: float, y1: float):
+def line(x0: float, y0: float, x1: float, y1: float) -> LineCollection:
     """
     Generate a single line.
 
     The line starts at (X0, Y0) and ends at (X1, Y1). All arguments understand supported units.
     """
-
-    return MultiLineString([LineString([(x0, y0), (x1, y1)])])
+    return LineCollection([(complex(x0, y0), complex(x1, y1))])
 
 
 @cli.command(group="Primitives")
@@ -29,15 +30,22 @@ def line(x0: float, y0: float, x1: float, y1: float):
 @click.argument("width", type=Length())
 @click.argument("height", type=Length())
 @generator
-def rect(x: float, y: float, width: float, height: float):
+def rect(x: float, y: float, width: float, height: float) -> LineCollection:
     """
     Generate a rectangle.
 
     The rectangle is defined by its top left corner (X, Y) and its width and height.
     """
-
-    return MultiLineString(
-        [LinearRing([(x, y), (x + width, y), (x + width, y + height), (x, y + height)])]
+    return LineCollection(
+        [
+            (
+                complex(x, y),
+                complex(x + width, y),
+                complex(x + width, y + height),
+                complex(x, y + height),
+                complex(x, y),
+            )
+        ]
     )
 
 
@@ -61,4 +69,5 @@ def circle(x: float, y: float, r: float, quantization: float):
     """
 
     n = math.ceil(2 * math.pi * r / quantization)
-    return MultiLineString([Point(x, y).buffer(r, resolution=n).boundary])
+    angle = np.array(list(range(n)) + [0]) / n * 2 * math.pi
+    return LineCollection([r * (np.cos(angle) + 1j * np.sin(angle)) + complex(x, y)])

@@ -2,23 +2,40 @@
 
 # _vpype_
 
-_vpype_ is a tool to create and process vector graphics for pen plotters by means of easy-to-build CLI
-pipelines (pen plotters, such as the [AxiDraw](https://axidraw.com), are robotic drawing machines).
-It can achieve simple tasks like scaling a SVG to a defined physical size and centering it on an
-A4 page (to make a ready-to-plot file) to more complex task like compositing the output of multiple scripts into
-full-blow art pieces.
+_vpype_ aims to be the one-stop-shop, Swiss Army knife for producing plotter-ready vector graphics. Here are, for
+illustration, a few examples of what it can do:
+ 
+- Load a SVG, scale it to a specific size, and export it centered on a A4, ready-to-plot SVG.
+    ```bash
+    $ vpype read input.svg scale --to 10cm 10cm write -page-format a4 --center output.svg
+    ```
+- Visualize the path structure of large SVG file, checking thanks to a colorful display if lines are properly joined or
+    not.
+    ```bash
+    $ vpype read input.svg show --colorful
+    ```
+- Load several SVGs and save them into a single, multi-layer SVG for polychromic drawings.
+    ```bash
+    $ vpype read -l 1 input1.svg read -l 2 input2.svg write output.svg
+    ```
+- Create arbitrarily-sized, grid-like designs like this page's top banner.
+    ```bash
+    $ vpype being grid -o 1cm 1cm 10 13 script alien_letter.py scale --to 0.5cm 0.5cm end show
+    ```
 
-At its core, _vpype_ allows the user to build pipelines of processing units, or _commands_, each of which receives a
+At its core, _vpype_ allows the user to build pipelines of _commands_, each of which receives a
 collection of vector graphics (basically, lines), modifies them and/or produce new ones, and pass them to the next
-command. _vpype_ provides a nice CLI user interface to create these pipelines. For example, this pipelines uses
-3 commands (`random`, `rotate` and `write`) to generates 100 random lines in a 10x10cm square, rotate them by 45
- degrees, and saves them in the middle of an A4 SVG file:
+command. _vpype_'s simple CLI user interface makes it a breeze to create these pipelines.
+
+Let's have a close look at an example:
 
 ```bash
 $ vpype random --count 100 --area 10cm 10cm rotate 45 write --page-format a4 --center output.svg
 ```
 
-This is how the output would look like in InkScape:
+This pipelines uses 3 commands (`random`, `rotate` and `write`) to generates 100 random lines in a 10x10cm square,
+rotate them by 45 degrees, and saves them in the middle of an A4 SVG file. This is how the output would look like in
+InkScape:
 
 <img src="https://i.imgur.com/d9fSrRh.png" alt="100 random lines in a 10x10cm box rotated by 45 degrees" width=300>
 
@@ -26,15 +43,17 @@ As _vpype_ focuses only on vector graphics used as input for plotters, its data 
 paths, at the exclusion of formatting (line color, width, etc.), filled shapes, bitmaps, etc. This is the core of what
 makes _vpype_ both simple and powerful at what it does.  
     
-This project is at the stage of the functional proof-of-concept and is being actively developed based on interest and 
-feedback. It is written in Python and relies on [Click](https://palletsprojects.com/p/click/),
+This project is young and being actively developed. Your feedback is important! The author can be reached on
+[Drawingbots](https://drawingbots.net)'s [Discord server](https://discordapp.com/invite/XHP3dBg).
+ 
+_vpype_ is written in Python and relies, amongst many other projects, on
+[Click](https://palletsprojects.com/p/click/),
 [Shapely](https://shapely.readthedocs.io),
 [svgwrite](https://svgwrite.readthedocs.io),
 [svgpathtools](https://github.com/mathandy/svgpathtools),
 [matplotlib](https://matplotlib.org),
 [NumPy](https://numpy.org),
-[hatched](https://github.com/abey79/hatched)
-and many others projects.
+[hatched](https://github.com/abey79/hatched).
 
 
 ## Getting Started
@@ -146,7 +165,7 @@ Here is a non-exhaustive list of important commands:
 ### Data model and units
 
 Being designed for plotter data, all _vpype_ understands is lines. Specifically, straight lines. This makes _vpype_ a
-very poor general purpose vector graphics tool, but hopefully a decent one when dealing with graphics files sent to
+very poor general purpose vector graphics tool, but hopefully a good one when dealing with graphics files sent to
 plotters. When loading geometries from existing SVG file (using the `read` command), curved paths such as Bezier
 curves or ellipses are converted into multiple, typically small segments. The quantization interval is 1mm by default,
 but can be changed with the `--quantization` option of the `read` command.
@@ -161,6 +180,37 @@ $ vpype random --count 100 --area 1in 1in write --page-format a4 --center output
 ```
 
 
+### Layers
+
+_vpype_ supports multiple layers and can produce multi-layer SVGs, which can be useful for polychromic drawings.
+Most commands have a `-l, --layer` option which affects how layers are created and/or modified.
+Layers are always referred to by a non-zero, positive integer (which ties nicely with how official
+[AxiDraw](https://axidraw.com) tools deal with layers).
+
+Generators such as `read`, `line`, `script`, etc. create new geometries. The `--layer` option controls which layer receives
+these new geometries. By default, the last target layer is used:
+```
+$ vpype line --layer 3 0 0 1cm 1cm circle 0.5cm 0.5cm 0.5cm show
+``` 
+Here both the line and the circle will be in layer 3. If no generator specifies a target layer, then layer 1 is assumed
+by default.
+
+Filters such as `translate`, `rotate`, `crop`, etc. modify existing geometries. The `--layer` option controls if one,
+several or all layers will be affected:
+```
+$ vpype [...] rotate --layer 1 [...]
+$ vpype [...] rotate --layer 1,2,4 [...]
+$ vpype [...] rotate --layer all [...]
+```
+All these commands do exactly what you think they should do. If the `--layer` option is omitted, then `all` is assumed.
+Note that if you provide a list of layers, they must be comma separated and without any whitespace, as the list must be
+a single CLI argument.
+
+Finally, some commands do not have a `--layer` option, but understand them. For example, `show` will display each layer
+in a different color by default. Last but not least, `write` will generate multi-layer SVGs which will work 
+out-of-the-box with InkScape.
+
+
 ### External scripts
 
 The `script` command is a very useful generator that relies on an external Python script to produce geometries. Its
@@ -173,7 +223,7 @@ and explained in the [Shapely documentation](https://shapely.readthedocs.io/en/l
 
 Blocks refer to a portion of the pipeline marked by the `begin` and `end` special commands.
 The command immediately following `begin` is called the _block processor_ and defines how many times this portion of
-the pipeline will be used. For example, the `grid` block processor repeatedly execute the block and arranges the
+the pipeline will be used. For example, the `grid` block layer_processor repeatedly execute the block and arranges the
 resulting geometries on a regular NxM grid. This is how the top banner has been generated:
 
 ```bash
@@ -185,7 +235,7 @@ end \
 write --page-format a3 --center alien.svg
 ```
 
-The pipelines above mainly consist of a block with the `grid` block processor. It is repeated on the 13 by 20 grid, with
+The pipelines above mainly consist of a block with the `grid` block layer_processor. It is repeated on the 13 by 20 grid, with
 a spacing of 1.5cm in both direction. On each of these location, the script `alien_letter.py` is executed to generate
 some geometries, which are then scaled to a 0.8x0.8cm size. After the block, we `write` the result to a SVG.
 

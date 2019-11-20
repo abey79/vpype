@@ -1,4 +1,5 @@
-from .vpype import cli, processor, generator
+from .vpype import cli
+from .decorators import layer_processor, global_processor, block_processor, generator
 
 # register all commands
 from .blocks import *
