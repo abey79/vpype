@@ -14,6 +14,10 @@ illustration, a few examples of what it can do:
     ```bash
     $ vpype read input.svg show --colorful
     ```
+- Batch merge paths to avoid unneeded pen lifts.
+    ```bash
+    $ vpype read input.svg linemerge --tolerance 0.1mm --flip write output.svg
+    ``` 
 - Load several SVGs and save them into a single, multi-layer SVG for polychromic drawings.
     ```bash
     $ vpype read -l 1 input1.svg read -l 2 input2.svg write output.svg
@@ -49,6 +53,7 @@ This project is young and being actively developed. Your feedback is important! 
 _vpype_ is written in Python and relies, amongst many other projects, on
 [Click](https://palletsprojects.com/p/click/),
 [Shapely](https://shapely.readthedocs.io),
+[rtree](http://toblerity.org/rtree/),
 [svgwrite](https://svgwrite.readthedocs.io),
 [svgpathtools](https://github.com/mathandy/svgpathtools),
 [matplotlib](https://matplotlib.org),
@@ -154,12 +159,13 @@ Here is a non-exhaustive list of important commands:
 - `read`: import geometries from a SVG file
 - `line`, `rect`, `circle`: create the corresponding primitives 
 - `script`: execute a Python script to generate geometries (see [External scripts](#external-scripts))
-- `hatched`: generate hatching patterns based on an image (see the [hatched project](https://github.com/abey79/hatched))
 - `translate`, `rotate`, `scale`, `skew`: basic transformation commands which do exactly what you think they do
 - `crop`: crop the geometries, removing everything outside of a rectangular area
+- `linemerge`: merge lines whose endings overlap or are very close 
 - `frame`: add a simple frame around the geometries
 - `show`: display the geometries in a `matplotlib` window
 - `write`: save the geometries as a SVG file
+- `hatched`: generate hatching patterns based on an image (see the [hatched project](https://github.com/abey79/hatched))
 
 
 ### Data model and units
@@ -195,8 +201,8 @@ $ vpype line --layer 3 0 0 1cm 1cm circle 0.5cm 0.5cm 0.5cm show
 Here both the line and the circle will be in layer 3. If no generator specifies a target layer, then layer 1 is assumed
 by default.
 
-Filters such as `translate`, `rotate`, `crop`, etc. modify existing geometries. The `--layer` option controls if one,
-several or all layers will be affected:
+Filters such as `translate`, `rotate`, `crop`, `linemerge`,  etc. modify existing geometries. The `--layer` option
+controls if one, several or all layers will be affected:
 ```
 $ vpype [...] rotate --layer 1 [...]
 $ vpype [...] rotate --layer 1,2,4 [...]

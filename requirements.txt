@@ -3,6 +3,7 @@ click
 matplotlib
 numpy
 opencv-python
+rtree
 shapely[vectorized]
 svgwrite
 

@@ -21,6 +21,7 @@ setup(
         'Click',
         'matplotlib',
         'opencv-python',
+        'rtree',
         'shapely[vectorized]',
         'svgwrite',
         'svgpathtools @ git+https://github.com/abey79/svgpathtools@vpype-fixes',
