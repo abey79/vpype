@@ -45,15 +45,17 @@ def read(file, quantization: float) -> LineCollection:
         # https://css-tricks.com/scale-svg/
         # TODO: we should honor the `preserveAspectRatio` attribute
 
-        w = convert(root.attrib["width"])
-        h = convert(root.attrib["height"])
+        viewbox_min_x, viewbox_min_y, viewbox_width, viewbox_height = [
+            float(s) for s in root.attrib["viewBox"].split()
+        ]
 
-        viewbox = [float(s) for s in root.attrib["viewBox"].split()]
+        w = convert(root.attrib.get("width", viewbox_width))
+        h = convert(root.attrib.get("height", viewbox_height))
 
-        scale_x = w / (viewbox[2] - viewbox[0])
-        scale_y = h / (viewbox[3] - viewbox[1])
-        offset_x = -viewbox[0]
-        offset_y = -viewbox[1]
+        scale_x = w / viewbox_width
+        scale_y = h / viewbox_height
+        offset_x = -viewbox_min_x
+        offset_y = -viewbox_min_y
     else:
         scale_x = 1
         scale_y = 1
