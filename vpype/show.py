@@ -21,11 +21,18 @@ COLORS = [
 @cli.command(group="Output")
 @click.option("-a", "--show-axes", is_flag=True, help="Display axes.")
 @click.option("-g", "--show-grid", is_flag=True, help="Display grid (implies -a).")
+@click.option("-p", "--show-pen-up", is_flag=True, help="Show pen-up trajectories.")
 @click.option(
     "-c", "--colorful", is_flag=True, help="Display each segment in a different color."
 )
 @global_processor
-def show(vector_data: VectorData, show_axes: bool, show_grid: bool, colorful: bool):
+def show(
+    vector_data: VectorData,
+    show_axes: bool,
+    show_grid: bool,
+    show_pen_up: bool,
+    colorful: bool,
+):
     """
     Display the geometry using matplotlib.
 
@@ -48,9 +55,22 @@ def show(vector_data: VectorData, show_axes: bool, show_grid: bool, colorful: bo
 
         plt.gca().add_collection(
             matplotlib.collections.LineCollection(
-                (as_vector(line) for line in lc), color=color, lw=0.5,
+                (as_vector(line) for line in lc), color=color, lw=1, alpha=0.5
             )
         )
+
+        if show_pen_up:
+            plt.gca().add_collection(
+                matplotlib.collections.LineCollection(
+                    (
+                        (as_vector(lc[i])[-1], as_vector(lc[i + 1])[0])
+                        for i in range(len(lc) - 1)
+                    ),
+                    color=(0, 0, 0),
+                    lw=0.5,
+                    alpha=0.5,
+                )
+            )
 
     plt.gca().invert_yaxis()
     plt.axis("equal")

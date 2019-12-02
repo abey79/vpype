@@ -1,3 +1,5 @@
+import itertools
+
 import pytest
 
 from vpype import cli
@@ -19,6 +21,8 @@ MINIMAL_COMMANDS = [
     "skew 0 0",
     "translate 0 0",
     "crop 0 0 1 1",
+    "linesort",
+    "linemerge",
 ]
 
 
@@ -163,3 +167,54 @@ def test_crop(runner):
     assert res.exit_code == 0
     assert data[0].bounds_within(2 * CM, 2 * CM, 8 * CM, 8 * CM)
     assert data[0].count <= 100
+
+
+@pytest.mark.parametrize(
+    ("linemerge_args", "expected"),
+    [
+        ("--no-flip --tolerance 0.05", 3),
+        ("--no-flip --tolerance 0.25", 2),
+        ("--tolerance 0.05", 3),
+        ("--tolerance 0.15", 2),
+        ("--tolerance 0.25", 1),
+    ],
+)
+def test_linemerge(runner, linemerge_args, expected):
+    res = runner.invoke(
+        cli,
+        "line 0 0 0 10 line 0 10.2 0 20 line 30 30 0 20.1 "
+        f"linemerge {linemerge_args} dbsample dbdump",
+    )
+    data = DebugData.load(res.output)[0]
+    assert res.exit_code == 0
+    assert data.count == expected
+
+
+@pytest.mark.parametrize(
+    "lines",
+    [
+        " ".join(l)
+        for l in itertools.permutations(
+            ["line 0 0 0 10", "line 0 10 10 10", "line 0 0 10 0", "line 10 0 10 10"]
+        )
+    ],
+)
+def test_linesort(runner, lines):
+    res = runner.invoke(cli, f"{lines} linesort dbsample dbdump",)
+    data = DebugData.load(res.output)[0]
+    assert res.exit_code == 0
+    assert data.fly_length == 0
+
+
+def test_linesort_no_flip(runner):
+    res = runner.invoke(
+        cli,
+        "line 0 0 0 10 line 0 10 10 10 line 0 0 10 0 line 10 0 10 10 "
+        "linesort --no-flip dbsample dbdump",
+    )
+    # in this situation, an optimal line sorter would have a pen up distance of only 14.14
+    # our algo doesnt "see" the second line sequence globally however, thus the added 10 units
+    # this would be solved anyway with linemerge
+    data = DebugData.load(res.output)[0]
+    assert res.exit_code == 0
+    assert 24.13 < data.fly_length < 24.15

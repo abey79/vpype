@@ -8,6 +8,7 @@
 .DS_Store
 /.idea
 __pycache__
+.dmypy.json
 *.egg-info
 /pip-wheel-metadata
 /bug_reports

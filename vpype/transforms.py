@@ -45,7 +45,7 @@ def translate(lc: LineCollection, offset: Tuple[float, float]):
     help="[--to only] Maintain the geometries proportions.",
 )
 @click.option(
-    "-o", "--origin", "origin_coords", nargs=2, type=float, help="Use a specific origin."
+    "-o", "--origin", "origin_coords", nargs=2, type=Length(), help="Use a specific origin."
 )
 @global_processor
 def scale(
@@ -115,7 +115,7 @@ def scale(
 )
 @click.option("-r", "--radian", is_flag=True, help="Angle is in radians.")
 @click.option(
-    "-o", "--origin", "origin_coords", nargs=2, type=float, help="Use a specific origin."
+    "-o", "--origin", "origin_coords", nargs=2, type=Length(), help="Use a specific origin."
 )
 @global_processor
 def rotate(
@@ -174,7 +174,7 @@ def rotate(
 )
 @click.option("-r", "--radian", is_flag=True, help="Angle is in radians.")
 @click.option(
-    "-o", "--origin", "origin_coords", nargs=2, type=float, help="Use a specific origin."
+    "-o", "--origin", "origin_coords", nargs=2, type=Length(), help="Use a specific origin."
 )
 @global_processor
 def skew(

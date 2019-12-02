@@ -28,6 +28,7 @@ def dbsample(vector_data: VectorData):
         data["count"] = sum(len(lc) for lc in vector_data.layers.values())
         data["layer_count"] = len(vector_data.layers)
         data["length"] = vector_data.length()
+        data["fly_length"] = vector_data.fly_length()
         data["bounds"] = vector_data.bounds()
         data["layers"] = {
             layer_id: [as_vector(line).tolist() for line in layer]
@@ -64,6 +65,7 @@ class DebugData:
     def __init__(self, data: Dict[str, Any]):
         self.count = data["count"]
         self.length = data.get("length", 0)
+        self.fly_length = data.get("fly_length", 0)
         self.bounds = data.get("bounds", [0, 0, 0, 0])
         self.layers = data.get("layers", {})
 
@@ -124,15 +126,27 @@ def stat(vector_data: VectorData):
     global debug_data
 
     print("========= Stats ========= ")
-    print(f"Layer count: {len(vector_data.layers)}")
+    length_tot = 0.0
+    fly_length_tot = 0.0
     for layer_id in sorted(vector_data.layers.keys()):
         layer = vector_data.layers[layer_id]
+        length = layer.length()
+        fly_length, fly_mean, fly_median = layer.fly_length()
+        length_tot += length
+        fly_length_tot += fly_length
         print(f"Layer {layer_id}")
-        print(f"  Length: {layer.length()}")
+        print(f"  Length: {length}")
+        print(f"  Pen-up length: {fly_length}")
+        print(f"  Total length: {length + fly_length}")
+        print(f"  Mean pen-up length: {fly_mean}")
+        print(f"  Median pen-up length: {fly_median}")
         print(f"  Count: {len(layer)}")
         print(f"  Bounds: {layer.bounds()}")
     print(f"Totals")
-    print(f"  Length: {vector_data.length()}")
+    print(f"  Layer count: {len(vector_data.layers)}")
+    print(f"  Length: {length_tot}")
+    print(f"  Pen-up length: {fly_length_tot}")
+    print(f"  Total length: {length_tot + fly_length_tot}")
     print(f"  Count: {sum(len(layer) for layer in vector_data.layers.values())}")
     print(f"  Bounds: {vector_data.bounds()}")
     print("========================= ")

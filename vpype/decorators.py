@@ -12,15 +12,13 @@ class LayerType(click.ParamType):
     """
     Interpret value of --layer options.
 
-    If `accept_multiple == True`, comma-separated array of int is accepted or 'all'. Returns either a list of IDs or
-    `LayerType.ALL`.
+    If `accept_multiple == True`, comma-separated array of int is accepted or 'all'. Returns
+    either a list of IDs or `LayerType.ALL`.
 
     If `accept_new == True`, 'new' is also accepted, in which case returns `LayerType.NEW`.
 
     None is passed through, which typically means to use the default behaviour.
     """
-
-    name = "layers"
 
     NEW = -1
     ALL = -2
@@ -28,6 +26,11 @@ class LayerType(click.ParamType):
     def __init__(self, accept_multiple: bool = False, accept_new: bool = False):
         self.accept_multiple = accept_multiple
         self.accept_new = accept_new
+
+        if accept_multiple:
+            self.name = "layers"
+        else:
+            self.name = "layer"
 
     def convert(self, value, param, ctx):
         # comply with ParamType requirements
@@ -78,8 +81,9 @@ class LayerType(click.ParamType):
 def layer_processor(f):
     """Helper decorator to define layer processor commands.
 
-    These type of command implements intra-layer processing, which is applied to one or more layers, as controlled
-    by the --layer option. The layer processor receives a LineCollection as input and must return one.
+    These type of command implements intra-layer processing, which is applied to one or more
+    layers, as controlled by the --layer option. The layer processor receives a LineCollection
+    as input and must return one.
     """
 
     @click.option(
@@ -87,7 +91,7 @@ def layer_processor(f):
         "--layer",
         type=LayerType(accept_multiple=True),
         default="all",
-        help="Target layers.",
+        help="Target layer(s) or 'all'.",
     )
     def new_func(*args, **kwargs):
         layers = kwargs.pop("layer", -1)
@@ -96,7 +100,8 @@ def layer_processor(f):
         def layer_processor(state: VpypeState) -> VpypeState:
             for lid in LayerType.multiple_to_layer_ids(layers, state.vector_data):
                 logging.info(
-                    f"executing layer processor `{f.__name__}` on layer {lid} (kwargs: {kwargs})"
+                    f"executing layer processor `{f.__name__}` on layer {lid} "
+                    f"(kwargs: {kwargs})"
                 )
                 with state.current():
                     state.vector_data[lid] = f(state.vector_data[lid], *args, **kwargs)
@@ -111,8 +116,9 @@ def layer_processor(f):
 def global_processor(f):
     """Helper decorator to define "global" processor commands.
 
-    These type of command implements global, multi-layer processing, for which no layer facility is provided (no --layer
-    option or processing structure). A global processor receives a VectorData as input and must return one.
+    These type of command implements global, multi-layer processing, for which no layer
+    facility is provided (no --layer option or processing structure). A global processor
+    receives a VectorData as input and must return one.
     """
 
     def new_func(*args, **kwargs):
@@ -133,12 +139,17 @@ def global_processor(f):
 def generator(f):
     """Helper decorator to define generator-type commands.
 
-    Generator do not have input, have automatically a "-l, --layer" option added to them, and must return a
-    LineCollection structure, which will be added to a new layer or an existing one depending the option.
+    Generator do not have input, have automatically a "-l, --layer" option added to them, and
+    must return a LineCollection structure, which will be added to a new layer or an existing
+    one depending the option.
     """
 
     @click.option(
-        "-l", "--layer", type=LayerType(accept_new=True), default=None, help="Target layer."
+        "-l",
+        "--layer",
+        type=LayerType(accept_new=True),
+        default=None,
+        help="Target layer or 'new'.",
     )
     def new_func(*args, **kwargs):
         layer = kwargs.pop("layer", -1)
@@ -153,7 +164,8 @@ def generator(f):
                 target_layer = layer
 
             logging.info(
-                f"executing generator `{f.__name__}` to layer {target_layer} (kwargs: {kwargs})"
+                f"executing generator `{f.__name__}` to layer {target_layer} "
+                f"(kwargs: {kwargs})"
             )
 
             with state.current():

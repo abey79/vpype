@@ -22,20 +22,28 @@ class LineIndex:
     """
 
     def __init__(self, lines: LineCollection, reverse: bool = False):
-        self.lines = lines
+        self.lines = [line for line in lines]
         self.reverse = reverse
-        self.available = np.ones(shape=len(lines), dtype=bool)
+        self._make_index()
+
+    def _make_index(self) -> None:
+        logging.info(f"LineIndex: creating index for {len(self.lines)} lines")
+        self.available = np.ones(shape=len(self.lines), dtype=bool)
 
         # create rtree index
         self.index = rtree.index.Index()
-        for i, line in enumerate(lines):
+        for i, line in enumerate(self.lines):
             self.index.insert(i, (line[0].real, line[0].imag) * 2)
 
         # create reverse index
-        if reverse:
+        if self.reverse:
             self.rindex = rtree.index.Index()
-            for i, line in enumerate(lines):
+            for i, line in enumerate(self.lines):
                 self.rindex.insert(i, (line[-1].real, line[-1].imag) * 2)
+
+    def _reindex(self) -> None:
+        self.lines = [line for idx, line in enumerate(self.lines) if self.available[idx]]
+        self._make_index()
 
     def __len__(self) -> int:
         return np.count_nonzero(self.available)
@@ -56,15 +64,19 @@ class LineIndex:
         self.available[idx] = False
         return self.lines[idx]
 
-    def find_closest(self, p: complex, max_dist: float) -> Tuple[Optional[int], bool]:
+    @staticmethod
+    def _item_distance(p, it):
+        return math.hypot(p.real - it.bbox[0], p.imag - it.bbox[1])
+
+    def find_nearest_within(self, p: complex, max_dist: float) -> Tuple[Optional[int], bool]:
         """Find the closest line, assuming a maximum admissible distance.
         Returns a tuple of (idx, reverse), where `idx` may be None if nothing is found.
         `reverse` indicates whether or not a line ending has been matched instead of a start.
         False is always returned if index was created with `reverse=False`.s
         """
-        idx, dist = self._find_closest_in_index(p, max_dist, self.index)
+        idx, dist = self._find_nearest_within_in_index(p, max_dist, self.index)
         if self.reverse:
-            ridx, rdist = self._find_closest_in_index(p, max_dist, self.rindex)
+            ridx, rdist = self._find_nearest_within_in_index(p, max_dist, self.rindex)
 
             if idx is None and ridx is None:
                 return None, False
@@ -79,7 +91,7 @@ class LineIndex:
         else:
             return idx, False
 
-    def _find_closest_in_index(
+    def _find_nearest_within_in_index(
         self, p: complex, max_dist: float, index: rtree.index.Index
     ) -> Tuple[Optional[int], Optional[float]]:
         """Find nearest in specific index. Return (idx, dist) tuple, both of which can be None.
@@ -98,15 +110,44 @@ class LineIndex:
             return None, 0
 
         # we want the closest item, and we want it only if it's not too far
-        def item_distance(it):
-            return math.hypot(p.real - it.bbox[0], p.imag - it.bbox[1])
-
-        item = min(items, key=item_distance)
-        dist = item_distance(item)
+        item = min(items, key=lambda it: self._item_distance(p, it))
+        dist = self._item_distance(p, item)
         if dist > max_dist:
             return None, 0
 
         return item.id, dist
+
+    def find_nearest(self, p: complex) -> Tuple[int, bool]:
+        while True:
+            idx, dist = self._find_nearest_in_index(p, self.index)
+            if idx is not None:
+                break
+            self._reindex()
+
+        if self.reverse:
+            while True:
+                ridx, rdist = self._find_nearest_in_index(p, self.rindex)
+                if ridx is not None:
+                    break
+                self._reindex()
+
+            if rdist < dist:
+                return ridx, True
+            else:
+                return idx, False
+        else:
+            return idx, False
+
+    def _find_nearest_in_index(
+        self, p: complex, index: rtree.index.Index
+    ) -> Tuple[Optional[int], float]:
+        """Check the N nearest lines, hopefully find one that is active."""
+
+        for item in index.nearest((p.real, p.imag) * 2, 100, objects=True):
+            if self.available[item.id]:
+                return item.id, self._item_distance(p, item)
+
+        return None, 0.0
 
 
 @cli.command(group="Operations")
@@ -149,10 +190,10 @@ def crop(lines: LineCollection, x: float, y: float, width: float, height: float)
     help="Maximum distance between two line endings that should be merged.",
 )
 @click.option(
-    "-f", "--flip", is_flag=True, help="Enables reversing stroke direction for merging."
+    "-f", "--no-flip", is_flag=True, help="Disable reversing stroke direction for merging."
 )
 @layer_processor
-def linemerge(lines: LineCollection, tolerance: float, flip: bool = True):
+def linemerge(lines: LineCollection, tolerance: float, no_flip: bool = True):
     """
     Merge lines whose endings overlap or are very close.
 
@@ -166,7 +207,7 @@ def linemerge(lines: LineCollection, tolerance: float, flip: bool = True):
     if len(lines) < 2:
         return lines
 
-    index = LineIndex(lines, reverse=flip)
+    index = LineIndex(lines, reverse=not no_flip)
     new_lines = LineCollection()
 
     while len(index) > 0:
@@ -174,9 +215,9 @@ def linemerge(lines: LineCollection, tolerance: float, flip: bool = True):
 
         # we append to `line` until we dont find anything to add
         while True:
-            idx, reverse = index.find_closest(line[-1], tolerance)
-            if idx is None and flip:
-                idx, reverse = index.find_closest(line[0], tolerance)
+            idx, reverse = index.find_nearest_within(line[-1], tolerance)
+            if idx is None and not no_flip:
+                idx, reverse = index.find_nearest_within(line[0], tolerance)
                 line = np.flip(line)
             if idx is None:
                 break
@@ -188,4 +229,34 @@ def linemerge(lines: LineCollection, tolerance: float, flip: bool = True):
         new_lines.append(line)
 
     logging.info(f"linemerge: reduced line count from {len(lines)} to {len(new_lines)}")
+    return new_lines
+
+
+@cli.command(group="Operations")
+@click.option(
+    "-f",
+    "--no-flip",
+    is_flag=True,
+    help="Disable reversing stroke direction for optimization.",
+)
+@layer_processor
+def linesort(lines: LineCollection, no_flip: bool = True):
+    if len(lines) < 2:
+        return lines
+
+    index = LineIndex(lines[1:], reverse=not no_flip)
+    new_lines = LineCollection([lines[0]])
+
+    while len(index) > 0:
+        idx, reverse = index.find_nearest(new_lines[-1][-1])
+        line = index.pop(idx)
+        if reverse:
+            line = np.flip(line)
+        new_lines.append(line)
+
+    logging.info(
+        f"optimize: reduced pen-up (distance, mean, median) from {lines.fly_length()} to "
+        f"{new_lines.fly_length()}"
+    )
+
     return new_lines

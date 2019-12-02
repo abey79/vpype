@@ -1,5 +1,27 @@
 # Installing _vpype_
 
+The steps described on this page are not appropriate to install a development environment. If you intend to develop
+on _vpype_, check the development environment [installation instructions](README.md#development-environment).
+
+## Linux/macOS
+
+_vpype_ requires Python 3.6 or later. On Debian/ubuntu flavored installation, this is a matter of:
+
+```bash
+$ sudo apt-get install python3 python3-pip
+```
+
+On macOS, you can use the [MacPorts](https://www.macports.org) or [Homebrew](https://brew.sh) project to install a
+recent version of Python.
+
+Install _vpype_ with the following steps, preferably in a dedicated virtual environment:
+
+```bash
+$ pip install --upgrade pip
+$ pip install git+https://github.com/abey79/vpype.git#egg=vpype
+```
+
+
 ## Windows
 
 Unfortunately, _vpype_ being a new project, simple installation package are not yet available, so the installation procedure
@@ -8,14 +30,14 @@ requires a few steps.
 ### Installing Python
 
 _vpype_ uses Python. You can find an official installer [here](https://www.python.org/downloads/windows/). Using Python 3.8
-is recommanded.
+is recommended.
 
 ### Installing Git
 
 Git is a widely use version control management. It is needed by the Python package manager. You can find an official
 installer [here](https://git-scm.com/download/win).
 
-### Downloading dependancies
+### Downloading dependencies
 
 Python includes a package manager called `pip` which is able to find and install most dependencies automatically. Some
 dependencies must, however, be manually downloaded from the
@@ -32,7 +54,7 @@ For each of these libraries, download the version that corresponds to your Pytho
 
 "Virtual environments" are environment that you can easily create and delete and in which you install Python-based 
 dependencies and software.
-It is considered best practice to always use virtual envionments in order to avoid conflicts between projects.
+It is considered best practice to always use virtual environments in order to avoid conflicts between projects.
 
 To create a virtual environment for your _vpype_ installation, launch the `cmd` terminal and enter the following commands:
 

@@ -2,7 +2,7 @@
 
 # _vpype_
 
-_vpype_ aims to be the one-stop-shop, Swiss Army knife for producing plotter-ready vector graphics. Here are, for
+_vpype_ aims to be the one-stop-shop, Swiss Army knife<sup>1</sup> for producing plotter-ready vector graphics. Here are, for
 illustration, a few examples of what it can do:
  
 - Load a SVG, scale it to a specific size, and export it centered on a A4, ready-to-plot SVG.
@@ -14,9 +14,9 @@ illustration, a few examples of what it can do:
     ```bash
     $ vpype read input.svg show --colorful
     ```
-- Batch merge paths to avoid unneeded pen lifts.
+- Optimize paths to reduce plotting time (merge connected lines and sort them to minimize pen-up distance):
     ```bash
-    $ vpype read input.svg linemerge --tolerance 0.1mm --flip write output.svg
+    $ vpype read input.svg linemerge --tolerance 0.1mm linesort write output.svg
     ``` 
 - Load several SVGs and save them into a single, multi-layer SVG for polychromic drawings.
     ```bash
@@ -60,17 +60,15 @@ _vpype_ is written in Python and relies, amongst many other projects, on
 [NumPy](https://numpy.org),
 [hatched](https://github.com/abey79/hatched).
 
+<sup>1</sup>Although not at the military the author is indeed Swiss :) 🇨🇭
+
 
 ## Getting Started
 
 ### Installation
 
-Install _vpype_ with the following steps, preferably in a dedicated virtual environment (see [Development
- environment](#development-environment) for an alternative install procedure if you intend to develop):
+See [installation instructions](INSTALL.md).
 
-```bash
-$ pip install git+https://github.com/abey79/vpype.git#egg=vpype
-```
 
 ### Running examples
 
@@ -161,7 +159,8 @@ Here is a non-exhaustive list of important commands:
 - `script`: execute a Python script to generate geometries (see [External scripts](#external-scripts))
 - `translate`, `rotate`, `scale`, `skew`: basic transformation commands which do exactly what you think they do
 - `crop`: crop the geometries, removing everything outside of a rectangular area
-- `linemerge`: merge lines whose endings overlap or are very close 
+- `linemerge`: merge lines whose endings overlap or are very close
+- `linesort`: sort lines to minimize the total distance between the end of a path to the start of the next one  
 - `frame`: add a simple frame around the geometries
 - `show`: display the geometries in a `matplotlib` window
 - `write`: save the geometries as a SVG file
@@ -366,4 +365,4 @@ requests](https://github.com/abey79/vpype/pulls) to contribute actual code. Note
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
