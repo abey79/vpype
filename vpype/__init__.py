@@ -16,4 +16,4 @@ from .show import *
 from .transforms import *
 from .write import *
 
-__all__ = ["cli", "layer_processor", "global_processor", "generators", "LineCollection"]
+__all__ = ["cli", "layer_processor", "global_processor", "generator", "LineCollection"]
