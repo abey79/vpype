@@ -19,7 +19,7 @@ setup(
     packages=find_packages(exclude=("examples", "tests")),
     install_requires=[
         'Click',
-        'click-plugins'
+        'click-plugins',
         'matplotlib',
         'opencv-python',
         'rtree',
