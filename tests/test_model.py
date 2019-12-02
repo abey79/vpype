@@ -52,9 +52,9 @@ def test_line_collection_bounds():
     assert lc.bounds() == (-10, -10, 10, 10)
 
 
-def test_line_collection_fly_length():
+def test_line_collection_pen_up_length():
     lc = LineCollection([(0, 10), (10 + 10j, 500 + 500j, 10j), (0, -40)])
-    assert lc.fly_length()[0] == 20.0
+    assert lc.pen_up_length()[0] == 20.0
 
 
 def test_vector_data_lid_iteration():

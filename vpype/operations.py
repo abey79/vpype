@@ -255,8 +255,8 @@ def linesort(lines: LineCollection, no_flip: bool = True):
         new_lines.append(line)
 
     logging.info(
-        f"optimize: reduced pen-up (distance, mean, median) from {lines.fly_length()} to "
-        f"{new_lines.fly_length()}"
+        f"optimize: reduced pen-up (distance, mean, median) from {lines.pen_up_length()} to "
+        f"{new_lines.pen_up_length()}"
     )
 
     return new_lines

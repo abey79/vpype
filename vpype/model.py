@@ -87,7 +87,7 @@ class LineCollection:
     def length(self) -> float:
         return sum(np.sum(np.abs(np.diff(line))) for line in self._lines)
 
-    def fly_length(self) -> Tuple[float, float, float]:
+    def pen_up_length(self) -> Tuple[float, float, float]:
         """Total, mean, median distance to move from one path's end to the next path's start"""
         ends = np.array([line[-1] for line in self.lines[:-1]])
         starts = np.array([line[0] for line in self.lines[1:]])
@@ -190,5 +190,5 @@ class VectorData:
     def length(self) -> float:
         return sum(layer.length() for layer in self._layers.values())
 
-    def fly_length(self) -> float:
-        return sum(layer.fly_length()[0] for layer in self._layers.values())
+    def pen_up_length(self) -> float:
+        return sum(layer.pen_up_length()[0] for layer in self._layers.values())

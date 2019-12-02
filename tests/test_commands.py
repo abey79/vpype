@@ -203,7 +203,7 @@ def test_linesort(runner, lines):
     res = runner.invoke(cli, f"{lines} linesort dbsample dbdump",)
     data = DebugData.load(res.output)[0]
     assert res.exit_code == 0
-    assert data.fly_length == 0
+    assert data.pen_up_length == 0
 
 
 def test_linesort_no_flip(runner):
@@ -217,4 +217,4 @@ def test_linesort_no_flip(runner):
     # this would be solved anyway with linemerge
     data = DebugData.load(res.output)[0]
     assert res.exit_code == 0
-    assert 24.13 < data.fly_length < 24.15
+    assert 24.13 < data.pen_up_length < 24.15
