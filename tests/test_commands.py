@@ -169,6 +169,17 @@ def test_crop(runner):
     assert data[0].count <= 100
 
 
+def test_crop_line_flush(runner):
+    # a line whose end intersect with crop bounds is not kept
+    # a line flush with crop bounds is kept
+    res = runner.invoke(
+        cli, "line 100 0 100 10 line 0 5 100 5 crop 100 0 200 200 dbsample dbdump"
+    )
+    data = DebugData.load(res.output)
+    assert res.exit_code == 0
+    assert data[0].count == 1
+
+
 @pytest.mark.parametrize(
     ("linemerge_args", "expected"),
     [

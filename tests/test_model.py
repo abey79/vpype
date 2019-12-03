@@ -52,6 +52,11 @@ def test_line_collection_bounds():
     assert lc.bounds() == (-10, -10, 10, 10)
 
 
+def test_line_collection_empty_bounds():
+    lc = LineCollection()
+    assert lc.bounds() is None
+
+
 def test_line_collection_pen_up_length():
     lc = LineCollection([(0, 10), (10 + 10j, 500 + 500j, 10j), (0, -40)])
     assert lc.pen_up_length()[0] == 20.0

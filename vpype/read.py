@@ -64,23 +64,37 @@ def read(file, quantization: float) -> LineCollection:
 
     lc = LineCollection()
     for result in results:
+        # Here we load the sub-part of the path element. If such sub-parts are connected,
+        # we merge them in a single line (e.g. line string, etc.). If there are disconnection
+        # in the path (e.g. multiple "M" commands), we create several lines
+        sub_paths = []
         for elem in result.path:
             if isinstance(elem, Line):
-                coords = np.array([elem.start, elem.end])
+                coords = [elem.start, elem.end]
             else:
                 # This is a curved element that we approximate with small segments
                 step = int(math.ceil(elem.length() / quantization))
-                coords = np.empty(step + 1, dtype=complex)
-                coords[0] = elem.start
-                for i in range(step - 1):
-                    coords[i + 1] = elem.point((i + 1) / step)
-                coords[-1] = elem.end
+                coords = [elem.start]
+                coords.extend(elem.point((i + 1) / step) for i in range(step - 1))
+                coords.append(elem.end)
+
+            # merge to last sub path if first coordinates match
+            if sub_paths:
+                if sub_paths[-1][-1] == coords[0]:
+                    sub_paths[-1].extend(coords[1:])
+                else:
+                    sub_paths.append(coords)
+            else:
+                sub_paths.append(coords)
+
+        for sub_path in sub_paths:
+            path = np.array(sub_path)
 
             # transform
-            coords += offset_x + 1j * offset_y
-            coords.real *= scale_x
-            coords.imag *= scale_y
+            path += offset_x + 1j * offset_y
+            path.real *= scale_x
+            path.imag *= scale_y
 
-            lc.append(coords)
+            lc.append(path)
 
     return lc

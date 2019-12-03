@@ -2,7 +2,7 @@
 Implementation of vpype's data model
 """
 import math
-from typing import Union, Iterable, List, Dict, Tuple
+from typing import Union, Iterable, List, Dict, Tuple, Optional
 
 import numpy as np
 from shapely.geometry import MultiLineString, LineString
@@ -76,13 +76,16 @@ class LineCollection:
         for line in self._lines:
             line += tx * line.imag + 1j * ty * line.real
 
-    def bounds(self) -> Tuple[float, float, float, float]:
-        return (
-            min((l.real.min() for l in self._lines)),
-            min((l.imag.min() for l in self._lines)),
-            max((l.real.max() for l in self._lines)),
-            max((l.imag.max() for l in self._lines)),
-        )
+    def bounds(self) -> Optional[Tuple[float, float, float, float]]:
+        if len(self._lines) == 0:
+            return None
+        else:
+            return (
+                min((l.real.min() for l in self._lines)),
+                min((l.imag.min() for l in self._lines)),
+                max((l.real.max() for l in self._lines)),
+                max((l.imag.max() for l in self._lines)),
+            )
 
     def length(self) -> float:
         return sum(np.sum(np.abs(np.diff(line))) for line in self._lines)

@@ -102,7 +102,9 @@ def write(
     for layer_id in sorted(corrected_vector_data.layers.keys()):
         layer = corrected_vector_data.layers[layer_id]
 
-        group = dwg.g(style="display:inline", id=f"layer{layer_id}")
+        group = dwg.g(
+            style="display:inline", id=f"layer{layer_id}", fill="none", stroke="black"
+        )
         group.attribs["inkscape:groupmode"] = "layer"
         group.attribs["inkscape:label"] = str(layer_id)
 
@@ -113,19 +115,11 @@ def write(
                         ("M" + " L".join(f"{x},{y}" for x, y in as_vector(line)))
                         for line in layer
                     ),
-                    fill="none",
-                    stroke="black",
                 )
             )
         else:
             for line in layer:
-                group.add(
-                    dwg.path(
-                        "M" + " L".join(f"{x},{y}" for x, y in as_vector(line)),
-                        fill="none",
-                        stroke="black",
-                    )
-                )
+                group.add(dwg.path("M" + " L".join(f"{x},{y}" for x, y in as_vector(line)),))
 
         dwg.add(group)
 
