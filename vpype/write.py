@@ -180,11 +180,17 @@ def write_hpgl(vector_data: VectorData, output, size: Tuple[float, float]) -> No
     # for plotters A2 and above we need to offset the coords (LL = -309, -210)
     offset = [-309, -210]
 
-    # scale offset
-    offset = [int(offset[0] / 0.025), int(offset[1] / 0.025)]
+    # convert offset to plotter units
+    offset = [int(offset[0]/0.025), int(offset[1]/0.025)]
 
-    # plotter units in mm
-    scale = 0.025
+    # convert pvype units (css pixel, 1/96inch) to plotter units
+    scale = 1/0.025 * 25.4 * 1/96
+
+    # function to scale and offset pixels to plotter units
+    def pxtoplot(x, y):
+        x = int(x * scale) + offset[0]
+        y = int(y * scale) + offset[1]
+        return x, y 
 
     hpgl = "IN;DF;\n"
 
@@ -195,22 +201,21 @@ def write_hpgl(vector_data: VectorData, output, size: Tuple[float, float]) -> No
         layer = vector_data.layers[layer_id]
         for line in layer:
             # output the first coordinate
-            hpgl += "PU{},{}PD".format(int(as_vector(line)[0][0] / scale) + offset[0], int(as_vector(line)[0][1] / scale) + offset[1])
+            x, y = pxtoplot(as_vector(line)[0][0], as_vector(line)[0][1])
+            hpgl += "PU{},{}PD".format(x, y)
             # output second to penulimate coordinates
             for x, y in as_vector(line)[1:-1]:
-                hpgl+= "{},{},".format(int(x / scale) + offset[0], int(y / scale) + offset[1])
+                x, y = pxtoplot(x, y)
+                hpgl+= "{},{},".format(x, y)
             # output final coordinate
-            hpgl += "{},{}\n".format(int(as_vector(line)[-1][0] / scale) + offset[0], int(as_vector(line)[-1][1] / scale) + offset[1])
+            x, y = pxtoplot(as_vector(line)[-1][0], as_vector(line)[-1][1])
+            hpgl += "{},{}\n".format(x, y)
 
     # put the pen back and leave the plotter in an initialised state
     hpgl+= "SP0;IN;"
 
-    f = open(output.name, "w+")
-    f.write(hpgl)
-    f.close()
-
-    # purely for debug purposes
-    print(hpgl)
+    output.write(hpgl)
+    output.close()
 
     # TO BE COMPLETED
     pass
