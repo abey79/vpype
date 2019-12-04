@@ -177,6 +177,40 @@ def write_hpgl(vector_data: VectorData, output, size: Tuple[float, float]) -> No
     :param output: file object to write to
     :param size: size of the page in pixel
     """
+    # for plotters A2 and above we need to offset the coords (LL = -309, -210)
+    offset = [-309, -210]
+
+    # scale offset
+    offset = [int(offset[0] / 0.025), int(offset[1] / 0.025)]
+
+    # plotter units in mm
+    scale = 0.025
+
+    hpgl = "IN;DF;\n"
+
+    # this could be determined by the layer number? layer 1 uses pen 1, layer 2 uses pen 2 etc
+    hpgl += "SP1;\n"
+
+    for layer_id in sorted(vector_data.layers.keys()):
+        layer = vector_data.layers[layer_id]
+        for line in layer:
+            # output the first coordinate
+            hpgl += "PU{},{}PD".format(int(as_vector(line)[0][0] / scale) + offset[0], int(as_vector(line)[0][1] / scale) + offset[1])
+            # output second to penulimate coordinates
+            for x, y in as_vector(line)[1:-1]:
+                hpgl+= "{},{},".format(int(x / scale) + offset[0], int(y / scale) + offset[1])
+            # output final coordinate
+            hpgl += "{},{}\n".format(int(as_vector(line)[-1][0] / scale) + offset[0], int(as_vector(line)[-1][1] / scale) + offset[1])
+
+    # put the pen back and leave the plotter in an initialised state
+    hpgl+= "SP0;IN;"
+
+    f = open(output.name, "w+")
+    f.write(hpgl)
+    f.close()
+
+    # purely for debug purposes
+    print(hpgl)
 
     # TO BE COMPLETED
     pass
