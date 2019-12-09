@@ -58,7 +58,12 @@ PAGE_FORMATS = {
     "-s",
     "--single-path",
     is_flag=True,
-    help=" (SVG only) Generate a single compound path instead of individual paths.",
+    help="[SVG only] Generate a single compound path instead of individual paths.",
+)
+@click.option(
+    "--paper-portrait",
+    is_flag=True,
+    help="[HPGL only] Paper is loaded in portrait orientation instead of landscape.",
 )
 @global_processor
 def write(
@@ -67,6 +72,7 @@ def write(
     format: str,
     page_format: str,
     landscape: bool,
+    paper_portrait: bool,
     center: bool,
     single_path: bool,
 ):
@@ -115,7 +121,7 @@ def write(
     if format == "svg":
         write_svg(corrected_vector_data, output, size, single_path)
     elif format == "hpgl":
-        write_hpgl(corrected_vector_data, output, size)
+        write_hpgl(corrected_vector_data, output, size, paper_portrait)
     else:
         logging.warning(
             f"write: format could not be inferred or format unknown '{format}', "
@@ -170,27 +176,30 @@ def write_svg(
     dwg.write(output, pretty=True)
 
 
-def write_hpgl(vector_data: VectorData, output, size: Tuple[float, float]) -> None:
+def write_hpgl(
+    vector_data: VectorData, output, size: Tuple[float, float], paper_portrait: bool
+) -> None:
     """
     Export geometries in SVG format
     :param vector_data: geometries to export
     :param output: file object to write to
     :param size: size of the page in pixel
+    :param paper_portrait: paper is loaded in portrait orientation instead of landscape
     """
     # for plotters A2 and above we need to offset the coords (LL = -309, -210)
     offset = [-309, -210]
 
     # convert offset to plotter units
-    offset = [int(offset[0]/0.025), int(offset[1]/0.025)]
+    offset = [int(offset[0] / 0.025), int(offset[1] / 0.025)]
 
     # convert pvype units (css pixel, 1/96inch) to plotter units
-    scale = 1/0.025 * 25.4 * 1/96
+    scale = 1 / 0.025 * 25.4 * 1 / 96
 
     # function to scale and offset pixels to plotter units
     def pxtoplot(x, y):
         x = int(x * scale) + offset[0]
         y = int(y * scale) + offset[1]
-        return x, y 
+        return x, y
 
     hpgl = "IN;DF;\n"
 
@@ -206,13 +215,13 @@ def write_hpgl(vector_data: VectorData, output, size: Tuple[float, float]) -> No
             # output second to penulimate coordinates
             for x, y in as_vector(line)[1:-1]:
                 x, y = pxtoplot(x, y)
-                hpgl+= "{},{},".format(x, y)
+                hpgl += "{},{},".format(x, y)
             # output final coordinate
             x, y = pxtoplot(as_vector(line)[-1][0], as_vector(line)[-1][1])
             hpgl += "{},{}\n".format(x, y)
 
     # put the pen back and leave the plotter in an initialised state
-    hpgl+= "SP0;IN;"
+    hpgl += "SP0;IN;"
 
     output.write(hpgl)
     output.close()
