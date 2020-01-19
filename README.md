@@ -2,8 +2,8 @@
 
 # _vpype_
 
-_vpype_ aims to be the one-stop-shop, Swiss Army knife<sup>1</sup> for producing plotter-ready vector graphics. Here are, for
-illustration, a few examples of what it can do:
+_vpype_ aims to be the one-stop-shop, Swiss Army knife<sup>1</sup> for producing plotter-ready vector graphics. Here
+are, for illustration, a few examples of what it can do:
  
 - Load a SVG, scale it to a specific size, and export it centered on a A4, ready-to-plot SVG.
     ```bash
@@ -29,7 +29,8 @@ illustration, a few examples of what it can do:
 
 At its core, _vpype_ allows the user to build pipelines of _commands_, each of which receives a
 collection of vector graphics (basically, lines), modifies them and/or produce new ones, and pass them to the next
-command. _vpype_'s simple CLI user interface makes it a breeze to create these pipelines.
+command. _vpype_'s simple CLI user interface makes it a breeze to create these pipelines, which can be expended thanks
+to a [plug-in](PLUGINS.md) architecture.
 
 Let's have a close look at an example:
 
@@ -309,6 +310,12 @@ begin
 end
 show
 ```
+
+
+### Writing plug-ins
+
+Creating plug-ins for _vpype_ is very easy: see the [plug-in documentation](PLUGINS.md) for more information.
+
 
 ## Contributing
 
