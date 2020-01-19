@@ -1,5 +1,6 @@
 # base
 click
+click-plugins
 matplotlib
 numpy
 opencv-python

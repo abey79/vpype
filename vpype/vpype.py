@@ -6,6 +6,8 @@ from typing import TextIO, List, Union
 
 import click
 from click import get_os_args
+from click_plugins import with_plugins
+from pkg_resources import iter_entry_points
 from shapely.geometry import MultiLineString
 
 from .model import VectorData
@@ -90,6 +92,7 @@ class GroupedGroup(click.Group):
 
 
 # noinspection PyUnusedLocal
+@with_plugins(iter_entry_points('vpype.plugins'))
 @click.group(cls=GroupedGroup, chain=True)
 @click.option("-v", "--verbose", count=True)
 @click.option("-I", "--include", type=click.Path(), help="Load commands from a command file.")

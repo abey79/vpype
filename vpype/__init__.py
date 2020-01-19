@@ -1,5 +1,6 @@
 from .vpype import cli
 from .decorators import layer_processor, global_processor, block_processor, generator
+from .model import LineCollection
 
 # register all commands
 from .blocks import *
@@ -15,4 +16,4 @@ from .show import *
 from .transforms import *
 from .write import *
 
-__all__ = ["cli"]
+__all__ = ["cli", "layer_processor", "global_processor", "generator", "LineCollection"]
