@@ -23,6 +23,7 @@ MINIMAL_COMMANDS = [
     "crop 0 0 1 1",
     "linesort",
     "linemerge",
+    "linesimplify",
 ]
 
 

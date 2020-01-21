@@ -241,6 +241,13 @@ def linemerge(lines: LineCollection, tolerance: float, no_flip: bool = True):
 )
 @layer_processor
 def linesort(lines: LineCollection, no_flip: bool = True):
+    """
+    Sort lines to minimize the pen-up travel distance.
+
+    Note: this process can be lengthy depending on the total number of line. Consider using
+    `linemerge` before `linesort` to reduce the total number of line and thus significantly
+    optimizing the overall plotting time.
+    """
     if len(lines) < 2:
         return lines
 
@@ -257,6 +264,36 @@ def linesort(lines: LineCollection, no_flip: bool = True):
     logging.info(
         f"optimize: reduced pen-up (distance, mean, median) from {lines.pen_up_length()} to "
         f"{new_lines.pen_up_length()}"
+    )
+
+    return new_lines
+
+
+@cli.command(group="Operations")
+@click.option(
+    "-t",
+    "--tolerance",
+    type=Length(),
+    default="0.05mm",
+    help="Controls how far from the original geometry simplified points may lie.",
+)
+@layer_processor
+def linesimplify(lines: LineCollection, tolerance):
+    """
+    Reduce the number of segments in the geometries.
+
+    The resulting geometries' points will be at a maximum distance from the original controlled
+    by the `--tolerance` parameter (0.05mm by default).
+    """
+    if len(lines) < 2:
+        return lines
+
+    mls = lines.as_mls().simplify(tolerance=tolerance)
+    new_lines = LineCollection(mls)
+
+    logging.info(
+        f"simplify: reduced segment count from {lines.segment_count()} to "
+        f"{new_lines.segment_count()}"
     )
 
     return new_lines
