@@ -58,8 +58,7 @@ _vpype_ is written in Python and relies, amongst many other projects, on
 [svgwrite](https://svgwrite.readthedocs.io),
 [svgpathtools](https://github.com/mathandy/svgpathtools),
 [matplotlib](https://matplotlib.org),
-[NumPy](https://numpy.org),
-[hatched](https://github.com/abey79/hatched).
+and [NumPy](https://numpy.org).
 
 <sup>1</sup>Although not at the military the author is indeed Swiss :) 🇨🇭
 
