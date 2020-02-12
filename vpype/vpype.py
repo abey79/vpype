@@ -92,11 +92,17 @@ class GroupedGroup(click.Group):
 
 
 # noinspection PyUnusedLocal
-@with_plugins(iter_entry_points('vpype.plugins'))
+@with_plugins(iter_entry_points("vpype.plugins"))
 @click.group(cls=GroupedGroup, chain=True)
 @click.option("-v", "--verbose", count=True)
 @click.option("-I", "--include", type=click.Path(), help="Load commands from a command file.")
-def cli(verbose, include):
+@click.option(
+    "-H",
+    "--history",
+    is_flag=True,
+    help="Record this command in a `vpype_history.txt` in the current directory.",
+)
+def cli(verbose, include, history):
     logging.basicConfig()
     if verbose == 0:
         logging.getLogger().setLevel(logging.WARNING)
@@ -105,10 +111,14 @@ def cli(verbose, include):
     elif verbose > 1:
         logging.getLogger().setLevel(logging.DEBUG)
 
+    if history:
+        with open("vpype_history.txt", "a") as fp:
+            fp.write("vpype " + " ".join(shlex.quote(arg) for arg in get_os_args()) + "\n")
+
 
 # noinspection PyShadowingNames,PyUnusedLocal
 @cli.resultcallback()
-def process_pipeline(processors, verbose, include):
+def process_pipeline(processors, verbose, include, history):
     execute_processors(processors)
 
 
