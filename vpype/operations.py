@@ -297,3 +297,29 @@ def linesimplify(lines: LineCollection, tolerance):
     )
 
     return new_lines
+
+
+@cli.command(group="Operations")
+@click.option(
+    "-n", "--count", type=int, default=2, help="How many pass for each line (default: 2).",
+)
+@layer_processor
+def multipass(lines: LineCollection, count: int):
+    """
+    Add multiple passes to each line
+
+    Each line is extended with a mirrored copy of itself, optionally multiple times. This is
+    useful for pens that need several passes to ensure a good quality.
+    """
+    if count < 2:
+        return lines
+
+    new_lines = LineCollection()
+    for line in lines:
+        new_lines.append(
+            np.hstack(
+                [line] + [line[-2::-1] if i % 2 == 0 else line[1:] for i in range(count - 1)]
+            )
+        )
+
+    return new_lines

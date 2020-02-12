@@ -161,7 +161,8 @@ Here is a non-exhaustive list of important commands:
 - `translate`, `rotate`, `scale`, `skew`: basic transformation commands which do exactly what you think they do
 - `crop`: crop the geometries, removing everything outside of a rectangular area
 - `linemerge`: merge lines whose endings overlap or are very close
-- `linesort`: sort lines to minimize the total distance between the end of a path to the start of the next one  
+- `linesort`: sort lines to minimize the total distance between the end of a path to the start of the next one
+- `multipass`: prepare twp-pass (or more) files for when a single stroke isn't sufficient for a good render 
 - `frame`: add a simple frame around the geometries
 - `show`: display the geometries in a `matplotlib` window
 - `write`: save the geometries as a SVG file

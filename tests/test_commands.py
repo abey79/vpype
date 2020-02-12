@@ -24,6 +24,7 @@ MINIMAL_COMMANDS = [
     "linesort",
     "linemerge",
     "linesimplify",
+    "multipass",
 ]
 
 
