@@ -81,10 +81,10 @@ class LineCollection:
             return None
         else:
             return (
-                min((l.real.min() for l in self._lines)),
-                min((l.imag.min() for l in self._lines)),
-                max((l.real.max() for l in self._lines)),
-                max((l.imag.max() for l in self._lines)),
+                min((line.real.min() for line in self._lines)),
+                min((line.imag.min() for line in self._lines)),
+                max((line.real.max() for line in self._lines)),
+                max((line.imag.max() for line in self._lines)),
             )
 
     def length(self) -> float:
@@ -97,6 +97,10 @@ class LineCollection:
         dists = np.abs(starts - ends)
         # noinspection PyTypeChecker
         return np.sum(dists), np.mean(dists), np.median(dists)
+
+    def segment_count(self) -> int:
+        """Total number of segment across all lines."""
+        return sum(max(0, len(line) - 1) for line in self._lines)
 
 
 class VectorData:
@@ -195,3 +199,6 @@ class VectorData:
 
     def pen_up_length(self) -> float:
         return sum(layer.pen_up_length()[0] for layer in self._layers.values())
+
+    def segment_count(self) -> int:
+        return sum(layer.segment_count() for layer in self._layers.values())
