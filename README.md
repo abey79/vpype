@@ -165,7 +165,6 @@ Here is a non-exhaustive list of important commands:
 - `frame`: add a simple frame around the geometries
 - `show`: display the geometries in a `matplotlib` window
 - `write`: save the geometries as a SVG file
-- `hatched`: generate hatching patterns based on an image (see the [hatched project](https://github.com/abey79/hatched))
 
 
 ### Data model and units
