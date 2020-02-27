@@ -48,8 +48,7 @@ As _vpype_ focuses only on vector graphics used as input for plotters, its data 
 paths, at the exclusion of formatting (line color, width, etc.), filled shapes, bitmaps, etc. This is the core of what
 makes _vpype_ both simple and powerful at what it does.  
     
-This project is young and being actively developed. Your feedback is important! The author can be reached on
-[Drawingbots](https://drawingbots.net)'s [Discord server](https://discordapp.com/invite/XHP3dBg).
+This project is young and being actively developed. Your feedback is important! s
  
 _vpype_ is written in Python and relies, amongst many other projects, on
 [Click](https://palletsprojects.com/p/click/),
@@ -311,9 +310,21 @@ show
 ```
 
 
-### Writing plug-ins
+### Plug-ins
 
-Creating plug-ins for _vpype_ is very easy: see the [plug-in documentation](PLUGINS.md) for more information.
+_vpype_ support plug-ins to extend its capabilities. Here are a few known plug-ins.
+
+- [vpype-pixelart](https://github.com/abey79/vpype-pixelart): easy pixel art plotting
+<img src="https://i.redd.it/g1nv7tf20aw11.png" alt="pixel art by u/_NoMansDream" width=400>
+<img src="https://i.imgur.com/dAPqFGV.jpg" alt="line mode plotted pixelart" width=400>
+(original art by Reddit user [u/\_NoMansDream](https://www.reddit.com/user/_NoMansDream/))
+
+- [hatched](https://github.com/abey79/hatched): convert images to hatched patterns
+<img src="https://i.imgur.com/QLlBpNU.png" width=300 /> <img src="https://i.imgur.com/fRIrPV2.jpg" width=300 />
+
+Creating custom plug-ins is very easy. It's a great way to implement your next plotter art project as you directly
+benefit from all of _vpype_'s features (export to SVG, line order optimisation, etc.). Check the 
+ [plug-in documentation](PLUGINS.md) for more information on how to develop your own plug-in.
 
 
 ## Contributing
