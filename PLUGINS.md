@@ -70,10 +70,10 @@ Generator commands must return a `LineCollection` instance, which is currently d
 [source code](https://github.com/abey79/vpype/blob/master/vpype/decorators.py) for details.
 
 
-## Examples
+## Known plug-ins
 
-Here is a list of known _vpype_ plug-ins:
 - [vpype-pixelart](https://github.com/abey79/vpype-pixelart): easy pixel art plotting
+- [hatched](https://github.com/abey79/hatched): convert image to hatched patterns
 
 
 ## Getting help
