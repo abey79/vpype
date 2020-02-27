@@ -21,12 +21,10 @@ setup(
         'Click',
         'click-plugins',
         'matplotlib',
-        'opencv-python',
         'rtree',
         'shapely[vectorized]',
         'svgwrite',
         'svgpathtools @ git+https://github.com/abey79/svgpathtools@vpype-fixes',
-        'hatched @ git+https://github.com/abey79/hatched.git',
     ],
     entry_points='''
         [console_scripts]

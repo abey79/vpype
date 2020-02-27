@@ -7,7 +7,6 @@ from .blocks import *
 from .debug import *
 from .frames import *
 from .generators import *
-from .hatch import *
 from .operations import *
 from .primitives import *
 from .read import *

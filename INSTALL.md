@@ -27,13 +27,7 @@ $ pip install git+https://github.com/abey79/vpype.git#egg=vpype
 Installing _vpype_ on Rasbian is similar to Linux/macOS, but a number of libraries must be installed before:
 
 ```bash
-$ sudo apt-get install git python3-shapely python3-opencv python3-rtree python3-pil python3-dev libtiff-dev libjpeg-dev zlib1g-dev libfreetype6-dev liblcms2-dev libwebp-dev libatlas-base-dev libjasper-dev libilmbase-dev libopenexr-dev libavcodec-dev libavformat-dev libswscale-dev libqtgui4 python3-pyside.qttest
-```
-
-In addition, the following Python package must be installed manually:
-
-```bash
-$ pip install scipy
+$ sudo apt-get install git python3-shapely python3-rtree python3-dev
 ```
 
 Finally, the following command must be added to the `~/.bashrc` file for _vpype_ to execute correctly:

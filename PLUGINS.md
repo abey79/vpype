@@ -73,7 +73,7 @@ Generator commands must return a `LineCollection` instance, which is currently d
 ## Known plug-ins
 
 - [vpype-pixelart](https://github.com/abey79/vpype-pixelart): easy pixel art plotting
-- [hatched](https://github.com/abey79/hatched): convert image to hatched patterns
+- [hatched](https://github.com/abey79/hatched): convert images to hatched patterns
 
 
 ## Getting help

@@ -58,8 +58,7 @@ _vpype_ is written in Python and relies, amongst many other projects, on
 [svgwrite](https://svgwrite.readthedocs.io),
 [svgpathtools](https://github.com/mathandy/svgpathtools),
 [matplotlib](https://matplotlib.org),
-[NumPy](https://numpy.org),
-[hatched](https://github.com/abey79/hatched).
+and [NumPy](https://numpy.org).
 
 <sup>1</sup>Although not at the military the author is indeed Swiss :) 🇨🇭
 
@@ -166,7 +165,6 @@ Here is a non-exhaustive list of important commands:
 - `frame`: add a simple frame around the geometries
 - `show`: display the geometries in a `matplotlib` window
 - `write`: save the geometries as a SVG file
-- `hatched`: generate hatching patterns based on an image (see the [hatched project](https://github.com/abey79/hatched))
 
 
 ### Data model and units

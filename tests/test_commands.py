@@ -9,7 +9,6 @@ CM = 96 / 2.54
 
 MINIMAL_COMMANDS = [
     "frame",
-    "hatched __ROOT__/tests/data/mario.png",
     "random",
     "line 0 0 1 1",
     "rect 0 0 1 1",
