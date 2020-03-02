@@ -5,7 +5,7 @@ import math
 from typing import Union, Iterable, List, Dict, Tuple, Optional
 
 import numpy as np
-from shapely.geometry import MultiLineString, LineString
+from shapely.geometry import MultiLineString, LineString, LinearRing
 
 LineLike = Union[LineString, Iterable[complex]]
 LineCollectionLike = Union[Iterable[LineLike], MultiLineString, "LineCollection"]
@@ -31,13 +31,17 @@ class LineCollection:
         return self._lines
 
     def append(self, line: LineLike) -> None:
-        if isinstance(line, LineString):
+        if isinstance(line, LineString) or isinstance(line, LinearRing):
             # noinspection PyTypeChecker
             self._lines.append(np.array(line).view(dtype=complex).reshape(-1))
         else:
             self._lines.append(np.array(line, dtype=complex).reshape(-1))
 
     def extend(self, lines: LineCollectionLike) -> None:
+        # sometimes, mls end up actually being ls
+        if isinstance(lines, LineString) or isinstance(lines, LinearRing):
+            lines = [lines]
+
         for line in lines:
             self.append(line)
 
