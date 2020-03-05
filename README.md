@@ -314,6 +314,8 @@ show
 
 _vpype_ support plug-ins to extend its capabilities. Here are a few known plug-ins.
 
+#### [vpype-text](https://github.com/abey79/vpype-text): generate plottable text with Hershey fonts (based on [axi](https://github.com/fogleman/axi))
+
 #### [vpype-pixelart](https://github.com/abey79/vpype-pixelart): easy pixel art plotting
 
 <img src="https://i.redd.it/g1nv7tf20aw11.png" alt="pixel art by u/_NoMansDream" width=400 />
