@@ -334,6 +334,15 @@ benefit from all of _vpype_'s features (export to SVG, line order optimisation, 
 
 ## Contributing
 
+This project is at an early stage and welcomes all types of contributions. The most important way to contribute is by
+[filling Issues](https://github.com/abey79/vpype/issues) describing bugs you are experiencing or features you would
+like to see added. Understanding your use-case and workflow is key for _vpype_ to evolve in the right direction.
+ 
+Of course, this is not to say that code contributions are not welcome. Feel free to also open [Pull
+requests](https://github.com/abey79/vpype/pulls) to contribute actual code. Note that this project uses
+[`black`](https://github.com/psf/black) for code formatting so we don't have to discuss about it.
+
+
 ### Development environment
 
 The first step is to download the code:
@@ -369,20 +378,6 @@ You can run tests with the following command:
 ```bash
 $ pytest
 ```
-
-
-### Making a contribution
-
-This project is at an early stage and welcomes all types of contributions, such as proposal for:
-
-- new options to current commands,
-- CLI UX improvements,
-- new commands and/or features, including their CLI UX,
-- etc.
-  
-You may open [Issues](https://github.com/abey79/vpype/issues) to discuss any of this. Feel free to also open [Pull
-requests](https://github.com/abey79/vpype/pulls) to contribute actual code. Note that this project uses
-[`black`](https://github.com/psf/black) for code formatting so we don't have to discuss about it.
 
 
 ## License
