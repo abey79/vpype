@@ -2,9 +2,8 @@ import click
 import matplotlib.collections
 import matplotlib.pyplot as plt
 
-from .decorators import global_processor
-from .model import VectorData, as_vector
-from .vpype import cli
+from vpype import global_processor, as_vector, VectorData
+from .cli import cli
 
 COLORS = [
     (0, 0, 1),

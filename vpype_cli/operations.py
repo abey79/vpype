@@ -7,10 +7,8 @@ import numpy as np
 import rtree
 from shapely.geometry import Polygon, LineString
 
-from .decorators import layer_processor
-from .model import LineCollection, as_vector
-from .utils import Length
-from .vpype import cli
+from vpype import as_vector, LineCollection, Length, layer_processor
+from .cli import cli
 
 
 class LineIndex:

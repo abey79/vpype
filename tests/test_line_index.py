@@ -1,7 +1,7 @@
 import numpy as np
 
-from vpype.operations import LineIndex
-from vpype.model import LineCollection
+from vpype import LineCollection
+from vpype_cli.operations import LineIndex
 from .conftest import random_line
 
 

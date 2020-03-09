@@ -1,11 +1,10 @@
 import click
 
-from vpype.model import LineCollection
-from vpype.decorators import generator
+import vpype
 
 
 @click.command()
-@generator
+@vpype.generator
 def star():
     """
     Demo plug-in
@@ -13,7 +12,7 @@ def star():
     This demo plug-in generates a star.
     """
 
-    lc = LineCollection()
+    lc = vpype.LineCollection()
     lc.append(
         [
             150 + 25j,

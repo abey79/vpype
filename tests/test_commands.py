@@ -2,8 +2,8 @@ import itertools
 
 import pytest
 
-from vpype import cli
-from vpype.debug import DebugData
+from vpype_cli import cli
+from vpype_cli.debug import DebugData
 
 CM = 96 / 2.54
 

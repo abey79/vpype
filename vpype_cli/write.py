@@ -4,9 +4,8 @@ import logging
 import click
 import svgwrite
 
-from .decorators import global_processor
-from .model import VectorData, as_vector
-from .vpype import cli
+from vpype import global_processor, as_vector, VectorData
+from .cli import cli
 
 # supported page format, size in mm
 PAGE_FORMATS = {
