@@ -6,9 +6,8 @@ from typing import Union, Any, Dict, Iterable, Sequence
 
 import numpy as np
 
-from .decorators import global_processor
-from .model import VectorData, as_vector, LineCollection
-from .vpype import cli
+from vpype import global_processor, as_vector, VectorData, LineCollection
+from .cli import cli
 
 debug_data = []
 

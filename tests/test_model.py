@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 from shapely.geometry import MultiLineString, LineString
 
-from vpype.model import LineCollection, VectorData
+from vpype import LineCollection, VectorData
 
 LINE_COLLECTION_INIT = [
     LineCollection([[0, 1 + 1j], [2 + 2j, 3 + 3j, 4 + 4j]]),

@@ -4,10 +4,8 @@ import click
 import numpy as np
 from svgpathtools import Line, Document
 
-from .decorators import generator
-from .model import LineCollection
-from .utils import Length, convert
-from .vpype import cli
+from vpype import LineCollection, Length, generator, convert
+from .cli import cli
 
 
 @cli.command(group="Input")

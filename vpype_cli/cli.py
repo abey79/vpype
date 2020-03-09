@@ -1,7 +1,6 @@
 import logging
 import os
 import shlex
-from contextlib import contextmanager
 from typing import TextIO, List, Union
 
 import click
@@ -10,29 +9,7 @@ from click_plugins import with_plugins
 from pkg_resources import iter_entry_points
 from shapely.geometry import MultiLineString
 
-from .model import VectorData
-
-
-class VpypeState:
-    current_state: Union["VpypeState", None] = None
-
-    def __init__(self, vd: Union[VectorData, None] = None):
-        if vd is not None:
-            self.vector_data = vd
-        else:
-            self.vector_data = VectorData()
-
-        self.target_layer = None
-
-    @classmethod
-    def get_current(cls):
-        return cls.current_state
-
-    @contextmanager
-    def current(self):
-        self.__class__.current_state = self
-        yield
-        self.__class__.current_state = None
+from vpype import VpypeState
 
 
 class GroupedGroup(click.Group):

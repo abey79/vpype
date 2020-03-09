@@ -1,7 +1,7 @@
 import pytest
 
-from vpype import cli
-from vpype.debug import DebugData
+from vpype_cli import cli
+from vpype_cli.debug import DebugData
 
 
 @pytest.mark.parametrize(

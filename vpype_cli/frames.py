@@ -1,9 +1,7 @@
 import click
 
-from .decorators import generator, pass_state
-from .model import LineCollection
-from .utils import Length
-from .vpype import cli, VpypeState
+from vpype import LineCollection, Length, generator, VpypeState, pass_state
+from .cli import cli
 
 
 @cli.command(group="Generators")
