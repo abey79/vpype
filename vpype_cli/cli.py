@@ -54,7 +54,7 @@ class GroupedGroup(click.Group):
             for subcommand, cmd in commands:
                 help_text = cmd.get_short_help_str(limit)
                 subcommand += " " * (longest - len(subcommand))
-                groups.setdefault(cmd.help_group, []).append((subcommand, help_text))
+                groups.setdefault(getattr(cmd, "help_group", "Unknown"), []).append((subcommand, help_text))
 
             with formatter.section("Commands"):
                 for group_name, rows in groups.items():
