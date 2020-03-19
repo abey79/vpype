@@ -2,8 +2,8 @@
 
 # _vpype_
 
-_vpype_ aims to be the one-stop-shop, Swiss Army knife<sup>1</sup> for producing plotter-ready vector graphics. Here are, for
-illustration, a few examples of what it can do:
+_vpype_ aims to be the one-stop-shop, Swiss Army knife<sup>1</sup> for producing plotter-ready vector graphics. Here
+are, for illustration, a few examples of what it can do:
  
 - Load a SVG, scale it to a specific size, and export it centered on a A4, ready-to-plot SVG.
     ```bash
@@ -29,7 +29,8 @@ illustration, a few examples of what it can do:
 
 At its core, _vpype_ allows the user to build pipelines of _commands_, each of which receives a
 collection of vector graphics (basically, lines), modifies them and/or produce new ones, and pass them to the next
-command. _vpype_'s simple CLI user interface makes it a breeze to create these pipelines.
+command. _vpype_'s simple CLI user interface makes it a breeze to create these pipelines, which can be expended thanks
+to a [plug-in](PLUGINS.md) architecture.
 
 Let's have a close look at an example:
 
@@ -47,8 +48,7 @@ As _vpype_ focuses only on vector graphics used as input for plotters, its data 
 paths, at the exclusion of formatting (line color, width, etc.), filled shapes, bitmaps, etc. This is the core of what
 makes _vpype_ both simple and powerful at what it does.  
     
-This project is young and being actively developed. Your feedback is important! The author can be reached on
-[Drawingbots](https://drawingbots.net)'s [Discord server](https://discordapp.com/invite/XHP3dBg).
+This project is young and being actively developed. Your feedback is important! s
  
 _vpype_ is written in Python and relies, amongst many other projects, on
 [Click](https://palletsprojects.com/p/click/),
@@ -57,8 +57,7 @@ _vpype_ is written in Python and relies, amongst many other projects, on
 [svgwrite](https://svgwrite.readthedocs.io),
 [svgpathtools](https://github.com/mathandy/svgpathtools),
 [matplotlib](https://matplotlib.org),
-[NumPy](https://numpy.org),
-[hatched](https://github.com/abey79/hatched).
+and [NumPy](https://numpy.org).
 
 <sup>1</sup>Although not at the military the author is indeed Swiss :) 🇨🇭
 
@@ -160,11 +159,11 @@ Here is a non-exhaustive list of important commands:
 - `translate`, `rotate`, `scale`, `skew`: basic transformation commands which do exactly what you think they do
 - `crop`: crop the geometries, removing everything outside of a rectangular area
 - `linemerge`: merge lines whose endings overlap or are very close
-- `linesort`: sort lines to minimize the total distance between the end of a path to the start of the next one  
+- `linesort`: sort lines to minimize the total distance between the end of a path to the start of the next one
+- `multipass`: prepare twp-pass (or more) files for when a single stroke isn't sufficient for a good render 
 - `frame`: add a simple frame around the geometries
 - `show`: display the geometries in a `matplotlib` window
 - `write`: save the geometries as a SVG file
-- `hatched`: generate hatching patterns based on an image (see the [hatched project](https://github.com/abey79/hatched))
 
 
 ### Data model and units
@@ -310,7 +309,39 @@ end
 show
 ```
 
+
+### Plug-ins
+
+_vpype_ support plug-ins to extend its capabilities. Here are a few known plug-ins.
+
+#### [vpype-text](https://github.com/abey79/vpype-text): generate plottable text with Hershey fonts (based on [axi](https://github.com/fogleman/axi))
+
+#### [vpype-pixelart](https://github.com/abey79/vpype-pixelart): easy pixel art plotting
+
+<img src="https://i.redd.it/g1nv7tf20aw11.png" alt="pixel art by u/_NoMansDream" width=400 />
+<img src="https://i.imgur.com/dAPqFGV.jpg" alt="line mode plotted pixelart" width=400 />
+
+(original art by Reddit user [u/\_NoMansDream](https://www.reddit.com/user/_NoMansDream/))
+
+#### [hatched](https://github.com/abey79/hatched): convert images to hatched patterns
+
+<img src="https://i.imgur.com/QLlBpNU.png" width=300 /> <img src="https://i.imgur.com/fRIrPV2.jpg" width=300 />
+
+Creating custom plug-ins is very easy. It's a great way to implement your next plotter art project as you directly
+benefit from all of _vpype_'s features (export to SVG, line order optimisation, etc.). Check the
+[plug-in documentation](PLUGINS.md) for more information on how to develop your own plug-in.
+
+
 ## Contributing
+
+This project is at an early stage and welcomes all types of contributions. The most important way to contribute is by
+[filling Issues](https://github.com/abey79/vpype/issues) describing bugs you are experiencing or features you would
+like to see added. Understanding your use-case and workflow is key for _vpype_ to evolve in the right direction.
+ 
+Of course, this is not to say that code contributions are not welcome. Feel free to also open [Pull
+requests](https://github.com/abey79/vpype/pulls) to contribute actual code. Note that this project uses
+[`black`](https://github.com/psf/black) for code formatting so we don't have to discuss about it.
+
 
 ### Development environment
 
@@ -347,20 +378,6 @@ You can run tests with the following command:
 ```bash
 $ pytest
 ```
-
-
-### Making a contribution
-
-This project is at an early stage and welcomes all types of contributions, such as proposal for:
-
-- new options to current commands,
-- CLI UX improvements,
-- new commands and/or features, including their CLI UX,
-- etc.
-  
-You may open [Issues](https://github.com/abey79/vpype/issues) to discuss any of this. Feel free to also open [Pull
-requests](https://github.com/abey79/vpype/pulls) to contribute actual code. Note that this project uses
-[`black`](https://github.com/psf/black) for code formatting so we don't have to discuss about it.
 
 
 ## License

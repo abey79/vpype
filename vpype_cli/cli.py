@@ -1,36 +1,15 @@
 import logging
 import os
 import shlex
-from contextlib import contextmanager
 from typing import TextIO, List, Union
 
 import click
 from click import get_os_args
+from click_plugins import with_plugins
+from pkg_resources import iter_entry_points
 from shapely.geometry import MultiLineString
 
-from .model import VectorData
-
-
-class VpypeState:
-    current_state: Union["VpypeState", None] = None
-
-    def __init__(self, vd: Union[VectorData, None] = None):
-        if vd is not None:
-            self.vector_data = vd
-        else:
-            self.vector_data = VectorData()
-
-        self.target_layer = None
-
-    @classmethod
-    def get_current(cls):
-        return cls.current_state
-
-    @contextmanager
-    def current(self):
-        self.__class__.current_state = self
-        yield
-        self.__class__.current_state = None
+from vpype import VpypeState
 
 
 class GroupedGroup(click.Group):
@@ -75,7 +54,7 @@ class GroupedGroup(click.Group):
             for subcommand, cmd in commands:
                 help_text = cmd.get_short_help_str(limit)
                 subcommand += " " * (longest - len(subcommand))
-                groups.setdefault(cmd.help_group, []).append((subcommand, help_text))
+                groups.setdefault(getattr(cmd, "help_group", "Unknown"), []).append((subcommand, help_text))
 
             with formatter.section("Commands"):
                 for group_name, rows in groups.items():
@@ -90,10 +69,17 @@ class GroupedGroup(click.Group):
 
 
 # noinspection PyUnusedLocal
+@with_plugins(iter_entry_points("vpype.plugins"))
 @click.group(cls=GroupedGroup, chain=True)
 @click.option("-v", "--verbose", count=True)
 @click.option("-I", "--include", type=click.Path(), help="Load commands from a command file.")
-def cli(verbose, include):
+@click.option(
+    "-H",
+    "--history",
+    is_flag=True,
+    help="Record this command in a `vpype_history.txt` in the current directory.",
+)
+def cli(verbose, include, history):
     logging.basicConfig()
     if verbose == 0:
         logging.getLogger().setLevel(logging.WARNING)
@@ -102,10 +88,14 @@ def cli(verbose, include):
     elif verbose > 1:
         logging.getLogger().setLevel(logging.DEBUG)
 
+    if history:
+        with open("vpype_history.txt", "a") as fp:
+            fp.write("vpype " + " ".join(shlex.quote(arg) for arg in get_os_args()) + "\n")
+
 
 # noinspection PyShadowingNames,PyUnusedLocal
 @cli.resultcallback()
-def process_pipeline(processors, verbose, include):
+def process_pipeline(processors, verbose, include, history):
     execute_processors(processors)
 
 

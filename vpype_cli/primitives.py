@@ -3,10 +3,8 @@ import math
 import click
 import numpy as np
 
-from .model import LineCollection
-from .utils import Length
-from .vpype import cli
-from .decorators import generator
+from vpype import LineCollection, Length, generator
+from .cli import cli
 
 
 @cli.command(group="Primitives")

@@ -22,6 +22,21 @@ $ pip install git+https://github.com/abey79/vpype.git#egg=vpype
 ```
 
 
+## Raspberry Pi
+
+Installing _vpype_ on Rasbian is similar to Linux/macOS, but a number of libraries must be installed before:
+
+```bash
+$ sudo apt-get install git python3-shapely python3-rtree python3-dev
+```
+
+Finally, the following command must be added to the `~/.bashrc` file for _vpype_ to execute correctly:
+
+```
+export LD_PRELOAD=/usr/lib/arm-linux-gnueabihf/libatomic.so.1
+```
+
+
 ## Windows
 
 Unfortunately, _vpype_ being a new project, simple installation package are not yet available, so the installation procedure

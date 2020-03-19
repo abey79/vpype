@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 
 with open("README.md") as f:
@@ -16,19 +16,18 @@ setup(
     author="Antoine Beyeler",
     url="https://github.com/abey79/vpype",
     license=license,
-    packages=find_packages(exclude=("examples", "tests")),
+    packages=["vpype", "vpype_cli"],
     install_requires=[
         'Click',
+        'click-plugins',
         'matplotlib',
-        'opencv-python',
         'rtree',
         'shapely[vectorized]',
         'svgwrite',
         'svgpathtools @ git+https://github.com/abey79/svgpathtools@vpype-fixes',
-        'hatched @ git+https://github.com/abey79/hatched.git',
     ],
     entry_points='''
         [console_scripts]
-        vpype=vpype:cli
+        vpype=vpype_cli.cli:cli
     '''
 )

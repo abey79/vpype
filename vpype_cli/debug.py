@@ -6,9 +6,8 @@ from typing import Union, Any, Dict, Iterable, Sequence
 
 import numpy as np
 
-from .decorators import global_processor
-from .model import VectorData, as_vector, LineCollection
-from .vpype import cli
+from vpype import global_processor, as_vector, VectorData, LineCollection
+from .cli import cli
 
 debug_data = []
 
@@ -140,14 +139,16 @@ def stat(vector_data: VectorData):
         print(f"  Total length: {length + pen_up_length}")
         print(f"  Mean pen-up length: {pen_up_mean}")
         print(f"  Median pen-up length: {pen_up_median}")
-        print(f"  Count: {len(layer)}")
+        print(f"  Path count: {len(layer)}")
+        print(f"  Segment count: {layer.segment_count()}")
         print(f"  Bounds: {layer.bounds()}")
     print(f"Totals")
     print(f"  Layer count: {len(vector_data.layers)}")
     print(f"  Length: {length_tot}")
     print(f"  Pen-up length: {pen_up_length_tot}")
     print(f"  Total length: {length_tot + pen_up_length_tot}")
-    print(f"  Count: {sum(len(layer) for layer in vector_data.layers.values())}")
+    print(f"  Path count: {sum(len(layer) for layer in vector_data.layers.values())}")
+    print(f"  Segment count: {vector_data.segment_count()}")
     print(f"  Bounds: {vector_data.bounds()}")
     print("========================= ")
 

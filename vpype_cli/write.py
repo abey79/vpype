@@ -6,9 +6,8 @@ from typing import Tuple
 import click
 import svgwrite
 
-from .decorators import global_processor
-from .model import VectorData, as_vector
-from .vpype import cli
+from vpype import global_processor, as_vector, VectorData
+from .cli import cli
 
 # supported page format, size in mm
 PAGE_FORMATS = {
@@ -146,7 +145,9 @@ def write_svg(
     for layer_id in sorted(vector_data.layers.keys()):
         layer = vector_data.layers[layer_id]
 
-        group = dwg.g(style="display:inline", id=f"layer{layer_id}")
+        group = dwg.g(
+            style="display:inline", id=f"layer{layer_id}", fill="none", stroke="black"
+        )
         group.attribs["inkscape:groupmode"] = "layer"
         group.attribs["inkscape:label"] = str(layer_id)
 
@@ -157,19 +158,11 @@ def write_svg(
                         ("M" + " L".join(f"{x},{y}" for x, y in as_vector(line)))
                         for line in layer
                     ),
-                    fill="none",
-                    stroke="black",
                 )
             )
         else:
             for line in layer:
-                group.add(
-                    dwg.path(
-                        "M" + " L".join(f"{x},{y}" for x, y in as_vector(line)),
-                        fill="none",
-                        stroke="black",
-                    )
-                )
+                group.add(dwg.path("M" + " L".join(f"{x},{y}" for x, y in as_vector(line)),))
 
         dwg.add(group)
 

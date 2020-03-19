@@ -7,10 +7,8 @@ import numpy as np
 import rtree
 from shapely.geometry import Polygon, LineString
 
-from .decorators import layer_processor
-from .model import LineCollection, as_vector
-from .utils import Length
-from .vpype import cli
+from vpype import as_vector, LineCollection, Length, layer_processor
+from .cli import cli
 
 
 class LineIndex:
@@ -175,7 +173,7 @@ def crop(lines: LineCollection, x: float, y: float, width: float, height: float)
         res = LineString(as_vector(line)).intersection(p)
         if res.geom_type == "MultiLineString":
             new_lines.extend(res)
-        elif not res.is_empty:
+        elif res.geom_type == "LineString":
             new_lines.append(res)
 
     return new_lines
@@ -241,6 +239,13 @@ def linemerge(lines: LineCollection, tolerance: float, no_flip: bool = True):
 )
 @layer_processor
 def linesort(lines: LineCollection, no_flip: bool = True):
+    """
+    Sort lines to minimize the pen-up travel distance.
+
+    Note: this process can be lengthy depending on the total number of line. Consider using
+    `linemerge` before `linesort` to reduce the total number of line and thus significantly
+    optimizing the overall plotting time.
+    """
     if len(lines) < 2:
         return lines
 
@@ -258,5 +263,61 @@ def linesort(lines: LineCollection, no_flip: bool = True):
         f"optimize: reduced pen-up (distance, mean, median) from {lines.pen_up_length()} to "
         f"{new_lines.pen_up_length()}"
     )
+
+    return new_lines
+
+
+@cli.command(group="Operations")
+@click.option(
+    "-t",
+    "--tolerance",
+    type=Length(),
+    default="0.05mm",
+    help="Controls how far from the original geometry simplified points may lie.",
+)
+@layer_processor
+def linesimplify(lines: LineCollection, tolerance):
+    """
+    Reduce the number of segments in the geometries.
+
+    The resulting geometries' points will be at a maximum distance from the original controlled
+    by the `--tolerance` parameter (0.05mm by default).
+    """
+    if len(lines) < 2:
+        return lines
+
+    mls = lines.as_mls().simplify(tolerance=tolerance)
+    new_lines = LineCollection(mls)
+
+    logging.info(
+        f"simplify: reduced segment count from {lines.segment_count()} to "
+        f"{new_lines.segment_count()}"
+    )
+
+    return new_lines
+
+
+@cli.command(group="Operations")
+@click.option(
+    "-n", "--count", type=int, default=2, help="How many pass for each line (default: 2).",
+)
+@layer_processor
+def multipass(lines: LineCollection, count: int):
+    """
+    Add multiple passes to each line
+
+    Each line is extended with a mirrored copy of itself, optionally multiple times. This is
+    useful for pens that need several passes to ensure a good quality.
+    """
+    if count < 2:
+        return lines
+
+    new_lines = LineCollection()
+    for line in lines:
+        new_lines.append(
+            np.hstack(
+                [line] + [line[-2::-1] if i % 2 == 0 else line[1:] for i in range(count - 1)]
+            )
+        )
 
     return new_lines

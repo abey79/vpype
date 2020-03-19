@@ -2,9 +2,8 @@ import click
 import matplotlib.collections
 import matplotlib.pyplot as plt
 
-from .decorators import global_processor
-from .model import VectorData, as_vector
-from .vpype import cli
+from vpype import global_processor, as_vector, VectorData, convert
+from .cli import cli
 
 COLORS = [
     (0, 0, 1),
@@ -25,6 +24,13 @@ COLORS = [
 @click.option(
     "-c", "--colorful", is_flag=True, help="Display each segment in a different color."
 )
+@click.option(
+    "-u",
+    "--unit",
+    type=str,
+    default="px",
+    help="Units of the plot (when --show-grid is active)",
+)
 @global_processor
 def show(
     vector_data: VectorData,
@@ -32,6 +38,7 @@ def show(
     show_grid: bool,
     show_pen_up: bool,
     colorful: bool,
+    unit: str,
 ):
     """
     Display the geometry using matplotlib.
@@ -40,6 +47,8 @@ def show(
     displayed with black. When using the `--colorful` flag, each segment will have a different
     color (default matplotlib behaviour). This can be useful for debugging purposes.
     """
+
+    scale = 1 / convert(unit)
 
     plt.figure()
     color_idx = 0
@@ -55,7 +64,7 @@ def show(
 
         plt.gca().add_collection(
             matplotlib.collections.LineCollection(
-                (as_vector(line) for line in lc), color=color, lw=1, alpha=0.5
+                (as_vector(line) * scale for line in lc), color=color, lw=1, alpha=0.5
             )
         )
 
@@ -63,7 +72,7 @@ def show(
             plt.gca().add_collection(
                 matplotlib.collections.LineCollection(
                     (
-                        (as_vector(lc[i])[-1], as_vector(lc[i + 1])[0])
+                        (as_vector(lc[i])[-1] * scale, as_vector(lc[i + 1])[0] * scale)
                         for i in range(len(lc) - 1)
                     ),
                     color=(0, 0, 0),
@@ -76,6 +85,8 @@ def show(
     plt.axis("equal")
     if show_axes or show_grid:
         plt.axis("on")
+        plt.xlabel(f"[{unit}]")
+        plt.ylabel(f"[{unit}]")
     else:
         plt.axis("off")
     if show_grid:

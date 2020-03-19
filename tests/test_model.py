@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 from shapely.geometry import MultiLineString, LineString
 
-from vpype.model import LineCollection, VectorData
+from vpype import LineCollection, VectorData
 
 LINE_COLLECTION_INIT = [
     LineCollection([[0, 1 + 1j], [2 + 2j, 3 + 3j, 4 + 4j]]),
@@ -50,6 +50,11 @@ def test_line_collection_append(line):
 def test_line_collection_bounds():
     lc = LineCollection([(-10, 10), (-10j, 10j)])
     assert lc.bounds() == (-10, -10, 10, 10)
+
+
+def test_line_collection_empty_bounds():
+    lc = LineCollection()
+    assert lc.bounds() is None
 
 
 def test_line_collection_pen_up_length():

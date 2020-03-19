@@ -4,10 +4,9 @@ from typing import Tuple, Union, List
 
 import click
 
-from .decorators import layer_processor, global_processor, LayerType
-from .model import LineCollection, VectorData
-from .utils import Length
-from .vpype import cli
+from vpype import global_processor, VectorData, LineCollection, Length, layer_processor, \
+    LayerType
+from .cli import cli
 
 
 @cli.command(group="Transforms")

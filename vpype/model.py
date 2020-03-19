@@ -2,10 +2,10 @@
 Implementation of vpype's data model
 """
 import math
-from typing import Union, Iterable, List, Dict, Tuple
+from typing import Union, Iterable, List, Dict, Tuple, Optional
 
 import numpy as np
-from shapely.geometry import MultiLineString, LineString
+from shapely.geometry import MultiLineString, LineString, LinearRing
 
 LineLike = Union[LineString, Iterable[complex]]
 LineCollectionLike = Union[Iterable[LineLike], MultiLineString, "LineCollection"]
@@ -31,13 +31,17 @@ class LineCollection:
         return self._lines
 
     def append(self, line: LineLike) -> None:
-        if isinstance(line, LineString):
+        if isinstance(line, LineString) or isinstance(line, LinearRing):
             # noinspection PyTypeChecker
             self._lines.append(np.array(line).view(dtype=complex).reshape(-1))
         else:
             self._lines.append(np.array(line, dtype=complex).reshape(-1))
 
     def extend(self, lines: LineCollectionLike) -> None:
+        # sometimes, mls end up actually being ls
+        if isinstance(lines, LineString) or isinstance(lines, LinearRing):
+            lines = [lines]
+
         for line in lines:
             self.append(line)
 
@@ -76,13 +80,16 @@ class LineCollection:
         for line in self._lines:
             line += tx * line.imag + 1j * ty * line.real
 
-    def bounds(self) -> Tuple[float, float, float, float]:
-        return (
-            min((l.real.min() for l in self._lines)),
-            min((l.imag.min() for l in self._lines)),
-            max((l.real.max() for l in self._lines)),
-            max((l.imag.max() for l in self._lines)),
-        )
+    def bounds(self) -> Optional[Tuple[float, float, float, float]]:
+        if len(self._lines) == 0:
+            return None
+        else:
+            return (
+                min((line.real.min() for line in self._lines)),
+                min((line.imag.min() for line in self._lines)),
+                max((line.real.max() for line in self._lines)),
+                max((line.imag.max() for line in self._lines)),
+            )
 
     def length(self) -> float:
         return sum(np.sum(np.abs(np.diff(line))) for line in self._lines)
@@ -94,6 +101,10 @@ class LineCollection:
         dists = np.abs(starts - ends)
         # noinspection PyTypeChecker
         return np.sum(dists), np.mean(dists), np.median(dists)
+
+    def segment_count(self) -> int:
+        """Total number of segment across all lines."""
+        return sum(max(0, len(line) - 1) for line in self._lines)
 
 
 class VectorData:
@@ -192,3 +203,6 @@ class VectorData:
 
     def pen_up_length(self) -> float:
         return sum(layer.pen_up_length()[0] for layer in self._layers.values())
+
+    def segment_count(self) -> int:
+        return sum(layer.segment_count() for layer in self._layers.values())

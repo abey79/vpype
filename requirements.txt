@@ -1,14 +1,13 @@
 # base
 click
+click-plugins
 matplotlib
 numpy
-opencv-python
 rtree
 shapely[vectorized]
 svgwrite
 
 git+https://github.com/abey79/svgpathtools@vpype-fixes#egg=svgpathtools
-git+https://github.com/abey79/hatched.git#egg=hatched
 
 
 # dev/test

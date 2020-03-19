@@ -19,7 +19,8 @@ def convert(value: Union[str, float]):
         value = value.strip().lower()
         for unit, factor in UNITS:
             if value.endswith(unit):
-                return float(value.strip(unit)) * factor
+                num = value.strip(unit)
+                return (float(num) if len(num) > 0 else 1.) * factor
 
     return float(value)
 

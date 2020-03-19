@@ -2,9 +2,8 @@ import importlib.util
 
 import click
 
-from .decorators import generator
-from .model import LineCollection
-from .vpype import cli
+from vpype import LineCollection, generator
+from .cli import cli
 
 
 @cli.command(group="Input")

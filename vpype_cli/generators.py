@@ -3,10 +3,8 @@ from typing import Tuple
 import click
 import numpy as np
 
-from .decorators import generator
-from .model import LineCollection
-from .utils import Length
-from .vpype import cli
+from vpype import LineCollection, Length, generator
+from .cli import cli
 
 
 @cli.command(group="Generators")
