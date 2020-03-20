@@ -16,9 +16,12 @@ PAGE_FORMATS = {
     "a4": (210.0, 297.0),
     "a3": (297.0, 420.0),
     "letter": (215.9, 279.4),
+    "a": (215.9, 279.4),
     "legal": (215.9, 355.6),
     "executive": (185.15, 266.7),
     "11x14": (279.4, 355.6),
+    "tabloid": (279.4, 431.8),
+    "b": (279.4, 431.8)
 }
 
 
@@ -179,6 +182,9 @@ def write_hpgl(
     :param size: size of the page in pixel
     :param paper_portrait: paper is loaded in portrait orientation instead of landscape
     """
+    ##########
+    # may need to find out what plotter model and adjust this.
+    #find out what other plotters use hpgl and their coord systems and limits
     # for plotters A2 and above we need to offset the coords (LL = -309, -210)
     offset = [-309, -210]
 
@@ -193,7 +199,7 @@ def write_hpgl(
         x = int(x * scale) + offset[0]
         y = int(y * scale) + offset[1]
         return x, y
-
+    ##########
     hpgl = "IN;DF;\n"
 
     # this could be determined by the layer number? layer 1 uses pen 1, layer 2 uses pen 2 etc
@@ -204,14 +210,16 @@ def write_hpgl(
         for line in layer:
             # output the first coordinate
             x, y = pxtoplot(as_vector(line)[0][0], as_vector(line)[0][1])
-            hpgl += "PU{},{}PD".format(x, y)
+            hpgl += "PU{},{};PD".format(x, y)
             # output second to penulimate coordinates
             for x, y in as_vector(line)[1:-1]:
                 x, y = pxtoplot(x, y)
                 hpgl += "{},{},".format(x, y)
             # output final coordinate
             x, y = pxtoplot(as_vector(line)[-1][0], as_vector(line)[-1][1])
-            hpgl += "{},{}\n".format(x, y)
+            hpgl += "{},{}".format(x, y)
+            # add semicolon terminator between lines
+            hpgl += ";\n" 
 
     # put the pen back and leave the plotter in an initialised state
     hpgl += "SP0;IN;"
