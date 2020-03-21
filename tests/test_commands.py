@@ -118,13 +118,6 @@ def test_write_read_identical(runner, args):
     assert (data1.bounds[3] - data1.bounds[1]) == (data2.bounds[3] - data2.bounds[1])
 
 
-def test_rotate_360(runner):
-    res = runner.invoke(cli, "random -n 100 -a 10cm 10cm dbsample rotate 360 dbsample dbdump")
-    data = DebugData.load(res.output)
-    assert res.exit_code == 0
-    assert data[0] == data[1]
-
-
 def test_rotate_origin(runner):
     res = runner.invoke(
         cli, "random -n 100 -a 10cm 10cm dbsample rotate -o 0 0 90 dbsample dbdump"
