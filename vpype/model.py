@@ -203,7 +203,13 @@ class VectorData:
         """
         if layer_ids is None:
             layer_ids = self.ids()
-        a = np.array([self._layers[vid].bounds() for vid in layer_ids if self.exists(vid)])
+        a = np.array(
+            [
+                self._layers[vid].bounds()
+                for vid in layer_ids
+                if self.exists(vid) and len(self._layers[vid]) > 0
+            ]
+        )
         return a[:, 0].min(), a[:, 1].min(), a[:, 2].max(), a[:, 3].max()
 
     def length(self) -> float:

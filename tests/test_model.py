@@ -132,3 +132,12 @@ def test_vector_data_bounds():
     vd.add(LineCollection([(-10, 10), (0, 0)]), 1)
     vd.add(LineCollection([(0, 0), (-10j, 10j)]), 2)
     assert vd.bounds() == (-10, -10, 10, 10)
+
+
+def test_vector_data_bounds_empty_layer():
+    vd = VectorData()
+
+    vd.add(LineCollection([(0, 10+10j)]), 1)
+    vd.add(LineCollection())
+
+    assert vd.bounds() == (0, 0, 10, 10)
