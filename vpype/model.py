@@ -8,7 +8,12 @@ import numpy as np
 from shapely.geometry import MultiLineString, LineString, LinearRing
 
 LineLike = Union[LineString, Iterable[complex]]
-LineCollectionLike = Union[Iterable[LineLike], MultiLineString, "LineCollection"]
+
+# We accept LineString and LinearRing as line collection because MultiLineString are regularly
+# converted to LineString/LinearRing when operation reduce them to single-line construct.
+LineCollectionLike = Union[
+    Iterable[LineLike], MultiLineString, "LineCollection", LineString, LinearRing
+]
 
 
 def as_vector(a: np.ndarray):
@@ -23,8 +28,8 @@ class LineCollection:
         :param lines: iterable of line-like things
         """
         self._lines: List[np.ndarray] = []
-        for line in lines:
-            self.append(line)
+
+        self.extend(lines)
 
     @property
     def lines(self) -> List[np.ndarray]:
@@ -38,6 +43,9 @@ class LineCollection:
             self._lines.append(np.array(line, dtype=complex).reshape(-1))
 
     def extend(self, lines: LineCollectionLike) -> None:
+        if hasattr(lines, "geom_type") and lines.is_empty:
+            return
+
         # sometimes, mls end up actually being ls
         if isinstance(lines, LineString) or isinstance(lines, LinearRing):
             lines = [lines]
@@ -195,7 +203,13 @@ class VectorData:
         """
         if layer_ids is None:
             layer_ids = self.ids()
-        a = np.array([self._layers[vid].bounds() for vid in layer_ids if self.exists(vid)])
+        a = np.array(
+            [
+                self._layers[vid].bounds()
+                for vid in layer_ids
+                if self.exists(vid) and len(self._layers[vid]) > 0
+            ]
+        )
         return a[:, 0].min(), a[:, 1].min(), a[:, 2].max(), a[:, 3].max()
 
     def length(self) -> float:
