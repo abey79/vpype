@@ -22,6 +22,9 @@ def as_vector(a: np.ndarray):
 
 
 class LineCollection:
+    """
+    Line collection TODO
+    """
     def __init__(self, lines: LineCollectionLike = ()):
         """
         Create a line collection.
