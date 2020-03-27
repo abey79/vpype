@@ -22,6 +22,7 @@ setup(
         'click-plugins',
         'matplotlib',
         'rtree',
+        'scipy',  # scipy is needed to optimize svgpathtools' curve linearization
         'shapely[vectorized]',
         'svgwrite',
         'svgpathtools @ git+https://github.com/abey79/svgpathtools@vpype-fixes',

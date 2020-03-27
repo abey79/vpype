@@ -4,6 +4,7 @@ click-plugins
 matplotlib
 numpy
 rtree
+scipy
 shapely[vectorized]
 svgwrite
 
