@@ -10,6 +10,14 @@ Welcome to vpype's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   Installation <install>
+   Understanding vpype <concepts>
+   Cookbook <cookbook>
+   Plug-ins <plugins>
+   CLI reference <reference>
+   API <api>
+   Contributing <contributing>
+   License <license>
 
 
 Indices and tables
@@ -19,18 +27,3 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-.. click:: vpype_cli:cli
-   :prog: vpype
-   :show-nested:
-
-.. automodule:: vpype.model
-   :members:
-
-.. automodule:: vpype.decorators
-   :members:
-
-.. automodule:: vpype.layers
-   :members:
-
-.. automodule:: vpype.utils
-   :members:
