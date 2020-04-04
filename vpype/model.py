@@ -5,7 +5,11 @@ import math
 from typing import Union, Iterable, List, Dict, Tuple, Optional
 
 import numpy as np
+import shapely
 from shapely.geometry import MultiLineString, LineString, LinearRing
+import svgpathtools as svg
+
+from .utils import convert
 
 LineLike = Union[LineString, Iterable[complex]]
 
@@ -19,6 +23,100 @@ LineCollectionLike = Union[
 def as_vector(a: np.ndarray):
     """Return a view of a complex line array that behaves as an Nx2 real array"""
     return a.view(dtype=float).reshape(len(a), 2)
+
+
+def read_svg(
+    filename: str, quantization: float, simplify: bool = False, return_size: bool = False
+) -> Union["LineCollection", Tuple["LineCollection", float, float]]:
+    """
+    Read a SVG file an return its content as a :class:`LineCollection` instance. All curved
+    geometries are chopped in segments no longer than the value of *quantization*.
+    Optionally, the geometries are simplified using Shapely, using the value of *quantization*
+    as tolerance.
+
+    :param filename: path of the SVG file
+    :param quantization: maximum size of segment used to approximate curved geometries
+    :param simplify: run Shapely's simplify on loaded geometry
+    :param return_size: if True, return a size 3 Tuple containing the geometries and the SVG
+        width and height
+    :return: imported geometries, and optionally width and height of the SVG
+    """
+
+    doc = svg.Document(filename)
+    results = doc.flatten_all_paths()
+    root = doc.tree.getroot()
+
+    # we must interpret correctly the viewBox, width and height attribs in order to scale
+    # the file content to proper pixels
+
+    width = height = None
+    if "viewBox" in root.attrib:
+        # A view box is defined so we must correctly scale from user coordinates
+        # https://css-tricks.com/scale-svg/
+        # TODO: we should honor the `preserveAspectRatio` attribute
+
+        viewbox_min_x, viewbox_min_y, viewbox_width, viewbox_height = [
+            float(s) for s in root.attrib["viewBox"].split()
+        ]
+
+        width = convert(root.attrib.get("width", viewbox_width))
+        height = convert(root.attrib.get("height", viewbox_height))
+
+        scale_x = width / viewbox_width
+        scale_y = height / viewbox_height
+        offset_x = -viewbox_min_x
+        offset_y = -viewbox_min_y
+    else:
+        scale_x = 1
+        scale_y = 1
+        offset_x = 0
+        offset_y = 0
+
+    lc = LineCollection()
+    for result in results:
+        # Here we load the sub-part of the path element. If such sub-parts are connected,
+        # we merge them in a single line (e.g. line string, etc.). If there are disconnection
+        # in the path (e.g. multiple "M" commands), we create several lines
+        sub_paths = []
+        for elem in result.path:
+            if isinstance(elem, svg.Line):
+                coords = [elem.start, elem.end]
+            else:
+                # This is a curved element that we approximate with small segments
+                step = int(math.ceil(elem.length() / quantization))
+                coords = [elem.start]
+                coords.extend(elem.point((i + 1) / step) for i in range(step - 1))
+                coords.append(elem.end)
+
+            # merge to last sub path if first coordinates match
+            if sub_paths:
+                if sub_paths[-1][-1] == coords[0]:
+                    sub_paths[-1].extend(coords[1:])
+                else:
+                    sub_paths.append(coords)
+            else:
+                sub_paths.append(coords)
+
+        for sub_path in sub_paths:
+            path = np.array(sub_path)
+
+            # transform
+            path += offset_x + 1j * offset_y
+            path.real *= scale_x
+            path.imag *= scale_y
+
+            lc.append(path)
+
+    if simplify:
+        mls = lc.as_mls()
+        lc = LineCollection(mls.simplify(tolerance=quantization))
+
+    if return_size:
+        if width is None or height is None:
+            _, _, width, height = lc.bounds()
+        return lc, width, height
+    else:
+        return lc
 
 
 class LineCollection:
@@ -73,7 +171,14 @@ class LineCollection:
         for line in self._lines:
             line += c
 
-    def scale(self, sx: float, sy: float) -> None:
+    def scale(self, sx: float, sy: Optional[float] = None) -> None:
+        """Scale the geometry
+        :param sx: scale factor along x
+        :param sy: scale factor along y (if None, then sx is used)
+        """
+        if sy is None:
+            sy = sx
+
         for line in self._lines:
             line.real *= sx
             line.imag *= sy
@@ -97,6 +202,24 @@ class LineCollection:
                 min((line.imag.min() for line in self._lines)),
                 max((line.real.max() for line in self._lines)),
                 max((line.imag.max() for line in self._lines)),
+            )
+
+    def width(self) -> float:
+        """Returns the total width of the geometries"""
+        if len(self._lines) == 0:
+            return 0.0
+        else:
+            return max((line.real.max() for line in self._lines)) - min(
+                (line.real.min() for line in self._lines)
+            )
+
+    def height(self) -> float:
+        """Returns the total height of the geometries"""
+        if len(self._lines) == 0:
+            return 0.0
+        else:
+            return max((line.imag.max() for line in self._lines)) - min(
+                (line.imag.min() for line in self._lines)
             )
 
     def length(self) -> float:

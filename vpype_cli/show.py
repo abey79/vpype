@@ -89,6 +89,7 @@ def show(
 
     plt.gca().invert_yaxis()
     plt.axis("equal")
+    plt.margins(0, 0)
 
     if not hide_legend:
         lgd = plt.legend()

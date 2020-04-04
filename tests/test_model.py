@@ -102,6 +102,8 @@ def test_line_collection_append_linearring(line):
 
 def test_line_collection_bounds():
     lc = LineCollection([(-10, 10), (-10j, 10j)])
+    assert lc.width() == 20
+    assert lc.height() == 20
     assert lc.bounds() == (-10, -10, 10, 10)
 
 
