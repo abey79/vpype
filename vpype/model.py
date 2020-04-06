@@ -5,13 +5,12 @@ import math
 from typing import Union, Iterable, List, Dict, Tuple, Optional
 
 import numpy as np
-import shapely
-from shapely.geometry import MultiLineString, LineString, LinearRing
 import svgpathtools as svg
+from shapely.geometry import MultiLineString, LineString, LinearRing
 
 from .utils import convert
 
-LineLike = Union[LineString, Iterable[complex]]
+LineLike = Union[LineString, LinearRing, Iterable[complex]]
 
 # We accept LineString and LinearRing as line collection because MultiLineString are regularly
 # converted to LineString/LinearRing when operation reduce them to single-line construct.
@@ -193,6 +192,17 @@ class LineCollection:
         for line in self._lines:
             line += tx * line.imag + 1j * ty * line.real
 
+    def reloop(self, tolerance: float) -> None:
+        """Randomizes the seam of closed paths. Paths are considered closed when their first
+        and last point are closer than *tolerance*.
+        :param tolerance: tolerance to determine if a path is closed
+        """
+
+        for i, line in enumerate(self._lines):
+            delta = line[-1] - line[0]
+            if np.hypot(delta.real, delta.imag) <= tolerance:
+                self._lines[i] = _reloop_line(line)
+
     def bounds(self) -> Optional[Tuple[float, float, float, float]]:
         if len(self._lines) == 0:
             return None
@@ -343,3 +353,21 @@ class VectorData:
 
     def segment_count(self) -> int:
         return sum(layer.segment_count() for layer in self._layers.values())
+
+
+def _reloop_line(line: np.ndarray, loc: Optional[int] = None) -> np.ndarray:
+    """
+    Change the seam of a closed path. Closed-ness is not checked. Beginning and end points are
+    averaged to compute a new point. A new seam location can be provided or will be chosen
+    randomly.
+    :param line: path to reloop
+    :param loc: new seam location
+    :return: re-seamed path
+    """
+
+    if loc is None:
+        loc = np.random.randint(len(line) - 1)
+    end_point = 0.5 * (line[0] + line[-1])
+    line[0] = end_point
+    line[-1] = end_point
+    return np.hstack([line[loc:], line[1 : min(loc + 1, len(line))]])

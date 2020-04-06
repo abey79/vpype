@@ -299,6 +299,26 @@ def linesimplify(lines: LineCollection, tolerance):
 
 @cli.command(group="Operations")
 @click.option(
+    "-t",
+    "--tolerance",
+    type=Length(),
+    default="0.05mm",
+    help="Controls how close the path beginning and end must be to consider it closed ("
+    "default: 0.05mm).",
+)
+@layer_processor
+def reloop(lines: LineCollection, tolerance):
+    """
+    Randomize the seam location for closed paths. Paths are considered closed when their
+    beginning and end points are closer than the provided tolerance.
+    """
+
+    lines.reloop(tolerance=tolerance)
+    return lines
+
+
+@cli.command(group="Operations")
+@click.option(
     "-n", "--count", type=int, default=2, help="How many pass for each line (default: 2).",
 )
 @layer_processor
