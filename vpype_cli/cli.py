@@ -1,11 +1,13 @@
 import logging
 import os
+import random
 import shlex
 from typing import TextIO, List, Union
 
 import click
 from click import get_os_args
 from click_plugins import with_plugins
+import numpy as np
 from pkg_resources import iter_entry_points
 from shapely.geometry import MultiLineString
 
@@ -54,7 +56,9 @@ class GroupedGroup(click.Group):
             for subcommand, cmd in commands:
                 help_text = cmd.get_short_help_str(limit)
                 subcommand += " " * (longest - len(subcommand))
-                groups.setdefault(getattr(cmd, "help_group", "Unknown"), []).append((subcommand, help_text))
+                groups.setdefault(getattr(cmd, "help_group", "Unknown"), []).append(
+                    (subcommand, help_text)
+                )
 
             with formatter.section("Commands"):
                 for group_name, rows in groups.items():
@@ -79,7 +83,8 @@ class GroupedGroup(click.Group):
     is_flag=True,
     help="Record this command in a `vpype_history.txt` in the current directory.",
 )
-def cli(verbose, include, history):
+@click.option("-s", "--seed", type=int, help="Specify the RNG seed.")
+def cli(verbose, include, history, seed):
     logging.basicConfig()
     if verbose == 0:
         logging.getLogger().setLevel(logging.WARNING)
@@ -92,10 +97,16 @@ def cli(verbose, include, history):
         with open("vpype_history.txt", "a") as fp:
             fp.write("vpype " + " ".join(shlex.quote(arg) for arg in get_os_args()) + "\n")
 
+    if seed is None:
+        seed = np.random.randint(2 ** 32)
+        logging.info(f"vpype: no seed provided, using {seed}")
+    np.random.seed(seed)
+    random.seed(seed)
+
 
 # noinspection PyShadowingNames,PyUnusedLocal
 @cli.resultcallback()
-def process_pipeline(processors, verbose, include, history):
+def process_pipeline(processors, verbose, include, history, seed):
     execute_processors(processors)
 
 
