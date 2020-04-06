@@ -3,16 +3,40 @@
 The steps described on this page are not appropriate to install a development environment. If you intend to develop
 on _vpype_, check the development environment [installation instructions](README.md#development-environment).
 
-## Linux/macOS
+## Linux
 
 _vpype_ requires Python 3.6 or later. On Debian/ubuntu flavored installation, this is a matter of:
 
 ```bash
-$ sudo apt-get install python3 python3-pip
+$ sudo apt-get install python3 python3-pip libspatialindex-dev
 ```
 
-On macOS, you can use the [MacPorts](https://www.macports.org) or [Homebrew](https://brew.sh) project to install a
-recent version of Python.
+Install _vpype_ with the following steps, preferably in a dedicated virtual environment:
+
+```bash
+$ pip install --upgrade pip
+$ pip install git+https://github.com/abey79/vpype.git#egg=vpype
+```
+
+
+## macOS
+
+Because of some dependencies the best way to use either [MacPorts](https://www.macports.org) or
+[Homebrew](https://brew.sh) to install Python 3.6 or later.
+
+Use the following commands for Homebrew:
+
+```bash
+$ brew install python
+$ brew install spatialindex
+```
+
+And for MacPorts:
+
+```bash
+$ sudo port install python38
+$ sudo port install spatialindex
+```
 
 Install _vpype_ with the following steps, preferably in a dedicated virtual environment:
 
@@ -24,7 +48,7 @@ $ pip install git+https://github.com/abey79/vpype.git#egg=vpype
 
 ## Raspberry Pi
 
-Installing _vpype_ on Rasbian is similar to Linux/macOS, but a number of libraries must be installed before:
+Installing _vpype_ on Raspbian is similar to Linux/macOS, but a number of libraries must be installed before:
 
 ```bash
 $ sudo apt-get install git python3-shapely python3-rtree python3-dev
