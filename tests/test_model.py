@@ -2,7 +2,8 @@ import pytest
 import numpy as np
 from shapely.geometry import MultiLineString, LineString, Point
 
-from vpype import LineCollection, VectorData, LinearRing
+from vpype import LineCollection, VectorData, LinearRing, interpolate_line
+
 # noinspection PyProtectedMember
 from vpype.model import _reloop_line
 
@@ -154,7 +155,24 @@ def test_vector_data_bounds():
 def test_vector_data_bounds_empty_layer():
     vd = VectorData()
 
-    vd.add(LineCollection([(0, 10+10j)]), 1)
+    vd.add(LineCollection([(0, 10 + 10j)]), 1)
     vd.add(LineCollection())
 
     assert vd.bounds() == (0, 0, 10, 10)
+
+
+@pytest.mark.parametrize(
+    ["line", "step", "expected"],
+    [
+        ([0, 10], 1, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+        ([0, 1, 3, 10], 1, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+        ([0, 1j, 3j, 10j], 1, [0, 1j, 2j, 3j, 4j, 5j, 6j, 7j, 8j, 9j, 10j]),
+        ([0, 10], 10, [0, 10]),
+        ([0, 10], 1.01, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+        ([0, 1, 1 + 1j, 1j, 0], 0.5, [0, 0.5, 1, 1 + 0.5j, 1 + 1j, 0.5 + 1j, 1j, 0.5j, 0]),
+    ],
+)
+def test_interpolate_line(line, step, expected):
+    result = interpolate_line(np.array(line, dtype=complex), step)
+    assert len(result) == len(expected)
+    assert np.all(np.isclose(result, np.array(expected, dtype=complex),))

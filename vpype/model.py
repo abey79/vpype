@@ -118,6 +118,23 @@ def read_svg(
         return lc
 
 
+def interpolate_line(line: np.ndarray, step: float) -> np.ndarray:
+    """
+    Compute a linearly interpolated version of *line* with segments of *step* length or
+    less.
+    :param line: 1D array of complex
+    :param step: maximum length of interpolated segment
+    :return: interpolated 1D array of complex
+    """
+
+    diff = np.diff(line)
+    curv_absc = np.cumsum(np.hstack([0, np.hypot(diff.real, diff.imag)]))
+    max_curv_absc = np.max(curv_absc)
+    return np.interp(
+        np.linspace(0, max_curv_absc, 1 + math.ceil(max_curv_absc / step)), curv_absc, line
+    )
+
+
 class LineCollection:
     def __init__(self, lines: LineCollectionLike = ()):
         """
