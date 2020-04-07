@@ -115,20 +115,20 @@ class LineIndex:
 
         return item.id, dist
 
+    # noinspection PyUnboundLocalVariable
     def find_nearest(self, p: complex) -> Tuple[int, bool]:
         while True:
             idx, dist = self._find_nearest_in_index(p, self.index)
-            if idx is not None:
+            if self.reverse:
+                ridx, rdist = self._find_nearest_in_index(p, self.rindex)
+
+                if ridx is not None and idx is not None:
+                    break
+            elif idx is not None:
                 break
             self._reindex()
 
         if self.reverse:
-            while True:
-                ridx, rdist = self._find_nearest_in_index(p, self.rindex)
-                if ridx is not None:
-                    break
-                self._reindex()
-
             if rdist < dist:
                 return ridx, True
             else:
