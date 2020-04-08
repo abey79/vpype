@@ -171,6 +171,8 @@ def crop(lines: LineCollection, x: float, y: float, width: float, height: float)
     new_lines = LineCollection()
     for line in lines:
         res = LineString(as_vector(line)).intersection(p)
+        if res.is_empty:
+            continue
         if res.geom_type == "MultiLineString":
             new_lines.extend(res)
         elif res.geom_type == "LineString":
