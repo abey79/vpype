@@ -4,7 +4,7 @@ from typing import Optional, Tuple
 
 import click
 import numpy as np
-import rtree
+from scipy.spatial import cKDTree as KDTree
 from shapely.geometry import Polygon, LineString
 
 from vpype import as_vector, LineCollection, Length, layer_processor
@@ -29,15 +29,13 @@ class LineIndex:
         self.available = np.ones(shape=len(self.lines), dtype=bool)
 
         # create rtree index
-        self.index = rtree.index.Index()
-        for i, line in enumerate(self.lines):
-            self.index.insert(i, (line[0].real, line[0].imag) * 2)
+        self.index = KDTree(np.array([(line[0].real, line[0].imag) for line in self.lines]))
 
         # create reverse index
         if self.reverse:
-            self.rindex = rtree.index.Index()
-            for i, line in enumerate(self.lines):
-                self.rindex.insert(i, (line[-1].real, line[-1].imag) * 2)
+            self.rindex = KDTree(
+                np.array([(line[-1].real, line[-1].imag) for line in self.lines])
+            )
 
     def _reindex(self) -> None:
         self.lines = [line for idx, line in enumerate(self.lines) if self.available[idx]]
@@ -62,20 +60,32 @@ class LineIndex:
         self.available[idx] = False
         return self.lines[idx]
 
-    @staticmethod
-    def _item_distance(p, it):
-        return math.hypot(p.real - it.bbox[0], p.imag - it.bbox[1])
-
     def find_nearest_within(self, p: complex, max_dist: float) -> Tuple[Optional[int], bool]:
         """Find the closest line, assuming a maximum admissible distance.
         Returns a tuple of (idx, reverse), where `idx` may be None if nothing is found.
         `reverse` indicates whether or not a line ending has been matched instead of a start.
         False is always returned if index was created with `reverse=False`.s
         """
-        idx, dist = self._find_nearest_within_in_index(p, max_dist, self.index)
-        if self.reverse:
-            ridx, rdist = self._find_nearest_within_in_index(p, max_dist, self.rindex)
 
+        ridx = None
+        rdist = 0
+
+        while True:
+            reindex, idx, dist = self._find_nearest_within_in_index(p, max_dist, self.index)
+            if reindex:
+                self._reindex()
+                continue
+
+            if self.reverse:
+                reindex, ridx, rdist = self._find_nearest_within_in_index(
+                    p, max_dist, self.rindex
+                )
+                if reindex:
+                    self._reindex()
+                    continue
+            break
+
+        if self.reverse:
             if idx is None and ridx is None:
                 return None, False
             elif idx is not None and ridx is None:
@@ -90,30 +100,30 @@ class LineIndex:
             return idx, False
 
     def _find_nearest_within_in_index(
-        self, p: complex, max_dist: float, index: rtree.index.Index
-    ) -> Tuple[Optional[int], Optional[float]]:
-        """Find nearest in specific index. Return (idx, dist) tuple, both of which can be None.
+        self, p: complex, max_dist: float, index: KDTree
+    ) -> Tuple[bool, Optional[int], Optional[float]]:
+        """Find nearest in specific index. Return (reindex, idx, dist) tuple, where
+        reindex indicates if a reindex is needed.
         """
 
-        # query the index while discarding anything that is no longer available
-        items = [
-            item
-            for item in index.intersection(
-                [p.real - max_dist, p.imag - max_dist, p.real + max_dist, p.imag + max_dist],
-                objects=True,
-            )
-            if self.available[item.id]
-        ]
-        if len(items) == 0:
-            return None, 0
+        # For performance reason, we query only a max of k candidates. In the special case
+        # where all distances are not inf and none are available, we might have more than k
+        # suitable candidate, so we reindex and loop. Otherwise, we check the query results
+        # for availability and not inf and return anything found
+        dists, idxs = index.query((p.real, p.imag), k=50, distance_upper_bound=max_dist)
+        dists = np.array(dists)
 
-        # we want the closest item, and we want it only if it's not too far
-        item = min(items, key=lambda it: self._item_distance(p, it))
-        dist = self._item_distance(p, item)
-        if dist > max_dist:
-            return None, 0
+        not_inf = ~np.isinf(dists)
+        if np.all(not_inf) and np.all(~self.available[idxs[not_inf]]):
+            return True, None, 0
 
-        return item.id, dist
+        candidates = self.available[idxs[not_inf]]
+
+        if np.any(candidates):
+            idx = np.argmax(candidates)
+            return False, idxs[not_inf][idx], dists[not_inf][idx]
+        else:
+            return False, None, 0
 
     # noinspection PyUnboundLocalVariable
     def find_nearest(self, p: complex) -> Tuple[int, bool]:
@@ -136,14 +146,13 @@ class LineIndex:
         else:
             return idx, False
 
-    def _find_nearest_in_index(
-        self, p: complex, index: rtree.index.Index
-    ) -> Tuple[Optional[int], float]:
+    def _find_nearest_in_index(self, p: complex, index: KDTree) -> Tuple[Optional[int], float]:
         """Check the N nearest lines, hopefully find one that is active."""
 
-        for item in index.nearest((p.real, p.imag) * 2, 100, objects=True):
-            if self.available[item.id]:
-                return item.id, self._item_distance(p, item)
+        dists, idxs = index.query((p.real, p.imag), k=100)
+        for dist, idx in zip(dists, idxs):
+            if ~np.isinf(dist) and self.available[idx]:
+                return idx, dist
 
         return None, 0.0
 
