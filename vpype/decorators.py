@@ -1,9 +1,25 @@
+import datetime
 import logging
+import math
 from functools import update_wrapper
 
 import click
 
 from .layers import LayerType, VpypeState
+
+
+def _format_timedelta(dt: datetime.timedelta) -> str:
+    s = dt.total_seconds()
+
+    out = ""
+    if s >= 60.0:
+        minutes = math.floor(s / 60)
+        s -= 60 * minutes
+
+        out += str(minutes) + "min "
+
+    out += f"{s:.3f}s"
+    return out
 
 
 def layer_processor(f):
@@ -31,8 +47,16 @@ def layer_processor(f):
                     f"executing layer processor `{f.__name__}` on layer {lid} "
                     f"(kwargs: {kwargs})"
                 )
+
+                start = datetime.datetime.now()
                 with state.current():
                     state.vector_data[lid] = f(state.vector_data[lid], *args, **kwargs)
+                stop = datetime.datetime.now()
+
+                logging.info(
+                    f"layer processor `{f.__name__}` execution complete "
+                    f"({_format_timedelta(stop - start)})"
+                )
 
             return state
 
@@ -53,8 +77,16 @@ def global_processor(f):
         # noinspection PyShadowingNames
         def global_processor(state: VpypeState) -> VpypeState:
             logging.info(f"executing global processor `{f.__name__}` (kwargs: {kwargs})")
+
+            start = datetime.datetime.now()
             with state.current():
                 state.vector_data = f(state.vector_data, *args, **kwargs)
+            stop = datetime.datetime.now()
+
+            logging.info(
+                f"global processor `{f.__name__}` execution complete "
+                f"({_format_timedelta(stop - start)})"
+            )
 
             return state
 
@@ -95,9 +127,17 @@ def generator(f):
                 f"(kwargs: {kwargs})"
             )
 
+            start = datetime.datetime.now()
             with state.current():
                 state.vector_data.add(f(*args, **kwargs), target_layer)
             state.target_layer = target_layer
+            stop = datetime.datetime.now()
+
+            logging.info(
+                f"generator `{f.__name__}` execution complete "
+                f"({_format_timedelta(stop - start)})"
+            )
+
             return state
 
         return generator
