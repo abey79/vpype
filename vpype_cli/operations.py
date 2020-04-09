@@ -149,7 +149,7 @@ class LineIndex:
     def _find_nearest_in_index(self, p: complex, index: KDTree) -> Tuple[Optional[int], float]:
         """Check the N nearest lines, hopefully find one that is active."""
 
-        dists, idxs = index.query((p.real, p.imag), k=200)
+        dists, idxs = index.query((p.real, p.imag), k=100)
         for dist, idx in zip(dists, idxs):
             if ~np.isinf(dist) and self.available[idx]:
                 return idx, dist
