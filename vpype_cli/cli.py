@@ -98,7 +98,7 @@ def cli(verbose, include, history, seed):
             fp.write("vpype " + " ".join(shlex.quote(arg) for arg in get_os_args()) + "\n")
 
     if seed is None:
-        seed = np.random.randint(2 ** 32)
+        seed = np.random.randint(2 ** 31)
         logging.info(f"vpype: no seed provided, using {seed}")
     np.random.seed(seed)
     random.seed(seed)

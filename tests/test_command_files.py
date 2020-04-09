@@ -26,7 +26,7 @@ def test_extract_arguments(input_text, expected):
 
 
 def test_include(runner, root_directory):
-    result = runner.invoke(cli, f"-I {root_directory}/tests/data/include.vpy dbsample dbdump")
+    result = runner.invoke(cli, f"-I '{root_directory}/tests/data/include.vpy' dbsample dbdump")
     data = DebugData.load(result.output)[0]
 
     # expecting 4x 100 random lines
