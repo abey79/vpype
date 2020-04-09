@@ -110,7 +110,7 @@ class LineIndex:
         # where all distances are not inf and none are available, we might have more than k
         # suitable candidate, so we reindex and loop. Otherwise, we check the query results
         # for availability and not inf and return anything found
-        dists, idxs = index.query((p.real, p.imag), k=30, distance_upper_bound=max_dist)
+        dists, idxs = index.query((p.real, p.imag), k=15, distance_upper_bound=max_dist)
         dists = np.array(dists)
 
         not_inf = ~np.isinf(dists)
