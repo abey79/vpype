@@ -352,3 +352,16 @@ def multipass(lines: LineCollection, count: int):
         )
 
     return new_lines
+
+
+@cli.command(group="Operations")
+@layer_processor
+def splitall(lines: LineCollection) -> LineCollection:
+    """
+    TODO doc
+    """
+
+    new_lines = LineCollection()
+    for line in lines:
+        new_lines.extend([line[i : i + 2] for i in range(len(line) - 1)])
+    return new_lines

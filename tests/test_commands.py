@@ -25,6 +25,7 @@ MINIMAL_COMMANDS = [
     "linesimplify",
     "multipass",
     "reloop",
+    "splitall"
 ]
 
 
