@@ -84,7 +84,8 @@ class GroupedGroup(click.Group):
     help="Record this command in a `vpype_history.txt` in the current directory.",
 )
 @click.option("-s", "--seed", type=int, help="Specify the RNG seed.")
-def cli(verbose, include, history, seed):
+@click.pass_context
+def cli(ctx, verbose, include, history, seed):
     logging.basicConfig()
     if verbose == 0:
         logging.getLogger().setLevel(logging.WARNING)
@@ -93,9 +94,15 @@ def cli(verbose, include, history, seed):
     elif verbose > 1:
         logging.getLogger().setLevel(logging.DEBUG)
 
+    # We use the command string as context object, mainly for the purpose of the `write`
+    # command. This is a bit of a hack, and will need to be updated if we ever need more state
+    # to be passed around (probably VpypeState should go in there!)
+    cmd_string = "vpype " + " ".join(shlex.quote(arg) for arg in get_os_args()) + "\n"
+    ctx.obj = cmd_string
+
     if history:
         with open("vpype_history.txt", "a") as fp:
-            fp.write("vpype " + " ".join(shlex.quote(arg) for arg in get_os_args()) + "\n")
+            fp.write(cmd_string)
 
     if seed is None:
         seed = np.random.randint(2 ** 31)

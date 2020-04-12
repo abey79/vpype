@@ -1,8 +1,11 @@
 import copy
+import datetime
 import logging
+from xml.etree import ElementTree
 
 import click
 import svgwrite
+from svgwrite.extensions import Inkscape
 
 from vpype import global_processor, as_vector, VectorData
 from .cli import cli
@@ -51,9 +54,11 @@ PAGE_FORMATS = {
     is_flag=True,
     help="[--page-format only] Center the geometries within the SVG bounds",
 )
+@click.pass_obj  # to obtain the command string
 @global_processor
 def write(
     vector_data: VectorData,
+    cmd_string: str,
     output,
     single_path: bool,
     page_format: str,
@@ -98,15 +103,32 @@ def write(
 
     # output SVG
     dwg = svgwrite.Drawing(size=size, profile="tiny", debug=False)
-    dwg.attribs["xmlns:inkscape"] = "http://www.inkscape.org/namespaces/inkscape"
+    inkscape = Inkscape(dwg)
+    dwg.attribs.update(
+        {
+            "xmlns:dc": "http://purl.org/dc/elements/1.1/",
+            "xmlns:cc": "http://creativecommons.org/ns#",
+            "xmlns:rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+    # add metadata
+    metadata = ElementTree.Element("rdf:RDF")
+    work = ElementTree.SubElement(metadata, "cc:Work")
+    fmt = ElementTree.SubElement(work, "dc:format")
+    fmt.text = "image/svg+xml"
+    source = ElementTree.SubElement(work, "dc:source")
+    source.text = cmd_string
+    date = ElementTree.SubElement(work, "dc:date")
+    date.text = datetime.datetime.now().isoformat()
+    dwg.set_metadata(metadata)
+
     for layer_id in sorted(corrected_vector_data.layers.keys()):
         layer = corrected_vector_data.layers[layer_id]
 
-        group = dwg.g(
-            style="display:inline", id=f"layer{layer_id}", fill="none", stroke="black"
-        )
-        group.attribs["inkscape:groupmode"] = "layer"
-        group.attribs["inkscape:label"] = str(layer_id)
+        group = inkscape.layer(label=str(layer_id))
+        group.attribs["fill"] = "none"
+        group.attribs["stroke"] = "black"
 
         if single_path:
             group.add(
