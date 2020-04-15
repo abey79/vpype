@@ -129,6 +129,8 @@ def write(
         group = inkscape.layer(label=str(layer_id))
         group.attribs["fill"] = "none"
         group.attribs["stroke"] = "black"
+        group.attribs["style"] = "display:inline"
+        group.attribs["id"] = f"layer{layer_id}"
 
         if single_path:
             group.add(
