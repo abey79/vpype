@@ -9,6 +9,7 @@ import svgpathtools as svg
 from shapely.geometry import MultiLineString, LineString, LinearRing
 
 from .utils import convert
+from .line_index import LineIndex
 
 LineLike = Union[LineString, LinearRing, Iterable[complex]]
 
@@ -127,11 +128,9 @@ def interpolate_line(line: np.ndarray, step: float) -> np.ndarray:
     :return: interpolated 1D array of complex
     """
 
-    diff = np.diff(line)
-    curv_absc = np.cumsum(np.hstack([0, np.hypot(diff.real, diff.imag)]))
-    max_curv_absc = np.max(curv_absc)
+    curv_absc = np.cumsum(np.hstack([0, np.abs(np.diff(line))]))
     return np.interp(
-        np.linspace(0, max_curv_absc, 1 + math.ceil(max_curv_absc / step)), curv_absc, line
+        np.linspace(0, curv_absc[-1], 1 + math.ceil(curv_absc[-1] / step)), curv_absc, line
     )
 
 
@@ -219,6 +218,42 @@ class LineCollection:
             delta = line[-1] - line[0]
             if np.hypot(delta.real, delta.imag) <= tolerance:
                 self._lines[i] = _reloop_line(line)
+
+    def merge(self, tolerance: float, flip: bool = True) -> None:
+        """Merge lines whose endings overlap or are very close.
+
+        Args:
+            tolerance: max distance between line ending that may be merged
+            flip: allow flipping line direction for further merging
+
+        Returns:
+            None
+        """
+        if len(self) < 2:
+            return
+
+        index = LineIndex(self.lines, reverse=flip)
+        new_lines = LineCollection()
+
+        while len(index) > 0:
+            line = index.pop_front()
+
+            # we append to `line` until we dont find anything to add
+            while True:
+                idx, reverse = index.find_nearest_within(line[-1], tolerance)
+                if idx is None and flip:
+                    idx, reverse = index.find_nearest_within(line[0], tolerance)
+                    line = np.flip(line)
+                if idx is None:
+                    break
+                new_line = index.pop(idx)
+                if reverse:
+                    new_line = np.flip(new_line)
+                line = np.hstack([line, new_line])
+
+            new_lines.append(line)
+
+        self._lines = new_lines
 
     def bounds(self) -> Optional[Tuple[float, float, float, float]]:
         if len(self._lines) == 0:
