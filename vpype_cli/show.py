@@ -65,27 +65,28 @@ def show(
         if color_idx >= len(COLORS):
             color_idx = color_idx % len(COLORS)
 
-        collections[layer_id] = matplotlib.collections.LineCollection(
+        layer_lines = matplotlib.collections.LineCollection(
             (as_vector(line) * scale for line in lc),
             color=color,
             lw=1,
             alpha=0.5,
             label=str(layer_id),
         )
-        plt.gca().add_collection(collections[layer_id])
+        collections[layer_id] = [layer_lines]
+        plt.gca().add_collection(layer_lines)
 
         if show_pen_up:
-            plt.gca().add_collection(
-                matplotlib.collections.LineCollection(
-                    (
-                        (as_vector(lc[i])[-1] * scale, as_vector(lc[i + 1])[0] * scale)
-                        for i in range(len(lc) - 1)
-                    ),
-                    color=(0, 0, 0),
-                    lw=0.5,
-                    alpha=0.5,
-                )
+            pen_up_lines = matplotlib.collections.LineCollection(
+                (
+                    (as_vector(lc[i])[-1] * scale, as_vector(lc[i + 1])[0] * scale)
+                    for i in range(len(lc) - 1)
+                ),
+                color=(0, 0, 0),
+                lw=0.5,
+                alpha=0.5,
             )
+            collections[layer_id].append(pen_up_lines)
+            plt.gca().add_collection(pen_up_lines)
 
     plt.gca().invert_yaxis()
     plt.axis("equal")
@@ -104,8 +105,9 @@ def show(
 
         def on_pick(event):
             line = event.artist
-            vis = not line_dict[line].get_visible()
-            line_dict[line].set_visible(vis)
+            vis = not line_dict[line][0].get_visible()
+            for ln in line_dict[line]:
+                ln.set_visible(vis)
 
             if vis:
                 line.set_alpha(1.0)
