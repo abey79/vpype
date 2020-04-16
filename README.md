@@ -1,13 +1,14 @@
 <img src="https://i.imgur.com/LM2Qrc0.png" alt="banner" width=1200>
 
-# _vpype_
+
+# _vpype_ ![Test](https://github.com/abey79/vpype/workflows/Test/badge.svg?branch=master)
 
 _vpype_ aims to be the one-stop-shop, Swiss Army knife<sup>1</sup> for producing plotter-ready vector graphics. Here
 are, for illustration, a few examples of what it can do:
  
 - Load a SVG, scale it to a specific size, and export it centered on a A4, ready-to-plot SVG.
     ```bash
-    $ vpype read input.svg scale --to 10cm 10cm write -page-format a4 --center output.svg
+    $ vpype read input.svg scale --to 10cm 10cm write --page-format a4 --center output.svg
     ```
 - Visualize the path structure of large SVG file, checking thanks to a colorful display if lines are properly joined or
     not.
@@ -24,7 +25,7 @@ are, for illustration, a few examples of what it can do:
     ```
 - Create arbitrarily-sized, grid-like designs like this page's top banner.
     ```bash
-    $ vpype being grid -o 1cm 1cm 10 13 script alien_letter.py scale --to 0.5cm 0.5cm end show
+    $ vpype begin grid -o 1cm 1cm 10 13 script alien_letter.py scale --to 0.5cm 0.5cm end show
     ```
 
 At its core, _vpype_ allows the user to build pipelines of _commands_, each of which receives a

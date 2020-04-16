@@ -21,21 +21,19 @@ $ pip install git+https://github.com/abey79/vpype.git#egg=vpype
 
 ## macOS
 
-Because of some dependencies the best way to use either [MacPorts](https://www.macports.org) or
-[Homebrew](https://brew.sh) to install Python 3.6 or later.
+The best way to install Python 3.6 or later (preferably 3.8) is either [MacPorts](https://www.macports.org) or
+[Homebrew](https://brew.sh).
 
 Use the following commands for Homebrew:
 
 ```bash
 $ brew install python
-$ brew install spatialindex
 ```
 
 And for MacPorts:
 
 ```bash
 $ sudo port install python38
-$ sudo port install spatialindex
 ```
 
 Install _vpype_ with the following steps, preferably in a dedicated virtual environment:
@@ -51,7 +49,7 @@ $ pip install git+https://github.com/abey79/vpype.git#egg=vpype
 Installing _vpype_ on Raspbian is similar to Linux/macOS, but a number of libraries must be installed before:
 
 ```bash
-$ sudo apt-get install git python3-shapely python3-rtree python3-dev
+$ sudo apt-get install git python3-shapely python3-dev
 ```
 
 Finally, the following command must be added to the `~/.bashrc` file for _vpype_ to execute correctly:
@@ -76,18 +74,15 @@ is recommended.
 Git is a widely use version control management. It is needed by the Python package manager. You can find an official
 installer [here](https://git-scm.com/download/win).
 
-### Downloading dependencies
 
-Python includes a package manager called `pip` which is able to find and install most dependencies automatically. Some
-dependencies must, however, be manually downloaded from the
-[Unofficial Windows Binaries for Python Extension Packages](https://www.lfd.uci.edu/~gohlke/pythonlibs/) archive:
+### Downloading Shapely
 
-- [Shapely](https://www.lfd.uci.edu/~gohlke/pythonlibs/#shapely)
-- [rtree](https://www.lfd.uci.edu/~gohlke/pythonlibs/#rtree)
-- [scikit-image](https://www.lfd.uci.edu/~gohlke/pythonlibs/#scikit-image)
+One of _vpype_ dependency, namely [Shapely](https://shapely.readthedocs.io), needs to be manually downloaded. You can
+find it [here](https://www.lfd.uci.edu/~gohlke/pythonlibs/#shapely) (courtesy of the
+[Unofficial Windows Binaries for Python Extension Packages](https://www.lfd.uci.edu/~gohlke/pythonlibs/) archive).
+Download the version that corresponds to your Python installation and architecture (32bit vs. 64bit). In most case, it
+should be the `*‑cp38‑cp38‑win_amd64.whl` for Python 3.8 and a non-ancient computer.
 
-For each of these libraries, download the version that corresponds to your Python installation and architecture
-(32bit vs. 64bit). In most case, it should be the `*‑cp38‑cp38‑win_amd64.whl` for Python 3.8 and a non-ancient computer.
 
 ### Create a virtual environment
 
@@ -121,21 +116,13 @@ If you are using an older version of Python (3.6 or 3.7, upgrade your version of
 pip install --upgrade pip
 ```
 
-Install the `.whl` files you downloaded earlier:
+Install Shapely using the file you downloaded earlier:
 
 ```
-pip install Rtree-0.8.3-cp38-cp38-win_amd64.whl
-pip install Shapely-1.6.4.post2-cp38-cp38-win_amd64
-pip install scikit_image-0.16.2-cp38-cp38-win_amd64
+pip install Shapely-1.7.0-cp38-cp38-win_amd64.whl
 ```
 
-Install `scipy` (another dependency):
-
-```
-pip install scipy
-```
-
-Install _vpype_:
+Finally, install _vpype_:
 
 ```
 pip install git+https://github.com/abey79/vpype.git#egg=vpype
