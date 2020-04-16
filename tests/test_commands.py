@@ -13,7 +13,7 @@ MINIMAL_COMMANDS = [
     "line 0 0 1 1",
     "rect 0 0 1 1",
     "circle 0 0 1",
-    "read __ROOT__/examples/bc_template.svg",
+    "read '__ROOT__/examples/bc_template.svg'",
     "write -f svg -",
     "rotate 0",
     "scale 1 1",
@@ -24,6 +24,7 @@ MINIMAL_COMMANDS = [
     "linemerge",
     "linesimplify",
     "multipass",
+    "reloop",
 ]
 
 
@@ -35,18 +36,13 @@ def test_commands_empty_geometry(runner, root_directory, args):
 
 @pytest.mark.parametrize("args", MINIMAL_COMMANDS)
 def test_commands_random_input(runner, root_directory, args):
-    result = runner.invoke(
-        cli, ["random", "-n", "100", *args.replace("__ROOT__", root_directory).split()]
-    )
+    result = runner.invoke(cli, "random -n 100 " + args.replace("__ROOT__", root_directory))
     assert result.exit_code == 0
 
 
 def test_frame(runner):
     result = runner.invoke(
-        cli,
-        (
-            "random -n 100 -a 10cm 10cm dbsample frame dbsample frame -o 1cm dbsample dbdump"
-        ).split(),
+        cli, "random -n 100 -a 10cm 10cm dbsample frame dbsample frame -o 1cm dbsample dbdump"
     )
     data = DebugData.load(result.output)
 

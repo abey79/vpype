@@ -1,10 +1,13 @@
 import copy
+import datetime
 import logging
 import os
 from typing import Tuple
+from xml.etree import ElementTree
 
 import click
 import svgwrite
+from svgwrite.extensions import Inkscape
 
 from vpype import global_processor, as_vector, VectorData
 from .cli import cli
@@ -21,7 +24,8 @@ PAGE_FORMATS = {
     "executive": (185.15, 266.7),
     "11x14": (279.4, 355.6),
     "tabloid": (279.4, 431.8),
-    "b": (279.4, 431.8)
+    "b": (279.4, 431.8),
+    "12x9": (304.8, 228.6),
 }
 
 
@@ -67,9 +71,11 @@ PAGE_FORMATS = {
     is_flag=True,
     help="[HPGL only] Paper is loaded in portrait orientation instead of landscape.",
 )
+@click.pass_obj  # to obtain the command string
 @global_processor
 def write(
     vector_data: VectorData,
+    cmd_string: str,
     output,
     format: str,
     page_format: str,
@@ -121,7 +127,7 @@ def write(
         format = ext.lstrip(".").lower()
 
     if format == "svg":
-        write_svg(corrected_vector_data, output, size, single_path)
+        write_svg(corrected_vector_data, cmd_string, output, size, single_path)
     elif format == "hpgl":
         write_hpgl(corrected_vector_data, output, size, paper_portrait)
     else:
@@ -134,25 +140,49 @@ def write(
 
 
 def write_svg(
-    vector_data: VectorData, output, size: Tuple[float, float], single_path: bool,
+    vector_data: VectorData,
+    cmd_string: str,
+    output,
+    size: Tuple[float, float],
+    single_path: bool,
 ) -> None:
     """
     Export geometries in SVG format
     :param vector_data: geometries to export
+    :param cmd_string: full vpype command line to embed in comments/metadata
     :param output: file object to write to
     :param size: size of the page in pixel
     :param single_path: merge all geometries in a single path?
     """
     dwg = svgwrite.Drawing(size=size, profile="tiny", debug=False)
-    dwg.attribs["xmlns:inkscape"] = "http://www.inkscape.org/namespaces/inkscape"
+    inkscape = Inkscape(dwg)
+    dwg.attribs.update(
+        {
+            "xmlns:dc": "http://purl.org/dc/elements/1.1/",
+            "xmlns:cc": "http://creativecommons.org/ns#",
+            "xmlns:rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+    # add metadata
+    metadata = ElementTree.Element("rdf:RDF")
+    work = ElementTree.SubElement(metadata, "cc:Work")
+    fmt = ElementTree.SubElement(work, "dc:format")
+    fmt.text = "image/svg+xml"
+    source = ElementTree.SubElement(work, "dc:source")
+    source.text = cmd_string
+    date = ElementTree.SubElement(work, "dc:date")
+    date.text = datetime.datetime.now().isoformat()
+    dwg.set_metadata(metadata)
+
     for layer_id in sorted(vector_data.layers.keys()):
         layer = vector_data.layers[layer_id]
 
-        group = dwg.g(
-            style="display:inline", id=f"layer{layer_id}", fill="none", stroke="black"
-        )
-        group.attribs["inkscape:groupmode"] = "layer"
-        group.attribs["inkscape:label"] = str(layer_id)
+        group = inkscape.layer(label=str(layer_id))
+        group.attribs["fill"] = "none"
+        group.attribs["stroke"] = "black"
+        group.attribs["style"] = "display:inline"
+        group.attribs["id"] = f"layer{layer_id}"
 
         if single_path:
             group.add(
@@ -184,7 +214,7 @@ def write_hpgl(
     """
     ##########
     # may need to find out what plotter model and adjust this.
-    #find out what other plotters use hpgl and their coord systems and limits
+    # find out what other plotters use hpgl and their coord systems and limits
     # for plotters A2 and above we need to offset the coords (LL = -309, -210)
     offset = [-309, -210]
 
@@ -199,6 +229,7 @@ def write_hpgl(
         x = int(x * scale) + offset[0]
         y = int(y * scale) + offset[1]
         return x, y
+
     ##########
     hpgl = "IN;DF;\n"
 
@@ -219,7 +250,7 @@ def write_hpgl(
             x, y = pxtoplot(as_vector(line)[-1][0], as_vector(line)[-1][1])
             hpgl += "{},{}".format(x, y)
             # add semicolon terminator between lines
-            hpgl += ";\n" 
+            hpgl += ";\n"
 
     # put the pen back and leave the plotter in an initialised state
     hpgl += "SP0;IN;"
