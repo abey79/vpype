@@ -337,9 +337,6 @@ class VectorData:
         else:
             self._layers[layer_id] = LineCollection(value)
 
-    def __contains__(self, layer_id) -> bool:
-        return self._layers.__contains__(layer_id)
-
     def free_id(self) -> int:
         """Returns the lowest free layer id"""
         vid = 1
@@ -368,6 +365,9 @@ class VectorData:
             if not layer.is_empty():
                 return False
         return True
+
+    def pop(self, layer_id: int) -> LineCollection:
+        return self._layers.pop(layer_id)
 
     def count(self) -> int:
         return len(self._layers.keys())

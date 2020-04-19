@@ -5,7 +5,7 @@ from typing import Tuple, Union, List
 import click
 
 from vpype import global_processor, VectorData, LineCollection, Length, layer_processor, \
-    LayerType
+    LayerType, multiple_to_layer_ids
 from .cli import cli
 
 
@@ -73,7 +73,7 @@ def scale(
         return vector_data
 
     # these are the layers we want to act on
-    layer_ids = LayerType.multiple_to_layer_ids(layer, vector_data)
+    layer_ids = multiple_to_layer_ids(layer, vector_data)
     bounds = vector_data.bounds(layer_ids)
 
     if absolute:
@@ -140,7 +140,7 @@ def rotate(
         angle *= math.pi / 180.0
 
     # these are the layers we want to act on
-    layer_ids = LayerType.multiple_to_layer_ids(layer, vector_data)
+    layer_ids = multiple_to_layer_ids(layer, vector_data)
 
     bounds = vector_data.bounds(layer_ids)
     if len(origin_coords) == 2:
@@ -195,7 +195,7 @@ def skew(
         return vector_data
 
     # these are the layers we want to act on
-    layer_ids = LayerType.multiple_to_layer_ids(layer, vector_data)
+    layer_ids = multiple_to_layer_ids(layer, vector_data)
 
     bounds = vector_data.bounds(layer_ids)
     if len(origin_coords) == 2:
