@@ -25,6 +25,9 @@ MINIMAL_COMMANDS = [
     "linesimplify",
     "multipass",
     "reloop",
+    "lmove 1 new",
+    "lcopy 1 new",
+    "ldelete 1",
 ]
 
 

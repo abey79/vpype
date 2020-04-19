@@ -7,22 +7,26 @@ from vpype_cli.debug import DebugData
 @pytest.mark.parametrize(
     ("command", "layers"),
     [
-        ("line 0 0 1 1 dbsample dbdump", [1]),
-        ("line -l 2 0 0 1 1 dbsample dbdump", [2]),
-        ("line 0 0 1 1 line 2 2 3 3 dbsample dbdump", [1]),
-        ("line -l 2 0 0 1 1 line 2 2 3 3 dbsample dbdump", [2]),
-        ("line -l 2 0 0 1 1 line -l 3 2 2 3 3 dbsample dbdump", [2, 3]),
-        ("line -l 2 0 0 1 1 line -l 3 2 2 3 3 line 4 4 5 5 dbsample dbdump", [2, 3]),
-        ("line -l new 0 0 1 1 line -l new 2 2 3 3 line 4 4 5 5 dbsample dbdump", [1, 2]),
-        ("line -l 3 0 0 1 1 line -l new 2 2 3 3 line 4 4 5 5 dbsample dbdump", [1, 3]),
-        (
-            "line -l new 0 0 1 1 line -l new 2 2 3 3 line -l new 4 4 5 5 dbsample dbdump",
-            [1, 2, 3],
-        ),
+        ("line 0 0 1 1", [1]),
+        ("line -l 2 0 0 1 1", [2]),
+        ("line 0 0 1 1 line 2 2 3 3", [1]),
+        ("line -l 2 0 0 1 1 line 2 2 3 3", [2]),
+        ("line -l 2 0 0 1 1 line -l 3 2 2 3 3", [2, 3]),
+        ("line -l 2 0 0 1 1 line -l 3 2 2 3 3 line 4 4 5 5", [2, 3]),
+        ("line -l new 0 0 1 1 line -l new 2 2 3 3 line 4 4 5 5", [1, 2]),
+        ("line -l 3 0 0 1 1 line -l new 2 2 3 3 line 4 4 5 5", [1, 3]),
+        ("line -l new 0 0 1 1 line -l new 2 2 3 3 line -l new 4 4 5 5", [1, 2, 3],),
+        ("line 0 0 1 1 ldelete 1", []),
+        ("line 0 0 1 1 lcopy all new", [1, 2]),
+        ("line 0 0 1 1 lcopy all new ldelete 1", [2]),
+        ("line 0 0 1 1 lcopy all new ldelete all", []),
+        ("line 0 0 1 1 lmove all new", [2]),
+        ("line 0 0 1 1 line -l new 0 0 1 1 lmove all 2", [2]),
+        ("line 0 0 1 1 line -l new 0 0 1 1 lmove all 3", [3]),
     ],
 )
 def test_layer_creation(runner, command, layers):
-    result = runner.invoke(cli, command)
+    result = runner.invoke(cli, command + " dbsample dbdump")
     data = DebugData.load(result.output)[0]
 
     assert result.exit_code == 0

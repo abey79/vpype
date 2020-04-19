@@ -163,6 +163,7 @@ Here is a non-exhaustive list of important commands:
 - `linesort`: sort lines to minimize the total distance between the end of a path to the start of the next one
 - `multipass`: prepare twp-pass (or more) files for when a single stroke isn't sufficient for a good render 
 - `frame`: add a simple frame around the geometries
+- `lmove`, `lcopy`, `ldelete`: various layer manipulation commands 
 - `show`: display the geometries in a `matplotlib` window
 - `write`: save the geometries as a SVG file
 
@@ -211,9 +212,12 @@ All these commands do exactly what you think they should do. If the `--layer` op
 Note that if you provide a list of layers, they must be comma separated and without any whitespace, as the list must be
 a single CLI argument.
 
-Finally, some commands do not have a `--layer` option, but understand them. For example, `show` will display each layer
+Some commands do not have a `--layer` option, but understand them. For example, `show` will display each layer
 in a different color by default. Last but not least, `write` will generate multi-layer SVGs which will work 
 out-of-the-box with InkScape.
+
+Finally, layers' content can be moved or copied to other layers with the `lmove` and `lcopy` commands, and outright
+deleted with the `ldelete` command. See these commands' help for details.
 
 
 ### External scripts
