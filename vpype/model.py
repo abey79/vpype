@@ -10,6 +10,7 @@ import numpy as np
 import svgpathtools as svg
 from shapely.geometry import MultiLineString, LineString, LinearRing
 from svgpathtools import SVG_NAMESPACE
+from svgpathtools.document import flatten_group
 
 from .utils import convert
 from .line_index import LineIndex
@@ -167,12 +168,12 @@ def read_multilayer_svg(
     """Read a multilayer SVG file and return its content as a :class:`VectorData` instance
     retaining the SVG's layer structure.
 
-    Each top-level group is considered a layer. All non-group top-level elements are imported
+    Each top-level group is considered a layer. All non-group, top-level elements are imported
     in layer 1.
 
-    Groups are matched to layer number according their `inkscape:label` attribute, their `id`
+    Groups are matched to layer ID according their `inkscape:label` attribute, their `id`
     attribute or their appearing order, in that order of priority. Labels are stripped of
-    non-digit characters and the remaining is used as layer id. Lacking digit character,
+    non-numeric characters and the remaining is used as layer ID. Lacking numeric characters,
     the appearing order is used. If the label is 0, its changed to 1.
 
     All curved geometries are chopped in segments no longer than the value of *quantization*.
@@ -214,7 +215,9 @@ def read_multilayer_svg(
 
     for i, g in enumerate(doc.root.iterfind("svg:g", SVG_NAMESPACE)):
         # compute a decent layer ID
-        lid_str = re.sub("[^0-9]", "", g.get("inkscape:label") or "")
+        lid_str = re.sub(
+            "[^0-9]", "", g.get("{http://www.inkscape.org/namespaces/inkscape}label") or ""
+        )
         if not lid_str:
             lid_str = re.sub("[^0-9]", "", g.get("id") or "")
         if lid_str:
@@ -226,7 +229,7 @@ def read_multilayer_svg(
 
         vector_data.add(
             _convert_flattened_paths(
-                doc.flatten_group(g),
+                flatten_group(g, g),
                 quantization,
                 scale_x,
                 scale_y,
