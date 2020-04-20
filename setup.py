@@ -18,7 +18,7 @@ setup(
     license=license,
     packages=["vpype", "vpype_cli"],
     install_requires=[
-        'Click',
+        'click>=7.1',
         'click-plugins',
         'matplotlib',
         'scipy',  # scipy is needed to optimize svgpathtools' curve linearization
