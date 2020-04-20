@@ -191,15 +191,19 @@ $ vpype random --count 100 --area 1in 1in write --page-format a4 --center output
 _vpype_ supports multiple layers and can produce multi-layer SVGs, which can be useful for polychromic drawings.
 Most commands have a `-l, --layer` option which affects how layers are created and/or modified.
 Layers are always referred to by a non-zero, positive integer (which ties nicely with how official
-[AxiDraw](https://axidraw.com) tools deal with layers).
+[AxiDraw](https://axidraw.com) tools deal with layers). 
 
-Generators such as `read`, `line`, `script`, etc. create new geometries. The `--layer` option controls which layer receives
+Generators such as `line`, `script`, etc. create new geometries. The `--layer` option controls which layer receives
 these new geometries. By default, the last target layer is used:
 ```
 $ vpype line --layer 3 0 0 1cm 1cm circle 0.5cm 0.5cm 0.5cm show
 ``` 
 Here both the line and the circle will be in layer 3. If no generator specifies a target layer, then layer 1 is assumed
 by default.
+
+The `read` honors the input SVG layer structure and will create layers for each top-level SVG groups (see the CLI help
+for details). Alternatively, it can run in single-layer mode with `--single-layer`. In this case, all geometries are
+loaded in one layer, regardless of the SVG's structure.
 
 Filters such as `translate`, `rotate`, `crop`, `linemerge`,  etc. modify existing geometries. The `--layer` option
 controls if one, several or all layers will be affected:
