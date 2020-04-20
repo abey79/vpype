@@ -14,6 +14,7 @@ MINIMAL_COMMANDS = [
     "rect 0 0 1 1",
     "circle 0 0 1",
     "read '__ROOT__/examples/bc_template.svg'",
+    "read -m '__ROOT__/examples/bc_template.svg'",
     "write -",
     "rotate 0",
     "scale 1 1",
