@@ -1,8 +1,8 @@
 import pytest
 import numpy as np
-from shapely.geometry import MultiLineString, LineString, Point
+from shapely.geometry import MultiLineString, LineString, LinearRing, Point
 
-from vpype import LineCollection, VectorData, LinearRing, interpolate_line
+from vpype import LineCollection, VectorData, interpolate_line
 
 # noinspection PyProtectedMember
 from vpype.model import _reloop_line
