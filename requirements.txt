@@ -1,5 +1,5 @@
 # base
-click
+click>=7.1
 click-plugins
 matplotlib
 numpy

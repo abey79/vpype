@@ -13,6 +13,7 @@ from .cli import cli
 # supported page format, size in mm
 PAGE_FORMATS = {
     "tight": (0, 0),
+    "a6": (105.0, 148.0),
     "a5": (148.0, 210.0),
     "a4": (210.0, 297.0),
     "a3": (297.0, 420.0),
