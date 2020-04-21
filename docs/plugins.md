@@ -7,6 +7,29 @@ easy and makes it a compelling option for your next plotter project. Plug-ins di
 facilities, such as SVG export, line optimisation and sorting, scaling and pagination, etc. Plug-ins also benefit from
 the Click-inherited facilities to create compelling CLI interfaces to parametrize your plug-in.
 
+Here are a few known plug-ins to illustrate what they enable:
+
+### [vpype-text](https://github.com/abey79/vpype-text): generate plottable text with Hershey fonts (based on [axi](https://github.com/fogleman/axi))
+
+### [vpype-pixelart](https://github.com/abey79/vpype-pixelart): easy pixel art plotting
+
+<img src="https://i.redd.it/g1nv7tf20aw11.png" alt="pixel art by u/_NoMansDream" width=400 />
+<img src="https://i.imgur.com/dAPqFGV.jpg" alt="line mode plotted pixelart" width=400 />
+
+(original art by Reddit user [u/\_NoMansDream](https://www.reddit.com/user/_NoMansDream/))
+
+### [hatched](https://github.com/abey79/hatched): convert images to hatched patterns
+
+<img src="https://i.imgur.com/QLlBpNU.png" width=300 /> <img src="https://i.imgur.com/fRIrPV2.jpg" width=300 />
+
+Creating custom plug-ins is very easy. It's a great way to implement your next plotter art project as you directly
+benefit from all of _vpype_'s features (export to SVG, line order optimisation, etc.). Check the
+[plug-in documentation](plugins) for more information on how to develop your own plug-in.
+
+
+
+
+
 
 ## How?
 
