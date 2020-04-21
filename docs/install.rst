@@ -1,6 +1,6 @@
-==================
-Installing *vpype*
-==================
+============
+Installation
+============
 
 This page explain how to install *vpype* for end-users. If you intend to develop on *vpype*, refer to the the :ref:`contributing` section.
 

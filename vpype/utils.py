@@ -1,3 +1,7 @@
+"""
+.. module:: vpype
+"""
+
 from typing import Union
 
 import click

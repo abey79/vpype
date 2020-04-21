@@ -1,15 +1,68 @@
+===========
+Plug-in API
+===========
+
+.. module:: vpype
+
+Collections
+===========
+
+.. autoclass:: LineCollection
+   :members:
+
+.. autoclass:: VectorData
+   :members:
+
+Command decorators
 ==================
-API (for plug-ins)
-==================
 
-.. automodule:: vpype.model
+.. autodecorator:: generator
+
+.. autodecorator:: layer_processor
+
+.. autodecorator:: global_processor
+
+.. autodecorator:: block_processor
+
+
+File I/O
+========
+
+.. autofunction:: read_svg
+
+.. autofunction:: read_multilayer_svg
+
+
+Unit management
+===============
+
+.. autoclass:: Length
    :members:
 
-.. automodule:: vpype.decorators
+.. autofunction:: convert
+
+Layer management
+================
+
+.. autoclass:: LayerType
    :members:
 
-.. automodule:: vpype.layers
+.. autofunction:: single_to_layer_id
+
+.. autofunction:: multiple_to_layer_ids
+
+.. autoclass:: VpypeState
    :members:
 
-.. automodule:: vpype.utils
+.. autodecorator:: pass_state
+
+
+Misc
+====
+
+.. autoclass:: LineIndex
    :members:
+
+.. autofunction:: as_vector
+
+.. autofunction:: interpolate_line

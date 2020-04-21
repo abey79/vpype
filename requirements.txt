@@ -21,3 +21,4 @@ sphinx-click
 sphinx-autodoc-typehints
 sphinx-rtd-theme
 recommonmark
+alabaster

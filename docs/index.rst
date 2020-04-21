@@ -1,8 +1,6 @@
-===================
-vpype documentation
-===================
-.. TODO
-  - add links to sections in fundamentals and cookbook
+=======
+*vpype*
+=======
 
 What is *vpype*?
 ----------------
@@ -31,25 +29,33 @@ For a deep understanding of *vpype*, take a dive in the section on `fundamentals
 
 Developers can learn more about extending *vpype* in the `Creating plug-ins <plugin>`_ section and the `API reference <api>`_.
 
+Documentation
+-------------
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents
 
-   Installation <install>
-   Fundamentals <fundamentals>
-   Cookbook <cookbook>
-   Plug-ins <plugins>
-   CLI reference <reference>
-   API <api>
-   Contributing <contributing>
-   License <license>
+   install
+   fundamentals
+   cookbook
+   plugins
+   contributing
 
 
-Indices and tables
-------------------
+Reference
+---------
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. toctree::
+   :maxdepth: 2
 
+   reference
+   api
+
+
+Miscellaneous Pages
+-------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   license

@@ -2,6 +2,10 @@
 Fundamentals
 ============
 
+.. highlight:: bash
+
+.. _fundamentals_pipeline:
+
 Pipeline
 ========
 
@@ -54,6 +58,8 @@ Help on each command is also available on the CLI, for example::
     --help                     Show this message and exit.
 
 
+.. _fundamentals_lines_layers:
+
 Lines and layers
 ================
 
@@ -70,6 +76,7 @@ Curved paths are not supported *per se*. Instead, everything is linearised into 
 
 One down-side of using polylines to approximate curved element is the potential increase of output file size. For example, three numbers are sufficient to describe a circle, but 10 to 100 segments may be needed to approximate it sufficiently well for plotting. When this becomes an issue, tuning the quantization parameters and using the :program:`linesimplify` command can help.
 
+.. _fundamentals_commands:
 
 Command taxonomy
 ================
@@ -79,6 +86,8 @@ Commands come in 3 different types: *generators*, *layer processors* and *global
 .. image:: images/command_types.svg
    :width: 600px
 
+
+.. _fundamentals_generators:
 
 Generators
 ----------
@@ -94,6 +103,8 @@ Here are a few more example of generators (the list is not exhaustive):
 * :program:`rect`: generates a rectangle
 * :program:`frame`: generates a single-line frame around the existing geometries
 
+
+.. _fundamentals_layer_processors:
 
 Layer processors
 ----------------
@@ -114,6 +125,7 @@ Here are a few examples of layer processors (the list is non-exhaustive):
 * :program:`linesort`: sort paths within the layer such as to minimize the distance travelled by the plotter in pen-up position
 * :program:`linesimplify`: reduce the number of points in paths which ensuring a specified precision, in order to minimize output file size
 
+.. _fundamentals_global_processors:
 
 Global processors
 -----------------
@@ -122,6 +134,7 @@ While layer processors are executed multiple times, once for each layer they are
 
 For example, the :program:`write` command uses all layers in the pipeline to generate a multi-layer SVG file. Because they use the geometry center as reference (by default), the :program:`rotate`, :program:`scale`, and :program:`skew` transformation commands are also implemented as global processors, although they accept a `--layer` option which behaves much like layer processors.
 
+.. _fundamentals_units:
 
 Units
 =====
@@ -138,6 +151,7 @@ Note that there must be no whitespace between the number and the unit, otherwise
 
 Internally, units other than CSS pixels are converted as soon as possible and pixels are used everywhere in the code (see :class:`Length`).
 
+.. _fundamentals_blocks:
 
 Blocks
 ======
@@ -202,9 +216,10 @@ Here is the result:
 
 Since the block pipeline is executed from a blank state, the :program:`ldelete` command has no effect and all 10 circles are visible in the output.
 
+.. _fundamentals_command_files:
 
-Command file
-============
+Command files
+=============
 
 Pipelines be quite complex, especially when using blocks, which can become cumbersome in the command-line. To address this, all or parts of a pipeline can be stored in so-called command files which *vpype* can then refer to. A command file is a text file whose content is interpreted as if it was command-line arguments. Newlines and indentation are ignored and useful only for readability. Everything to the right of a ``#`` character is considered
 a comment and is ignored.
