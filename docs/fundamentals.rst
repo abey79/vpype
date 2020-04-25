@@ -76,6 +76,7 @@ Curved paths are not supported *per se*. Instead, everything is linearised into 
 
 One down-side of using polylines to approximate curved element is the potential increase of output file size. For example, three numbers are sufficient to describe a circle, but 10 to 100 segments may be needed to approximate it sufficiently well for plotting. When this becomes an issue, tuning the quantization parameters and using the :program:`linesimplify` command can help.
 
+
 .. _fundamentals_commands:
 
 Command taxonomy
@@ -125,6 +126,7 @@ Here are a few examples of layer processors (the list is non-exhaustive):
 * :program:`linesort`: sort paths within the layer such as to minimize the distance travelled by the plotter in pen-up position
 * :program:`linesimplify`: reduce the number of points in paths which ensuring a specified precision, in order to minimize output file size
 
+
 .. _fundamentals_global_processors:
 
 Global processors
@@ -150,6 +152,7 @@ Because the pixel is not the best unit to deal with physical supports, most comm
 Note that there must be no whitespace between the number and the unit, otherwise they would be considered as distinct CLI arguments.
 
 Internally, units other than CSS pixels are converted as soon as possible and pixels are used everywhere in the code (see :class:`Length`).
+
 
 .. _fundamentals_blocks:
 
@@ -215,6 +218,7 @@ Here is the result:
    :width: 400px
 
 Since the block pipeline is executed from a blank state, the :program:`ldelete` command has no effect and all 10 circles are visible in the output.
+
 
 .. _fundamentals_command_files:
 

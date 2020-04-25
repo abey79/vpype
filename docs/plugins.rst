@@ -2,9 +2,9 @@
 
 .. _plugins:
 
-================
-Writing plug-ins
-================
+========
+Plug-ins
+========
 
 .. _plugins_why:
 
@@ -75,8 +75,6 @@ Let's check that that everything works as expected::
       my-vpype-plugin  Insert documentation here.
 
     ...
-
-.. highlight:: python
 
 The cookiecutter project includes a single :ref:`generator <fundamentals_generators>` command with the :py:func:`generator` decorator:
 

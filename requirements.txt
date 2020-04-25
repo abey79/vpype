@@ -17,8 +17,9 @@ black
 
 # documentations
 sphinx
-sphinx-click
+#sphinx-click
+git+https://github.com/abey79/sphinx-click@vpype-docs#egg=sphinx-click
 sphinx-autodoc-typehints
-sphinx-rtd-theme
-recommonmark
+#sphinx-rtd-theme
 alabaster
+recommonmark

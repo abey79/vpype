@@ -74,7 +74,7 @@ def write(
     scaled or translated by default, even if they lie outside of the page bounds. The
     `--center` option translates the geometries to the center of the page.
 
-    If output path is `-`, SVG content is output on stdout.
+    If output path is a single dash (`-`), SVG content is printed to stdout.
     """
 
     if vector_data.is_empty():
