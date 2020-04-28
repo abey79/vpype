@@ -2,11 +2,15 @@
 Implementation of vpype's data model
 """
 import math
+import re
 from typing import Union, Iterable, List, Dict, Tuple, Optional
+from xml.etree.ElementTree import Element
 
 import numpy as np
 import svgpathtools as svg
 from shapely.geometry import MultiLineString, LineString, LinearRing
+from svgpathtools import SVG_NAMESPACE
+from svgpathtools.document import flatten_group
 
 from .utils import convert
 from .line_index import LineIndex
@@ -25,30 +29,15 @@ def as_vector(a: np.ndarray):
     return a.view(dtype=float).reshape(len(a), 2)
 
 
-def read_svg(
-    filename: str, quantization: float, simplify: bool = False, return_size: bool = False
-) -> Union["LineCollection", Tuple["LineCollection", float, float]]:
+def _calculate_page_size(root: Element) -> Tuple[float, float, float, float, float, float]:
+    """Interpret the viewBox, width and height attribs and compute proper scaling coefficients.
+
+    Args:
+        root: SVG's root element
+
+    Returns:
+        tuple of width, height, scale X, scale Y, offset X, offset Y
     """
-    Read a SVG file an return its content as a :class:`LineCollection` instance. All curved
-    geometries are chopped in segments no longer than the value of *quantization*.
-    Optionally, the geometries are simplified using Shapely, using the value of *quantization*
-    as tolerance.
-
-    :param filename: path of the SVG file
-    :param quantization: maximum size of segment used to approximate curved geometries
-    :param simplify: run Shapely's simplify on loaded geometry
-    :param return_size: if True, return a size 3 Tuple containing the geometries and the SVG
-        width and height
-    :return: imported geometries, and optionally width and height of the SVG
-    """
-
-    doc = svg.Document(filename)
-    results = doc.flatten_all_paths()
-    root = doc.tree.getroot()
-
-    # we must interpret correctly the viewBox, width and height attribs in order to scale
-    # the file content to proper pixels
-
     width = height = None
     if "viewBox" in root.attrib:
         # A view box is defined so we must correctly scale from user coordinates
@@ -72,8 +61,33 @@ def read_svg(
         offset_x = 0
         offset_y = 0
 
+    return width, height, scale_x, scale_y, offset_x, offset_y
+
+
+def _convert_flattened_paths(
+    paths: List,
+    quantization: float,
+    scale_x: float,
+    scale_y: float,
+    offset_x: float,
+    offset_y: float,
+    simplify: bool,
+) -> "LineCollection":
+    """Convert a list of FlattenedPaths to a :class:`LineCollection`.
+
+    Args:
+        paths: list of FlattenedPaths
+        quantization: maximum length of linear elements to approximate curve paths
+        scale_x, scale_y: scale factor to apply
+        offset_x, offset_y: offset to apply
+        simplify: should Shapely's simplify be run
+
+    Returns:
+        new :class:`LineCollection` instance containing the converted geometries
+    """
+
     lc = LineCollection()
-    for result in results:
+    for result in paths:
         # Here we load the sub-part of the path element. If such sub-parts are connected,
         # we merge them in a single line (e.g. line string, etc.). If there are disconnection
         # in the path (e.g. multiple "M" commands), we create several lines
@@ -111,12 +125,127 @@ def read_svg(
         mls = lc.as_mls()
         lc = LineCollection(mls.simplify(tolerance=quantization))
 
+    return lc
+
+
+def read_svg(
+    filename: str, quantization: float, simplify: bool = False, return_size: bool = False
+) -> Union["LineCollection", Tuple["LineCollection", float, float]]:
+    """Read a SVG file an return its content as a :class:`LineCollection` instance.
+
+    All curved geometries are chopped in segments no longer than the value of *quantization*.
+    Optionally, the geometries are simplified using Shapely, using the value of *quantization*
+    as tolerance.
+
+    Args:
+        filename: path of the SVG file
+        quantization: maximum size of segment used to approximate curved geometries
+        simplify: run Shapely's simplify on loaded geometry
+        return_size: if True, return a size 3 Tuple containing the geometries and the SVG
+            width and height
+
+    Returns:
+        imported geometries, and optionally width and height of the SVG
+    """
+
+    doc = svg.Document(filename)
+    width, height, scale_x, scale_y, offset_x, offset_y = _calculate_page_size(doc.root)
+    lc = _convert_flattened_paths(
+        doc.flatten_all_paths(), quantization, scale_x, scale_y, offset_x, offset_y, simplify,
+    )
+
     if return_size:
         if width is None or height is None:
             _, _, width, height = lc.bounds()
         return lc, width, height
     else:
         return lc
+
+
+def read_multilayer_svg(
+    filename: str, quantization: float, simplify: bool = False, return_size: bool = False
+) -> Union["VectorData", Tuple["VectorData", float, float]]:
+    """Read a multilayer SVG file and return its content as a :class:`VectorData` instance
+    retaining the SVG's layer structure.
+
+    Each top-level group is considered a layer. All non-group, top-level elements are imported
+    in layer 1.
+
+    Groups are matched to layer ID according their `inkscape:label` attribute, their `id`
+    attribute or their appearing order, in that order of priority. Labels are stripped of
+    non-numeric characters and the remaining is used as layer ID. Lacking numeric characters,
+    the appearing order is used. If the label is 0, its changed to 1.
+
+    All curved geometries are chopped in segments no longer than the value of *quantization*.
+    Optionally, the geometries are simplified using Shapely, using the value of *quantization*
+    as tolerance.
+
+    Args:
+        filename: path of the SVG file
+        quantization: maximum size of segment used to approximate curved geometries
+        simplify: run Shapely's simplify on loaded geometry
+        return_size: if True, return a size 3 Tuple containing the geometries and the SVG
+            width and height
+
+    Returns:
+         imported geometries, and optionally width and height of the SVG
+    """
+
+    doc = svg.Document(filename)
+
+    width, height, scale_x, scale_y, offset_x, offset_y = _calculate_page_size(doc.root)
+
+    vector_data = VectorData()
+
+    # non-group top level elements are loaded in layer 1
+    top_level_elements = doc.flatten_all_paths(group_filter=lambda x: x is doc.root)
+    if top_level_elements:
+        vector_data.add(
+            _convert_flattened_paths(
+                top_level_elements,
+                quantization,
+                scale_x,
+                scale_y,
+                offset_x,
+                offset_y,
+                simplify,
+            ),
+            1,
+        )
+
+    for i, g in enumerate(doc.root.iterfind("svg:g", SVG_NAMESPACE)):
+        # compute a decent layer ID
+        lid_str = re.sub(
+            "[^0-9]", "", g.get("{http://www.inkscape.org/namespaces/inkscape}label") or ""
+        )
+        if not lid_str:
+            lid_str = re.sub("[^0-9]", "", g.get("id") or "")
+        if lid_str:
+            lid = int(lid_str)
+            if lid == 0:
+                lid = 1
+        else:
+            lid = i + 1
+
+        vector_data.add(
+            _convert_flattened_paths(
+                flatten_group(g, g),
+                quantization,
+                scale_x,
+                scale_y,
+                offset_x,
+                offset_y,
+                simplify,
+            ),
+            lid,
+        )
+
+    if return_size:
+        if width is None or height is None:
+            _, _, width, height = vector_data.bounds()
+        return vector_data, width, height
+    else:
+        return vector_data
 
 
 def interpolate_line(line: np.ndarray, step: float) -> np.ndarray:
@@ -337,9 +466,6 @@ class VectorData:
         else:
             self._layers[layer_id] = LineCollection(value)
 
-    def __contains__(self, layer_id) -> bool:
-        return self._layers.__contains__(layer_id)
-
     def free_id(self) -> int:
         """Returns the lowest free layer id"""
         vid = 1
@@ -368,6 +494,9 @@ class VectorData:
             if not layer.is_empty():
                 return False
         return True
+
+    def pop(self, layer_id: int) -> LineCollection:
+        return self._layers.pop(layer_id)
 
     def count(self) -> int:
         return len(self._layers.keys())
