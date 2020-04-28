@@ -4,15 +4,15 @@ import click
 import numpy as np
 from shapely.geometry import Polygon, LineString
 
-from vpype import as_vector, LineCollection, Length, layer_processor, LineIndex
+from vpype import as_vector, LineCollection, LengthType, layer_processor, LineIndex
 from .cli import cli
 
 
 @cli.command(group="Operations")
-@click.argument("x", type=Length(), required=True)
-@click.argument("y", type=Length(), required=True)
-@click.argument("width", type=Length(), required=True)
-@click.argument("height", type=Length(), required=True)
+@click.argument("x", type=LengthType(), required=True)
+@click.argument("y", type=LengthType(), required=True)
+@click.argument("width", type=LengthType(), required=True)
+@click.argument("height", type=LengthType(), required=True)
 @layer_processor
 def crop(lines: LineCollection, x: float, y: float, width: float, height: float):
     """
@@ -45,7 +45,7 @@ def crop(lines: LineCollection, x: float, y: float, width: float, height: float)
 @click.option(
     "-t",
     "--tolerance",
-    type=Length(),
+    type=LengthType(),
     default="0.05mm",
     help="Maximum distance between two line endings that should be merged.",
 )
@@ -110,7 +110,7 @@ def linesort(lines: LineCollection, no_flip: bool = True):
 @click.option(
     "-t",
     "--tolerance",
-    type=Length(),
+    type=LengthType(),
     default="0.05mm",
     help="Controls how far from the original geometry simplified points may lie.",
 )
@@ -140,7 +140,7 @@ def linesimplify(lines: LineCollection, tolerance):
 @click.option(
     "-t",
     "--tolerance",
-    type=Length(),
+    type=LengthType(),
     default="0.05mm",
     help="Controls how close the path beginning and end must be to consider it closed ("
     "default: 0.05mm).",

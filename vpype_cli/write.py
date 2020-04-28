@@ -1,31 +1,64 @@
 import copy
 import datetime
 import logging
+from typing import Tuple
 from xml.etree import ElementTree
 
 import click
 import svgwrite
 from svgwrite.extensions import Inkscape
 
-from vpype import global_processor, as_vector, VectorData
+from vpype import global_processor, as_vector, VectorData, PageSizeType, PAGE_FORMATS
 from .cli import cli
 
-# supported page format, size in mm
-PAGE_FORMATS = {
-    "tight": (0, 0),
-    "a6": (105.0, 148.0),
-    "a5": (148.0, 210.0),
-    "a4": (210.0, 297.0),
-    "a3": (297.0, 420.0),
-    "letter": (215.9, 279.4),
-    "legal": (215.9, 355.6),
-    "executive": (185.15, 266.7),
-    "11x14": (279.4, 355.6),
-    "12x9": (304.8, 228.6),
-}
+
+WRITE_HELP = f"""Save geometries to a SVG file.
+
+By default, the SVG generated has bounds tightly fitted around the geometries. Optionally,
+a page format can be provided with the `--page-format FORMAT` option. `FORMAT` may be one
+of:
+
+    {', '.join(PAGE_FORMATS.keys())}
+
+Alternatively, a custom format can be specified in the form of `WIDTHxHEIGHT`. `WIDTH` and
+`HEIGHT` may include units. If only one has an unit, the other is assumed to have the
+same unit. If none have units, both are assumed to be pixels by default. Here are some
+examples:
+
+\b
+    --page-format 11x14in     # 11in by 14in
+    --page-format 1024x768    # 1024px by 768px
+    --page-format 13.5inx4cm  # 13.5in by 4cm
+
+When a page format is provided, it will be rotated if the `--landscape` option is used.
+
+By default, when a page format is provided, the geometries are not scaled or translated
+even if they lie outside of the page bounds. The `--center` option translates the geometries
+to the center of the page.
+
+If `OUTPUT` is a single dash (`-`), SVG content is printed to stdout instead of a file.
+
+Examples:
+
+    Write to a tightly fitted SVG:
+
+        vpype [...] write output.svg
+
+    Write to a portrait A4 page:
+
+        vpype [...] write --page-format a4 output.svg 
+
+    Write to a 13x9 inch page and center the geometries:
+
+        vpype [...] write --page-format 13x9in --landscape --center output.svg
+
+    Output SVG to stdout:
+
+        vpype [...] write -
+"""
 
 
-@cli.command(group="Output")
+@cli.command(group="Output", help=WRITE_HELP)
 @click.argument("output", type=click.File("w"))
 @click.option(
     "-s",
@@ -36,7 +69,7 @@ PAGE_FORMATS = {
 @click.option(
     "-p",
     "--page-format",
-    type=click.Choice(PAGE_FORMATS.keys(), case_sensitive=False),
+    type=PageSizeType(),
     default="tight",
     help=(
         "Set the bounds of the SVG to a specific page format. If omitted, the SVG size it set "
@@ -44,16 +77,10 @@ PAGE_FORMATS = {
     ),
 )
 @click.option(
-    "-l",
-    "--landscape",
-    is_flag=True,
-    help="[--page-format only] Use landscape orientation instead of portrait.",
+    "-l", "--landscape", is_flag=True, help="Use landscape orientation instead of portrait.",
 )
 @click.option(
-    "-c",
-    "--center",
-    is_flag=True,
-    help="[--page-format only] Center the geometries within the SVG bounds",
+    "-c", "--center", is_flag=True, help="Center the geometries within the SVG bounds",
 )
 @click.pass_obj  # to obtain the command string
 @global_processor
@@ -62,20 +89,11 @@ def write(
     cmd_string: str,
     output,
     single_path: bool,
-    page_format: str,
+    page_format: Tuple[float, float],
     landscape: bool,
     center: bool,
 ):
-    """
-    Save geometries to a SVG file.
-
-    By default, the SVG generated has bounds tightly fit around the geometries. Optionally,
-    a page format can be provided (`--page-format`). In this case, the geometries are not
-    scaled or translated by default, even if they lie outside of the page bounds. The
-    `--center` option translates the geometries to the center of the page.
-
-    If output path is a single dash (`-`), SVG content is printed to stdout.
-    """
+    """Write command."""
 
     if vector_data.is_empty():
         logging.warning("no geometry to save, no file created")
@@ -83,8 +101,9 @@ def write(
 
     # compute bounds
     bounds = vector_data.bounds()
-    if page_format != "tight":
-        size = tuple(c * 96.0 / 25.4 for c in PAGE_FORMATS[page_format])
+    tight = page_format == (0.0, 0.0)
+    if not tight:
+        size = page_format
         if landscape:
             size = tuple(reversed(size))
     else:
@@ -96,7 +115,7 @@ def write(
             (size[0] - (bounds[2] - bounds[0])) / 2.0 - bounds[0],
             (size[1] - (bounds[3] - bounds[1])) / 2.0 - bounds[1],
         )
-    elif page_format == "tight":
+    elif tight:
         corrected_vector_data = copy.deepcopy(vector_data)
         corrected_vector_data.translate(-bounds[0], -bounds[1])
     else:

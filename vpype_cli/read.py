@@ -4,7 +4,7 @@ from typing import Optional
 import click
 
 from vpype import (
-    Length,
+    LengthType,
     read_svg,
     global_processor,
     VectorData,
@@ -27,7 +27,7 @@ from .cli import cli
 @click.option(
     "-q",
     "--quantization",
-    type=Length(),
+    type=LengthType(),
     default="0.1mm",
     help="Maximum length of segments approximating curved elements (default: 0.1mm).",
 )

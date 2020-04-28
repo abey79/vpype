@@ -3,15 +3,15 @@ import math
 import click
 import numpy as np
 
-from vpype import LineCollection, Length, generator
+from vpype import LineCollection, LengthType, generator
 from .cli import cli
 
 
 @cli.command(group="Primitives")
-@click.argument("x0", type=Length())
-@click.argument("y0", type=Length())
-@click.argument("x1", type=Length())
-@click.argument("y1", type=Length())
+@click.argument("x0", type=LengthType())
+@click.argument("y0", type=LengthType())
+@click.argument("x1", type=LengthType())
+@click.argument("y1", type=LengthType())
 @generator
 def line(x0: float, y0: float, x1: float, y1: float) -> LineCollection:
     """
@@ -23,10 +23,10 @@ def line(x0: float, y0: float, x1: float, y1: float) -> LineCollection:
 
 
 @cli.command(group="Primitives")
-@click.argument("x", type=Length())
-@click.argument("y", type=Length())
-@click.argument("width", type=Length())
-@click.argument("height", type=Length())
+@click.argument("x", type=LengthType())
+@click.argument("y", type=LengthType())
+@click.argument("width", type=LengthType())
+@click.argument("height", type=LengthType())
 @generator
 def rect(x: float, y: float, width: float, height: float) -> LineCollection:
     """
@@ -48,13 +48,13 @@ def rect(x: float, y: float, width: float, height: float) -> LineCollection:
 
 
 @cli.command(group="Primitives")
-@click.argument("x", type=Length())
-@click.argument("y", type=Length())
-@click.argument("r", type=Length())
+@click.argument("x", type=LengthType())
+@click.argument("y", type=LengthType())
+@click.argument("r", type=LengthType())
 @click.option(
     "-q",
     "--quantization",
-    type=Length(),
+    type=LengthType(),
     default="1mm",
     help="Maximum length of segments approximating the circle.",
 )
