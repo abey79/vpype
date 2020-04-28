@@ -4,13 +4,13 @@ from typing import Tuple, Union, List
 
 import click
 
-from vpype import global_processor, VectorData, LineCollection, Length, layer_processor, \
+from vpype import global_processor, VectorData, LineCollection, LengthType, layer_processor, \
     LayerType, multiple_to_layer_ids
 from .cli import cli
 
 
 @cli.command(group="Transforms")
-@click.argument("offset", nargs=2, type=Length(), required=True)
+@click.argument("offset", nargs=2, type=LengthType(), required=True)
 @layer_processor
 def translate(lc: LineCollection, offset: Tuple[float, float]):
     """
@@ -23,7 +23,7 @@ def translate(lc: LineCollection, offset: Tuple[float, float]):
 
 # noinspection PyShadowingNames
 @cli.command(group="Transforms")
-@click.argument("scale", nargs=2, type=Length())
+@click.argument("scale", nargs=2, type=LengthType())
 @click.option(
     "-l",
     "--layer",
@@ -44,7 +44,7 @@ def translate(lc: LineCollection, offset: Tuple[float, float]):
     help="[--to only] Maintain the geometries proportions.",
 )
 @click.option(
-    "-o", "--origin", "origin_coords", nargs=2, type=Length(), help="Use a specific origin."
+    "-o", "--origin", "origin_coords", nargs=2, type=LengthType(), help="Use a specific origin."
 )
 @global_processor
 def scale(
@@ -114,7 +114,7 @@ def scale(
 )
 @click.option("-r", "--radian", is_flag=True, help="Angle is in radians.")
 @click.option(
-    "-o", "--origin", "origin_coords", nargs=2, type=Length(), help="Use a specific origin."
+    "-o", "--origin", "origin_coords", nargs=2, type=LengthType(), help="Use a specific origin."
 )
 @global_processor
 def rotate(
@@ -173,7 +173,7 @@ def rotate(
 )
 @click.option("-r", "--radian", is_flag=True, help="Angle is in radians.")
 @click.option(
-    "-o", "--origin", "origin_coords", nargs=2, type=Length(), help="Use a specific origin."
+    "-o", "--origin", "origin_coords", nargs=2, type=LengthType(), help="Use a specific origin."
 )
 @global_processor
 def skew(
