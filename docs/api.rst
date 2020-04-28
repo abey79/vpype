@@ -36,7 +36,7 @@ File I/O
 Unit management
 ===============
 
-.. autoclass:: Length
+.. autoclass:: LengthType
    :members:
 
 .. autofunction:: convert
@@ -61,6 +61,9 @@ Misc
 ====
 
 .. autoclass:: LineIndex
+   :members:
+
+.. autoclass:: PageSizeType
    :members:
 
 .. autofunction:: as_vector

@@ -7,7 +7,8 @@ from typing import Union, Tuple
 
 import click
 
-__all__ = ["UNITS", "PAGE_FORMATS", "Length", "LengthType", "PageSizeType"]
+# REMINDER: anything added here must be added to docs/api.rst
+__all__ = ["UNITS", "PAGE_FORMATS", "Length", "LengthType", "PageSizeType", "convert"]
 
 
 def _mm_to_px(x: float, y: float) -> Tuple[float, float]:

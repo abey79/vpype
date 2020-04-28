@@ -8,6 +8,9 @@ from typing import Optional, Tuple, Iterable
 import numpy as np
 from scipy.spatial import cKDTree as KDTree
 
+# REMINDER: anything added here must be added to docs/api.rst
+__all__ = ["LineIndex"]
+
 
 class LineIndex:
     """Wrapper to scipy.spatial.cKDTree to facilitate systematic processing of a line

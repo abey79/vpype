@@ -17,6 +17,18 @@ from svgpathtools.document import flatten_group
 from .utils import convert
 from .line_index import LineIndex
 
+# REMINDER: anything added here must be added to docs/api.rst
+__all__ = [
+    "LineCollection",
+    "VectorData",
+    "LineLike",
+    "LineCollectionLike",
+    "as_vector",
+    "read_svg",
+    "read_multilayer_svg",
+    "interpolate_line",
+]
+
 LineLike = Union[LineString, LinearRing, Iterable[complex]]
 
 # We accept LineString and LinearRing as line collection because MultiLineString are regularly
@@ -269,6 +281,7 @@ class LineCollection:
     """
     Line collection TODO
     """
+
     def __init__(self, lines: LineCollectionLike = []):
         """
         Create a line collection.
