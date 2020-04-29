@@ -84,11 +84,17 @@ class DebugData:
         if self.count == 0:
             return False
 
+        def approx_check(a, b, lt):
+            if lt:
+                return a < b and not np.isclose(a, b)
+            else:
+                return a > b and not np.isclose(a, b)
+
         if (
-            self.bounds[0] < x
-            or self.bounds[1] < y
-            or self.bounds[2] > x + width
-            or self.bounds[3] > y + height
+            approx_check(self.bounds[0], x, True)
+            or approx_check(self.bounds[1], y, True)
+            or approx_check(self.bounds[2], x + width, False)
+            or approx_check(self.bounds[3], y + height, False)
         ):
             return False
 
