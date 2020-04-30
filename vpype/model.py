@@ -27,7 +27,6 @@ __all__ = [
     "as_vector",
     "read_svg",
     "read_multilayer_svg",
-    "interpolate_line",
 ]
 
 LineLike = Union[LineString, LinearRing, Iterable[complex]]
@@ -268,7 +267,7 @@ class LineCollection:
     Line collection TODO
     """
 
-    def __init__(self, lines: LineCollectionLike = []):
+    def __init__(self, lines: LineCollectionLike = ()):
         """
         Create a line collection.
         :param lines: iterable of line-like things
