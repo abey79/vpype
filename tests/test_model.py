@@ -1,11 +1,8 @@
-import pytest
 import numpy as np
-from shapely.geometry import MultiLineString, LineString, LinearRing, Point
+import pytest
+from shapely.geometry import MultiLineString, LineString, Point, LinearRing
 
-from vpype import LineCollection, VectorData, interpolate_line
-
-# noinspection PyProtectedMember
-from vpype.model import _reloop_line
+from vpype import LineCollection, VectorData
 
 LINE_COLLECTION_TWO_LINES = [
     LineCollection([[0, 1 + 1j], [2 + 2j, 3 + 3j, 4 + 4j]]),
@@ -120,19 +117,6 @@ def test_line_collection_pen_up_length():
     assert lc.pen_up_length()[0] == 20.0
 
 
-def test_reloop_line():
-    line = np.array([0, 1, 2, 3, 0.2], dtype=complex)
-    assert np.all(_reloop_line(line, 2) == np.array([2, 3, 0.1, 1, 2], dtype=complex))
-    assert np.all(_reloop_line(line, 0) == np.array([0.1, 1, 2, 3, 0.1], dtype=complex))
-    assert np.all(_reloop_line(line, 4) == np.array([0.1, 1, 2, 3, 0.1], dtype=complex))
-
-
-def test_reloop_line_small():
-    line = np.array([3, 3], dtype=complex)
-    assert np.all(_reloop_line(line, 0) == line)
-    assert np.all(_reloop_line(line, 1) == line)
-
-
 def test_vector_data_lid_iteration():
     lc = LineCollection([(0, 1 + 1j)])
     vd = VectorData()
@@ -159,20 +143,3 @@ def test_vector_data_bounds_empty_layer():
     vd.add(LineCollection())
 
     assert vd.bounds() == (0, 0, 10, 10)
-
-
-@pytest.mark.parametrize(
-    ["line", "step", "expected"],
-    [
-        ([0, 10], 1, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
-        ([0, 1, 3, 10], 1, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
-        ([0, 1j, 3j, 10j], 1, [0, 1j, 2j, 3j, 4j, 5j, 6j, 7j, 8j, 9j, 10j]),
-        ([0, 10], 10, [0, 10]),
-        ([0, 10], 1.01, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
-        ([0, 1, 1 + 1j, 1j, 0], 0.5, [0, 0.5, 1, 1 + 0.5j, 1 + 1j, 0.5 + 1j, 1j, 0.5j, 0]),
-    ],
-)
-def test_interpolate_line(line, step, expected):
-    result = interpolate_line(np.array(line, dtype=complex), step)
-    assert len(result) == len(expected)
-    assert np.all(np.isclose(result, np.array(expected, dtype=complex),))

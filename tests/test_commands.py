@@ -155,11 +155,19 @@ def test_scale_origin(runner):
     assert data[1].bounds_within(0, 0, 20 * CM, 20 * CM)
 
 
-def test_crop(runner):
+def test_crop_cm(runner):
     res = runner.invoke(cli, "random -n 100 -a 10cm 10cm crop 2cm 2cm 8cm 8cm dbsample dbdump")
     data = DebugData.load(res.output)
     assert res.exit_code == 0
     assert data[0].bounds_within(2 * CM, 2 * CM, 8 * CM, 8 * CM)
+    assert data[0].count <= 100
+
+
+def test_crop(runner):
+    res = runner.invoke(cli, "random -n 100 -a 10 10 crop 2 2 6 6 dbsample dbdump")
+    data = DebugData.load(res.output)
+    assert res.exit_code == 0
+    assert data[0].bounds_within(2, 2, 6, 6)
     assert data[0].count <= 100
 
 

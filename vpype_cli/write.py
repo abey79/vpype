@@ -36,6 +36,13 @@ By default, when a page format is provided, the geometries are not scaled or tra
 even if they lie outside of the page bounds. The `--center` option translates the geometries
 to the center of the page.
 
+Layers are labelled with their numbers by default. If an alternative naming is required, a
+template pattern can be provided using the `--layer-label` option. The provided pattern must
+contain a C-style format specifier such as `%d` which will be replaced by the layer number.
+
+By default, paths will be exported individually. If it is preferable to have a single,
+compound path per layer, the `--single-path` flag can be used.
+
 If `OUTPUT` is a single dash (`-`), SVG content is printed to stdout instead of a file.
 
 Examples:
@@ -52,6 +59,10 @@ Examples:
 
         vpype [...] write --page-format 13x9in --landscape --center output.svg
 
+    Use custom layer labels:
+
+        vpype [...] write --page-format a4 --layer-label "Pen %d" output.svg
+    
     Output SVG to stdout:
 
         vpype [...] write -
@@ -80,7 +91,10 @@ Examples:
     "-l", "--landscape", is_flag=True, help="Use landscape orientation instead of portrait.",
 )
 @click.option(
-    "-c", "--center", is_flag=True, help="Center the geometries within the SVG bounds",
+    "-c", "--center", is_flag=True, help="Center the geometries within the SVG bounds.",
+)
+@click.option(
+    "-ll", "--layer-label", type=str, default="%d", help="Pattern used to for naming layers."
 )
 @click.pass_obj  # to obtain the command string
 @global_processor
@@ -92,6 +106,7 @@ def write(
     page_format: Tuple[float, float],
     landscape: bool,
     center: bool,
+    layer_label: str,
 ):
     """Write command."""
 
@@ -146,7 +161,7 @@ def write(
     for layer_id in sorted(corrected_vector_data.layers.keys()):
         layer = corrected_vector_data.layers[layer_id]
 
-        group = inkscape.layer(label=str(layer_id))
+        group = inkscape.layer(label=str(layer_label % layer_id))
         group.attribs["fill"] = "none"
         group.attribs["stroke"] = "black"
         group.attribs["style"] = "display:inline"

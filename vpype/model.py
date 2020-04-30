@@ -14,6 +14,7 @@ from shapely.geometry import MultiLineString, LineString, LinearRing
 from svgpathtools import SVG_NAMESPACE
 from svgpathtools.document import flatten_group
 
+from .geometry import reloop, crop
 from .utils import convert
 from .line_index import LineIndex
 
@@ -262,21 +263,6 @@ def read_multilayer_svg(
         return vector_data
 
 
-def interpolate_line(line: np.ndarray, step: float) -> np.ndarray:
-    """
-    Compute a linearly interpolated version of *line* with segments of *step* length or
-    less.
-    :param line: 1D array of complex
-    :param step: maximum length of interpolated segment
-    :return: interpolated 1D array of complex
-    """
-
-    curv_absc = np.cumsum(np.hstack([0, np.abs(np.diff(line))]))
-    return np.interp(
-        np.linspace(0, curv_absc[-1], 1 + math.ceil(curv_absc[-1] / step)), curv_absc, line
-    )
-
-
 class LineCollection:
     """
     Line collection TODO
@@ -367,7 +353,25 @@ class LineCollection:
         for i, line in enumerate(self._lines):
             delta = line[-1] - line[0]
             if np.hypot(delta.real, delta.imag) <= tolerance:
-                self._lines[i] = _reloop_line(line)
+                self._lines[i] = reloop(line)
+
+    def crop(self, x1: float, y1: float, x2: float, y2: float) -> None:
+        """Crop all lines to a rectangular area.
+
+        Args:
+            x1, y1: first corner of the crop area
+            x2, y2: second corner of the crop area
+        """
+
+        if x1 > x2:
+            x1, x2 = x2, x1
+        if y1 > y2:
+            y1, y2 = y2, y1
+
+        new_lines = []
+        for line in self._lines:
+            new_lines.extend(crop(line, x1, y1, x2, y2))
+        self._lines = new_lines
 
     def merge(self, tolerance: float, flip: bool = True) -> None:
         """Merge lines whose endings overlap or are very close.
@@ -552,21 +556,3 @@ class VectorData:
 
     def segment_count(self) -> int:
         return sum(layer.segment_count() for layer in self._layers.values())
-
-
-def _reloop_line(line: np.ndarray, loc: Optional[int] = None) -> np.ndarray:
-    """
-    Change the seam of a closed path. Closed-ness is not checked. Beginning and end points are
-    averaged to compute a new point. A new seam location can be provided or will be chosen
-    randomly.
-    :param line: path to reloop
-    :param loc: new seam location
-    :return: re-seamed path
-    """
-
-    if loc is None:
-        loc = np.random.randint(len(line) - 1)
-    end_point = 0.5 * (line[0] + line[-1])
-    line[0] = end_point
-    line[-1] = end_point
-    return np.hstack([line[loc:], line[1 : min(loc + 1, len(line))]])
