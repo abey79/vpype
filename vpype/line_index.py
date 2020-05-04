@@ -14,7 +14,7 @@ class LineIndex:
     """
 
     def __init__(self, lines: Iterable[np.ndarray], reverse: bool = False):
-        self.lines = [line for line in lines]
+        self.lines = [line for line in lines if len(line) > 0]
         self.reverse = reverse
         self._make_index()
 
