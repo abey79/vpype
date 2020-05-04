@@ -43,7 +43,9 @@ class LineCollection:
             # noinspection PyTypeChecker
             self._lines.append(np.array(line).view(dtype=complex).reshape(-1))
         else:
-            self._lines.append(np.array(line, dtype=complex).reshape(-1))
+            line = np.array(line, dtype=complex).reshape(-1)
+            if len(line) > 1:
+                self._lines.append(line)
 
     def extend(self, lines: LineCollectionLike) -> None:
         if hasattr(lines, "geom_type") and lines.is_empty:
@@ -286,7 +288,7 @@ class VectorData:
 
     def bounds(
         self, layer_ids: Union[None, Iterable[int]] = None
-    ) -> Tuple[float, float, float, float]:
+    ) -> Optional[Tuple[float, float, float, float]]:
         """
         Compute bounds of the vector data. If `layer_ids` is provided, bounds are computed only
         the corresponding ids.
@@ -303,7 +305,10 @@ class VectorData:
                 if self.exists(vid) and len(self._layers[vid]) > 0
             ]
         )
-        return a[:, 0].min(), a[:, 1].min(), a[:, 2].max(), a[:, 3].max()
+        if len(a) > 0:
+            return a[:, 0].min(), a[:, 1].min(), a[:, 2].max(), a[:, 3].max()
+        else:
+            return None
 
     def length(self) -> float:
         return sum(layer.length() for layer in self._layers.values())

@@ -143,3 +143,45 @@ def test_vector_data_bounds_empty_layer():
     vd.add(LineCollection())
 
     assert vd.bounds() == (0, 0, 10, 10)
+
+
+def _all_line_collection_ops(lc: LineCollection):
+    lc.merge(1)
+    lc.scale(2, 2)
+    lc.translate(2, 2)
+    lc.rotate(10)
+    lc.reloop(1)
+    lc.skew(4, 4)
+    lc.bounds()
+    # to be continued...
+
+
+def test_ops_on_empty_line_collection():
+    lc = LineCollection()
+
+
+def test_ops_on_degenerate_line_collection():
+    lc = LineCollection([np.array([], dtype=complex).reshape(-1)])
+    _all_line_collection_ops(lc)
+
+    lc = LineCollection([np.array([complex(1, 1)])])
+    _all_line_collection_ops(lc)
+
+
+def _all_vector_data_ops(vd: VectorData):
+    vd.bounds()
+    vd.length()
+    vd.segment_count()
+    # to be completed..
+
+
+def test_ops_on_emtpy_vector_data():
+    vd = VectorData()
+    _all_vector_data_ops(vd)
+
+
+def test_ops_on_vector_data_with_emtpy_layer():
+    vd = VectorData()
+    lc = LineCollection()
+    vd.add(lc, 1)
+    _all_vector_data_ops(vd)

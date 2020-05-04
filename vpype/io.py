@@ -279,6 +279,9 @@ def write_svg(
 
     # compute bounds
     bounds = vector_data.bounds()
+    if bounds is None:
+        # empty geometry, we provide fake bounds
+        bounds = (0, 0, 1, 1)
     tight = page_format == (0.0, 0.0)
     if not tight:
         size = page_format

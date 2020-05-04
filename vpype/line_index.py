@@ -23,12 +23,16 @@ class LineIndex:
         self.available = np.ones(shape=len(self.lines), dtype=bool)
 
         # create rtree index
-        self.index = KDTree(np.array([(line[0].real, line[0].imag) for line in self.lines]))
+        self.index = KDTree(
+            np.array([(line[0].real, line[0].imag) for line in self.lines]).reshape(-1, 2)
+        )
 
         # create reverse index
         if self.reverse:
             self.rindex = KDTree(
-                np.array([(line[-1].real, line[-1].imag) for line in self.lines])
+                np.array([(line[-1].real, line[-1].imag) for line in self.lines]).reshape(
+                    -1, 2
+                )
             )
 
     def _reindex(self) -> None:
