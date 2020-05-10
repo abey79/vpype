@@ -10,7 +10,7 @@ In a nutshell, *vpype* is an extensible CLI pipeline utility which aims to be th
 - CLI: *vpype* is a command-line utility, so it is operated from a terminal
 - Pipeline: *vpype* operates by assembling 'commands' in sequences in which each command generates or process geometries before passing them on to the next command. Here is an example:
 
-    ```vpype read input.svg scale 2 2 linesort write output.svg```
+    ``vpype read input.svg scale 2 2 linesort write output.svg``
 
   Here the geometries are loaded from a file (``read input.svg``), their size is doubled in both directions (``scale 2 2``), paths are reordered to minimize plotting time (``linesort``), and a SVG file is created with the result (``write output.svg``).
 - Extensible: new commands can easily be added to *vpype* through plug-ins. This allows third parties to extend *vpype* with new commands and yourself to write your own generative algorithm in the form of *vpype* plug-ins.

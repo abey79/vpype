@@ -43,3 +43,20 @@ The :py:class:`LineCollection` class.
 The :option:`--single-path <write --single-path>` option.
 
 The :doc:`plugins` pages.
+
+
+
+
+Here are links to :ref:`section1` and :ref:`section2`.
+
+.. mytest:: section1
+
+Section 1 content.
+
+
+.. _section2:
+
+section2
+========
+
+Section 2 content.
