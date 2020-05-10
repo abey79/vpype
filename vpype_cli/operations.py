@@ -109,16 +109,10 @@ def linesimplify(lines: LineCollection, tolerance):
     if len(lines) < 2:
         return lines
 
-    # Note: ideally, the code should be as follows:
-    #   mls = lines.as_mls().simplify(tolerance=tolerance)
-    #   new_lines = LineCollection(mls)
-    # Unfortunately, this doesnt work properly, thus the unrolled loop. The use of PyGEOS here
-    # should be considered.
-
-    new_lines = LineCollection()
-    for line in lines:
-        ls = LineString([(pt.real, pt.imag) for pt in line])
-        new_lines.append(ls.simplify(tolerance=tolerance))
+    # Note: preserve_topology must be False, otherwise non-simple (ie intersecting) MLS will
+    # not be simplified (see https://github.com/Toblerity/Shapely/issues/911)
+    mls = lines.as_mls().simplify(tolerance=tolerance, preserve_topology=False)
+    new_lines = LineCollection(mls)
 
     logging.info(
         f"simplify: reduced segment count from {lines.segment_count()} to "
