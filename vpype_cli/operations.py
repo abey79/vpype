@@ -2,6 +2,7 @@ import logging
 
 import click
 import numpy as np
+from shapely.geometry import LineString
 
 from vpype import LineCollection, LengthType, layer_processor, LineIndex
 from .cli import cli
@@ -108,8 +109,16 @@ def linesimplify(lines: LineCollection, tolerance):
     if len(lines) < 2:
         return lines
 
-    mls = lines.as_mls().simplify(tolerance=tolerance)
-    new_lines = LineCollection(mls)
+    # Note: ideally, the code should be as follows:
+    #   mls = lines.as_mls().simplify(tolerance=tolerance)
+    #   new_lines = LineCollection(mls)
+    # Unfortunately, this doesnt work properly, thus the unrolled loop. The use of PyGEOS here
+    # should be considered.
+
+    new_lines = LineCollection()
+    for line in lines:
+        ls = LineString([(pt.real, pt.imag) for pt in line])
+        new_lines.append(ls.simplify(tolerance=tolerance))
 
     logging.info(
         f"simplify: reduced segment count from {lines.segment_count()} to "
