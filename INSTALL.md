@@ -49,7 +49,7 @@ $ pip install git+https://github.com/abey79/vpype.git#egg=vpype
 Installing _vpype_ on Raspbian is similar to Linux/macOS, but a number of libraries must be installed before:
 
 ```bash
-$ sudo apt-get install git python3-shapely python3-dev
+$ sudo apt-get install git python3-shapely python3-dev libatlas-base-dev
 ```
 
 Finally, the following command must be added to the `~/.bashrc` file for _vpype_ to execute correctly:
