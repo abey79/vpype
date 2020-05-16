@@ -286,6 +286,14 @@ class VectorData:
         for layer in self._layers.values():
             layer.translate(dx, dy)
 
+    def scale(self, sx: float, sy: Optional[float] = None) -> None:
+        for layer in self._layers.values():
+            layer.scale(sx, sy)
+
+    def rotate(self, angle: float) -> None:
+        for layer in self._layers.values():
+            layer.rotate(angle)
+
     def bounds(
         self, layer_ids: Union[None, Iterable[int]] = None
     ) -> Optional[Tuple[float, float, float, float]]:

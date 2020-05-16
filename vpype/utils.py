@@ -32,7 +32,7 @@ PAGE_FORMATS = {
 }
 
 
-def convert(value: Union[str, float]):
+def convert(value: Union[str, float]) -> float:
     """Convert a string with unit to px value. May raise exception for bad input.
     """
     if isinstance(value, str):
