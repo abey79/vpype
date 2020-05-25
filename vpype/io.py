@@ -17,7 +17,7 @@ from svgpathtools.document import flatten_group
 from svgwrite.extensions import Inkscape
 
 from .model import LineCollection, as_vector, VectorData
-from .utils import convert
+from .utils import convert, UNITS
 
 __all__ = ["read_svg", "read_multilayer_svg", "write_svg"]
 
@@ -301,10 +301,12 @@ def write_svg(
         corrected_vector_data = vector_data
 
     # output SVG
-    dwg = svgwrite.Drawing(size=size, profile="tiny", debug=False)
+    size_cm = tuple(f"{round(s / UNITS['cm'], 8)}cm" for s in size)
+    dwg = svgwrite.Drawing(size=size_cm, profile="tiny", debug=False)
     inkscape = Inkscape(dwg)
     dwg.attribs.update(
         {
+            "viewBox": f"0 0 {size[0]} {size[1]}",
             "xmlns:dc": "http://purl.org/dc/elements/1.1/",
             "xmlns:cc": "http://creativecommons.org/ns#",
             "xmlns:rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",

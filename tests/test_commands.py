@@ -1,6 +1,7 @@
 import itertools
 
 import pytest
+import numpy as np
 
 from vpype_cli import cli
 from vpype_cli.debug import DebugData
@@ -114,8 +115,8 @@ def test_write_read_identical(runner, args):
     data2 = DebugData.load(res2.output)[0]
 
     assert data1.count == data2.count
-    assert (data1.bounds[2] - data1.bounds[0]) == (data2.bounds[2] - data2.bounds[0])
-    assert (data1.bounds[3] - data1.bounds[1]) == (data2.bounds[3] - data2.bounds[1])
+    assert np.isclose(data1.bounds[2] - data1.bounds[0], data2.bounds[2] - data2.bounds[0])
+    assert np.isclose(data1.bounds[3] - data1.bounds[1], data2.bounds[3] - data2.bounds[1])
 
 
 def test_rotate_origin(runner):
