@@ -4,6 +4,7 @@ from typing import Optional, Tuple, Iterable
 import numpy as np
 from scipy.spatial import cKDTree as KDTree
 
+__ALL__ = ["LineIndex"]
 
 class LineIndex:
     """Wrapper to scipy.spatial.cKDTree to facilitate systematic processing of a line
