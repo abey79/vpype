@@ -215,9 +215,16 @@ class VectorData:
     launch and passed from commands to commands until termination. It models an arbitrary
     number of layers whose label are a positive integer, each consisting of a LineCollection"""
 
-    def __init__(self):
+    def __init__(self, line_collection: LineCollection = None):
+        """Constructor.
+
+        Args:
+            line_collection: if provided, used as layer 1
+        """
         self._layers: Dict[int, LineCollection] = {}
-        # self._current: Union[int, None] = None
+
+        if line_collection:
+            self.add(line_collection, 1)
 
     @property
     def layers(self) -> Dict[int, LineCollection]:
