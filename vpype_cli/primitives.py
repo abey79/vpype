@@ -38,6 +38,30 @@ def rect(x: float, y: float, width: float, height: float) -> vp.LineCollection:
 @click.argument("x", type=vp.LengthType())
 @click.argument("y", type=vp.LengthType())
 @click.argument("r", type=vp.LengthType())
+@click.argument("start", type=vp.LengthType())
+@click.argument("stop", type=vp.LengthType())
+@click.option(
+    "-q",
+    "--quantization",
+    type=vp.LengthType(),
+    default="1mm",
+    help="Maximum length of segments approximating the circle.",
+)
+@vp.generator
+def arc(x: float, y: float, r: float, start: float, stop: float, quantization: float):
+    """Generate lines approximating a circular arc.
+
+    The arc is centered on (X, Y) and has a radius of R and spans counter-clockwise from START
+    to STOP angles (in degrees). Angular values of zero refer to east of unit circle and
+    positive values extend counter-clockwise.
+    """
+    return vp.LineCollection([vp.arc(x, y, r, start, stop, quantization)])
+
+
+@cli.command(group="Primitives")
+@click.argument("x", type=vp.LengthType())
+@click.argument("y", type=vp.LengthType())
+@click.argument("r", type=vp.LengthType())
 @click.option(
     "-q",
     "--quantization",
@@ -47,8 +71,7 @@ def rect(x: float, y: float, width: float, height: float) -> vp.LineCollection:
 )
 @vp.generator
 def circle(x: float, y: float, r: float, quantization: float):
-    """
-    Generate lines approximating a circle.
+    """Generate lines approximating a circle.
 
     The circle is centered on (X, Y) and has a radius of R.
     """

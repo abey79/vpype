@@ -155,7 +155,7 @@ enables multiple sinks to be chained (e.g. first display the result, then save i
 Here is a non-exhaustive list of important commands:
 
 - `read`: import geometries from a SVG file
-- `line`, `rect`, `circle`: create the corresponding primitives 
+- `line`, `rect`, `arc`, `circle`: create the corresponding primitives 
 - `script`: execute a Python script to generate geometries (see [External scripts](#external-scripts))
 - `translate`, `rotate`, `scale`, `skew`: basic transformation commands which do exactly what you think they do
 - `crop`: crop the geometries, removing everything outside of a rectangular area

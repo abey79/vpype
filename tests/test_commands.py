@@ -13,6 +13,7 @@ MINIMAL_COMMANDS = [
     "random",
     "line 0 0 1 1",
     "rect 0 0 1 1",
+    "arc 0 0 1 0 90",
     "circle 0 0 1",
     "read '__ROOT__/examples/bc_template.svg'",
     "read -m '__ROOT__/examples/bc_template.svg'",

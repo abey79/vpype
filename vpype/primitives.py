@@ -43,6 +43,50 @@ def rect(x: float, y: float, width: float, height: float) -> np.ndarray:
     )
 
 
+def arc(
+    x: float,
+    y: float,
+    radius: float,
+    start: float,
+    stop: float,
+    quantization: float = 0.1,
+) -> np.ndarray:
+    """Build a circular arc path. Zero angles refer to east of unit circle and positive values
+    extend counter-clockwise.
+
+    Args:
+        x: center X coordinate
+        y: center Y coordinate
+        radius: circle radius
+        start: start angle (degree)
+        stop: stop angle (degree)
+        quantization: maximum length of linear segment
+
+    Returns:
+        arc path
+    """
+
+    def normalize_angle(a):
+        while a > 360:
+            a -= 360
+        while a < 0:
+            a += 360
+        return a
+
+    start = normalize_angle(start)
+    stop = normalize_angle(stop)
+    if stop < start:
+        stop += 360
+    elif start == stop:
+        raise ValueError("start and stop angles must have different values")
+
+    n = math.ceil(stop - start / 180 * math.pi * radius / quantization)
+    angle = np.linspace(start, stop, n)
+    angle[angle == 360] = 0
+    angle *= math.pi / 180
+    return radius * (np.cos(-angle) + 1j * np.sin(-angle)) + complex(x, y)
+
+
 def circle(x: float, y: float, radius: float, quantization: float = 0.1) -> np.ndarray:
     """Build a circular path.
 
@@ -55,6 +99,4 @@ def circle(x: float, y: float, radius: float, quantization: float = 0.1) -> np.n
     Returns:
         circular path
     """
-    n = math.ceil(2 * math.pi * radius / quantization)
-    angle = np.array(list(range(n)) + [0]) / n * 2 * math.pi
-    return radius * (np.cos(angle) + 1j * np.sin(angle)) + complex(x, y)
+    return arc(x, y, radius, 0, 360, quantization)
