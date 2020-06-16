@@ -19,7 +19,7 @@ jobs:
         uses: ricardochaves/python-lint@v1.1.0
         with:
           # A list of all paths to test
-          # python-root-list: # optional, default is .
+          python-root-list: "vpype vpype_cli tests"
           # Use Pylint
           use-pylint: false # optional, default is true
           # Use pycodestyle
