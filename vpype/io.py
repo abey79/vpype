@@ -4,7 +4,7 @@ import copy
 import datetime
 import math
 import re
-from typing import Tuple
+from typing import Tuple, Optional
 from typing import Union, List, TextIO
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element
@@ -22,7 +22,9 @@ from .utils import convert, UNITS
 __all__ = ["read_svg", "read_multilayer_svg", "write_svg"]
 
 
-def _calculate_page_size(root: Element) -> Tuple[float, float, float, float, float, float]:
+def _calculate_page_size(
+    root: Element,
+) -> Tuple[Optional[float], Optional[float], float, float, float, float]:
     """Interpret the viewBox, width and height attribs and compute proper scaling coefficients.
 
     Args:
@@ -84,7 +86,7 @@ def _convert_flattened_paths(
         # Here we load the sub-part of the path element. If such sub-parts are connected,
         # we merge them in a single line (e.g. line string, etc.). If there are disconnection
         # in the path (e.g. multiple "M" commands), we create several lines
-        sub_paths = []
+        sub_paths: List[List[complex]] = []
         for elem in result.path:
             if isinstance(elem, svg.Line):
                 coords = [elem.start, elem.end]
@@ -149,7 +151,7 @@ def read_svg(
 
     if return_size:
         if width is None or height is None:
-            _, _, width, height = lc.bounds()
+            _, _, width, height = lc.bounds() or 0, 0, 0, 0
         return lc, width, height
     else:
         return lc
@@ -235,7 +237,7 @@ def read_multilayer_svg(
 
     if return_size:
         if width is None or height is None:
-            _, _, width, height = vector_data.bounds()
+            _, _, width, height = vector_data.bounds() or 0, 0, 0, 0
         return vector_data, width, height
     else:
         return vector_data

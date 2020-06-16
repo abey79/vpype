@@ -48,7 +48,7 @@ class LineCollection:
                 self._lines.append(line)
 
     def extend(self, lines: LineCollectionLike) -> None:
-        if hasattr(lines, "geom_type") and lines.is_empty:
+        if hasattr(lines, "geom_type") and lines.is_empty:  # type: ignore
             return
 
         # sometimes, mls end up actually being ls
@@ -67,7 +67,7 @@ class LineCollection:
     def __len__(self) -> int:
         return len(self._lines)
 
-    def __getitem__(self, item: int):
+    def __getitem__(self, item: Union[int, slice]):
         return self._lines[item]
 
     def as_mls(self) -> MultiLineString:
@@ -163,7 +163,7 @@ class LineCollection:
 
             new_lines.append(line)
 
-        self._lines = new_lines
+        self._lines = new_lines._lines
 
     def bounds(self) -> Optional[Tuple[float, float, float, float]]:
         if len(self._lines) == 0:

@@ -108,7 +108,7 @@ def write(
         logging.warning("no geometry to save, no file created")
     else:
         if landscape:
-            page_format = tuple(reversed(page_format))
+            page_format = page_format[::-1]
 
         write_svg(
             output=output,

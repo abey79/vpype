@@ -24,7 +24,7 @@ def frame(state: VpypeState, offset: float):
     if state.vector_data.is_empty():
         return LineCollection()
 
-    bounds = state.vector_data.bounds()
+    bounds = state.vector_data.bounds() or (0, 0, 0, 0)
     return LineCollection(
         [
             (

@@ -2,14 +2,14 @@
 Hidden debug commands to help testing.
 """
 import json
-from typing import Union, Any, Dict, Iterable, Sequence
+from typing import Any, Dict, Iterable, Sequence, List
 
 import numpy as np
 
 from vpype import global_processor, as_vector, VectorData, LineCollection
 from .cli import cli
 
-debug_data = []
+debug_data: List[Dict[str, Any]] = []
 
 
 @cli.command(hidden=True)
@@ -20,7 +20,7 @@ def dbsample(vector_data: VectorData):
     """
     global debug_data
 
-    data = {}
+    data: Dict[str, Any] = {}
     if vector_data.is_empty():
         data["count"] = 0
     else:
@@ -75,7 +75,7 @@ class DebugData:
             )
 
     def bounds_within(
-        self, x: float, y: float, width: Union[float, None], height: Union[float, None],
+        self, x: float, y: float, width: float, height: float,
     ) -> bool:
         """
         Test if coordinates are inside. If `x` and `y` are provided only, consider input as
@@ -100,7 +100,10 @@ class DebugData:
 
         return True
 
-    def __eq__(self, other: "DebugData"):
+    def __eq__(self, other: object):
+        if not isinstance(other, DebugData):
+            return NotImplemented
+
         if self.count == 0:
             return other.count == 0
 

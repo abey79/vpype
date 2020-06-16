@@ -64,8 +64,8 @@ def show(
             marker_color = "k"
             color_idx += len(lc)
         else:
-            color = COLORS[color_idx]
-            marker_color = [color]
+            color = COLORS[color_idx]  # type: ignore
+            marker_color = [color]  # type: ignore
             color_idx += 1
         if color_idx >= len(COLORS):
             color_idx = color_idx % len(COLORS)

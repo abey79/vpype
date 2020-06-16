@@ -6,6 +6,7 @@ from scipy.spatial import cKDTree as KDTree
 
 __ALL__ = ["LineIndex"]
 
+
 class LineIndex:
     """Wrapper to scipy.spatial.cKDTree to facilitate systematic processing of a line
     collection.
@@ -46,9 +47,9 @@ class LineIndex:
     def __getitem__(self, item):
         return self.lines[item]
 
-    def pop_front(self) -> Optional[np.ndarray]:
+    def pop_front(self) -> np.ndarray:
         if len(self) == 0:
-            return None
+            raise RuntimeError
         idx = int(np.argmax(self.available))
         self.available[idx] = False
         return self.lines[idx]
@@ -67,7 +68,7 @@ class LineIndex:
         """
 
         ridx = None
-        rdist = 0
+        rdist: Optional[float] = 0.0
 
         while True:
             reindex, idx, dist = self._find_nearest_within_in_index(p, max_dist, self.index)
@@ -91,7 +92,7 @@ class LineIndex:
                 return idx, False
             elif idx is None and ridx is not None:
                 return ridx, True
-            elif rdist < dist:
+            elif rdist < dist:  # type: ignore
                 return ridx, True
             else:
                 return idx, False
@@ -139,7 +140,7 @@ class LineIndex:
 
         if self.reverse:
             if rdist < dist:
-                return ridx, True
+                return ridx, True  # type: ignore
             else:
                 return idx, False
         else:
