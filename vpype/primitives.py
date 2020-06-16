@@ -44,12 +44,7 @@ def rect(x: float, y: float, width: float, height: float) -> np.ndarray:
 
 
 def arc(
-    x: float,
-    y: float,
-    radius: float,
-    start: float,
-    stop: float,
-    quantization: float = 0.1,
+    x: float, y: float, radius: float, start: float, stop: float, quantization: float = 0.1,
 ) -> np.ndarray:
     """Build a circular arc path. Zero angles refer to east of unit circle and positive values
     extend counter-clockwise.
