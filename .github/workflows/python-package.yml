@@ -25,6 +25,7 @@ jobs:
       run: |
         pytest
     - name: Python Code Quality and Lint
+      if: matrix.os == 'ubuntu-latest'
       uses: ricardochaves/python-lint@v1.1.0
       with:
         # A list of all paths to test
