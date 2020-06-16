@@ -74,9 +74,7 @@ class DebugData:
                 [np.array([x + 1j * y for x, y in line]) for line in lines]
             )
 
-    def bounds_within(
-        self, x: float, y: float, width: float, height: float,
-    ) -> bool:
+    def bounds_within(self, x: float, y: float, width: float, height: float,) -> bool:
         """
         Test if coordinates are inside. If `x` and `y` are provided only, consider input as
         a point. If `width` and `height` are passed as well, consider input as rect.

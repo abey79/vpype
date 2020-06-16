@@ -99,10 +99,7 @@ def crop_half_plane(
     for start, stop in zip(start_idx, stop_idx):
         if start == -1:
             sub_line = np.hstack(
-                [
-                    line[: stop + 1],
-                    _interpolate_crop(line[stop], line[stop + 1], loc, axis),
-                ]
+                [line[: stop + 1], _interpolate_crop(line[stop], line[stop + 1], loc, axis),]
             )
         elif stop == inf:
             sub_line = np.hstack(
