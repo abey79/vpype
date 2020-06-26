@@ -13,3 +13,13 @@ git+https://github.com/abey79/svgpathtools@vpype-fixes#egg=svgpathtools
 # dev/test
 pytest
 black
+
+
+# documentations
+sphinx
+#sphinx-click
+git+https://github.com/abey79/sphinx-click@vpype-docs#egg=sphinx-click
+sphinx-autodoc-typehints
+sphinx-rtd-theme
+#alabaster
+recommonmark

@@ -1,9 +1,16 @@
+"""
+.. module:: vpype
+"""
+
 from contextlib import contextmanager
 from typing import Union, List, Optional
 
 import click
 
 from .model import VectorData
+
+# REMINDER: anything added here must be added to docs/api.rst
+__all__ = ["VpypeState", "multiple_to_layer_ids", "single_to_layer_id", "LayerType"]
 
 
 class VpypeState:

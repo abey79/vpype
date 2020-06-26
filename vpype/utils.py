@@ -1,8 +1,13 @@
+"""
+.. module:: vpype
+"""
+
 import re
 from typing import Union, Tuple
 
 import click
 
+# REMINDER: anything added here must be added to docs/api.rst
 __all__ = ["UNITS", "PAGE_FORMATS", "Length", "LengthType", "PageSizeType", "convert"]
 
 

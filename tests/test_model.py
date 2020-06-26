@@ -1,9 +1,9 @@
 from typing import Iterable, Tuple, Set, Sequence
 import numpy as np
 import pytest
-from shapely.geometry import MultiLineString, LineString, Point
+from shapely.geometry import MultiLineString, LineString, Point, LinearRing
 
-from vpype import LineCollection, VectorData, LinearRing
+from vpype import LineCollection, VectorData
 
 LINE_COLLECTION_TWO_LINES = [
     LineCollection([[0, 1 + 1j], [2 + 2j, 3 + 3j, 4 + 4j]]),

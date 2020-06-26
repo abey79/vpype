@@ -1,3 +1,7 @@
+"""
+.. module:: vpype
+"""
+
 import datetime
 import logging
 import math
@@ -6,6 +10,15 @@ from functools import update_wrapper
 import click
 
 from .layers import LayerType, VpypeState, single_to_layer_id, multiple_to_layer_ids
+
+# REMINDER: anything added here must be added to docs/api.rst
+__all__ = [
+    "layer_processor",
+    "global_processor",
+    "generator",
+    "block_processor",
+    "pass_state",
+]
 
 
 def _format_timedelta(dt: datetime.timedelta) -> str:

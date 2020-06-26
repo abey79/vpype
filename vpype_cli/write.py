@@ -37,7 +37,7 @@ contain a C-style format specifier such as `%d` which will be replaced by the la
 By default, paths will be exported individually. If it is preferable to have a single,
 compound path per layer, the `--single-path` flag can be used.
 
-If `OUTPUT` is a single dash (`-`), SVG content is output on stdout instead of a file.
+If `OUTPUT` is a single dash (`-`), SVG content is printed to stdout instead of a file.
 
 Examples:
 

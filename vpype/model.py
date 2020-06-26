@@ -1,4 +1,6 @@
 """
+.. module:: vpype
+
 Implementation of vpype's data model
 """
 import math
@@ -9,6 +11,15 @@ from shapely.geometry import MultiLineString, LineString, LinearRing
 
 from .geometry import reloop, crop
 from .line_index import LineIndex
+
+# REMINDER: anything added here must be added to docs/api.rst
+__all__ = [
+    "LineCollection",
+    "VectorData",
+    "LineLike",
+    "LineCollectionLike",
+    "as_vector",
+]
 
 LineLike = Union[LineString, LinearRing, Iterable[complex]]
 
@@ -25,6 +36,10 @@ def as_vector(a: np.ndarray):
 
 
 class LineCollection:
+    """
+    Line collection TODO
+    """
+
     def __init__(self, lines: LineCollectionLike = ()):
         """
         Create a line collection.
@@ -80,8 +95,10 @@ class LineCollection:
 
     def scale(self, sx: float, sy: Optional[float] = None) -> None:
         """Scale the geometry
-        :param sx: scale factor along x
-        :param sy: scale factor along y (if None, then sx is used)
+
+        Args:
+            sx: scale factor along x
+            sy: scale factor along y (if None, then sx is used)
         """
         if sy is None:
             sy = sx
@@ -103,6 +120,7 @@ class LineCollection:
     def reloop(self, tolerance: float) -> None:
         """Randomizes the seam of closed paths. Paths are considered closed when their first
         and last point are closer than *tolerance*.
+
         :param tolerance: tolerance to determine if a path is closed
         """
 
@@ -135,9 +153,6 @@ class LineCollection:
         Args:
             tolerance: max distance between line ending that may be merged
             flip: allow flipping line direction for further merging
-
-        Returns:
-            None
         """
         if len(self) < 2:
             return
