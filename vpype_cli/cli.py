@@ -2,7 +2,7 @@ import logging
 import os
 import random
 import shlex
-from typing import TextIO, List, Union
+from typing import TextIO, List, Union, Any
 
 import click
 from click import get_os_args
@@ -126,8 +126,8 @@ def execute_processors(processors) -> VpypeState:
     :return: generated geometries
     """
 
-    outer_processors = list()  # gather commands outside of top-level blocks
-    top_level_processors = list()  # gather commands inside of top-level blocks
+    outer_processors: List[Any] = []  # gather commands outside of top-level blocks
+    top_level_processors: List[Any] = []  # gather commands inside of top-level blocks
     block = None  # save the current top-level block's block layer_processor
     nested_count = 0  # block depth counter
     expect_block = False  # set to True by `begin` command
@@ -163,7 +163,7 @@ def execute_processors(processors) -> VpypeState:
 
             if nested_count == 0:
                 # we're closing a top level block, let's process it
-                block_vector_data = block.process(top_level_processors)
+                block_vector_data = block.process(top_level_processors)  # type: ignore
 
                 # Create a placeholder layer_processor that will add the block's result to the
                 # current frame. The placeholder_processor is a closure, so we need to make

@@ -4,8 +4,15 @@ from typing import Tuple, Union, List
 
 import click
 
-from vpype import global_processor, VectorData, LineCollection, LengthType, layer_processor, \
-    LayerType, multiple_to_layer_ids
+from vpype import (
+    global_processor,
+    VectorData,
+    LineCollection,
+    LengthType,
+    layer_processor,
+    LayerType,
+    multiple_to_layer_ids,
+)
 from .cli import cli
 
 
@@ -44,7 +51,12 @@ def translate(lc: LineCollection, offset: Tuple[float, float]):
     help="[--to only] Maintain the geometries proportions.",
 )
 @click.option(
-    "-o", "--origin", "origin_coords", nargs=2, type=LengthType(), help="Use a specific origin."
+    "-o",
+    "--origin",
+    "origin_coords",
+    nargs=2,
+    type=LengthType(),
+    help="Use a specific origin.",
 )
 @global_processor
 def scale(
@@ -69,12 +81,12 @@ def scale(
     listed layers.
     """
 
-    if vector_data.is_empty():
-        return vector_data
-
     # these are the layers we want to act on
     layer_ids = multiple_to_layer_ids(layer, vector_data)
     bounds = vector_data.bounds(layer_ids)
+
+    if not bounds:
+        return vector_data
 
     if absolute:
         factors = (scale[0] / (bounds[2] - bounds[0]), scale[1] / (bounds[3] - bounds[1]))
@@ -103,6 +115,7 @@ def scale(
     return vector_data
 
 
+# noinspection DuplicatedCode
 @cli.command(group="Transforms")
 @click.argument("angle", required=True, type=float)
 @click.option(
@@ -114,7 +127,12 @@ def scale(
 )
 @click.option("-r", "--radian", is_flag=True, help="Angle is in radians.")
 @click.option(
-    "-o", "--origin", "origin_coords", nargs=2, type=LengthType(), help="Use a specific origin."
+    "-o",
+    "--origin",
+    "origin_coords",
+    nargs=2,
+    type=LengthType(),
+    help="Use a specific origin.",
 )
 @global_processor
 def rotate(
@@ -133,16 +151,16 @@ def rotate(
     option, only these layers will be affected. In this case, the bounding box is that of the
     listed layers.
     """
-    if vector_data.is_empty():
-        return vector_data
 
     if not radian:
         angle *= math.pi / 180.0
 
     # these are the layers we want to act on
     layer_ids = multiple_to_layer_ids(layer, vector_data)
-
     bounds = vector_data.bounds(layer_ids)
+    if not bounds:
+        return vector_data
+
     if len(origin_coords) == 2:
         origin = origin_coords
     else:
@@ -162,6 +180,7 @@ def rotate(
     return vector_data
 
 
+# noinspection DuplicatedCode
 @cli.command(group="Transforms")
 @click.argument("angles", required=True, nargs=2, type=float)
 @click.option(
@@ -173,7 +192,12 @@ def rotate(
 )
 @click.option("-r", "--radian", is_flag=True, help="Angle is in radians.")
 @click.option(
-    "-o", "--origin", "origin_coords", nargs=2, type=LengthType(), help="Use a specific origin."
+    "-o",
+    "--origin",
+    "origin_coords",
+    nargs=2,
+    type=LengthType(),
+    help="Use a specific origin.",
 )
 @global_processor
 def skew(
@@ -191,13 +215,13 @@ def skew(
     The origin used in the bounding box center, unless the `--centroid` or `--origin` options
     are used.
     """
-    if vector_data.is_empty():
-        return vector_data
 
     # these are the layers we want to act on
     layer_ids = multiple_to_layer_ids(layer, vector_data)
-
     bounds = vector_data.bounds(layer_ids)
+    if not bounds:
+        return vector_data
+
     if len(origin_coords) == 2:
         origin = origin_coords
     else:
@@ -207,7 +231,7 @@ def skew(
         )
 
     if not radian:
-        angles = tuple(a * math.pi / 180.0 for a in angles)
+        angles = tuple(a * math.pi / 180.0 for a in angles)  # type: ignore
 
     logging.info(f"skewing origin: {origin}")
 

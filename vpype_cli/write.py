@@ -1,16 +1,10 @@
-import copy
-import datetime
 import logging
 from typing import Tuple
-from xml.etree import ElementTree
 
 import click
-import svgwrite
-from svgwrite.extensions import Inkscape
 
-from vpype import global_processor, as_vector, VectorData, PageSizeType, PAGE_FORMATS
+from vpype import global_processor, write_svg, VectorData, PAGE_FORMATS, PageSizeType
 from .cli import cli
-
 
 WRITE_HELP = f"""Save geometries to a SVG file.
 
@@ -112,75 +106,18 @@ def write(
 
     if vector_data.is_empty():
         logging.warning("no geometry to save, no file created")
-        return vector_data
-
-    # compute bounds
-    bounds = vector_data.bounds()
-    tight = page_format == (0.0, 0.0)
-    if not tight:
-        size = page_format
+    else:
         if landscape:
-            size = tuple(reversed(size))
-    else:
-        size = (bounds[2] - bounds[0], bounds[3] - bounds[1])
+            page_format = page_format[::-1]
 
-    if center:
-        corrected_vector_data = copy.deepcopy(vector_data)
-        corrected_vector_data.translate(
-            (size[0] - (bounds[2] - bounds[0])) / 2.0 - bounds[0],
-            (size[1] - (bounds[3] - bounds[1])) / 2.0 - bounds[1],
+        write_svg(
+            output=output,
+            vector_data=vector_data,
+            page_format=page_format,
+            center=center,
+            source_string=cmd_string,
+            layer_label_format=layer_label,
+            single_path=single_path,
         )
-    elif tight:
-        corrected_vector_data = copy.deepcopy(vector_data)
-        corrected_vector_data.translate(-bounds[0], -bounds[1])
-    else:
-        corrected_vector_data = vector_data
 
-    # output SVG
-    dwg = svgwrite.Drawing(size=size, profile="tiny", debug=False)
-    inkscape = Inkscape(dwg)
-    dwg.attribs.update(
-        {
-            "xmlns:dc": "http://purl.org/dc/elements/1.1/",
-            "xmlns:cc": "http://creativecommons.org/ns#",
-            "xmlns:rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-        }
-    )
-
-    # add metadata
-    metadata = ElementTree.Element("rdf:RDF")
-    work = ElementTree.SubElement(metadata, "cc:Work")
-    fmt = ElementTree.SubElement(work, "dc:format")
-    fmt.text = "image/svg+xml"
-    source = ElementTree.SubElement(work, "dc:source")
-    source.text = cmd_string
-    date = ElementTree.SubElement(work, "dc:date")
-    date.text = datetime.datetime.now().isoformat()
-    dwg.set_metadata(metadata)
-
-    for layer_id in sorted(corrected_vector_data.layers.keys()):
-        layer = corrected_vector_data.layers[layer_id]
-
-        group = inkscape.layer(label=str(layer_label % layer_id))
-        group.attribs["fill"] = "none"
-        group.attribs["stroke"] = "black"
-        group.attribs["style"] = "display:inline"
-        group.attribs["id"] = f"layer{layer_id}"
-
-        if single_path:
-            group.add(
-                dwg.path(
-                    " ".join(
-                        ("M" + " L".join(f"{x},{y}" for x, y in as_vector(line)))
-                        for line in layer
-                    ),
-                )
-            )
-        else:
-            for line in layer:
-                group.add(dwg.path("M" + " L".join(f"{x},{y}" for x, y in as_vector(line)),))
-
-        dwg.add(group)
-
-    dwg.write(output, pretty=True)
     return vector_data

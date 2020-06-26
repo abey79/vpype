@@ -1,6 +1,7 @@
 import itertools
 
 import pytest
+import numpy as np
 
 from vpype_cli import cli
 from vpype_cli.debug import DebugData
@@ -12,6 +13,7 @@ MINIMAL_COMMANDS = [
     "random",
     "line 0 0 1 1",
     "rect 0 0 1 1",
+    "arc 0 0 1 0 90",
     "circle 0 0 1",
     "read '__ROOT__/examples/bc_template.svg'",
     "read -m '__ROOT__/examples/bc_template.svg'",
@@ -114,8 +116,8 @@ def test_write_read_identical(runner, args):
     data2 = DebugData.load(res2.output)[0]
 
     assert data1.count == data2.count
-    assert (data1.bounds[2] - data1.bounds[0]) == (data2.bounds[2] - data2.bounds[0])
-    assert (data1.bounds[3] - data1.bounds[1]) == (data2.bounds[3] - data2.bounds[1])
+    assert np.isclose(data1.bounds[2] - data1.bounds[0], data2.bounds[2] - data2.bounds[0])
+    assert np.isclose(data1.bounds[3] - data1.bounds[1], data2.bounds[3] - data2.bounds[1])
 
 
 def test_rotate_origin(runner):

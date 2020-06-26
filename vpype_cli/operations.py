@@ -2,6 +2,7 @@ import logging
 
 import click
 import numpy as np
+from shapely.geometry import LineString
 
 from vpype import LineCollection, LengthType, layer_processor, LineIndex
 from .cli import cli
@@ -108,7 +109,9 @@ def linesimplify(lines: LineCollection, tolerance):
     if len(lines) < 2:
         return lines
 
-    mls = lines.as_mls().simplify(tolerance=tolerance)
+    # Note: preserve_topology must be False, otherwise non-simple (ie intersecting) MLS will
+    # not be simplified (see https://github.com/Toblerity/Shapely/issues/911)
+    mls = lines.as_mls().simplify(tolerance=tolerance, preserve_topology=False)
     new_lines = LineCollection(mls)
 
     logging.info(

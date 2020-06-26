@@ -1,3 +1,4 @@
+from typing import Iterable, Tuple, Set, Sequence
 import numpy as np
 import pytest
 from shapely.geometry import MultiLineString, LineString, Point, LinearRing
@@ -25,6 +26,10 @@ EMPTY_LINE_COLLECTION = [
     LineString([(0, 0), (1, 1), (3, 5)]).intersection(Point(50, 50).buffer(1.0)),
     LinearRing([(10, 10), (11, 41), (12, 12), (10, 10)]).intersection(Point(0, 0).buffer(1)),
 ]
+
+
+def _line_set(lc: Iterable[Sequence[complex]]) -> Set[Tuple[complex, ...]]:
+    return {tuple(line if abs(line[0]) > abs(line[-1]) else reversed(line)) for line in lc}
 
 
 @pytest.mark.parametrize("lines", LINE_COLLECTION_TWO_LINES)
@@ -57,6 +62,7 @@ def test_line_collection_creation_empty(lines):
     assert len(lc) == 0
 
 
+# noinspection PyTypeChecker
 @pytest.mark.parametrize(
     "lines",
     LINE_COLLECTION_TWO_LINES + LINE_COLLECTION_LINESTRING_LINEARRING + EMPTY_LINE_COLLECTION,
@@ -143,3 +149,61 @@ def test_vector_data_bounds_empty_layer():
     vd.add(LineCollection())
 
     assert vd.bounds() == (0, 0, 10, 10)
+
+
+def _all_line_collection_ops(lc: LineCollection):
+    lc.merge(1)
+    lc.scale(2, 2)
+    lc.translate(2, 2)
+    lc.rotate(10)
+    lc.reloop(1)
+    lc.skew(4, 4)
+    lc.bounds()
+    # to be continued...
+
+
+def test_ops_on_empty_line_collection():
+    lc = LineCollection()
+    _all_line_collection_ops(lc)
+
+
+def test_ops_on_degenerate_line_collection():
+    lc = LineCollection([np.array([], dtype=complex).reshape(-1)])
+    _all_line_collection_ops(lc)
+
+    lc = LineCollection([np.array([complex(1, 1)])])
+    _all_line_collection_ops(lc)
+
+
+def _all_vector_data_ops(vd: VectorData):
+    vd.bounds()
+    vd.length()
+    vd.segment_count()
+    # to be completed..
+
+
+def test_ops_on_emtpy_vector_data():
+    vd = VectorData()
+    _all_vector_data_ops(vd)
+
+
+def test_ops_on_vector_data_with_emtpy_layer():
+    vd = VectorData()
+    lc = LineCollection()
+    vd.add(lc, 1)
+    _all_vector_data_ops(vd)
+
+
+@pytest.mark.parametrize(
+    ["lines", "merge_lines"],
+    [
+        ([[0, 10], [30, 40]], [[0, 10], [30, 40]]),
+        ([[0, 10], [10, 20], [30, 40]], [[0, 10, 10, 20], [30, 40]]),
+        ([[10, 0], [20, 10], [40, 30]], [[0, 10, 10, 20], [30, 40]]),
+    ],
+)
+def test_line_collection_merge(lines, merge_lines):
+    lc = LineCollection(lines)
+    lc.merge(0.1)
+
+    assert _line_set(lc) == _line_set(merge_lines)

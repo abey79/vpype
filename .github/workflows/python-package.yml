@@ -24,3 +24,33 @@ jobs:
     - name: Pytest
       run: |
         pytest
+    - name: Python Code Quality and Lint
+      if: matrix.os == 'ubuntu-latest'
+      uses: ricardochaves/python-lint@v1.1.0
+      with:
+        # A list of all paths to test
+        python-root-list: "vpype vpype_cli tests"
+        # Use Pylint
+        use-pylint: false # optional, default is true
+        # Use pycodestyle
+        use-pycodestyle: false # optional, default is true
+        # Use Flake8
+        use-flake8: false # optional, default is true
+        # Use Black
+        use-black: true # optional, default is true
+        # Use mypy
+        use-mypy: true # optional, default is true
+        # Use isort
+        use-isort: false # optional, default is true
+        # Extra options: pylint $(extra-pylint-options) $(python-root-list)
+        #extra-pylint-options: # optional, default is 
+        # Extra options: pycodestyle $(extra-pycodestyle-options) $(python-root-list)
+        #extra-pycodestyle-options: # optional, default is 
+        # Extra options: flake8 $(extra-flake8-options) $(python-root-list)
+        #extra-flake8-options: # optional, default is 
+        # Extra options: black --check $(extra-black-options) $(python-root-list)
+        #extra-black-options: # optional, default is 
+        # Extra options: mypy $(extra-mypy-options) $(python-root-list)
+        #extra-mypy-options: # optional, default is 
+        # Extra options: isort -rc $(extra-isort-options) $(python-root-list) -c --diff 
+        #extra-isort-options: # optional, default is 
