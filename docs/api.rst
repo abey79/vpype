@@ -68,4 +68,4 @@ Misc
 
 .. autofunction:: as_vector
 
-.. autofunction:: interpolate_line
+.. autofunction:: interpolate

@@ -1,4 +1,8 @@
-"""Miscellaneous geometry functions on polylines expressed as numpy array of complex."""
+"""
+.. module:: vpype
+
+Miscellaneous geometry functions on polylines expressed as numpy array of complex.
+"""
 
 import math
 from typing import List, Optional
