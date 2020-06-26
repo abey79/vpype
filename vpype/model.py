@@ -19,8 +19,6 @@ __all__ = [
     "LineLike",
     "LineCollectionLike",
     "as_vector",
-    "read_svg",
-    "read_multilayer_svg",
 ]
 
 LineLike = Union[LineString, LinearRing, Iterable[complex]]
