@@ -39,7 +39,7 @@ macOS
 
 .. highlight:: bash
 
-While macOS ships with a version of Python, this has been deprecated by Apple and may change in future version. It is recommended to install Python (preferably 3.8, minimum 3.6) either from `MacPorts <https://www.macports.org>`_ or from `Homebrew <https://brew.sh>`_.
+While macOS ships with a version of Python, this has been deprecated by Apple and may change in future versions. Instead, you should install Python (preferably 3.8, minimum 3.6), either from `MacPorts <https://www.macports.org>`_ or from `Homebrew <https://brew.sh>`_.
 
 Use the following commands for Homebrew::
 
