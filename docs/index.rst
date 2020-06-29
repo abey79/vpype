@@ -23,7 +23,7 @@ Using this documentation
 
 Start with `installation instructions <install>`_ to get up and running with your installation of *vpype*.
 
-Fro the straight-to-action type, the list of available commands is available in the `reference <reference>`_ section. You may also jump to the `cookbook <cookbook>`_ section to find a recipe that matches your need.
+For the straight-to-action type, the list of available commands is available in the `reference <reference>`_ section. You may also jump to the `cookbook <cookbook>`_ section to find a recipe that matches your need.
 
 For a deep understanding of *vpype*, take a dive in the section on `fundamentals <fundamentals>`_.
 
