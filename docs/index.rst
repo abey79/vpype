@@ -12,8 +12,8 @@ In a nutshell, *vpype* is an extensible CLI pipeline utility which aims to be th
 
     ``vpype read input.svg scale 2 2 linesort write output.svg``
 
-  Here the geometries are loaded from a file (``read input.svg``), their size is doubled in both directions (``scale 2 2``), paths are reordered to minimize plotting time (``linesort``), and a SVG file is created with the result (``write output.svg``).
-- Extensible: new commands can easily be added to *vpype* through plug-ins. This allows third parties to extend *vpype* with new commands and yourself to write your own generative algorithm in the form of *vpype* plug-ins.
+  Here the geometries are loaded from a file (``read input.svg``), their size is doubled in both directions (``scale 2 2``), paths are reordered to minimize plotting time (``linesort``), and an SVG file is created with the result (``write output.svg``).
+- Extensible: new commands can easily be added to *vpype* with plug-ins. This allows anyone to extend *vpype* with new commands or to write their own generative algorithm.
 - Plotter vector graphics: *vpype* focuses on the niche of vector graphics for plotters (such as the `Axidraw <https://www.axidraw.com>`_) rather than being a general purpose vector processing utility.
 - Swiss Army knife: *vpype* is flexible, contains many tools and its author is Swiss.
 
@@ -23,7 +23,7 @@ Using this documentation
 
 Start with `installation instructions <install>`_ to get up and running with your installation of *vpype*.
 
-Fro the straight-to-action type, the list of available commands is available in the `reference <reference>`_ section. You may also jump to the `cookbook <cookbook>`_ section to find a recipe that matches your need.
+For the straight-to-action type, the list of available commands is available in the `reference <reference>`_ section. You may also jump to the `cookbook <cookbook>`_ section to find a recipe that matches your need.
 
 For a deep understanding of *vpype*, take a dive in the section on `fundamentals <fundamentals>`_.
 

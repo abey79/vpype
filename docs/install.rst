@@ -5,41 +5,12 @@ Installation
 This page explain how to install *vpype* for end-users. If you intend to develop on *vpype*, refer to the the :ref:`contributing` section.
 
 
-Linux
-=====
-
-.. highlight:: bash
-
-*vpype* requires Python 3.6 or later. On Debian/ubuntu flavored installation, installing Python is a matter of::
-
-  $ sudo apt-get install python3 python3-pip
-
-The preferred way to install *vpype* is in a dedicated `virtual environment <https://docs.python.org/3/tutorial/venv.html>`_. Follow these steps to do so::
-
-  $ python3 -m venv vpype_venv      # create a new virtual environment
-  $ source vpype_venv/bin/activate  # activate the newly created virtual environment
-  $ pip install --upgrade pip
-  $ pip install git+https://github.com/abey79/vpype.git#egg=vpype
-
-You should now be able to run *vpype*::
-
-  $ vpype --help
-
-Each time a new terminal window is opened, the virtual environment must be activated using::
-
-  $ source vpype_venv/bin/activate
-
-Alternatively, *vpype* can be executed using the full path to the executable::
-
-  $ /path/to/vpype_venv/bin/vpype --help
-
-
 macOS
 =====
 
 .. highlight:: bash
 
-While macOS ships with a version of Python, this has been deprecated by Apple and may change in future version. It is recommended to install Python (preferably 3.8, minimum 3.6) either from `MacPorts <https://www.macports.org>`_ or from `Homebrew <https://brew.sh>`_.
+While macOS ships with a version of Python, this has been deprecated by Apple and may change in future version. Instead, you should install Python (preferably 3.8, minimum 3.6), either from `MacPorts <https://www.macports.org>`_ or from `Homebrew <https://brew.sh>`_.
 
 Use the following commands for Homebrew::
 
@@ -67,20 +38,6 @@ Each time a new terminal window is opened, the virtual environment must be activ
 Alternatively, *vpype* can be executed using the full path to the executable::
 
   $ /path/to/vpype_venv/bin/vpype --help
-
-
-Raspberry Pi
-============
-
-.. highlight:: bash
-
-Installing *vpype* on Raspbian is similar to Linux, but a number of libraries must be installed beforehand::
-
-  $ sudo apt-get install git python3-shapely python3-dev
-
-Also, the following command must be added to the ``~/.bashrc`` file for *vpype* to execute correctly::
-
-  export LD_PRELOAD=/usr/lib/arm-linux-gnueabihf/libatomic.so.1
 
 
 Windows
@@ -148,3 +105,46 @@ This command should open a window showing a circle::
   > vpype circle 0 0 10cm show
 
 If you can see it, your installation is up and running!
+
+
+Linux
+=====
+
+.. highlight:: bash
+
+*vpype* requires Python 3.6 or later. On Debian/ubuntu flavored installation, installing Python is a matter of::
+
+  $ sudo apt-get install python3 python3-pip
+
+The preferred way to install *vpype* is in a dedicated `virtual environment <https://docs.python.org/3/tutorial/venv.html>`_. Follow these steps to do so::
+
+  $ python3 -m venv vpype_venv      # create a new virtual environment
+  $ source vpype_venv/bin/activate  # activate the newly created virtual environment
+  $ pip install --upgrade pip
+  $ pip install git+https://github.com/abey79/vpype.git#egg=vpype
+
+You should now be able to run *vpype*::
+
+  $ vpype --help
+
+Each time a new terminal window is opened, the virtual environment must be activated using::
+
+  $ source vpype_venv/bin/activate
+
+Alternatively, *vpype* can be executed using the full path to the executable::
+
+  $ /path/to/vpype_venv/bin/vpype --help
+
+
+Raspberry Pi
+============
+
+.. highlight:: bash
+
+Installing *vpype* on Raspbian is similar to Linux, but a number of libraries must be installed beforehand::
+
+  $ sudo apt-get install git python3-shapely python3-dev
+
+Also, the following command must be added to the ``~/.bashrc`` file for *vpype* to execute correctly::
+
+  export LD_PRELOAD=/usr/lib/arm-linux-gnueabihf/libatomic.so.1
