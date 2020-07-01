@@ -15,11 +15,5 @@ pytest
 black
 
 
-# documentations
-sphinx
-#sphinx-click
-git+https://github.com/abey79/sphinx-click@vpype-docs#egg=sphinx-click
-sphinx-autodoc-typehints
-sphinx-rtd-theme
-#alabaster
-recommonmark
+# documentation
+-r docs/requirements.txt

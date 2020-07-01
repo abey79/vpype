@@ -108,7 +108,7 @@ celerybeat.pid
 .env
 .venv
 env/
-venv/
+venv*/
 ENV/
 env.bak/
 venv.bak/
@@ -144,5 +144,4 @@ cython_debug/
 /bug_reports
 /W3C_SVG_11_TestSuite
 /my_work
-/docs/_*
 /pip-wheel-metadata
