@@ -1,7 +1,10 @@
 <img src="https://i.imgur.com/LM2Qrc0.png" alt="banner" width=1200>
 
 
-# _vpype_ ![Test](https://github.com/abey79/vpype/workflows/Test/badge.svg?branch=master)
+# _vpype_ ![Test](https://github.com/abey79/vpype/workflows/Test/badge.svg?branch=master) [![Documentation Status](https://readthedocs.org/projects/vpype/badge/?version=latest)](https://vpype.readthedocs.io/en/latest/?badge=latest)
+
+
+> **Note**: a proper documentation is [under construction](https://vpype.readthedocs.io/en/latest/).
 
 _vpype_ aims to be the one-stop-shop, Swiss Army knife<sup>1</sup> for producing plotter-ready vector graphics. Here
 are, for illustration, a few examples of what it can do:
