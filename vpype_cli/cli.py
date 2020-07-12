@@ -86,6 +86,7 @@ class GroupedGroup(click.Group):
 @click.option("-s", "--seed", type=int, help="Specify the RNG seed.")
 @click.pass_context
 def cli(ctx, verbose, include, history, seed):
+    """Execute the vector processing pipeline passed as argument."""
     logging.basicConfig()
     if verbose == 0:
         logging.getLogger().setLevel(logging.WARNING)
@@ -208,10 +209,12 @@ class BeginBlock:
 
 @cli.command(group="Block control")
 def begin():
-    """
-    Mark the start of a block. It must be followed by a block layer_processor command (eg.
-    `grid` or `repeat`), which indicates how the block is processed. Blocks must be ended by a
-    `end` command and can be nested.
+    """Marks the start of a block.
+
+    A `begin` command must be followed by a block processor command (eg. `grid` or `repeat`),
+    which indicates how the block is processed. Blocks must be ended by a `end` command.
+
+    Blocks can be nested.
     """
     return BeginBlock()
 
@@ -222,8 +225,7 @@ class EndBlock:
 
 @cli.command(group="Block control")
 def end():
-    """
-    Mark the end of a block.
+    """Marks the end of a block.
     """
     return EndBlock()
 

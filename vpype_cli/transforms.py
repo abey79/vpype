@@ -83,6 +83,13 @@ def scale_relative(
     By default, act on all layers. If one or more layer IDs are provided with the `--layer`
     option, only these layers will be affected. In this case, the bounding box is that of the
     listed layers.
+
+    Example:
+
+        Double the size of the geometries in layer 1, using (0, 0) as origin:
+
+            vpype [...] scale -l 1 -o 0 0 2 2 [...]
+
     """
 
     try:
@@ -135,6 +142,13 @@ def scaleto(
     By default, act on all layers. If one or more layer IDs are provided with the `--layer`
     option, only these layers will be affected. In this case, the bounding box is that of the
     listed layers.
+
+    Example:
+
+        Scale a SVG to a A4 page, accounting for 1cm margin:
+
+            vpype read input.svg scaleto 19cm 27.7cm write -p a4 -c output.svg
+
     """
 
     try:

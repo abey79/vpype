@@ -26,8 +26,7 @@ def line(x0: float, y0: float, x1: float, y1: float) -> vp.LineCollection:
 @click.argument("height", type=vp.LengthType())
 @vp.generator
 def rect(x: float, y: float, width: float, height: float) -> vp.LineCollection:
-    """
-    Generate a rectangle.
+    """Generate a rectangle.
 
     The rectangle is defined by its top left corner (X, Y) and its width and height.
     """

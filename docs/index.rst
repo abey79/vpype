@@ -21,13 +21,13 @@ In a nutshell, *vpype* is an extensible CLI pipeline utility which aims to be th
 Using this documentation
 ------------------------
 
-Start with `installation instructions <install>`_ to get up and running with your installation of *vpype*.
+Start with :ref:`installation instructions <install>` to get up and running with your installation of *vpype*.
 
-For the straight-to-action type, the list of available commands is available in the `reference <reference>`_ section. You may also jump to the `cookbook <cookbook>`_ section to find a recipe that matches your need.
+For the straight-to-action type, the list of available commands is available in the :ref:`reference <reference>` section. You may also jump to the :ref:`cookbook <cookbook>` section to find a recipe that matches your need.
 
-For a deep understanding of *vpype*, take a dive in the section on `fundamentals <fundamentals>`_.
+For a deep understanding of *vpype*, take a dive in the section on :ref:`fundamentals <fundamentals>`.
 
-Developers can learn more about extending *vpype* in the `Creating plug-ins <plugin>`_ section and the `API reference <api>`_.
+Developers can learn more about extending *vpype* in the :ref:`Creating plug-ins <plugins>` section and the :ref:`API reference <api>`.
 
 Documentation
 -------------

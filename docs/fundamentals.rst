@@ -1,3 +1,5 @@
+.. _fundamentals:
+
 ============
 Fundamentals
 ============
@@ -61,9 +63,9 @@ The primary purpose of layers in *vpype* is to create or process files for multi
 
 Each layer consists of an ordered collection of paths. In *vpype*, paths are so-called "polylines", meaning lines made of one or more straight segments. Each path is therefore described by a sequence of 2D points. Internally, these points are stored as complex numbers (this is invisible to the user but relevant to :ref:`plugin <plugins>` writers).
 
-Curved paths are not supported *per se*. Instead, curves are converted into linear segments that are small enough to approximate curvature in a way that is invisible in the final plot. For example, the :program:`read` command transforms all curved SVG elements (such as circles or bezier paths) into paths made of segments, using a maximum segment size that can be set by the user (so-called "quantization"). This design choice makes *vpype* very flexible and easy to develop, with no practical impact on final plot quality, but is the primary reason why *vpype* is not fit to be (and is not meant as) a general-purpose vector data processing tool.
+Curved paths are not supported *per se*. Instead, curves are converted into linear segments that are small enough to approximate curvature in a way that is invisible in the final plot. For example, the :ref:`cmd_read` command transforms all curved SVG elements (such as circles or bezier paths) into paths made of segments, using a maximum segment size that can be set by the user (so-called "quantization"). This design choice makes *vpype* very flexible and easy to develop, with no practical impact on final plot quality, but is the primary reason why *vpype* is not fit to be (and is not meant as) a general-purpose vector data processing tool.
 
-One downside of using polylines to approximate curved element is a potential increase in output file size. For example, three numbers are sufficient to describe a circle, but 10 to 100 segments may be needed to approximate it sufficiently well for plotting. When this becomes an issue, tuning the quantization parameters with the ``-q`` option or using the :program:`linesimplify` command can help.
+One downside of using polylines to approximate curved element is a potential increase in output file size. For example, three numbers are sufficient to describe a circle, but 10 to 100 segments may be needed to approximate it sufficiently well for plotting. When this becomes an issue, tuning the quantization parameters with the ``-q`` option or using the :ref:`cmd_linesimplify` command can help.
 
 
 .. _fundamentals_commands:
@@ -86,15 +88,15 @@ Generators add new geometries to a target layer, ignoring (but preserving) any c
 
   $ vpype line --layer 3 0 0 1cm 1cm circle 0.5cm 0.5cm 0.3cm
 
-This command will first draw a :program:`line` on layer 3 from the point (0,0) a point at (1cm, 1cm), then it will draw a :program:`circle` also on layer 3 (defaulting to the target of the previous command) centred on the point (0.5cm, 0.5cm), with a radius of 0.3cm.
+This command will first draw a :ref:`cmd_line` on layer 3 from the point (0,0) a point at (1cm, 1cm), then it will draw a :ref:`cmd_circle` also on layer 3 (defaulting to the target of the previous command) centred on the point (0.5cm, 0.5cm), with a radius of 0.3cm.
 
 For generators, ``--layer new`` can be used to generate geometries in a new, empty layer with the lowest possible number identifier.
 
 A few more examples of generators include:
 
-* :program:`rect`: generates a rectangle
-* :program:`arc`: generates lines approximating a circular arc
-* :program:`frame`: generates a single-line frame around the existing geometries
+* :ref:`cmd_rect`: generates a rectangle
+* :ref:`cmd_arc`: generates lines approximating a circular arc
+* :ref:`cmd_frame`: generates a single-line frame around the existing geometries
 
 
 .. _fundamentals_layer_processors:
@@ -102,7 +104,7 @@ A few more examples of generators include:
 Layer processors
 ----------------
 
-Unlike generators, layer processors generally don't produce new paths but instead modify existing ones on a layer-by-layer basis. This means that the way a layer processor changes one layer's content has no bearing on how it will affect another layer. Let's consider for example :program:`linemerge`. This command looks for paths whose ends are close to one another (according to some tolerance) and merges them to avoid unnecessary pen-up/pen-down operations by the plotter. Since :program:`linemerge` is a layer processor, it will only merge paths within the same layer.
+Unlike generators, layer processors generally don't produce new paths but instead modify existing ones on a layer-by-layer basis. This means that the way a layer processor changes one layer's content has no bearing on how it will affect another layer. Let's consider for example :ref:`cmd_linemerge`. This command looks for paths whose ends are close to one another (according to some tolerance) and merges them to avoid unnecessary pen-up/pen-down operations by the plotter. Since :ref:`cmd_linemerge` is a layer processor, it will only merge paths within the same layer.
 
 Layer processors accept a ``--layer TARGET[,TARGET[,...]]`` option to specify one or more layer on which they should be applied. Here are some examples::
 
@@ -114,9 +116,9 @@ All these commands crop the specified layers to a 10cm x 10cm rectangle with a t
 
 A few more examples of layer processors include:
 
-* :program:`translate`: apply a translation to the geometries (i.e. move them)
-* :program:`linesort`: sort paths within the layer in such a way that the distance travelled by the plotter in pen-up position is minimized
-* :program:`linesimplify`: reduce the number of points in paths while ensuring a specified precision, in order to minimize output file size
+* :ref:`cmd_translate`: apply a translation to the geometries (i.e. move them)
+* :ref:`cmd_linesort`: sort paths within the layer in such a way that the distance travelled by the plotter in pen-up position is minimized
+* :ref:`cmd_linesimplify`: reduce the number of points in paths while ensuring a specified precision, in order to minimize output file size
 
 
 .. _fundamentals_global_processors:
@@ -126,7 +128,7 @@ Global processors
 
 While layer processors are executed multiple times, once for each layer they are targeted to, global processors are executed only once and apply to all layers. Depending on the command, they may or may not have layer-related parameters, although there is no rule about that.
 
-For example, the :program:`write` command uses all layers in the pipeline to generate a multi-layer SVG file. The :program:`rotate`, :program:`scale`, and :program:`skew` transformation commands are also implemented as global processors because they use the center of the geometry as reference (by default), although they also accept a `--layer` option which makes them behave much like a layer processor.
+For example, the :ref:`cmd_write` command uses all layers in the pipeline to generate a multi-layer SVG file. The :ref:`cmd_rotate`, :ref:`cmd_scale`, :ref:`cmd_scaleto`, and :ref:`cmd_skew` transformation commands are also implemented as global processors because they use the center of the geometry as reference (by default), although they also accept a `--layer` option which makes them behave much like a layer processor.
 
 .. _fundamentals_units:
 
@@ -154,9 +156,9 @@ Blocks
 .. image:: images/block.svg
    :width: 600px
 
-Blocks refer to a portion of the pipeline marked by the :program:`begin` and :program:`end` special commands. The command immediately following :program:`begin` is called the *block processor* and controls how many times the block pipeline is executed and what is done with the geometries it produced.
+Blocks refer to a portion of the pipeline marked by the :ref:`cmd_begin` and :ref:`cmd_end` special commands. The command immediately following :ref:`cmd_begin` is called the *block processor* and controls how many times the block pipeline is executed and what is done with the geometries it produced.
 
-A commonly used block processor is the :program:`grid` command. It repeatedly executes the commands inside the block (known as the "block pipeline") and arranges the results on a regular grid. For example, this command generates a grid of five by ten 0.5-inch-radius circles, with a spacing of two inches in both directions::
+A commonly used block processor is the :ref:`cmd_grid` command. It repeatedly executes the commands inside the block (known as the "block pipeline") and arranges the results on a regular grid. For example, this command generates a grid of five by ten 0.5-inch-radius circles, with a spacing of two inches in both directions::
 
   $ vpype begin                     \
         grid --offset 2in 2in 5 10  \
@@ -171,7 +173,7 @@ Here is the result:
 .. image:: images/circle_grid.png
    :width: 400px
 
-Let's break down what's happening here. The :program:`begin` and :program:`end` define a block whose processor is the :program:`grid` command. The block pipeline consists of a single :program:`circle` command, which generates a 0.5-inch-radius circle centered on 0, 0. The pipeline is executed 50 times (once for every location in a 5x10 grid), and the result is translated (i.e. moved) two inches each time by the :program:`grid` command. After the block, the :program:`show` commands displays the result.
+Let's break down what's happening here. The :ref:`cmd_begin` and :ref:`cmd_end` define a block whose processor is the :ref:`cmd_grid` command. The block pipeline consists of a single :ref:`cmd_circle` command, which generates a 0.5-inch-radius circle centered on 0, 0. The pipeline is executed 50 times (once for every location in a 5x10 grid), and the result is translated (i.e. moved) two inches each time by the :ref:`cmd_grid` command. After the block, the :ref:`cmd_show` commands displays the result.
 
 Blocks can be nested to achieve more complex compositions. Here is an example::
 
@@ -191,7 +193,7 @@ And the result:
 .. image:: images/random_grid.png
    :width: 400px
 
-When using blocks, it is important to understand that a block pipeline is always executed from a blank state, even if geometries exist before the block begins. The block pipeline's result is added to the global (or parent) pipeline only at the end of the block. To understand this, consider the following example (the :program:`ldelete` command deletes the layer passed in argument)::
+When using blocks, it is important to understand that a block pipeline is always executed from a blank state, even if geometries exist before the block begins. The block pipeline's result is added to the global (or parent) pipeline only at the end of the block. To understand this, consider the following example (the :ref:`cmd_ldelete` command deletes the layer passed in argument)::
 
   $ vpype                           \
       circle --layer 1 0 0 1cm      \
@@ -202,7 +204,7 @@ When using blocks, it is important to understand that a block pipeline is always
       end                           \
       show
 
-Before the block, a 1cm-radius circle is added to layer 1. Then, the block pipeline starts by initializing a 3x3 grid - for each space in the grid it deletes layer 1 before adding a 0.5cm-radius circle. However, since the block pipeline is executed from a blank state, the :program:`ldelete` command has nothing to remove and all 10 circle (nine from the grid block on layer 10, plus the original on layer one) are visible in the output:
+Before the block, a 1cm-radius circle is added to layer 1. Then, the block pipeline starts by initializing a 3x3 grid - for each space in the grid it deletes layer 1 before adding a 0.5cm-radius circle. However, since the block pipeline is executed from a blank state, the :ref:`cmd_ldelete` command has nothing to remove and all 10 circle (nine from the grid block on layer 10, plus the original on layer one) are visible in the output:
 
 .. image:: images/ldelete_grid.png
    :width: 400px
