@@ -1,6 +1,6 @@
 import logging
 import math
-from typing import Tuple, Union, List
+from typing import Tuple, Union, List, Optional
 
 import click
 
@@ -16,6 +16,29 @@ from vpype import (
 from .cli import cli
 
 
+def _compute_origin(
+    vector_data: VectorData,
+    layer: Optional[Union[int, List[int]]],
+    origin_coords: Union[Tuple[()], Tuple[float, float]],
+) -> Tuple[Tuple[float, float], List[int], Tuple[float, float, float, float]]:
+    layer_ids = multiple_to_layer_ids(layer, vector_data)
+    bounds = vector_data.bounds(layer_ids)
+
+    if not bounds:
+        logging.warning("no geometry available, cannot compute origin")
+        raise ValueError
+
+    if len(origin_coords) == 2:
+        origin = origin_coords
+    else:
+        origin = (
+            0.5 * (bounds[0] + bounds[2]),
+            0.5 * (bounds[1] + bounds[3]),
+        )
+
+    return origin, layer_ids, bounds
+
+
 @cli.command(group="Transforms")
 @click.argument("offset", nargs=2, type=LengthType(), required=True)
 @layer_processor
@@ -29,7 +52,7 @@ def translate(lc: LineCollection, offset: Tuple[float, float]):
 
 
 # noinspection PyShadowingNames
-@cli.command(group="Transforms")
+@cli.command(name="scale", group="Transforms")
 @click.argument("scale", nargs=2, type=LengthType())
 @click.option(
     "-l",
@@ -37,18 +60,6 @@ def translate(lc: LineCollection, offset: Tuple[float, float]):
     type=LayerType(accept_multiple=True),
     default="all",
     help="Target layer(s).",
-)
-@click.option(
-    "--to",
-    "absolute",
-    is_flag=True,
-    help="Arguments are interpreted as absolute size instead of (relative) factors.",
-)
-@click.option(
-    "-p",
-    "--keep-proportions",
-    is_flag=True,
-    help="[--to only] Maintain the geometries proportions.",
 )
 @click.option(
     "-o",
@@ -59,52 +70,81 @@ def translate(lc: LineCollection, offset: Tuple[float, float]):
     help="Use a specific origin.",
 )
 @global_processor
-def scale(
+def scale_relative(
     vector_data: VectorData,
     scale: Tuple[float, float],
     layer: Union[int, List[int]],
-    absolute: bool,
-    keep_proportions: bool,
-    origin_coords: Tuple[float, float],
+    origin_coords: Union[Tuple[()], Tuple[float, float]],
 ):
-    """Scale the geometries.
+    """Scale the geometries by a factor.
 
     The origin used is the bounding box center, unless the `--origin` option is used.
-
-    By default, the arguments are used as relative factors (e.g. `scale 2 2` make the
-    geometries twice as big in both dimensions). With `--to`, the arguments are interpreted as
-    the final size. In this case, arguments understand the supported units (e.g.
-    `scale --to 10cm 10cm`).
 
     By default, act on all layers. If one or more layer IDs are provided with the `--layer`
     option, only these layers will be affected. In this case, the bounding box is that of the
     listed layers.
     """
 
-    # these are the layers we want to act on
-    layer_ids = multiple_to_layer_ids(layer, vector_data)
-    bounds = vector_data.bounds(layer_ids)
-
-    if not bounds:
+    try:
+        origin, layer_ids, _ = _compute_origin(vector_data, layer, origin_coords)
+    except ValueError:
         return vector_data
 
-    if absolute:
-        factors = (scale[0] / (bounds[2] - bounds[0]), scale[1] / (bounds[3] - bounds[1]))
+    for vid in layer_ids:
+        lc = vector_data[vid]
+        lc.translate(-origin[0], -origin[1])
+        lc.scale(scale[0], scale[1])
+        lc.translate(origin[0], origin[1])
 
-        if keep_proportions:
-            factors = (min(factors), min(factors))
-    else:
-        factors = scale
+    return vector_data
 
-    if len(origin_coords) == 2:
-        origin = origin_coords
-    else:
-        origin = (
-            0.5 * (bounds[0] + bounds[2]),
-            0.5 * (bounds[1] + bounds[3]),
-        )
 
-    logging.info(f"scaling factors: {factors}, origin: {origin}")
+# noinspection PyShadowingNames
+@cli.command(group="Transforms")
+@click.argument("dim", nargs=2, type=LengthType())
+@click.option(
+    "-l",
+    "--layer",
+    type=LayerType(accept_multiple=True),
+    default="all",
+    help="Target layer(s).",
+)
+@click.option(
+    "-p", "--keep-proportions", is_flag=True, help="Maintain the geometries proportions.",
+)
+@click.option(
+    "-o",
+    "--origin",
+    "origin_coords",
+    nargs=2,
+    type=LengthType(),
+    help="Use a specific origin.",
+)
+@global_processor
+def scaleto(
+    vector_data: VectorData,
+    dim: Tuple[float, float],
+    layer: Union[int, List[int]],
+    keep_proportions: bool,
+    origin_coords: Union[Tuple[()], Tuple[float, float]],
+):
+    """Scale the geometries to given dimensions.
+
+    The origin used is the bounding box center, unless the `--origin` option is used.
+
+    By default, act on all layers. If one or more layer IDs are provided with the `--layer`
+    option, only these layers will be affected. In this case, the bounding box is that of the
+    listed layers.
+    """
+
+    try:
+        origin, layer_ids, bounds = _compute_origin(vector_data, layer, origin_coords)
+    except ValueError:
+        return vector_data
+
+    factors = (dim[0] / (bounds[2] - bounds[0]), dim[1] / (bounds[3] - bounds[1]))
+    if keep_proportions:
+        factors = (min(factors), min(factors))
 
     for vid in layer_ids:
         lc = vector_data[vid]
@@ -140,10 +180,9 @@ def rotate(
     angle: float,
     layer: Union[int, List[int]],
     radian: bool,
-    origin_coords: Tuple[float, float],
+    origin_coords: Union[Tuple[()], Tuple[float, float]],
 ):
-    """
-    Rotate the geometries (clockwise positive).
+    """Rotate the geometries (clockwise positive).
 
     The origin used is the bounding box center, unless the `--origin` option is used.
 
@@ -155,21 +194,10 @@ def rotate(
     if not radian:
         angle *= math.pi / 180.0
 
-    # these are the layers we want to act on
-    layer_ids = multiple_to_layer_ids(layer, vector_data)
-    bounds = vector_data.bounds(layer_ids)
-    if not bounds:
+    try:
+        origin, layer_ids, _ = _compute_origin(vector_data, layer, origin_coords)
+    except ValueError:
         return vector_data
-
-    if len(origin_coords) == 2:
-        origin = origin_coords
-    else:
-        origin = (
-            0.5 * (bounds[0] + bounds[2]),
-            0.5 * (bounds[1] + bounds[3]),
-        )
-
-    logging.info(f"rotating origin: {origin}")
 
     for vid in layer_ids:
         lc = vector_data[vid]
@@ -205,10 +233,9 @@ def skew(
     layer: Union[int, List[int]],
     angles: Tuple[float, float],
     radian: bool,
-    origin_coords: Tuple[float, float],
+    origin_coords: Union[Tuple[()], Tuple[float, float]],
 ):
-    """
-    Skew the geometries.
+    """Skew the geometries.
 
     The geometries are sheared by the provided angles along X and Y dimensions.
 
@@ -216,24 +243,13 @@ def skew(
     are used.
     """
 
-    # these are the layers we want to act on
-    layer_ids = multiple_to_layer_ids(layer, vector_data)
-    bounds = vector_data.bounds(layer_ids)
-    if not bounds:
-        return vector_data
-
-    if len(origin_coords) == 2:
-        origin = origin_coords
-    else:
-        origin = (
-            0.5 * (bounds[0] + bounds[2]),
-            0.5 * (bounds[1] + bounds[3]),
-        )
-
     if not radian:
         angles = tuple(a * math.pi / 180.0 for a in angles)  # type: ignore
 
-    logging.info(f"skewing origin: {origin}")
+    try:
+        origin, layer_ids, _ = _compute_origin(vector_data, layer, origin_coords)
+    except ValueError:
+        return vector_data
 
     for vid in layer_ids:
         lc = vector_data[vid]
