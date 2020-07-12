@@ -121,22 +121,24 @@ Use `vpype COMMAND --help` for information on a specific command, for example:
 $ vpype scale --help
 Usage: vpype scale [OPTIONS] SCALE...
 
-  Scale the geometries.
+  Scale the geometries by a factor.
 
-  The origin used is the bounding box center, unless the `--centroid` or
-  `--origin` options are used.
+  The origin used is the bounding box center, unless the `--origin` option
+  is used.
 
-  By default, the arguments are used as relative factors (e.g. `scale 2 2`
-  make the geometries twice as big in both dimensions). With `--to`, the
-  arguments are interpreted as the final size. In this case, arguments
-  understand the supported units (e.g. `scale --to 10cm 10cm`).
+  By default, act on all layers. If one or more layer IDs are provided with
+  the `--layer` option, only these layers will be affected. In this case,
+  the bounding box is that of the listed layers.
+
+  Example:
+
+      Double the size of the geometries in layer 1, using (0, 0) as origin:
+
+          vpype [...] scale -l 1 -o 0 0 2 2 [...]
 
 Options:
-  --to                    Arguments are interpreted as absolute size instead
-                          of (relative) factors.
-  -p, --keep-proportions  [--to only] Maintain the geometries proportions.
-  -d, --centroid          Use the centroid as origin.
-  -o, --origin FLOAT...   Use a specific origin.
+  -l, --layer LAYERS      Target layer(s).
+  -o, --origin LENGTH...  Use a specific origin.
   --help                  Show this message and exit.
 ```
 

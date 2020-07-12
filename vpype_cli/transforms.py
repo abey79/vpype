@@ -117,7 +117,10 @@ def scale_relative(
     help="Target layer(s).",
 )
 @click.option(
-    "-p", "--keep-proportions", is_flag=True, help="Maintain the geometries proportions.",
+    "-f",
+    "--fit-dimensions",
+    is_flag=True,
+    help="Exactly fit target dimension, distorting geometries if required.",
 )
 @click.option(
     "-o",
@@ -132,10 +135,15 @@ def scaleto(
     vector_data: VectorData,
     dim: Tuple[float, float],
     layer: Union[int, List[int]],
-    keep_proportions: bool,
+    fit_dimensions: bool,
     origin_coords: Union[Tuple[()], Tuple[float, float]],
 ):
     """Scale the geometries to given dimensions.
+
+    By default, the homogeneous scaling is applied on both X and Y directions, even if the
+    geometry proportions are not the same as the target dimensions.  When passing
+    `--fit-dimensions`, the geometries are scaled such as to fit exactly the target dimensions,
+    distorting them if required.
 
     The origin used is the bounding box center, unless the `--origin` option is used.
 
@@ -157,7 +165,7 @@ def scaleto(
         return vector_data
 
     factors = (dim[0] / (bounds[2] - bounds[0]), dim[1] / (bounds[3] - bounds[1]))
-    if keep_proportions:
+    if not fit_dimensions:
         factors = (min(factors), min(factors))
 
     for vid in layer_ids:

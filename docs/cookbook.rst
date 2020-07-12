@@ -32,7 +32,7 @@ This command will :ref:`cmd_read` an SVG file, :ref:`cmd_scale` it down to a 80%
 
 This command will :ref:`cmd_read` an SVG file, scale it down to a 5x5cm square (using the :ref:`cmd_scaleto` command), and then :ref:`cmd_write` it to a new A5-sized SVG, centred on the page::
 
-  $ vpype read input.svg scaleto 5cm 5cm write output.svg
+  $ vpype read input.svg scaleto 5cm 5cm write --page-format a5 --center output.svg
 
 This command will :ref:`cmd_read` an SVG file, :ref:`cmd_crop` it to a 10x10cm square positioned 57mm from the top and left corners of the design, and then :ref:`cmd_write` it to a new SVG::
 

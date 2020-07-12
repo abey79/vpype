@@ -160,12 +160,23 @@ def test_scale_origin(runner):
 
 def test_scaleto(runner):
     res = runner.invoke(
-        cli, "rect 0 0 10cm 10cm dbsample scaleto -o 0 0 20cm 20cm dbsample dbdump"
+        cli, "rect 0 0 10cm 5cm dbsample scaleto -o 0 0 20cm 20cm dbsample dbdump"
     )
     data = DebugData.load(res.output)
     assert res.exit_code == 0
-    assert data[0].bounds_within(0, 0, 10 * CM, 10 * CM)
+    assert data[0].bounds_within(0, 0, 10 * CM, 5 * CM)
+    assert data[1].bounds_within(0, 0, 20 * CM, 10 * CM)
+
+
+def test_scaleto_fit(runner):
+    res = runner.invoke(
+        cli, "rect 0 0 10cm 5cm dbsample scaleto --fit-dimensions -o 0 0 20cm 20cm dbsample dbdump"
+    )
+    data = DebugData.load(res.output)
+    assert res.exit_code == 0
+    assert data[0].bounds_within(0, 0, 10 * CM, 5 * CM)
     assert data[1].bounds_within(0, 0, 20 * CM, 20 * CM)
+    assert not data[1].bounds_within(0, 0, 20 * CM, 10 * CM)
 
 
 def test_crop_cm(runner):
