@@ -133,9 +133,14 @@ def linesimplify(lines: LineCollection, tolerance):
 )
 @layer_processor
 def reloop(lines: LineCollection, tolerance):
-    """
-    Randomize the seam location for closed paths. Paths are considered closed when their
-    beginning and end points are closer than the provided tolerance.
+    """Randomize the seam location of closed paths.
+
+    When plotted, closed path may exhibit a visible mark at the seam, i.e. the location where
+    the pen begins and ends the stroke. This command randomizes the seam location in order to
+    help reduce visual effect of this in plots with regular patterns.
+
+    Paths are considered closed when their beginning and end points are closer than some
+    tolerance, which can be set with the `--tolerance` option.
     """
 
     lines.reloop(tolerance=tolerance)

@@ -1,5 +1,7 @@
 .. currentmodule:: vpype
 
+.. _cookbook:
+
 ========
 Cookbook
 ========
@@ -28,9 +30,9 @@ This command will :ref:`cmd_read` an SVG file, :ref:`cmd_scale` it down to a 80%
 
   $ vpype read input.svg scale 0.8 0.8 write output.svg
 
-This command will :ref:`cmd_read` an SVG file, :ref:`cmd_scale` it down to a 5x5cm square, and then :ref:`cmd_write` it to a new A5-sized SVG, centred on the page::
+This command will :ref:`cmd_read` an SVG file, scale it down to a 5x5cm square (using the :ref:`cmd_scaleto` command), and then :ref:`cmd_write` it to a new A5-sized SVG, centred on the page::
 
-  $ vpype read input.svg scale --to 5cm 5cm write output.svg
+  $ vpype read input.svg scaleto 5cm 5cm write output.svg
 
 This command will :ref:`cmd_read` an SVG file, :ref:`cmd_crop` it to a 10x10cm square positioned 57mm from the top and left corners of the design, and then :ref:`cmd_write` it to a new SVG::
 
@@ -76,15 +78,15 @@ This command will :ref:`cmd_read` two SVG files onto two different layers, rotat
 
   $ vpype read input1.svg --layer 1 read input2.svg --layer 2 rotate --layer 2 180 write output.svg
 
-This command will :ref:`cmd_read` two SVG files onto two different layers, :ref:`cmd_translate` (i.e. move) one of them 0.1cm down and to the right, and then `write both layers into a single SVG file with custom layer names "Pen 1" and "Pen 2"::
+This command will :ref:`cmd_read` two SVG files onto two different layers, :ref:`cmd_translate` (i.e. move) one of them 0.1cm down and to the right, and then :ref:`cmd_write` both layers into a single SVG file with custom layer names "Pen 1" and "Pen 2"::
 
-  $ vpype read input1.svg --layer 1 read input2.svg --layer 2 translate --layer 2 0.1cm 0.1cm write --layer-label “Pen %d” output.svg
+ $ vpype read input1.svg --layer 1 read input2.svg --layer 2 translate --layer 2 0.1cm 0.1cm write --layer-label “Pen %d” output.svg
 
 
 Repeating a design on a grid
 ============================
 
-This command will draw a collection of 3x3cm :ref:`cmd_circle`s in a 5x8 grid, then :ref:`cmd_show` the results using matplotlib::
+This command will draw a collection of 3x3cm :ref:`circles <cmd_circle>` in a 5x8 grid, then :ref:`cmd_show` the results using matplotlib::
 
   $ vpype begin                   \
       grid 5 8                    \

@@ -20,6 +20,7 @@ MINIMAL_COMMANDS = [
     "write -",
     "rotate 0",
     "scale 1 1",
+    "scaleto 10cm 10cm",
     "skew 0 0",
     "translate 0 0",
     "crop 0 0 1 1",
@@ -150,6 +151,16 @@ def test_scale_center(runner):
 def test_scale_origin(runner):
     res = runner.invoke(
         cli, "random -n 100 -a 10cm 10cm dbsample scale -o 0 0 2 2 dbsample dbdump"
+    )
+    data = DebugData.load(res.output)
+    assert res.exit_code == 0
+    assert data[0].bounds_within(0, 0, 10 * CM, 10 * CM)
+    assert data[1].bounds_within(0, 0, 20 * CM, 20 * CM)
+
+
+def test_scaleto(runner):
+    res = runner.invoke(
+        cli, "rect 0 0 10cm 10cm dbsample scaleto -o 0 0 20cm 20cm dbsample dbdump"
     )
     data = DebugData.load(res.output)
     assert res.exit_code == 0

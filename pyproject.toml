@@ -3,4 +3,4 @@ requires = ["setuptools", "wheel", "numpy"]
 
 [tool.black]
 line-length = 95
-target_version = ['py37']
+target-version = ["py36", "py37", "py38"]

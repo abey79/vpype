@@ -1,3 +1,5 @@
+.. _reference:
+
 =============
 CLI reference
 =============
@@ -8,6 +10,10 @@ CLI reference
 .. _cmd_vpype:
 .. click:: vpype_cli:cli
    :prog: vpype
+
+.. _cmd_arc:
+.. click:: vpype_cli:arc
+   :prog: arc
 
 .. _cmd_begin:
 .. click:: vpype_cli:begin
@@ -90,8 +96,12 @@ CLI reference
    :prog: rotate
 
 .. _cmd_scale:
-.. click:: vpype_cli:scale
+.. click:: vpype_cli:scale_relative
    :prog: scale
+
+.. _cmd_scaleto:
+.. click:: vpype_cli:scaleto
+   :prog: scaleto
 
 .. _cmd_script:
 .. click:: vpype_cli:script
