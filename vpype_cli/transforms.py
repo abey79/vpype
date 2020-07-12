@@ -1,6 +1,6 @@
 import logging
 import math
-from typing import Tuple, Union, List, Optional
+from typing import Tuple, Union, List, Optional, cast
 
 import click
 
@@ -36,7 +36,7 @@ def _compute_origin(
             0.5 * (bounds[1] + bounds[3]),
         )
 
-    return origin, layer_ids, bounds
+    return cast(Tuple[float, float], origin), layer_ids, bounds
 
 
 @cli.command(group="Transforms")
