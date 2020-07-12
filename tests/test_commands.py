@@ -170,7 +170,8 @@ def test_scaleto(runner):
 
 def test_scaleto_fit(runner):
     res = runner.invoke(
-        cli, "rect 0 0 10cm 5cm dbsample scaleto --fit-dimensions -o 0 0 20cm 20cm dbsample dbdump"
+        cli,
+        "rect 0 0 10cm 5cm dbsample scaleto --fit-dimensions -o 0 0 20cm 20cm dbsample dbdump",
     )
     data = DebugData.load(res.output)
     assert res.exit_code == 0
