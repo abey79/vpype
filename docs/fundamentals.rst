@@ -17,7 +17,7 @@ Pipelines are created by passing *vpype* the first command name together with it
 
   $ vpype command1 [--option X [...]] [ARG [...]] command2 [--option X [...]] [ARG [...]] ...
 
-The list of every command is available by running the help option on the core vpype comamnd::
+The list of every command is available by running the help option on the core vpype command::
 
   $ vpype --help
   Usage: vpype [OPTIONS] COMMAND1 [ARGS]... [COMMAND2 [ARGS]...]...
