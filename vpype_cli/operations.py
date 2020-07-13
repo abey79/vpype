@@ -1,10 +1,19 @@
 import logging
+from typing import Union, List
 
 import click
 import numpy as np
-from shapely.geometry import LineString
 
-from vpype import LineCollection, LengthType, layer_processor, LineIndex
+from vpype import (
+    LineCollection,
+    LengthType,
+    layer_processor,
+    LineIndex,
+    global_processor,
+    multiple_to_layer_ids,
+    VectorData,
+    LayerType,
+)
 from .cli import cli
 
 
@@ -23,6 +32,52 @@ def crop(lines: LineCollection, x: float, y: float, width: float, height: float)
 
     lines.crop(x, y, x + width, y + height)
     return lines
+
+
+@cli.command(group="Operations")
+@click.argument("margin_x", type=LengthType(), required=True)
+@click.argument("margin_y", type=LengthType(), required=True)
+@click.option(
+    "-l",
+    "--layer",
+    type=LayerType(accept_multiple=True),
+    default="all",
+    help="Target layer(s).",
+)
+@global_processor
+def trim(
+    vector_data: VectorData, margin_x: float, margin_y: float, layer: Union[int, List[int]]
+) -> VectorData:
+    """Trim the geometries by some margin.
+
+    This command trims the geometries by the provided X and Y margins with respect to the
+    current bounding box.
+
+    By default, `trim` acts on all layers. If one or more layer IDs are provided with the
+    `--layer` option, only these layers will be affected. In this case, the bounding box is
+    that of the listed layers.
+    """
+
+    layer_ids = multiple_to_layer_ids(layer, vector_data)
+    bounds = vector_data.bounds(layer_ids)
+
+    if not bounds:
+        return vector_data
+
+    min_x = bounds[0] + margin_x
+    max_x = bounds[2] - margin_x
+    min_y = bounds[1] + margin_y
+    max_y = bounds[3] - margin_y
+    if min_x > max_x:
+        min_x = max_x = 0.5 * (min_x + max_x)
+    if min_y > max_y:
+        min_y = max_y = 0.5 * (min_y + max_y)
+
+    for vid in layer_ids:
+        lc = vector_data[vid]
+        lc.crop(min_x, min_y, max_x, max_y)
+
+    return vector_data
 
 
 @cli.command(group="Operations")

@@ -32,6 +32,7 @@ MINIMAL_COMMANDS = [
     "lmove 1 new",
     "lcopy 1 new",
     "ldelete 1",
+    "trim 1mm 1mm",
 ]
 
 
@@ -207,6 +208,41 @@ def test_crop_line_flush(runner):
     assert data[0].count == 1
 
 
+def test_crop_empty(runner):
+    res = runner.invoke(cli, "random -a 10cm 10cm -n 1000 crop 5cm 5cm 0 1cm dbsample dbdump")
+    data = DebugData.load(res.output)
+    assert res.exit_code == 0
+    assert data[0].count == 0
+
+
+def test_crop_empty2(runner):
+    res = runner.invoke(cli, "random -a 10cm 10cm -n 1000 crop 5cm 5cm 0 0 dbsample dbdump")
+    data = DebugData.load(res.output)
+    assert res.exit_code == 0
+    assert data[0].count == 0
+
+
+def test_trim(runner):
+    res = runner.invoke(cli, "random -a 10cm 10cm -n 1000 trim 1cm 2cm dbsample dbdump")
+    data = DebugData.load(res.output)
+    assert res.exit_code == 0
+    assert data[0].bounds_within(CM, 2 * CM, 9 * CM, 8 * CM)
+
+
+def test_trim_large_margins(runner):
+    res = runner.invoke(cli, "random -a 10cm 10cm -n 1000 trim 10cm 2cm dbsample dbdump")
+    data = DebugData.load(res.output)
+    assert res.exit_code == 0
+    assert data[0].count == 0
+
+
+def test_trim_large_margins2(runner):
+    res = runner.invoke(cli, "random -a 10cm 10cm -n 1000 trim 10cm 20cm dbsample dbdump")
+    data = DebugData.load(res.output)
+    assert res.exit_code == 0
+    assert data[0].count == 0
+
+
 @pytest.mark.parametrize(
     ("linemerge_args", "expected"),
     [
@@ -231,8 +267,8 @@ def test_linemerge(runner, linemerge_args, expected):
 @pytest.mark.parametrize(
     "lines",
     [
-        " ".join(l)
-        for l in itertools.permutations(
+        " ".join(s)
+        for s in itertools.permutations(
             ["line 0 0 0 10", "line 0 10 10 10", "line 0 0 10 0", "line 10 0 10 10"]
         )
     ],

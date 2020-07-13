@@ -142,10 +142,13 @@ class LineCollection:
         if y1 > y2:
             y1, y2 = y2, y1
 
-        new_lines = []
-        for line in self._lines:
-            new_lines.extend(crop(line, x1, y1, x2, y2))
-        self._lines = new_lines
+        if x1 == x2 or y1 == y2:
+            self._lines = []
+        else:
+            new_lines = []
+            for line in self._lines:
+                new_lines.extend(crop(line, x1, y1, x2, y2))
+            self._lines = new_lines
 
     def merge(self, tolerance: float, flip: bool = True) -> None:
         """Merge lines whose endings overlap or are very close.
@@ -319,9 +322,8 @@ class VectorData:
     def bounds(
         self, layer_ids: Union[None, Iterable[int]] = None
     ) -> Optional[Tuple[float, float, float, float]]:
-        """
-        Compute bounds of the vector data. If `layer_ids` is provided, bounds are computed only
-        the corresponding ids.
+        """Compute bounds of the vector data. If `layer_ids` is provided, bounds are computed
+        only the corresponding ids.
 
         :param layer_ids: layers to consider
         :return: boundaries of the geometries
