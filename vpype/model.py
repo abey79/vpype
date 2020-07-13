@@ -37,7 +37,51 @@ def as_vector(a: np.ndarray):
 
 class LineCollection:
     """
-    Line collection TODO
+    :py:class:`LineCollection` encapsulate a list of piecewise linear lines (or paths). Lines
+    are implemented as 1D numpy arrays of complex numbers whose real and imaginary parts
+    represent the X, respectively Y, coordinates of point in the paths.
+
+    An instance of :py:class:`LineCollection` is used to model a single layer in vpype's
+    :ref:`pipeline <fundamentals_pipeline>`. The complete pipeline is modelled by a
+    :py:class:`VectorData` instance, which  essentially is a mapping of ``int`` (layer ID) to
+    :py:class:`LineCollection`.
+
+    Although the actual ``list`` is stored as private data member in :py:class:`LineCollection`
+    instances, the class provides a sequence API similar to ``list``::
+
+        >>> import vpype, numpy as np
+        >>> lc = vpype.LineCollection()
+        >>> lc.append(np.array([0, 10. + 10.j]))
+        >>> lc.append(np.array([10.j, 5. + 5.j]))
+        >>> len(lc)
+        2
+        >>> lc[0]
+        array([ 0. +0.j, 10.+10.j])
+        >>> for line in lc:
+        ...    print(repr(line))
+        ...
+        array([ 0. +0.j, 10.+10.j])
+        array([0.+10.j, 5. +5.j])
+
+    In addition to Numpy arrays, the class accepts paths expressed in a variety of format
+    including Python ``list`` or Shapely objects::
+
+        >>> from shapely.geometry import LineString, LinearRing, MultiLineString
+        >>> lc = vpype.LineCollection()
+        >>> lc.append([5, 5+5j])
+        >>> lc.append(LineString([(1, 1), (3, 2)]))
+        >>> lc.append(LinearRing([(0, 0), (1, 0), (1, 1), (0, 1)]))
+        >>> lc.extend(MultiLineString([[(0, 0), (10, 0)], [(4, 4), (0, 4)]]))
+        >>> lc
+        LineCollection([array([5.+0.j, 5.+5.j]), array([1.+1.j, 3.+2.j]), array([0.+0.j,
+        1.+0.j, 1.+1.j, 0.+1.j, 0.+0.j]), array([ 0.+0.j, 10.+0.j]), array([4.+4.j, 0.+4.j])])
+
+    Instances can also be converted to Shapely's MultiLineString:
+
+        >>> mls = lc.as_mls()
+        >>> print(mls)
+        MULTILINESTRING ((5 0, 5 5), (1 1, 3 2), (0 0, 1 0, 1 1, 0 1, 0 0), (0 0, 10 0),
+        (4 4, 0 4))
     """
 
     def __init__(self, lines: LineCollectionLike = ()):
@@ -84,6 +128,9 @@ class LineCollection:
 
     def __getitem__(self, item: Union[int, slice]):
         return self._lines[item]
+
+    def __repr__(self):
+        return f"LineCollection({self._lines})"
 
     def as_mls(self) -> MultiLineString:
         return MultiLineString([as_vector(line) for line in self.lines])

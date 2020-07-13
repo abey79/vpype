@@ -34,6 +34,8 @@ File I/O
 
 .. autofunction:: read_multilayer_svg
 
+.. autofunction:: write_svg
+
 
 Unit management
 ===============
