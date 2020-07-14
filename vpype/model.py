@@ -82,12 +82,17 @@ class LineCollection:
         >>> print(mls)
         MULTILINESTRING ((5 0, 5 5), (1 1, 3 2), (0 0, 1 0, 1 1, 0 1, 0 0), (0 0, 10 0),
         (4 4, 0 4))
+
+    Finally, :py:class:`LineCollection` implements a number of operations such as geometrical
+    transformation, cropping, merging, etc. (see member function documentation for details).
     """
 
     def __init__(self, lines: LineCollectionLike = ()):
-        """
-        Create a line collection.
-        :param lines: iterable of line-like things
+        """Create a LineCollection instance from an iterable of lines.
+
+        Args:
+            lines (LineCollectionLike): iterable of line (accepts the same input as
+                :func:`~LineCollection.append`).
         """
         self._lines: List[np.ndarray] = []
 
@@ -95,9 +100,22 @@ class LineCollection:
 
     @property
     def lines(self) -> List[np.ndarray]:
+        """Returns the list of line.
+
+        Returns:
+            list of line
+        """
         return self._lines
 
     def append(self, line: LineLike) -> None:
+        """Append a single line.
+
+        This function accepts an iterable of complex or a Shapely geometry
+        (:py:class:`LineString` or :py:class:`LinearRing`).
+
+        Args:
+            line (LineLike): line to append
+        """
         if isinstance(line, LineString) or isinstance(line, LinearRing):
             # noinspection PyTypeChecker
             self._lines.append(np.array(line).view(dtype=complex).reshape(-1))
@@ -107,6 +125,20 @@ class LineCollection:
                 self._lines.append(line)
 
     def extend(self, lines: LineCollectionLike) -> None:
+        """Append lines from a collection.
+
+        This function accepts an iterable of iterable of complex, another
+        :py:class:`LineCollection` instance, or a Shapely geometry
+        (:py:class:`MultiLineString`, :py:class:`LineString` or :py:class:`LinearRing`).
+
+        Shapely's LineString and LinearRing are occasionally obtained when a MultiLineString is
+        actually expected. As a result, they are accepted as input even though they are not,
+        strictly speaking, a line collection.
+
+        Args:
+            lines (LineCollectionLike): lines to append
+        """
+
         if hasattr(lines, "geom_type") and lines.is_empty:  # type: ignore
             return
 
@@ -118,6 +150,11 @@ class LineCollection:
             self.append(line)
 
     def is_empty(self) -> bool:
+        """Check for emptiness.
+
+        Returns:
+            True if the instance does not contain any line, False otherwise.
+        """
         return len(self) == 0
 
     def __iter__(self):
@@ -133,15 +170,38 @@ class LineCollection:
         return f"LineCollection({self._lines})"
 
     def as_mls(self) -> MultiLineString:
+        """Converts the LineCollection to a :py:class:`MultiLineString`.
+
+        Returns:
+            a MultiLineString Shapely object
+        """
         return MultiLineString([as_vector(line) for line in self.lines])
 
     def translate(self, dx: float, dy: float) -> None:
+        """Translates all line by a given offset.
+
+        Args:
+            dx: offset along X axis
+            dy: offset along Y axis
+        """
         c = complex(dx, dy)
         for line in self._lines:
             line += c
 
     def scale(self, sx: float, sy: Optional[float] = None) -> None:
-        """Scale the geometry
+        """Scale the geometry.
+
+        The scaling is performed about the coordinates origin (0, 0). To scale around a
+        specific location, appropriate translations must be performed before and after the
+        scaling::
+
+            >>> import vpype
+            >>> lc = vpype.LineCollection([[(-1+1j, 1+1j)]])
+            >>> lc.translate(0, -1)
+            >>> lc.scale(1.2)
+            >>> lc.translate(0, 1)
+            >>> lc
+            LineCollection([array([-1.2+1.j,  1.2+1.j])])
 
         Args:
             sx: scale factor along x
