@@ -196,7 +196,7 @@ class LineCollection:
         scaling::
 
             >>> import vpype
-            >>> lc = vpype.LineCollection([[(-1+1j, 1+1j)]])
+            >>> lc = vpype.LineCollection([(-1+1j, 1+1j)])
             >>> lc.translate(0, -1)
             >>> lc.scale(1.2)
             >>> lc.translate(0, 1)
@@ -291,6 +291,12 @@ class LineCollection:
         self._lines = new_lines._lines
 
     def bounds(self) -> Optional[Tuple[float, float, float, float]]:
+        """Returns the geometries' bounding box.
+
+        Returns:
+            tuple (xmin, ymin, xmax, ymax) for the bounding box or None if the LineCollection
+            is empty
+        """
         if len(self._lines) == 0:
             return None
         else:
@@ -302,28 +308,49 @@ class LineCollection:
             )
 
     def width(self) -> float:
-        """Returns the total width of the geometries"""
-        if len(self._lines) == 0:
-            return 0.0
-        else:
+        """Returns the total width of the geometries.
+
+        Returns:
+            the width (xmax - xmin) or 0.0 if the LineCollection is empty
+        """
+
+        if self._lines:
             return max((line.real.max() for line in self._lines)) - min(
                 (line.real.min() for line in self._lines)
             )
+        else:
+            return 0.0
 
     def height(self) -> float:
-        """Returns the total height of the geometries"""
-        if len(self._lines) == 0:
-            return 0.0
-        else:
+        """Returns the total height of the geometries.
+
+        Returns:
+            the width (ymax - ymin) or 0.0 if the LineCollection is empty
+        """
+        if self._lines:
             return max((line.imag.max() for line in self._lines)) - min(
                 (line.imag.min() for line in self._lines)
             )
+        else:
+            return 0.0
 
     def length(self) -> float:
+        """Return the total lengths of the paths.
+
+        Returns:
+            the total length
+        """
         return sum(np.sum(np.abs(np.diff(line))) for line in self._lines)
 
     def pen_up_length(self) -> Tuple[float, float, float]:
-        """Total, mean, median distance to move from one path's end to the next path's start"""
+        """Returns statistics on the pen-up distance corresponding to the path.
+
+        The total, mean, and median distance are returned. The pen-up distance is the distance
+        between a path's end and the next path's beginning.
+
+        Returns:
+            tuple (total, mean, median) for the pen-up distances
+        """
         ends = np.array([line[-1] for line in self.lines[:-1]])
         starts = np.array([line[0] for line in self.lines[1:]])
         dists = np.abs(starts - ends)
@@ -331,7 +358,11 @@ class LineCollection:
         return np.sum(dists), np.mean(dists), np.median(dists)
 
     def segment_count(self) -> int:
-        """Total number of segment across all lines."""
+        """Returns the total number of segment across all lines.
+
+        Returns:
+            the total number of segments in the geometries
+        """
         return sum(max(0, len(line) - 1) for line in self._lines)
 
 
