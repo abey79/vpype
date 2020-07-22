@@ -4,7 +4,7 @@
 Implementation of vpype's data model
 """
 import math
-from typing import Union, Iterable, List, Dict, Tuple, Optional
+from typing import Union, Iterable, List, Dict, Tuple, Optional, Iterator
 
 import numpy as np
 from shapely.geometry import MultiLineString, LineString, LinearRing
@@ -367,12 +367,15 @@ class LineCollection:
 
 
 class VectorData:
-    """This class implements the core of vpype's data model. An empty VectorData is created at
-    launch and passed from commands to commands until termination. It models an arbitrary
-    number of layers whose label are a positive integer, each consisting of a LineCollection"""
+    """Collection of layered. :py:class:`LineCollection`
+
+    A VectorData is a mapping of layer IDs to :py:class:`LineCollection`, where layer IDs are
+    strictly-positive integers. This class is the core of vpype's data model. In a nutshell,
+    an empty VectorData is created by vpype at launch and passed from commands to commands
+    until termination."""
 
     def __init__(self, line_collection: LineCollection = None):
-        """Constructor.
+        """Create a VectorData, optionally providing a :py:class:`LayerCollection` for layer 1.
 
         Args:
             line_collection: if provided, used as layer 1
@@ -384,18 +387,42 @@ class VectorData:
 
     @property
     def layers(self) -> Dict[int, LineCollection]:
+        """Returns a reference to the layer dictionary.
+        Returns:
+            the internal layer dictionary
+        """
         return self._layers
 
     def ids(self) -> Iterable[int]:
+        """Returns the list of layer IDs"""
         return self._layers.keys()
 
-    def layers_from_ids(self, layer_ids: Iterable[int]):
-        """Returns an generator that yield layers corresponding to the provided IDs, provided
-        they exist.
+    def layers_from_ids(self, layer_ids: Iterable[int]) -> Iterator[LineCollection]:
+        """Returns an iterator that yield layers corresponding to the provided IDs, provided
+        they exist. This is typically used to process a command's layer list option, in
+        combination with :py:func:`multiple_to_layer_ids`.
+
+        Non-existent layer IDs in the input are ignored.
+
+        Args:
+            layer_ids: iterable of layer IDs
+
+        Returns:
+            layer iterator
         """
         return (self._layers[lid] for lid in layer_ids if lid in self._layers)
 
     def exists(self, layer_id: int) -> bool:
+        """Test existence of a layer.
+
+        Note that existence of a layer does not necessarily imply that it isn't empty.
+
+        Args:
+            layer_id: layer ID to test
+
+        Returns:
+            True if the layer ID exists
+        """
         return layer_id in self._layers
 
     def __getitem__(self, layer_id: int):
@@ -411,14 +438,22 @@ class VectorData:
             self._layers[layer_id] = LineCollection(value)
 
     def free_id(self) -> int:
-        """Returns the lowest free layer id"""
+        """Returns the lowest unused layer id.
+
+        Returns:
+            the unused layer ID
+        """
         vid = 1
         while vid in self._layers:
             vid += 1
         return vid
 
     def add(self, lc: LineCollection, layer_id: Union[None, int] = None) -> None:
-        """if layer_id is None, a new layer with lowest possible id is created"""
+        """Add a the content of a :py:class:`LineCollection` to a given layer.
+
+        If the given layer is None, the input LineCollection is used to create a new layer
+        using the lowest available layer ID.
+        """
         if layer_id is None:
             layer_id = 1
             while layer_id in self._layers:
@@ -429,42 +464,96 @@ class VectorData:
         else:
             self._layers[layer_id] = lc
 
-    def extend(self, vd: "VectorData"):
+    def extend(self, vd: "VectorData") -> None:
+        """Extend a VectorData with the content of another VectorData.
+
+        The layer structure of the source VectorData is maintained and geometries are either
+        appended to the destination's corresponding layer or new layers are created, depending
+        on if the layer existed or not in the destination VectorData.
+
+        Args:
+            vd: source VectorData
+        """
         for layer_id, layer in vd.layers.items():
             self.add(layer, layer_id)
 
     def is_empty(self) -> bool:
+        """Returns True if all layers are empty.
+
+        Returns:
+            True if all layers are empty"""
         for layer in self.layers.values():
             if not layer.is_empty():
                 return False
         return True
 
     def pop(self, layer_id: int) -> LineCollection:
+        """Removes a layer from the VectorData.
+
+        Args:
+            layer_id: ID of the layer to be removed
+
+        Returns:
+            the :py:class:`LineCollection` corresponding to the removed layer
+        """
         return self._layers.pop(layer_id)
 
     def count(self) -> int:
+        """Returns the total number of layers.
+
+        Returns:
+            total number of layer"""
         return len(self._layers.keys())
 
     def translate(self, dx: float, dy: float) -> None:
+        """Translates all line by a given offset.
+
+        Args:
+            dx: offset along X axis
+            dy: offset along Y axis
+        """
         for layer in self._layers.values():
             layer.translate(dx, dy)
 
     def scale(self, sx: float, sy: Optional[float] = None) -> None:
+        """Scale the geometry.
+
+        The scaling is performed about the coordinates origin (0, 0). To scale around a
+        specific location, appropriate translations must be performed before and after the
+        scaling (see :py:method:`LineCollection.scale`).
+
+        Args:
+            sx: scale factor along x
+            sy: scale factor along y (if None, then sx is used)
+        """
         for layer in self._layers.values():
             layer.scale(sx, sy)
 
     def rotate(self, angle: float) -> None:
+        """Rotate the geometry.
+
+       The rotation is performed about the coordinates origin (0, 0). To rotate around a
+       specific location, appropriate translations must be performed before and after the
+       scaling (see :py:method:`LineCollection.rotate`).
+
+       Args:
+           angle: rotation angle (radian)
+       """
         for layer in self._layers.values():
             layer.rotate(angle)
 
     def bounds(
         self, layer_ids: Union[None, Iterable[int]] = None
     ) -> Optional[Tuple[float, float, float, float]]:
-        """Compute bounds of the vector data. If `layer_ids` is provided, bounds are computed
-        only the corresponding ids.
+        """Compute bounds of the vector data.
 
-        :param layer_ids: layers to consider
-        :return: boundaries of the geometries
+        If layer_ids is provided, bounds are computed only for the corresponding IDs.
+
+        Args:
+            layer_ids: layers to consider in the bound calculation
+
+        Returns:
+            boundaries of the geometries
         """
         if layer_ids is None:
             layer_ids = self.ids()
