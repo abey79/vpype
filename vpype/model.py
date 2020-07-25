@@ -335,7 +335,7 @@ class LineCollection:
             return 0.0
 
     def length(self) -> float:
-        """Return the total lengths of the paths.
+        """Return the total length of the paths.
 
         Returns:
             the total length
@@ -570,10 +570,27 @@ class VectorData:
             return None
 
     def length(self) -> float:
+        """Return the total length of the paths.
+
+        Returns:
+            the total length
+        """
         return sum(layer.length() for layer in self._layers.values())
 
     def pen_up_length(self) -> float:
+        """Returns the total pen-up distance corresponding to the path.
+
+        This function does not account for the pen-up distance between layers.
+
+        Returns:
+            total pen-up distances
+        """
         return sum(layer.pen_up_length()[0] for layer in self._layers.values())
 
     def segment_count(self) -> int:
+        """Returns the total number of segment across all lines.
+
+        Returns:
+            the total number of segments in the geometries
+        """
         return sum(layer.segment_count() for layer in self._layers.values())
