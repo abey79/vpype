@@ -117,7 +117,7 @@ class LengthType(click.ParamType):
 
     def convert(self, value, param, ctx):
         try:
-            return convert(value)
+            return convert_length(value)
         except ValueError:
             self.fail(f"parameter {value} is an incorrect length")
 
