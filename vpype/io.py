@@ -20,7 +20,7 @@ from svgpathtools.document import flatten_group
 from svgwrite.extensions import Inkscape
 
 from .model import LineCollection, as_vector, VectorData
-from .utils import convert, UNITS
+from .utils import UNITS, convert_length
 
 __all__ = ["read_svg", "read_multilayer_svg", "write_svg"]
 
@@ -46,8 +46,8 @@ def _calculate_page_size(
             float(s) for s in root.attrib["viewBox"].split()
         ]
 
-        width = convert(root.attrib.get("width", viewbox_width))
-        height = convert(root.attrib.get("height", viewbox_height))
+        width = convert_length(root.attrib.get("width", viewbox_width))
+        height = convert_length(root.attrib.get("height", viewbox_height))
 
         scale_x = width / viewbox_width
         scale_y = height / viewbox_height

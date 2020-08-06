@@ -41,7 +41,9 @@ Unit management
 .. autoclass:: LengthType
    :members:
 
-.. autofunction:: convert
+.. autofunction:: convert_length
+
+.. autofunction:: convert_page_format
 
 Layer management
 ================

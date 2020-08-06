@@ -8,7 +8,16 @@ from typing import Union, Tuple
 import click
 
 # REMINDER: anything added here must be added to docs/api.rst
-__all__ = ["UNITS", "PAGE_FORMATS", "Length", "LengthType", "PageSizeType", "convert"]
+__all__ = [
+    "UNITS",
+    "PAGE_FORMATS",
+    "Length",
+    "LengthType",
+    "PageSizeType",
+    "convert",
+    "convert_length",
+    "convert_page_format",
+]
 
 
 def _mm_to_px(x: float, y: float) -> Tuple[float, float]:
@@ -37,7 +46,7 @@ PAGE_FORMATS = {
 }
 
 
-def convert(value: Union[str, float]) -> float:
+def convert_length(value: Union[str, float]) -> float:
     """Convert a string with unit to px value. May raise exception for bad input.
     """
     if isinstance(value, str):
@@ -50,12 +59,65 @@ def convert(value: Union[str, float]) -> float:
     return float(value)
 
 
+convert = convert_length  # TODO: to be deprecated
+
+
+def convert_page_format(value: str) -> Tuple[float, float]:
+    """Converts a string with page format to dimension in pixels.
+
+    The input can be either a known page format (see ``vpype write --help`` for a list) or
+    a page format descriptor in the form of "WxH" where both W and H can have units.
+
+    Examples:
+
+        Using know page format::
+
+            >>> import vpype
+            >>> vpype.convert_page_format("a3")
+            (1122.5196850393702, 1587.4015748031497)
+
+        Using page format descriptor (no units, pixels are assumed)::
+
+            >>> vpype.convert_page_format("100x200")
+            (100.0, 200.0)
+
+        Using page format descriptor (explicit units)::
+
+            >>> vpype.convert_page_format("1inx2in")
+            (96.0, 192.0)
+
+    Args:
+        value: page format descriptor
+
+    Returns:
+        the page format in CSS pixels
+    """
+    if value in PAGE_FORMATS:
+        return PAGE_FORMATS[value]
+
+    match = re.match(
+        r"^(\d+\.?\d*)({0})?x(\d+\.?\d*)({0})?$".format("|".join(UNITS.keys())), value
+    )
+
+    if not match:
+        raise ValueError()
+
+    x, x_unit, y, y_unit = match.groups()
+
+    if not x_unit:
+        x_unit = y_unit if y_unit else "px"
+    if not y_unit:
+        y_unit = x_unit
+
+    return float(x) * convert(x_unit), float(y) * convert(y_unit)
+
+
 class LengthType(click.ParamType):
     name = "length"
 
     def convert(self, value, param, ctx):
         try:
-            return convert(value)
+            return convert_length(value)
         except ValueError:
             self.fail(f"parameter {value} is an incorrect length")
 
@@ -67,25 +129,7 @@ class PageSizeType(click.ParamType):
     name = "PAGESIZE"
 
     def convert(self, value, param, ctx) -> Tuple[float, float]:
-        if value in PAGE_FORMATS:
-            return PAGE_FORMATS[value]
-
         try:
-            match = re.match(
-                r"^(\d+\.?\d*)({0})?x(\d+\.?\d*)({0})?$".format("|".join(UNITS.keys())), value
-            )
-
-            if not match:
-                raise ValueError()
-
-            x, x_unit, y, y_unit = match.groups()
-
-            if not x_unit:
-                x_unit = y_unit if y_unit else "px"
-            if not y_unit:
-                y_unit = x_unit
-
-            return float(x) * convert(x_unit), float(y) * convert(y_unit)
-
+            return convert_page_format(value)
         except ValueError:
             self.fail(f"parameter {value} is not a valid page format")
