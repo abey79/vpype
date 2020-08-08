@@ -79,8 +79,8 @@ def arc(
     elif start == stop:
         raise ValueError("start and stop angles must have different values")
 
-    n = math.ceil((stop - start) / 180 * math.pi * radius / quantization)
-    angle = np.linspace(start, stop, n)
+    n = max(3, math.ceil((stop - start) / 180 * math.pi * radius / quantization))
+    angle = np.linspace(start, stop, n + 1)
     angle[angle == 360] = 0
     angle *= math.pi / 180
     return radius * (np.cos(-angle) + 1j * np.sin(-angle)) + complex(x, y)
