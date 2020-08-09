@@ -33,6 +33,7 @@ MINIMAL_COMMANDS = [
     "lcopy 1 new",
     "ldelete 1",
     "trim 1mm 1mm",
+    "splitall",
 ]
 
 

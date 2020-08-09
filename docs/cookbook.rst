@@ -50,6 +50,10 @@ This command will :ref:`cmd_read` an SVG file, merge any lines whose endings are
 
   $ vpype read input.svg linemerge --tolerance 0.5mm write output.svg
 
+In some cases such as densely connected meshes (e.g. a grid where made of touching square paths), :ref:`cmd_linemerge` may not be able to fully optimize the plot by itself. Using :ref:`cmd_splitall` before breaks everything into its constituent segment and enables :ref:`cmd_linemerge` to perform a more aggressive optimization, at the cost of a increased processing time::
+
+  $ vpype read input.svg splitall linemerge --tolerance 0.5mm write output.svg
+
 This command will :ref:`cmd_read` an SVG file, simplify its geometry by reducing the number of segments in a line until they're a maximum of 0.1mm from each other using :ref:`cmd_linesimplify`, and then :ref:`cmd_write` a new SVG file::
 
   $ vpype read input.svg linesimplify --tolerance 0.1mm write output.svg
