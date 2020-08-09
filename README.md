@@ -1,7 +1,10 @@
 <img src="https://i.imgur.com/LM2Qrc0.png" alt="banner" width=1200>
 
 
-# _vpype_ ![Test](https://github.com/abey79/vpype/workflows/Test/badge.svg?branch=master)
+# _vpype_ ![Test](https://github.com/abey79/vpype/workflows/Test/badge.svg?branch=master) [![Documentation Status](https://readthedocs.org/projects/vpype/badge/?version=latest)](https://vpype.readthedocs.io/en/latest/?badge=latest)
+
+
+> **Note**: a proper documentation is [under construction](https://vpype.readthedocs.io/en/latest/).
 
 _vpype_ aims to be the one-stop-shop, Swiss Army knife<sup>1</sup> for producing plotter-ready vector graphics. Here
 are, for illustration, a few examples of what it can do:
@@ -118,22 +121,24 @@ Use `vpype COMMAND --help` for information on a specific command, for example:
 $ vpype scale --help
 Usage: vpype scale [OPTIONS] SCALE...
 
-  Scale the geometries.
+  Scale the geometries by a factor.
 
-  The origin used is the bounding box center, unless the `--centroid` or
-  `--origin` options are used.
+  The origin used is the bounding box center, unless the `--origin` option
+  is used.
 
-  By default, the arguments are used as relative factors (e.g. `scale 2 2`
-  make the geometries twice as big in both dimensions). With `--to`, the
-  arguments are interpreted as the final size. In this case, arguments
-  understand the supported units (e.g. `scale --to 10cm 10cm`).
+  By default, act on all layers. If one or more layer IDs are provided with
+  the `--layer` option, only these layers will be affected. In this case,
+  the bounding box is that of the listed layers.
+
+  Example:
+
+      Double the size of the geometries in layer 1, using (0, 0) as origin:
+
+          vpype [...] scale -l 1 -o 0 0 2 2 [...]
 
 Options:
-  --to                    Arguments are interpreted as absolute size instead
-                          of (relative) factors.
-  -p, --keep-proportions  [--to only] Maintain the geometries proportions.
-  -d, --centroid          Use the centroid as origin.
-  -o, --origin FLOAT...   Use a specific origin.
+  -l, --layer LAYERS      Target layer(s).
+  -o, --origin LENGTH...  Use a specific origin.
   --help                  Show this message and exit.
 ```
 
@@ -155,7 +160,7 @@ enables multiple sinks to be chained (e.g. first display the result, then save i
 Here is a non-exhaustive list of important commands:
 
 - `read`: import geometries from a SVG file
-- `line`, `rect`, `circle`: create the corresponding primitives 
+- `line`, `rect`, `arc`, `circle`: create the corresponding primitives 
 - `script`: execute a Python script to generate geometries (see [External scripts](#external-scripts))
 - `translate`, `rotate`, `scale`, `skew`: basic transformation commands which do exactly what you think they do
 - `crop`: crop the geometries, removing everything outside of a rectangular area
@@ -163,6 +168,7 @@ Here is a non-exhaustive list of important commands:
 - `linesort`: sort lines to minimize the total distance between the end of a path to the start of the next one
 - `multipass`: prepare twp-pass (or more) files for when a single stroke isn't sufficient for a good render 
 - `frame`: add a simple frame around the geometries
+- `lmove`, `lcopy`, `ldelete`: various layer manipulation commands 
 - `show`: display the geometries in a `matplotlib` window
 - `write`: save the geometries as a SVG file
 
@@ -190,15 +196,19 @@ $ vpype random --count 100 --area 1in 1in write --page-format a4 --center output
 _vpype_ supports multiple layers and can produce multi-layer SVGs, which can be useful for polychromic drawings.
 Most commands have a `-l, --layer` option which affects how layers are created and/or modified.
 Layers are always referred to by a non-zero, positive integer (which ties nicely with how official
-[AxiDraw](https://axidraw.com) tools deal with layers).
+[AxiDraw](https://axidraw.com) tools deal with layers). 
 
-Generators such as `read`, `line`, `script`, etc. create new geometries. The `--layer` option controls which layer receives
+Generators such as `line`, `script`, etc. create new geometries. The `--layer` option controls which layer receives
 these new geometries. By default, the last target layer is used:
 ```
 $ vpype line --layer 3 0 0 1cm 1cm circle 0.5cm 0.5cm 0.5cm show
 ``` 
 Here both the line and the circle will be in layer 3. If no generator specifies a target layer, then layer 1 is assumed
 by default.
+
+The `read` honors the input SVG layer structure and will create layers for each top-level SVG groups (see the CLI help
+for details). Alternatively, it can run in single-layer mode with `--single-layer`. In this case, all geometries are
+loaded in one layer, regardless of the SVG's structure.
 
 Filters such as `translate`, `rotate`, `crop`, `linemerge`,  etc. modify existing geometries. The `--layer` option
 controls if one, several or all layers will be affected:
@@ -211,9 +221,12 @@ All these commands do exactly what you think they should do. If the `--layer` op
 Note that if you provide a list of layers, they must be comma separated and without any whitespace, as the list must be
 a single CLI argument.
 
-Finally, some commands do not have a `--layer` option, but understand them. For example, `show` will display each layer
+Some commands do not have a `--layer` option, but understand them. For example, `show` will display each layer
 in a different color by default. Last but not least, `write` will generate multi-layer SVGs which will work 
 out-of-the-box with InkScape.
+
+Finally, layers' content can be moved or copied to other layers with the `lmove` and `lcopy` commands, and outright
+deleted with the `ldelete` command. See these commands' help for details.
 
 
 ### External scripts

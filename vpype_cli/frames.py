@@ -1,6 +1,6 @@
 import click
 
-from vpype import LineCollection, Length, generator, VpypeState, pass_state
+from vpype import LineCollection, LengthType, generator, VpypeState, pass_state
 from .cli import cli
 
 
@@ -9,7 +9,7 @@ from .cli import cli
     "-o",
     "--offset",
     default=0.0,
-    type=Length(),
+    type=LengthType(),
     help="Offset from the geometries' bounding box. This option understands supported units.",
 )
 @generator
@@ -24,7 +24,7 @@ def frame(state: VpypeState, offset: float):
     if state.vector_data.is_empty():
         return LineCollection()
 
-    bounds = state.vector_data.bounds()
+    bounds = state.vector_data.bounds() or (0, 0, 0, 0)
     return LineCollection(
         [
             (

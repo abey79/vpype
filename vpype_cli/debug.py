@@ -2,14 +2,14 @@
 Hidden debug commands to help testing.
 """
 import json
-from typing import Union, Any, Dict, Iterable, Sequence
+from typing import Any, Dict, Iterable, Sequence, List
 
 import numpy as np
 
 from vpype import global_processor, as_vector, VectorData, LineCollection
 from .cli import cli
 
-debug_data = []
+debug_data: List[Dict[str, Any]] = []
 
 
 @cli.command(hidden=True)
@@ -20,7 +20,7 @@ def dbsample(vector_data: VectorData):
     """
     global debug_data
 
-    data = {}
+    data: Dict[str, Any] = {}
     if vector_data.is_empty():
         data["count"] = 0
     else:
@@ -74,9 +74,7 @@ class DebugData:
                 [np.array([x + 1j * y for x, y in line]) for line in lines]
             )
 
-    def bounds_within(
-        self, x: float, y: float, width: Union[float, None], height: Union[float, None],
-    ) -> bool:
+    def bounds_within(self, x: float, y: float, width: float, height: float,) -> bool:
         """
         Test if coordinates are inside. If `x` and `y` are provided only, consider input as
         a point. If `width` and `height` are passed as well, consider input as rect.
@@ -84,17 +82,26 @@ class DebugData:
         if self.count == 0:
             return False
 
+        def approx_check(a, b, lt):
+            if lt:
+                return a < b and not np.isclose(a, b)
+            else:
+                return a > b and not np.isclose(a, b)
+
         if (
-            self.bounds[0] < x
-            or self.bounds[1] < y
-            or self.bounds[2] > x + width
-            or self.bounds[3] > y + height
+            approx_check(self.bounds[0], x, True)
+            or approx_check(self.bounds[1], y, True)
+            or approx_check(self.bounds[2], x + width, False)
+            or approx_check(self.bounds[3], y + height, False)
         ):
             return False
 
         return True
 
-    def __eq__(self, other: "DebugData"):
+    def __eq__(self, other: object):
+        if not isinstance(other, DebugData):
+            return NotImplemented
+
         if self.count == 0:
             return other.count == 0
 

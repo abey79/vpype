@@ -1,6 +1,7 @@
 import click
 import matplotlib.collections
 import matplotlib.pyplot as plt
+import numpy as np
 
 from vpype import global_processor, as_vector, VectorData, convert
 from .cli import cli
@@ -20,7 +21,8 @@ COLORS = [
 @cli.command(group="Output")
 @click.option("-a", "--show-axes", is_flag=True, help="Display axes.")
 @click.option("-g", "--show-grid", is_flag=True, help="Display grid (implies -a).")
-@click.option("-p", "--show-pen-up", is_flag=True, help="Show pen-up trajectories.")
+@click.option("-p", "--show-pen-up", is_flag=True, help="Display pen-up trajectories.")
+@click.option("-d", "--show-points", is_flag=True, help="Display paths points with dots.")
 @click.option("-h", "--hide-legend", is_flag=True, help="Do not display the legend.")
 @click.option(
     "-c", "--colorful", is_flag=True, help="Display each segment in a different color."
@@ -38,6 +40,7 @@ def show(
     show_axes: bool,
     show_grid: bool,
     show_pen_up: bool,
+    show_points: bool,
     hide_legend: bool,
     colorful: bool,
     unit: str,
@@ -58,34 +61,44 @@ def show(
     for layer_id, lc in vector_data.layers.items():
         if colorful:
             color = COLORS[color_idx:] + COLORS[:color_idx]
+            marker_color = "k"
             color_idx += len(lc)
         else:
-            color = COLORS[color_idx]
+            color = COLORS[color_idx]  # type: ignore
+            marker_color = [color]  # type: ignore
             color_idx += 1
         if color_idx >= len(COLORS):
             color_idx = color_idx % len(COLORS)
 
-        collections[layer_id] = matplotlib.collections.LineCollection(
+        layer_lines = matplotlib.collections.LineCollection(
             (as_vector(line) * scale for line in lc),
             color=color,
             lw=1,
             alpha=0.5,
             label=str(layer_id),
         )
-        plt.gca().add_collection(collections[layer_id])
+        collections[layer_id] = [layer_lines]
+        plt.gca().add_collection(layer_lines)
+
+        if show_points:
+            points = np.hstack([line for line in lc]) * scale
+            layer_points = plt.gca().scatter(
+                points.real, points.imag, marker=".", c=marker_color, s=16
+            )
+            collections[layer_id].append(layer_points)
 
         if show_pen_up:
-            plt.gca().add_collection(
-                matplotlib.collections.LineCollection(
-                    (
-                        (as_vector(lc[i])[-1] * scale, as_vector(lc[i + 1])[0] * scale)
-                        for i in range(len(lc) - 1)
-                    ),
-                    color=(0, 0, 0),
-                    lw=0.5,
-                    alpha=0.5,
-                )
+            pen_up_lines = matplotlib.collections.LineCollection(
+                (
+                    (as_vector(lc[i])[-1] * scale, as_vector(lc[i + 1])[0] * scale)
+                    for i in range(len(lc) - 1)
+                ),
+                color=(0, 0, 0),
+                lw=0.5,
+                alpha=0.5,
             )
+            collections[layer_id].append(pen_up_lines)
+            plt.gca().add_collection(pen_up_lines)
 
     plt.gca().invert_yaxis()
     plt.axis("equal")
@@ -104,8 +117,9 @@ def show(
 
         def on_pick(event):
             line = event.artist
-            vis = not line_dict[line].get_visible()
-            line_dict[line].set_visible(vis)
+            vis = not line_dict[line][0].get_visible()
+            for ln in line_dict[line]:
+                ln.set_visible(vis)
 
             if vis:
                 line.set_alpha(1.0)

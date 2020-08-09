@@ -1,3 +1,7 @@
+"""
+.. module:: vpype
+"""
+
 import datetime
 import logging
 import math
@@ -5,7 +9,16 @@ from functools import update_wrapper
 
 import click
 
-from .layers import LayerType, VpypeState
+from .layers import LayerType, VpypeState, single_to_layer_id, multiple_to_layer_ids
+
+# REMINDER: anything added here must be added to docs/api.rst
+__all__ = [
+    "layer_processor",
+    "global_processor",
+    "generator",
+    "block_processor",
+    "pass_state",
+]
 
 
 def _format_timedelta(dt: datetime.timedelta) -> str:
@@ -42,7 +55,7 @@ def layer_processor(f):
 
         # noinspection PyShadowingNames
         def layer_processor(state: VpypeState) -> VpypeState:
-            for lid in LayerType.multiple_to_layer_ids(layers, state.vector_data):
+            for lid in multiple_to_layer_ids(layers, state.vector_data):
                 logging.info(
                     f"executing layer processor `{f.__name__}` on layer {lid} "
                     f"(kwargs: {kwargs})"
@@ -115,23 +128,20 @@ def generator(f):
 
         # noinspection PyShadowingNames
         def generator(state: VpypeState) -> VpypeState:
-            if layer is LayerType.NEW or (layer is None and state.target_layer is None):
-                target_layer = state.vector_data.free_id()
-            elif layer is None:
-                target_layer = state.target_layer
-            else:
-                target_layer = layer
 
-            logging.info(
-                f"executing generator `{f.__name__}` to layer {target_layer} "
-                f"(kwargs: {kwargs})"
-            )
-
-            start = datetime.datetime.now()
             with state.current():
+                target_layer = single_to_layer_id(layer, state.vector_data)
+
+                logging.info(
+                    f"executing generator `{f.__name__}` to layer {target_layer} "
+                    f"(kwargs: {kwargs})"
+                )
+
+                start = datetime.datetime.now()
                 state.vector_data.add(f(*args, **kwargs), target_layer)
+                stop = datetime.datetime.now()
+
             state.target_layer = target_layer
-            stop = datetime.datetime.now()
 
             logging.info(
                 f"generator `{f.__name__}` execution complete "

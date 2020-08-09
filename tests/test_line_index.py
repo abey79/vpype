@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from vpype import LineCollection
 from vpype_cli.operations import LineIndex
@@ -50,3 +51,9 @@ def test_find_nearest_within_reverse():
     assert ridx.find_nearest_within(0.1, 0.5) == (0, True)
     assert ridx.find_nearest_within(10.01, 0.5) == (0, False)
     assert ridx.find_nearest_within(10.09, 0.5) == (1, True)
+
+
+def test_empty_lines():
+    idx = LineIndex(LineCollection())
+    with pytest.raises(RuntimeError):
+        idx.pop_front()

@@ -1,9 +1,16 @@
+"""
+.. module:: vpype
+"""
+
 from contextlib import contextmanager
-from typing import Union, List
+from typing import Union, List, Optional
 
 import click
 
 from .model import VectorData
+
+# REMINDER: anything added here must be added to docs/api.rst
+__all__ = ["VpypeState", "multiple_to_layer_ids", "single_to_layer_id", "LayerType"]
 
 
 class VpypeState:
@@ -15,7 +22,7 @@ class VpypeState:
         else:
             self.vector_data = VectorData()
 
-        self.target_layer = None
+        self.target_layer: Optional[int] = None
 
     @classmethod
     def get_current(cls):
@@ -26,6 +33,49 @@ class VpypeState:
         self.__class__.current_state = self
         yield
         self.__class__.current_state = None
+
+
+def multiple_to_layer_ids(
+    layers: Optional[Union[int, List[int]]], vector_data: VectorData,
+) -> List[int]:
+    """Convert multiple-layer CLI argument to list of layer IDs.
+
+    Args:
+        layers: value from a :class:`LayerType` argument with accept_multiple=True
+        vector_data: target :class:`VectorData` instance
+
+    Returns:
+        List of layer IDs
+    """
+    if layers is None or layers is LayerType.ALL:
+        return sorted(vector_data.ids())
+    elif isinstance(layers, list):
+        return sorted(vid for vid in layers if vector_data.exists(vid))
+    else:
+        return []
+
+
+def single_to_layer_id(layer: Optional[int], vector_data: VectorData) -> int:
+    """Convert single-layer CLI argument to layer ID, accounting for the existence of a current
+    a current target layer and dealing with default behavior.
+
+    Arg:
+        layer: value from a :class:`LayerType` argument
+        vector_data: target :class:`VectorData` instance (for new layer ID)
+
+    Returns:
+        Target layer ID
+    """
+    current_target_layer = VpypeState.get_current().target_layer
+
+    if layer is LayerType.NEW or (layer is None and current_target_layer is None):
+        lid = vector_data.free_id()
+    elif layer is None:
+        lid = VpypeState.get_current().target_layer
+    else:
+        lid = layer
+
+    return lid
 
 
 class LayerType(click.ParamType):
@@ -81,18 +131,3 @@ class LayerType(click.ParamType):
             self.fail(f"unexpected {value!r} of type {type(value).__name__}", param, ctx)
         except ValueError:
             self.fail(f"{value!r} is not a valid value", param, ctx)
-
-    @staticmethod
-    def multiple_to_layer_ids(
-            layers: Union[None, int, List[int]], vector_data: VectorData,
-    ) -> Union[None, List[int]]:
-        """
-
-        :param layers:
-        :param vector_data:
-        :return:
-        """
-        if layers is None or layers is LayerType.ALL:
-            return sorted(vector_data.ids())
-        else:
-            return sorted(vid for vid in layers if vector_data.exists(vid))

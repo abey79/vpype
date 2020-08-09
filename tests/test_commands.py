@@ -1,6 +1,7 @@
 import itertools
 
 import pytest
+import numpy as np
 
 from vpype_cli import cli
 from vpype_cli.debug import DebugData
@@ -12,11 +13,14 @@ MINIMAL_COMMANDS = [
     "random",
     "line 0 0 1 1",
     "rect 0 0 1 1",
+    "arc 0 0 1 0 90",
     "circle 0 0 1",
     "read '__ROOT__/examples/bc_template.svg'",
+    "read -m '__ROOT__/examples/bc_template.svg'",
     "write -",
     "rotate 0",
     "scale 1 1",
+    "scaleto 10cm 10cm",
     "skew 0 0",
     "translate 0 0",
     "crop 0 0 1 1",
@@ -25,7 +29,11 @@ MINIMAL_COMMANDS = [
     "linesimplify",
     "multipass",
     "reloop",
-    "splitall"
+    "lmove 1 new",
+    "lcopy 1 new",
+    "ldelete 1",
+    "trim 1mm 1mm",
+    "splitall",
 ]
 
 
@@ -111,8 +119,8 @@ def test_write_read_identical(runner, args):
     data2 = DebugData.load(res2.output)[0]
 
     assert data1.count == data2.count
-    assert (data1.bounds[2] - data1.bounds[0]) == (data2.bounds[2] - data2.bounds[0])
-    assert (data1.bounds[3] - data1.bounds[1]) == (data2.bounds[3] - data2.bounds[1])
+    assert np.isclose(data1.bounds[2] - data1.bounds[0], data2.bounds[2] - data2.bounds[0])
+    assert np.isclose(data1.bounds[3] - data1.bounds[1], data2.bounds[3] - data2.bounds[1])
 
 
 def test_rotate_origin(runner):
@@ -152,11 +160,41 @@ def test_scale_origin(runner):
     assert data[1].bounds_within(0, 0, 20 * CM, 20 * CM)
 
 
-def test_crop(runner):
+def test_scaleto(runner):
+    res = runner.invoke(
+        cli, "rect 0 0 10cm 5cm dbsample scaleto -o 0 0 20cm 20cm dbsample dbdump"
+    )
+    data = DebugData.load(res.output)
+    assert res.exit_code == 0
+    assert data[0].bounds_within(0, 0, 10 * CM, 5 * CM)
+    assert data[1].bounds_within(0, 0, 20 * CM, 10 * CM)
+
+
+def test_scaleto_fit(runner):
+    res = runner.invoke(
+        cli,
+        "rect 0 0 10cm 5cm dbsample scaleto --fit-dimensions -o 0 0 20cm 20cm dbsample dbdump",
+    )
+    data = DebugData.load(res.output)
+    assert res.exit_code == 0
+    assert data[0].bounds_within(0, 0, 10 * CM, 5 * CM)
+    assert data[1].bounds_within(0, 0, 20 * CM, 20 * CM)
+    assert not data[1].bounds_within(0, 0, 20 * CM, 10 * CM)
+
+
+def test_crop_cm(runner):
     res = runner.invoke(cli, "random -n 100 -a 10cm 10cm crop 2cm 2cm 8cm 8cm dbsample dbdump")
     data = DebugData.load(res.output)
     assert res.exit_code == 0
     assert data[0].bounds_within(2 * CM, 2 * CM, 8 * CM, 8 * CM)
+    assert data[0].count <= 100
+
+
+def test_crop(runner):
+    res = runner.invoke(cli, "random -n 100 -a 10 10 crop 2 2 6 6 dbsample dbdump")
+    data = DebugData.load(res.output)
+    assert res.exit_code == 0
+    assert data[0].bounds_within(2, 2, 6, 6)
     assert data[0].count <= 100
 
 
@@ -169,6 +207,41 @@ def test_crop_line_flush(runner):
     data = DebugData.load(res.output)
     assert res.exit_code == 0
     assert data[0].count == 1
+
+
+def test_crop_empty(runner):
+    res = runner.invoke(cli, "random -a 10cm 10cm -n 1000 crop 5cm 5cm 0 1cm dbsample dbdump")
+    data = DebugData.load(res.output)
+    assert res.exit_code == 0
+    assert data[0].count == 0
+
+
+def test_crop_empty2(runner):
+    res = runner.invoke(cli, "random -a 10cm 10cm -n 1000 crop 5cm 5cm 0 0 dbsample dbdump")
+    data = DebugData.load(res.output)
+    assert res.exit_code == 0
+    assert data[0].count == 0
+
+
+def test_trim(runner):
+    res = runner.invoke(cli, "random -a 10cm 10cm -n 1000 trim 1cm 2cm dbsample dbdump")
+    data = DebugData.load(res.output)
+    assert res.exit_code == 0
+    assert data[0].bounds_within(CM, 2 * CM, 9 * CM, 8 * CM)
+
+
+def test_trim_large_margins(runner):
+    res = runner.invoke(cli, "random -a 10cm 10cm -n 1000 trim 10cm 2cm dbsample dbdump")
+    data = DebugData.load(res.output)
+    assert res.exit_code == 0
+    assert data[0].count == 0
+
+
+def test_trim_large_margins2(runner):
+    res = runner.invoke(cli, "random -a 10cm 10cm -n 1000 trim 10cm 20cm dbsample dbdump")
+    data = DebugData.load(res.output)
+    assert res.exit_code == 0
+    assert data[0].count == 0
 
 
 @pytest.mark.parametrize(
@@ -195,8 +268,8 @@ def test_linemerge(runner, linemerge_args, expected):
 @pytest.mark.parametrize(
     "lines",
     [
-        " ".join(l)
-        for l in itertools.permutations(
+        " ".join(s)
+        for s in itertools.permutations(
             ["line 0 0 0 10", "line 0 10 10 10", "line 0 0 10 0", "line 10 0 10 10"]
         )
     ],
