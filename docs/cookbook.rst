@@ -43,6 +43,20 @@ This command will :ref:`cmd_read` an SVG file, add a single-line :ref:`cmd_frame
   $ vpype read input.svg frame --offset 5cm write output.svg
 
 
+Make a previsualisation SVG
+===========================
+
+The SVG output of :ref:`cmd_write` can be used to previsualize and inspect a plot. By default, paths are colored by layer. It can be useful to color each path differently to inspect the result of :ref:`cmd_linemerge`::
+
+  $ vpype read input.svg linemerge write --color-mode path output.svg
+
+Likewise, pen-up trajectories can be included in the SVG to inspect the result of :ref:`cmd_linesort`::
+
+  $ vpype read input.svg linesort write --pen-up output.svg
+
+Note that :option:`write --single-path` should only be used for previsualization purposes as the pen-up trajectories may end-up being plotted otherwise. The Axidraw software will ignore the layer in which the pen-up trajectories are written, so it is safe to keep them in this particular case.
+
+
 Optimizing a SVG for plotting
 =============================
 
