@@ -130,7 +130,7 @@ def test_line_collection_pen_up_trajectories():
     pen_up = lc.pen_up_trajectories()
     assert len(pen_up) == 2
     assert line_collection_contains(pen_up, [10, 5j])
-    assert line_collection_contains(pen_up, [25j, 3+3j])
+    assert line_collection_contains(pen_up, [25j, 3 + 3j])
 
 
 def test_vector_data_lid_iteration():
