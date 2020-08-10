@@ -37,6 +37,14 @@ contain a C-style format specifier such as `%d` which will be replaced by the la
 By default, paths will be exported individually. If it is preferable to have a single,
 compound path per layer, the `--single-path` flag can be used.
 
+For previsualization purposes, paths are colored by layer in the SVG. This can be controlled
+with the `--color-mode` option. Setting it "none" disables coloring and black paths are
+generated. Setting it to "path" gives a different color to each path (with a rotation),
+which makes it easier to visualize line optimization. Finally, pen-up trajectories can be
+generated with the `--pen-up` flag. As most plotting tools will include these paths in the
+output, this option should be used for previsualisation only. The Axidraw tools will however
+ignore them.
+
 If `OUTPUT` is a single dash (`-`), SVG content is printed to stdout instead of a file.
 
 Examples:
@@ -56,7 +64,11 @@ Examples:
     Use custom layer labels:
 
         vpype [...] write --page-format a4 --layer-label "Pen %d" output.svg
-    
+
+    Write a previsualization SVG:
+
+        vpype [...] write --pen-up --color-mode path output.svg
+
     Output SVG to stdout:
 
         vpype [...] write -
@@ -90,6 +102,14 @@ Examples:
 @click.option(
     "-ll", "--layer-label", type=str, default="%d", help="Pattern used to for naming layers."
 )
+@click.option("-pu", "--pen-up", is_flag=True, help="Generate pen-up trajectories.")
+@click.option(
+    "-m",
+    "--color-mode",
+    type=click.Choice(["none", "layer", "path"]),
+    default="layer",
+    help="Color mode for paths (default: layer).",
+)
 @click.pass_obj  # to obtain the command string
 @global_processor
 def write(
@@ -101,6 +121,8 @@ def write(
     landscape: bool,
     center: bool,
     layer_label: str,
+    pen_up: bool,
+    color_mode: str,
 ):
     """Write command."""
 
@@ -118,6 +140,8 @@ def write(
             source_string=cmd_string,
             layer_label_format=layer_label,
             single_path=single_path,
+            show_pen_up=pen_up,
+            color_mode=color_mode,
         )
 
     return vector_data
