@@ -48,7 +48,13 @@ def rect(x: float, y: float, width: float, height: float) -> np.ndarray:
 
 
 def arc(
-    x: float, y: float, radius: float, start: float, stop: float, quantization: float = 0.1,
+    x: float,
+    y: float,
+    rw: float,
+    rh: float,
+    start: float,
+    stop: float,
+    quantization: float = 0.1,
 ) -> np.ndarray:
     """Build a circular arc path. Zero angles refer to east of unit circle and positive values
     extend counter-clockwise.
@@ -56,7 +62,8 @@ def arc(
     Args:
         x: center X coordinate
         y: center Y coordinate
-        radius: circle radius
+        rw: circle radius width
+        rh: circle radius height
         start: start angle (degree)
         stop: stop angle (degree)
         quantization: maximum length of linear segment
@@ -79,11 +86,11 @@ def arc(
     elif start == stop:
         raise ValueError("start and stop angles must have different values")
 
-    n = max(3, math.ceil((stop - start) / 180 * math.pi * radius / quantization))
+    n = max(3, math.ceil((stop - start) / 180 * math.pi * max(rw, rh) / quantization))
     angle = np.linspace(start, stop, n + 1)
     angle[angle == 360] = 0
     angle *= math.pi / 180
-    return radius * (np.cos(-angle) + 1j * np.sin(-angle)) + complex(x, y)
+    return rw * np.cos(-angle) + 1j * rh * np.sin(-angle) + complex(x, y)
 
 
 def circle(x: float, y: float, radius: float, quantization: float = 0.1) -> np.ndarray:
@@ -98,4 +105,20 @@ def circle(x: float, y: float, radius: float, quantization: float = 0.1) -> np.n
     Returns:
         circular path
     """
-    return arc(x, y, radius, 0, 360, quantization)
+    return arc(x, y, radius, radius, 0, 360, quantization)
+
+
+def ellipse(x: float, y: float, w: float, h: float, quantization: float = 0.1) -> np.ndarray:
+    """Build an elliptical path.
+
+    Args:
+        x: center X coordinate
+        y: center Y coordinate
+        w: width of the ellipse
+        h: height of the ellipse
+        quantization: maximum length of linear segment
+
+    Returns:
+        elliptical path
+    """
+    return arc(x, y, w, h, 0, 360, quantization)

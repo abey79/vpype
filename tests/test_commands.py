@@ -1,7 +1,7 @@
 import itertools
 
-import pytest
 import numpy as np
+import pytest
 
 from vpype_cli import cli
 from vpype_cli.debug import DebugData
@@ -13,8 +13,9 @@ MINIMAL_COMMANDS = [
     "random",
     "line 0 0 1 1",
     "rect 0 0 1 1",
-    "arc 0 0 1 0 90",
+    "arc 0 0 1 1 0 90",
     "circle 0 0 1",
+    "ellipse 0 0 2 4",
     "read '__ROOT__/examples/bc_template.svg'",
     "read -m '__ROOT__/examples/bc_template.svg'",
     "write -",
@@ -275,7 +276,10 @@ def test_linemerge(runner, linemerge_args, expected):
     ],
 )
 def test_linesort(runner, lines):
-    res = runner.invoke(cli, f"{lines} linesort dbsample dbdump",)
+    res = runner.invoke(
+        cli,
+        f"{lines} linesort dbsample dbdump",
+    )
     data = DebugData.load(res.output)[0]
     assert res.exit_code == 0
     assert data.pen_up_length == 0

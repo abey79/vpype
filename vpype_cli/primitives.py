@@ -1,6 +1,7 @@
 import click
 
 import vpype as vp
+
 from .cli import cli
 
 
@@ -36,7 +37,8 @@ def rect(x: float, y: float, width: float, height: float) -> vp.LineCollection:
 @cli.command(group="Primitives")
 @click.argument("x", type=vp.LengthType())
 @click.argument("y", type=vp.LengthType())
-@click.argument("r", type=vp.LengthType())
+@click.argument("rw", type=vp.LengthType())
+@click.argument("rh", type=vp.LengthType())
 @click.argument("start", type=vp.LengthType())
 @click.argument("stop", type=vp.LengthType())
 @click.option(
@@ -47,14 +49,16 @@ def rect(x: float, y: float, width: float, height: float) -> vp.LineCollection:
     help="Maximum length of segments approximating the circle.",
 )
 @vp.generator
-def arc(x: float, y: float, r: float, start: float, stop: float, quantization: float):
+def arc(
+    x: float, y: float, rw: float, rh: float, start: float, stop: float, quantization: float
+):
     """Generate lines approximating a circular arc.
 
     The arc is centered on (X, Y) and has a radius of R and spans counter-clockwise from START
     to STOP angles (in degrees). Angular values of zero refer to east of unit circle and
     positive values extend counter-clockwise.
     """
-    return vp.LineCollection([vp.arc(x, y, r, start, stop, quantization)])
+    return vp.LineCollection([vp.arc(x, y, rw, rh, start, stop, quantization)])
 
 
 @cli.command(group="Primitives")
@@ -76,3 +80,25 @@ def circle(x: float, y: float, r: float, quantization: float):
     """
 
     return vp.LineCollection([vp.circle(x, y, r, quantization)])
+
+
+@cli.command(group="Primitives")
+@click.argument("x", type=vp.LengthType())
+@click.argument("y", type=vp.LengthType())
+@click.argument("w", type=vp.LengthType())
+@click.argument("h", type=vp.LengthType())
+@click.option(
+    "-q",
+    "--quantization",
+    type=vp.LengthType(),
+    default="1mm",
+    help="Maximum length of segments approximating the ellipse.",
+)
+@vp.generator
+def ellipse(x: float, y: float, w: float, h: float, quantization: float):
+    """Generate lines approximating an ellipse.
+
+    The ellipse is centered on (X, Y), with a width of w and a height of h.
+    """
+
+    return vp.LineCollection([vp.ellipse(x, y, w, h, quantization)])
