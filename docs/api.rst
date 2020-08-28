@@ -99,5 +99,3 @@ Misc
    :members:
 
 .. autofunction:: as_vector
-
-.. autofunction:: interpolate

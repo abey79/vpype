@@ -111,7 +111,7 @@ def global_processor(f):
 
     No option is automatically added to global processors. In cases where the user should be
     able to control on which layer(s) the processing must be applied, it is advised to
-    add a ``--layer` option (with type :py:class:`LayerType`) and use the
+    add a ``--layer`` option (with type :py:class:`LayerType`) and use the
     :func:`multiple_to_layer_ids` companion function (see example below)
 
     A global processor receives a :py:class:`VectorData` as input and must return one.

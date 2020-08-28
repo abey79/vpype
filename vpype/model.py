@@ -526,7 +526,7 @@ class VectorData:
 
         The scaling is performed about the coordinates origin (0, 0). To scale around a
         specific location, appropriate translations must be performed before and after the
-        scaling (see :py:method:`LineCollection.scale`).
+        scaling (see :func:`LineCollection.scale`).
 
         Args:
             sx: scale factor along x
@@ -540,7 +540,7 @@ class VectorData:
 
        The rotation is performed about the coordinates origin (0, 0). To rotate around a
        specific location, appropriate translations must be performed before and after the
-       scaling (see :py:method:`LineCollection.rotate`).
+       scaling (see :func:`LineCollection.rotate`).
 
        Args:
            angle: rotation angle (radian)
