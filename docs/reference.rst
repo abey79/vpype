@@ -27,6 +27,10 @@ CLI reference
 .. click:: vpype_cli:crop
    :prog: crop
 
+.. _cmd_ellipse:
+.. click:: vpype_cli:ellipse
+   :prog: ellipse
+
 .. _cmd_end:
 .. click:: vpype_cli:end
    :prog: end
