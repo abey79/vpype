@@ -276,10 +276,7 @@ def test_linemerge(runner, linemerge_args, expected):
     ],
 )
 def test_linesort(runner, lines):
-    res = runner.invoke(
-        cli,
-        f"{lines} linesort dbsample dbdump",
-    )
+    res = runner.invoke(cli, f"{lines} linesort dbsample dbdump",)
     data = DebugData.load(res.output)[0]
     assert res.exit_code == 0
     assert data.pen_up_length == 0

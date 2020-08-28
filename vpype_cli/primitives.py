@@ -98,7 +98,7 @@ def circle(x: float, y: float, r: float, quantization: float):
 def ellipse(x: float, y: float, w: float, h: float, quantization: float):
     """Generate lines approximating an ellipse.
 
-    The ellipse is centered on (X, Y), with a width of w and a height of h.
+    The ellipse is centered on (X, Y), with a half-width of W and a half-height of H.
     """
 
     return vp.LineCollection([vp.ellipse(x, y, w, h, quantization)])

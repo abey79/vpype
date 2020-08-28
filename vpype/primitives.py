@@ -56,14 +56,14 @@ def arc(
     stop: float,
     quantization: float = 0.1,
 ) -> np.ndarray:
-    """Build a circular arc path. Zero angles refer to east of unit circle and positive values
-    extend counter-clockwise.
+    """Build an elliptical arc path. Zero angles refer to east of unit circle and positive
+    values extend counter-clockwise.
 
     Args:
         x: center X coordinate
         y: center Y coordinate
-        rw: circle radius width
-        rh: circle radius height
+        rw: ellipse half-width
+        rh: ellipse half-height (use the same value as ``rw`` for a circular arc)
         start: start angle (degree)
         stop: stop angle (degree)
         quantization: maximum length of linear segment
@@ -114,8 +114,8 @@ def ellipse(x: float, y: float, w: float, h: float, quantization: float = 0.1) -
     Args:
         x: center X coordinate
         y: center Y coordinate
-        w: width of the ellipse
-        h: height of the ellipse
+        w: half width of the ellipse
+        h: half height of the ellipse
         quantization: maximum length of linear segment
 
     Returns:
