@@ -226,3 +226,22 @@ def multipass(lines: LineCollection, count: int):
         )
 
     return new_lines
+
+
+@cli.command(group="Operations")
+@layer_processor
+def splitall(lines: LineCollection) -> LineCollection:
+    """
+    Split all paths into their constituent segments.
+
+    This command may be used together with `linemerge` for cases such as densely-connected
+    meshes where the latter cannot optimize well enough by itself.
+
+    Note that since some paths (especially curved ones) can be made of a large number of
+    segments, this command may significantly increase the processing time of the pipeline.
+    """
+
+    new_lines = LineCollection()
+    for line in lines:
+        new_lines.extend([line[i : i + 2] for i in range(len(line) - 1)])
+    return new_lines

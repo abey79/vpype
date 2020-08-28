@@ -342,6 +342,12 @@ class LineCollection:
         """
         return sum(np.sum(np.abs(np.diff(line))) for line in self._lines)
 
+    def pen_up_trajectories(self) -> "LineCollection":
+        """Returns a LineCollection containing the pen-up trajectories."""
+        return LineCollection(
+            ([self._lines[i][-1], self._lines[i + 1][0]] for i in range(len(self._lines) - 1)),
+        )
+
     def pen_up_length(self) -> Tuple[float, float, float]:
         """Returns statistics on the pen-up distance corresponding to the path.
 

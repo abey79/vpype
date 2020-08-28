@@ -43,12 +43,30 @@ This command will :ref:`cmd_read` an SVG file, add a single-line :ref:`cmd_frame
   $ vpype read input.svg frame --offset 5cm write output.svg
 
 
+Make a previsualisation SVG
+===========================
+
+The SVG output of :ref:`cmd_write` can be used to previsualize and inspect a plot. By default, paths are colored by layer. It can be useful to color each path differently to inspect the result of :ref:`cmd_linemerge`::
+
+  $ vpype read input.svg linemerge write --color-mode path output.svg
+
+Likewise, pen-up trajectories can be included in the SVG to inspect the result of :ref:`cmd_linesort`::
+
+  $ vpype read input.svg linesort write --pen-up output.svg
+
+Note that :option:`write --single-path` should only be used for previsualization purposes as the pen-up trajectories may end-up being plotted otherwise. The Axidraw software will ignore the layer in which the pen-up trajectories are written, so it is safe to keep them in this particular case.
+
+
 Optimizing a SVG for plotting
 =============================
 
 This command will :ref:`cmd_read` an SVG file, merge any lines whose endings are less than 0.5mm from each other with :ref:`cmd_linemerge`, and then :ref:`cmd_write` a new SVG file::
 
   $ vpype read input.svg linemerge --tolerance 0.5mm write output.svg
+
+In some cases such as densely connected meshes (e.g. a grid where made of touching square paths), :ref:`cmd_linemerge` may not be able to fully optimize the plot by itself. Using :ref:`cmd_splitall` before breaks everything into its constituent segment and enables :ref:`cmd_linemerge` to perform a more aggressive optimization, at the cost of a increased processing time::
+
+  $ vpype read input.svg splitall linemerge --tolerance 0.5mm write output.svg
 
 This command will :ref:`cmd_read` an SVG file, simplify its geometry by reducing the number of segments in a line until they're a maximum of 0.1mm from each other using :ref:`cmd_linesimplify`, and then :ref:`cmd_write` a new SVG file::
 

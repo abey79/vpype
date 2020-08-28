@@ -27,6 +27,10 @@ CLI reference
 .. click:: vpype_cli:crop
    :prog: crop
 
+.. _cmd_ellipse:
+.. click:: vpype_cli:ellipse
+   :prog: ellipse
+
 .. _cmd_end:
 .. click:: vpype_cli:end
    :prog: end
@@ -115,6 +119,10 @@ CLI reference
 .. click:: vpype_cli:skew
    :prog: skew
 
+.. _cmd_splitall:
+.. click:: vpype_cli:splitall
+   :prog: splitall
+
 .. _cmd_translate:
 .. click:: vpype_cli:translate
    :prog: translate
@@ -122,7 +130,6 @@ CLI reference
 .. _cmd_trim:
 .. click:: vpype_cli:trim
    :prog: trim
-
 
 .. _cmd_write:
 .. click:: vpype_cli:write

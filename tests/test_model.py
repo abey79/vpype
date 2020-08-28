@@ -5,6 +5,8 @@ from shapely.geometry import MultiLineString, LineString, Point, LinearRing
 
 from vpype import LineCollection, VectorData
 
+from .utils import line_collection_contains
+
 LINE_COLLECTION_TWO_LINES = [
     LineCollection([[0, 1 + 1j], [2 + 2j, 3 + 3j, 4 + 4j]]),
     [[0, 1 + 1j], [2 + 2j, 3 + 3j, 4 + 4j]],
@@ -121,6 +123,14 @@ def test_line_collection_empty_bounds():
 def test_line_collection_pen_up_length():
     lc = LineCollection([(0, 10), (10 + 10j, 500 + 500j, 10j), (0, -40)])
     assert lc.pen_up_length()[0] == 20.0
+
+
+def test_line_collection_pen_up_trajectories():
+    lc = LineCollection([(0, 100j, 1000, 10), (5j, 3, 25j), (3 + 3j, 100, 10j)])
+    pen_up = lc.pen_up_trajectories()
+    assert len(pen_up) == 2
+    assert line_collection_contains(pen_up, [10, 5j])
+    assert line_collection_contains(pen_up, [25j, 3 + 3j])
 
 
 def test_vector_data_lid_iteration():

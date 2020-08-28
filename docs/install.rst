@@ -145,7 +145,7 @@ Raspberry Pi
 
 Installing *vpype* on Raspbian is similar to Linux, but a number of libraries must be installed beforehand::
 
-  $ sudo apt-get install git python3-shapely python3-dev
+  $ sudo apt-get install git python3-shapely python3-scipy python3-dev
 
 Also, the following command must be added to the ``~/.bashrc`` file for *vpype* to execute correctly::
 

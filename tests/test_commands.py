@@ -13,8 +13,9 @@ MINIMAL_COMMANDS = [
     "random",
     "line 0 0 1 1",
     "rect 0 0 1 1",
-    "arc 0 0 1 0 90",
+    "arc 0 0 1 1 0 90",
     "circle 0 0 1",
+    "ellipse 0 0 2 4",
     "read '__ROOT__/examples/bc_template.svg'",
     "read -m '__ROOT__/examples/bc_template.svg'",
     "write -",
@@ -33,6 +34,7 @@ MINIMAL_COMMANDS = [
     "lcopy 1 new",
     "ldelete 1",
     "trim 1mm 1mm",
+    "splitall",
 ]
 
 

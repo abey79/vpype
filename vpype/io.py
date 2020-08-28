@@ -20,9 +20,20 @@ from svgpathtools.document import flatten_group
 from svgwrite.extensions import Inkscape
 
 from .model import LineCollection, as_vector, VectorData
-from .utils import convert, UNITS
+from .utils import UNITS, convert_length
 
 __all__ = ["read_svg", "read_multilayer_svg", "write_svg"]
+
+_COLORS = [
+    "#00f",
+    "#080",
+    "#f00",
+    "#0cc",
+    "#0f0",
+    "#c0c",
+    "#cc0",
+    "black",
+]
 
 
 def _calculate_page_size(
@@ -46,8 +57,8 @@ def _calculate_page_size(
             float(s) for s in root.attrib["viewBox"].split()
         ]
 
-        width = convert(root.attrib.get("width", viewbox_width))
-        height = convert(root.attrib.get("height", viewbox_height))
+        width = convert_length(root.attrib.get("width", viewbox_width))
+        height = convert_length(root.attrib.get("height", viewbox_height))
 
         scale_x = width / viewbox_width
         scale_y = height / viewbox_height
@@ -246,6 +257,35 @@ def read_multilayer_svg(
         return vector_data
 
 
+def _line_to_path(dwg: svgwrite.Drawing, lines: Union[np.ndarray, LineCollection]):
+    """Convert a line into a SVG path element.
+
+    Accepts either a single line or a :py:class:`LineCollection`.
+
+    Args:
+        lines: line(s) to convert to path
+
+    Returns:
+        (svgwrite element): path element
+
+    """
+
+    if isinstance(lines, np.ndarray):
+        lines = [lines]
+
+    def single_line_to_path(line: np.ndarray) -> str:
+        if line[0] == line[-1]:
+            closed = True
+            line = line[:-1]
+        else:
+            closed = False
+        return (
+            "M" + " L".join(f"{x},{y}" for x, y in as_vector(line)) + (" Z" if closed else "")
+        )
+
+    return dwg.path(" ".join(single_line_to_path(line) for line in lines))
+
+
 def write_svg(
     output: TextIO,
     vector_data: VectorData,
@@ -254,6 +294,8 @@ def write_svg(
     source_string: str = "",
     single_path: bool = False,
     layer_label_format: str = "%d",
+    show_pen_up: bool = False,
+    color_mode: str = "none",
 ) -> None:
     """Create a SVG from a :py:class:`VectorData` instance.
 
@@ -271,6 +313,9 @@ def write_svg(
     If `single_path=True`, a single compound path is written per layer. Otherwise, each path
     is exported individually.
 
+    For previsualisation purposes, pen-up trajectories can be added to the SVG and path can
+    be colored individually (``color_mode="path"``) or layer-by-layer (``color_mode="layer"``).
+
     Args:
         output: text-mode IO stream where SVG code will be written
         vector_data: geometries to be written
@@ -280,6 +325,9 @@ def write_svg(
         single_path: export geometries as a single compound path instead of multiple
             individual paths
         layer_label_format: format string for layer label naming
+        show_pen_up: add paths for the pen-up trajectories
+        color_mode: "none" (no formatting), "layer" (one color per layer), "path" (one color
+            per path) (``color_mode="path"`` implies ``single_path=False``)
     """
 
     # compute bounds
@@ -329,27 +377,41 @@ def write_svg(
     date.text = datetime.datetime.now().isoformat()
     dwg.set_metadata(metadata)
 
+    color_idx = 0
+    if show_pen_up:
+        group = inkscape.layer(label="% pen up trajectories")
+        group.attribs["fill"] = "none"
+        group.attribs["stroke"] = "black"
+        group.attribs["style"] = "display:inline; stroke-opacity: 50%; stroke-width: 0.5"
+        group.attribs["id"] = "pen_up_trajectories"
+
+        for layer in corrected_vector_data.layers.values():
+            group.add(_line_to_path(dwg, layer.pen_up_trajectories()))
+
+        dwg.add(group)
+
     for layer_id in sorted(corrected_vector_data.layers.keys()):
         layer = corrected_vector_data.layers[layer_id]
 
         group = inkscape.layer(label=str(layer_label_format % layer_id))
         group.attribs["fill"] = "none"
-        group.attribs["stroke"] = "black"
+        if color_mode == "layer":
+            group.attribs["stroke"] = _COLORS[color_idx % len(_COLORS)]
+            color_idx += 1
+        else:
+            group.attribs["stroke"] = "black"
         group.attribs["style"] = "display:inline"
         group.attribs["id"] = f"layer{layer_id}"
 
-        if single_path:
-            group.add(
-                dwg.path(
-                    " ".join(
-                        ("M" + " L".join(f"{x},{y}" for x, y in as_vector(line)))
-                        for line in layer
-                    ),
-                )
-            )
+        if single_path and color_mode != "path":
+            group.add(_line_to_path(dwg, layer))
         else:
             for line in layer:
-                group.add(dwg.path("M" + " L".join(f"{x},{y}" for x, y in as_vector(line)),))
+                path = _line_to_path(dwg, line)
+                if color_mode == "path":
+                    path.attribs["stroke"] = _COLORS[color_idx % len(_COLORS)]
+                    color_idx += 1
+                group.add(path)
 
         dwg.add(group)
 
