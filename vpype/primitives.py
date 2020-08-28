@@ -6,7 +6,7 @@ import math
 
 import numpy as np
 
-__ALL__ = ["line", "rect", "circle"]
+__ALL__ = ["line", "rect", "arc", "circle", "ellipse"]
 
 
 def line(x0: float, y0: float, x1: float, y1: float) -> np.ndarray:

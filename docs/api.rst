@@ -26,6 +26,8 @@ Command decorators
 
 .. autodecorator:: block_processor
 
+.. autodecorator:: pass_state
+
 
 File I/O
 ========
@@ -33,6 +35,34 @@ File I/O
 .. autofunction:: read_svg
 
 .. autofunction:: read_multilayer_svg
+
+.. autofunction:: write_svg
+
+
+Primitives
+==========
+
+.. autofunction:: line
+
+.. autofunction:: rect
+
+.. autofunction:: arc
+
+.. autofunction:: circle
+
+.. autofunction:: ellipse
+
+
+Geometry
+========
+
+.. autofunction:: interpolate
+
+.. autofunction:: crop_half_plane
+
+.. autofunction:: crop
+
+.. autofunction:: reloop
 
 
 Unit management
@@ -58,8 +88,6 @@ Layer management
 .. autoclass:: VpypeState
    :members:
 
-.. autodecorator:: pass_state
-
 
 Misc
 ====
@@ -71,5 +99,3 @@ Misc
    :members:
 
 .. autofunction:: as_vector
-
-.. autofunction:: interpolate
