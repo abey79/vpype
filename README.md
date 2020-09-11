@@ -28,7 +28,7 @@ are, for illustration, a few examples of what it can do:
     ```
 - Create arbitrarily-sized, grid-like designs like this page's top banner.
     ```bash
-    $ vpype begin grid -o 1cm 1cm 10 13 script alien_letter.py scale --to 0.5cm 0.5cm end show
+    $ vpype begin grid -o 1cm 1cm 10 13 script alien_letter.py scaleto 0.5cm 0.5cm end show
     ```
 
 At its core, _vpype_ allows the user to build pipelines of _commands_, each of which receives a
