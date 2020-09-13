@@ -257,11 +257,7 @@ def extract_arguments(f: TextIO) -> List[str]:
     """
     args = []
     for line in f.readlines():
-        idx = line.find("#")
-        if idx != -1:
-            line = line[:idx]
-
-        args.extend(shlex.split(line))
+        args.extend(shlex.split(line, comments=True))
     return args
 
 
