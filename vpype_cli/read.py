@@ -1,5 +1,5 @@
 import logging
-from typing import Optional
+from typing import Optional, cast
 
 import click
 
@@ -11,6 +11,7 @@ from vpype import (
     read_multilayer_svg,
     LayerType,
     single_to_layer_id,
+    LineCollection,
 )
 from .cli import cli
 
@@ -100,14 +101,20 @@ def read(
 
     if single_layer:
         vector_data.add(
-            read_svg(file, quantization=quantization, simplify=not no_simplify),
+            cast(
+                LineCollection,
+                read_svg(file, quantization=quantization, simplify=not no_simplify),
+            ),
             single_to_layer_id(layer, vector_data),
         )
     else:
         if layer is not None:
             logging.warning("read: target layer is ignored in multi-layer mode")
         vector_data.extend(
-            read_multilayer_svg(file, quantization=quantization, simplify=not no_simplify)
+            cast(
+                VectorData,
+                read_multilayer_svg(file, quantization=quantization, simplify=not no_simplify),
+            ),
         )
 
     return vector_data

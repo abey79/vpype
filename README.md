@@ -1,7 +1,10 @@
 <img src="https://i.imgur.com/LM2Qrc0.png" alt="banner" width=1200>
 
 
-# _vpype_ ![Test](https://github.com/abey79/vpype/workflows/Test/badge.svg?branch=master)
+# _vpype_ ![Test](https://github.com/abey79/vpype/workflows/Test/badge.svg?branch=master) [![Documentation Status](https://readthedocs.org/projects/vpype/badge/?version=latest)](https://vpype.readthedocs.io/en/latest/?badge=latest)
+
+
+> **Note**: a proper documentation is [under construction](https://vpype.readthedocs.io/en/latest/).
 
 _vpype_ aims to be the one-stop-shop, Swiss Army knife<sup>1</sup> for producing plotter-ready vector graphics. Here
 are, for illustration, a few examples of what it can do:
@@ -25,7 +28,7 @@ are, for illustration, a few examples of what it can do:
     ```
 - Create arbitrarily-sized, grid-like designs like this page's top banner.
     ```bash
-    $ vpype begin grid -o 1cm 1cm 10 13 script alien_letter.py scale --to 0.5cm 0.5cm end show
+    $ vpype begin grid -o 1cm 1cm 10 13 script alien_letter.py scaleto 0.5cm 0.5cm end show
     ```
 
 At its core, _vpype_ allows the user to build pipelines of _commands_, each of which receives a
@@ -118,22 +121,24 @@ Use `vpype COMMAND --help` for information on a specific command, for example:
 $ vpype scale --help
 Usage: vpype scale [OPTIONS] SCALE...
 
-  Scale the geometries.
+  Scale the geometries by a factor.
 
-  The origin used is the bounding box center, unless the `--centroid` or
-  `--origin` options are used.
+  The origin used is the bounding box center, unless the `--origin` option
+  is used.
 
-  By default, the arguments are used as relative factors (e.g. `scale 2 2`
-  make the geometries twice as big in both dimensions). With `--to`, the
-  arguments are interpreted as the final size. In this case, arguments
-  understand the supported units (e.g. `scale --to 10cm 10cm`).
+  By default, act on all layers. If one or more layer IDs are provided with
+  the `--layer` option, only these layers will be affected. In this case,
+  the bounding box is that of the listed layers.
+
+  Example:
+
+      Double the size of the geometries in layer 1, using (0, 0) as origin:
+
+          vpype [...] scale -l 1 -o 0 0 2 2 [...]
 
 Options:
-  --to                    Arguments are interpreted as absolute size instead
-                          of (relative) factors.
-  -p, --keep-proportions  [--to only] Maintain the geometries proportions.
-  -d, --centroid          Use the centroid as origin.
-  -o, --origin FLOAT...   Use a specific origin.
+  -l, --layer LAYERS      Target layer(s).
+  -o, --origin LENGTH...  Use a specific origin.
   --help                  Show this message and exit.
 ```
 
@@ -155,7 +160,7 @@ enables multiple sinks to be chained (e.g. first display the result, then save i
 Here is a non-exhaustive list of important commands:
 
 - `read`: import geometries from a SVG file
-- `line`, `rect`, `circle`: create the corresponding primitives 
+- `line`, `rect`, `arc`, `circle`: create the corresponding primitives 
 - `script`: execute a Python script to generate geometries (see [External scripts](#external-scripts))
 - `translate`, `rotate`, `scale`, `skew`: basic transformation commands which do exactly what you think they do
 - `crop`: crop the geometries, removing everything outside of a rectangular area

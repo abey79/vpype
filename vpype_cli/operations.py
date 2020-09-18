@@ -1,10 +1,19 @@
 import logging
+from typing import Union, List
 
 import click
 import numpy as np
-from shapely.geometry import Polygon, LineString
 
-from vpype import as_vector, LineCollection, LengthType, layer_processor, LineIndex
+from vpype import (
+    LineCollection,
+    LengthType,
+    layer_processor,
+    LineIndex,
+    global_processor,
+    multiple_to_layer_ids,
+    VectorData,
+    LayerType,
+)
 from .cli import cli
 
 
@@ -15,30 +24,60 @@ from .cli import cli
 @click.argument("height", type=LengthType(), required=True)
 @layer_processor
 def crop(lines: LineCollection, x: float, y: float, width: float, height: float):
-    """
-    Crop the geometries.
+    """Crop the geometries.
 
     The crop area is defined by the (X, Y) top-left corner and the WIDTH and HEIGHT arguments.
     All arguments understand supported units.
     """
-    if lines.is_empty():
-        return lines
 
-    # Because of this bug, we cannot use shapely at MultiLineString level
-    # https://github.com/Toblerity/Shapely/issues/779
-    # I should probably implement it directly anyways...
-    p = Polygon([(x, y), (x + width, y), (x + width, y + height), (x, y + height)])
-    new_lines = LineCollection()
-    for line in lines:
-        res = LineString(as_vector(line)).intersection(p)
-        if res.is_empty:
-            continue
-        if res.geom_type == "MultiLineString":
-            new_lines.extend(res)
-        elif res.geom_type == "LineString":
-            new_lines.append(res)
+    lines.crop(x, y, x + width, y + height)
+    return lines
 
-    return new_lines
+
+@cli.command(group="Operations")
+@click.argument("margin_x", type=LengthType(), required=True)
+@click.argument("margin_y", type=LengthType(), required=True)
+@click.option(
+    "-l",
+    "--layer",
+    type=LayerType(accept_multiple=True),
+    default="all",
+    help="Target layer(s).",
+)
+@global_processor
+def trim(
+    vector_data: VectorData, margin_x: float, margin_y: float, layer: Union[int, List[int]]
+) -> VectorData:
+    """Trim the geometries by some margin.
+
+    This command trims the geometries by the provided X and Y margins with respect to the
+    current bounding box.
+
+    By default, `trim` acts on all layers. If one or more layer IDs are provided with the
+    `--layer` option, only these layers will be affected. In this case, the bounding box is
+    that of the listed layers.
+    """
+
+    layer_ids = multiple_to_layer_ids(layer, vector_data)
+    bounds = vector_data.bounds(layer_ids)
+
+    if not bounds:
+        return vector_data
+
+    min_x = bounds[0] + margin_x
+    max_x = bounds[2] - margin_x
+    min_y = bounds[1] + margin_y
+    max_y = bounds[3] - margin_y
+    if min_x > max_x:
+        min_x = max_x = 0.5 * (min_x + max_x)
+    if min_y > max_y:
+        min_y = max_y = 0.5 * (min_y + max_y)
+
+    for vid in layer_ids:
+        lc = vector_data[vid]
+        lc.crop(min_x, min_y, max_x, max_y)
+
+    return vector_data
 
 
 @cli.command(group="Operations")
@@ -125,7 +164,9 @@ def linesimplify(lines: LineCollection, tolerance):
     if len(lines) < 2:
         return lines
 
-    mls = lines.as_mls().simplify(tolerance=tolerance)
+    # Note: preserve_topology must be False, otherwise non-simple (ie intersecting) MLS will
+    # not be simplified (see https://github.com/Toblerity/Shapely/issues/911)
+    mls = lines.as_mls().simplify(tolerance=tolerance, preserve_topology=False)
     new_lines = LineCollection(mls)
 
     logging.info(
@@ -147,9 +188,14 @@ def linesimplify(lines: LineCollection, tolerance):
 )
 @layer_processor
 def reloop(lines: LineCollection, tolerance):
-    """
-    Randomize the seam location for closed paths. Paths are considered closed when their
-    beginning and end points are closer than the provided tolerance.
+    """Randomize the seam location of closed paths.
+
+    When plotted, closed path may exhibit a visible mark at the seam, i.e. the location where
+    the pen begins and ends the stroke. This command randomizes the seam location in order to
+    help reduce visual effect of this in plots with regular patterns.
+
+    Paths are considered closed when their beginning and end points are closer than some
+    tolerance, which can be set with the `--tolerance` option.
     """
 
     lines.reloop(tolerance=tolerance)
@@ -179,4 +225,23 @@ def multipass(lines: LineCollection, count: int):
             )
         )
 
+    return new_lines
+
+
+@cli.command(group="Operations")
+@layer_processor
+def splitall(lines: LineCollection) -> LineCollection:
+    """
+    Split all paths into their constituent segments.
+
+    This command may be used together with `linemerge` for cases such as densely-connected
+    meshes where the latter cannot optimize well enough by itself.
+
+    Note that since some paths (especially curved ones) can be made of a large number of
+    segments, this command may significantly increase the processing time of the pipeline.
+    """
+
+    new_lines = LineCollection()
+    for line in lines:
+        new_lines.extend([line[i : i + 2] for i in range(len(line) - 1)])
     return new_lines

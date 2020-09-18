@@ -13,3 +13,7 @@ git+https://github.com/abey79/svgpathtools@vpype-fixes#egg=svgpathtools
 # dev/test
 pytest
 black
+
+
+# documentation
+-r docs/requirements.txt

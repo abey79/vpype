@@ -1,9 +1,16 @@
+"""
+.. module:: vpype
+"""
+
 from contextlib import contextmanager
 from typing import Union, List, Optional
 
 import click
 
 from .model import VectorData
+
+# REMINDER: anything added here must be added to docs/api.rst
+__all__ = ["VpypeState", "multiple_to_layer_ids", "single_to_layer_id", "LayerType"]
 
 
 class VpypeState:
@@ -15,7 +22,7 @@ class VpypeState:
         else:
             self.vector_data = VectorData()
 
-        self.target_layer = None
+        self.target_layer: Optional[int] = None
 
     @classmethod
     def get_current(cls):
@@ -42,8 +49,10 @@ def multiple_to_layer_ids(
     """
     if layers is None or layers is LayerType.ALL:
         return sorted(vector_data.ids())
-    else:
+    elif isinstance(layers, list):
         return sorted(vid for vid in layers if vector_data.exists(vid))
+    else:
+        return []
 
 
 def single_to_layer_id(layer: Optional[int], vector_data: VectorData) -> int:

@@ -2,7 +2,7 @@ import logging
 import os
 import random
 import shlex
-from typing import TextIO, List, Union
+from typing import TextIO, List, Union, Any
 
 import click
 from click import get_os_args
@@ -86,6 +86,7 @@ class GroupedGroup(click.Group):
 @click.option("-s", "--seed", type=int, help="Specify the RNG seed.")
 @click.pass_context
 def cli(ctx, verbose, include, history, seed):
+    """Execute the vector processing pipeline passed as argument."""
     logging.basicConfig()
     if verbose == 0:
         logging.getLogger().setLevel(logging.WARNING)
@@ -126,8 +127,8 @@ def execute_processors(processors) -> VpypeState:
     :return: generated geometries
     """
 
-    outer_processors = list()  # gather commands outside of top-level blocks
-    top_level_processors = list()  # gather commands inside of top-level blocks
+    outer_processors: List[Any] = []  # gather commands outside of top-level blocks
+    top_level_processors: List[Any] = []  # gather commands inside of top-level blocks
     block = None  # save the current top-level block's block layer_processor
     nested_count = 0  # block depth counter
     expect_block = False  # set to True by `begin` command
@@ -163,7 +164,7 @@ def execute_processors(processors) -> VpypeState:
 
             if nested_count == 0:
                 # we're closing a top level block, let's process it
-                block_vector_data = block.process(top_level_processors)
+                block_vector_data = block.process(top_level_processors)  # type: ignore
 
                 # Create a placeholder layer_processor that will add the block's result to the
                 # current frame. The placeholder_processor is a closure, so we need to make
@@ -208,10 +209,12 @@ class BeginBlock:
 
 @cli.command(group="Block control")
 def begin():
-    """
-    Mark the start of a block. It must be followed by a block layer_processor command (eg.
-    `grid` or `repeat`), which indicates how the block is processed. Blocks must be ended by a
-    `end` command and can be nested.
+    """Marks the start of a block.
+
+    A `begin` command must be followed by a block processor command (eg. `grid` or `repeat`),
+    which indicates how the block is processed. Blocks must be ended by a `end` command.
+
+    Blocks can be nested.
     """
     return BeginBlock()
 
@@ -222,8 +225,7 @@ class EndBlock:
 
 @cli.command(group="Block control")
 def end():
-    """
-    Mark the end of a block.
+    """Marks the end of a block.
     """
     return EndBlock()
 
@@ -255,11 +257,7 @@ def extract_arguments(f: TextIO) -> List[str]:
     """
     args = []
     for line in f.readlines():
-        idx = line.find("#")
-        if idx != -1:
-            line = line[:idx]
-
-        args.extend(shlex.split(line))
+        args.extend(shlex.split(line, comments=True))
     return args
 
 

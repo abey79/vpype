@@ -1,8 +1,15 @@
+"""
+.. module:: vpype
+"""
+
 import logging
 from typing import Optional, Tuple, Iterable
 
 import numpy as np
 from scipy.spatial import cKDTree as KDTree
+
+# REMINDER: anything added here must be added to docs/api.rst
+__all__ = ["LineIndex"]
 
 
 class LineIndex:
@@ -14,7 +21,7 @@ class LineIndex:
     """
 
     def __init__(self, lines: Iterable[np.ndarray], reverse: bool = False):
-        self.lines = [line for line in lines]
+        self.lines = [line for line in lines if len(line) > 0]
         self.reverse = reverse
         self._make_index()
 
@@ -23,12 +30,16 @@ class LineIndex:
         self.available = np.ones(shape=len(self.lines), dtype=bool)
 
         # create rtree index
-        self.index = KDTree(np.array([(line[0].real, line[0].imag) for line in self.lines]))
+        self.index = KDTree(
+            np.array([(line[0].real, line[0].imag) for line in self.lines]).reshape(-1, 2)
+        )
 
         # create reverse index
         if self.reverse:
             self.rindex = KDTree(
-                np.array([(line[-1].real, line[-1].imag) for line in self.lines])
+                np.array([(line[-1].real, line[-1].imag) for line in self.lines]).reshape(
+                    -1, 2
+                )
             )
 
     def _reindex(self) -> None:
@@ -41,9 +52,9 @@ class LineIndex:
     def __getitem__(self, item):
         return self.lines[item]
 
-    def pop_front(self) -> Optional[np.ndarray]:
+    def pop_front(self) -> np.ndarray:
         if len(self) == 0:
-            return None
+            raise RuntimeError
         idx = int(np.argmax(self.available))
         self.available[idx] = False
         return self.lines[idx]
@@ -62,7 +73,7 @@ class LineIndex:
         """
 
         ridx = None
-        rdist = 0
+        rdist: Optional[float] = 0.0
 
         while True:
             reindex, idx, dist = self._find_nearest_within_in_index(p, max_dist, self.index)
@@ -86,7 +97,7 @@ class LineIndex:
                 return idx, False
             elif idx is None and ridx is not None:
                 return ridx, True
-            elif rdist < dist:
+            elif rdist < dist:  # type: ignore
                 return ridx, True
             else:
                 return idx, False
@@ -134,7 +145,7 @@ class LineIndex:
 
         if self.reverse:
             if rdist < dist:
-                return ridx, True
+                return ridx, True  # type: ignore
             else:
                 return idx, False
         else:

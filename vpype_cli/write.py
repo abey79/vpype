@@ -1,17 +1,10 @@
-import copy
-import datetime
 import logging
-import os
 from typing import Tuple
-from xml.etree import ElementTree
 
 import click
-import svgwrite
-from svgwrite.extensions import Inkscape
 
-from vpype import global_processor, as_vector, VectorData, PageSizeType, PAGE_FORMATS
+from vpype import global_processor, write_svg, VectorData, PAGE_FORMATS, PageSizeType
 from .cli import cli
-
 
 WRITE_HELP = f"""Save geometries to a SVG file.
 
@@ -37,7 +30,22 @@ By default, when a page format is provided, the geometries are not scaled or tra
 even if they lie outside of the page bounds. The `--center` option translates the geometries
 to the center of the page.
 
-If `OUTPUT` is a single dash (`-`), SVG content is output on stdout instead of a file.
+Layers are labelled with their numbers by default. If an alternative naming is required, a
+template pattern can be provided using the `--layer-label` option. The provided pattern must
+contain a C-style format specifier such as `%d` which will be replaced by the layer number.
+
+By default, paths will be exported individually. If it is preferable to have a single,
+compound path per layer, the `--single-path` flag can be used.
+
+For previsualization purposes, paths are colored by layer in the SVG. This can be controlled
+with the `--color-mode` option. Setting it "none" disables coloring and black paths are
+generated. Setting it to "path" gives a different color to each path (with a rotation),
+which makes it easier to visualize line optimization. Finally, pen-up trajectories can be
+generated with the `--pen-up` flag. As most plotting tools will include these paths in the
+output, this option should be used for previsualisation only. The Axidraw tools will however
+ignore them.
+
+If `OUTPUT` is a single dash (`-`), SVG content is printed to stdout instead of a file.
 
 Examples:
 
@@ -53,20 +61,27 @@ Examples:
 
         vpype [...] write --page-format 13x9in --landscape --center output.svg
 
+    Use custom layer labels:
+
+        vpype [...] write --page-format a4 --layer-label "Pen %d" output.svg
+
+    Write a previsualization SVG:
+
+        vpype [...] write --pen-up --color-mode path output.svg
+
     Output SVG to stdout:
 
         vpype [...] write -
 """
 
 
-# noinspection PyShadowingBuiltins
 @cli.command(group="Output", help=WRITE_HELP)
 @click.argument("output", type=click.File("w"))
 @click.option(
-    "-f",
-    "--format",
-    type=click.Choice(["svg", "hpgl"], case_sensitive=False),
-    help="Output format (inferred from file extension by default).",
+    "-s",
+    "--single-path",
+    is_flag=True,
+    help="Generate a single compound path instead of individual paths.",
 )
 @click.option(
     "-p",
@@ -82,18 +97,18 @@ Examples:
     "-l", "--landscape", is_flag=True, help="Use landscape orientation instead of portrait.",
 )
 @click.option(
-    "-c", "--center", is_flag=True, help="Center the geometries within the SVG bounds",
+    "-c", "--center", is_flag=True, help="Center the geometries within the SVG bounds.",
 )
 @click.option(
-    "-s",
-    "--single-path",
-    is_flag=True,
-    help="[SVG only] Generate a single compound path instead of individual paths.",
+    "-ll", "--layer-label", type=str, default="%d", help="Pattern used to for naming layers."
 )
+@click.option("-pu", "--pen-up", is_flag=True, help="Generate pen-up trajectories.")
 @click.option(
-    "--paper-portrait",
-    is_flag=True,
-    help="[HPGL only] Paper is loaded in portrait orientation instead of landscape.",
+    "-m",
+    "--color-mode",
+    type=click.Choice(["none", "layer", "path"]),
+    default="layer",
+    help="Color mode for paths (default: layer).",
 )
 @click.pass_obj  # to obtain the command string
 @global_processor
@@ -101,178 +116,32 @@ def write(
     vector_data: VectorData,
     cmd_string: str,
     output,
-    format: str,
+    single_path: bool,
     page_format: Tuple[float, float],
     landscape: bool,
-    paper_portrait: bool,
     center: bool,
-    single_path: bool,
+    layer_label: str,
+    pen_up: bool,
+    color_mode: str,
 ):
     """Write command."""
 
     if vector_data.is_empty():
         logging.warning("no geometry to save, no file created")
-        return vector_data
-
-    # translate the geometries to honor the page_format and center argument
-    bounds = vector_data.bounds()
-    tight = page_format == (0.0, 0.0)
-    if not tight:
-        size = page_format
+    else:
         if landscape:
-            size = tuple(reversed(size))
-    else:
-        size = (bounds[2] - bounds[0], bounds[3] - bounds[1])
+            page_format = page_format[::-1]
 
-    if center:
-        corrected_vector_data = copy.deepcopy(vector_data)
-        corrected_vector_data.translate(
-            (size[0] - (bounds[2] - bounds[0])) / 2.0 - bounds[0],
-            (size[1] - (bounds[3] - bounds[1])) / 2.0 - bounds[1],
-        )
-    elif tight:
-        corrected_vector_data = copy.deepcopy(vector_data)
-        corrected_vector_data.translate(-bounds[0], -bounds[1])
-    else:
-        corrected_vector_data = vector_data
-
-    # infer format if required
-    if format is None:
-        # infer format
-        _, ext = os.path.splitext(output.name)
-        format = ext.lstrip(".").lower()
-
-    if format == "svg":
-        write_svg(corrected_vector_data, cmd_string, output, size, single_path)
-    elif format == "hpgl":
-        write_hpgl(corrected_vector_data, output, size, paper_portrait)
-    else:
-        logging.warning(
-            f"write: format could not be inferred or format unknown '{format}', "
-            "no file created"
+        write_svg(
+            output=output,
+            vector_data=vector_data,
+            page_format=page_format,
+            center=center,
+            source_string=cmd_string,
+            layer_label_format=layer_label,
+            single_path=single_path,
+            show_pen_up=pen_up,
+            color_mode=color_mode,
         )
 
     return vector_data
-
-
-def write_svg(
-    vector_data: VectorData,
-    cmd_string: str,
-    output,
-    size: Tuple[float, float],
-    single_path: bool,
-) -> None:
-    """
-    Export geometries in SVG format
-    :param vector_data: geometries to export
-    :param cmd_string: full vpype command line to embed in comments/metadata
-    :param output: file object to write to
-    :param size: size of the page in pixel
-    :param single_path: merge all geometries in a single path?
-    """
-    dwg = svgwrite.Drawing(size=size, profile="tiny", debug=False)
-    inkscape = Inkscape(dwg)
-    dwg.attribs.update(
-        {
-            "xmlns:dc": "http://purl.org/dc/elements/1.1/",
-            "xmlns:cc": "http://creativecommons.org/ns#",
-            "xmlns:rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-        }
-    )
-
-    # add metadata
-    metadata = ElementTree.Element("rdf:RDF")
-    work = ElementTree.SubElement(metadata, "cc:Work")
-    fmt = ElementTree.SubElement(work, "dc:format")
-    fmt.text = "image/svg+xml"
-    source = ElementTree.SubElement(work, "dc:source")
-    source.text = cmd_string
-    date = ElementTree.SubElement(work, "dc:date")
-    date.text = datetime.datetime.now().isoformat()
-    dwg.set_metadata(metadata)
-
-    for layer_id in sorted(vector_data.layers.keys()):
-        layer = vector_data.layers[layer_id]
-
-        group = inkscape.layer(label=str(layer_id))
-        group.attribs["fill"] = "none"
-        group.attribs["stroke"] = "black"
-        group.attribs["style"] = "display:inline"
-        group.attribs["id"] = f"layer{layer_id}"
-
-        if single_path:
-            group.add(
-                dwg.path(
-                    " ".join(
-                        ("M" + " L".join(f"{x},{y}" for x, y in as_vector(line)))
-                        for line in layer
-                    ),
-                )
-            )
-        else:
-            for line in layer:
-                group.add(dwg.path("M" + " L".join(f"{x},{y}" for x, y in as_vector(line)),))
-
-        dwg.add(group)
-
-    dwg.write(output, pretty=True)
-
-
-def write_hpgl(
-    vector_data: VectorData, output, size: Tuple[float, float], paper_portrait: bool
-) -> None:
-    """
-    Export geometries in SVG format
-    :param vector_data: geometries to export
-    :param output: file object to write to
-    :param size: size of the page in pixel
-    :param paper_portrait: paper is loaded in portrait orientation instead of landscape
-    """
-    ##########
-    # may need to find out what plotter model and adjust this.
-    # find out what other plotters use hpgl and their coord systems and limits
-    # for plotters A2 and above we need to offset the coords (LL = -309, -210)
-    offset = [-309, -210]
-
-    # convert offset to plotter units
-    offset = [int(offset[0] / 0.025), int(offset[1] / 0.025)]
-
-    # convert pvype units (css pixel, 1/96inch) to plotter units
-    scale = 1 / 0.025 * 25.4 * 1 / 96
-
-    # function to scale and offset pixels to plotter units
-    def pxtoplot(x, y):
-        x = int(x * scale) + offset[0]
-        y = int(y * scale) + offset[1]
-        return x, y
-
-    ##########
-    hpgl = "IN;DF;\n"
-
-    # this could be determined by the layer number? layer 1 uses pen 1, layer 2 uses pen 2 etc
-    hpgl += "SP1;\n"
-
-    for layer_id in sorted(vector_data.layers.keys()):
-        layer = vector_data.layers[layer_id]
-        for line in layer:
-            # output the first coordinate
-            x, y = pxtoplot(as_vector(line)[0][0], as_vector(line)[0][1])
-            hpgl += "PU{},{};PD".format(x, y)
-            # output second to penulimate coordinates
-            for x, y in as_vector(line)[1:-1]:
-                x, y = pxtoplot(x, y)
-                hpgl += "{},{},".format(x, y)
-            # output final coordinate
-            x, y = pxtoplot(as_vector(line)[-1][0], as_vector(line)[-1][1])
-            hpgl += "{},{}".format(x, y)
-            # add semicolon terminator between lines
-            hpgl += ";\n"
-
-    # put the pen back and leave the plotter in an initialised state
-    hpgl += "SP0;IN;"
-
-    output.write(hpgl)
-    output.close()
-
-    # TO BE COMPLETED
-    pass

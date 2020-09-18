@@ -1,11 +1,11 @@
-import pytest
+from typing import Iterable, Tuple, Set, Sequence
 import numpy as np
-from shapely.geometry import MultiLineString, LineString, Point
+import pytest
+from shapely.geometry import MultiLineString, LineString, Point, LinearRing
 
-from vpype import LineCollection, VectorData, LinearRing, interpolate_line
+from vpype import LineCollection, VectorData
 
-# noinspection PyProtectedMember
-from vpype.model import _reloop_line
+from .utils import line_collection_contains
 
 LINE_COLLECTION_TWO_LINES = [
     LineCollection([[0, 1 + 1j], [2 + 2j, 3 + 3j, 4 + 4j]]),
@@ -28,6 +28,10 @@ EMPTY_LINE_COLLECTION = [
     LineString([(0, 0), (1, 1), (3, 5)]).intersection(Point(50, 50).buffer(1.0)),
     LinearRing([(10, 10), (11, 41), (12, 12), (10, 10)]).intersection(Point(0, 0).buffer(1)),
 ]
+
+
+def _line_set(lc: Iterable[Sequence[complex]]) -> Set[Tuple[complex, ...]]:
+    return {tuple(line if abs(line[0]) > abs(line[-1]) else reversed(line)) for line in lc}
 
 
 @pytest.mark.parametrize("lines", LINE_COLLECTION_TWO_LINES)
@@ -60,6 +64,7 @@ def test_line_collection_creation_empty(lines):
     assert len(lc) == 0
 
 
+# noinspection PyTypeChecker
 @pytest.mark.parametrize(
     "lines",
     LINE_COLLECTION_TWO_LINES + LINE_COLLECTION_LINESTRING_LINEARRING + EMPTY_LINE_COLLECTION,
@@ -120,17 +125,12 @@ def test_line_collection_pen_up_length():
     assert lc.pen_up_length()[0] == 20.0
 
 
-def test_reloop_line():
-    line = np.array([0, 1, 2, 3, 0.2], dtype=complex)
-    assert np.all(_reloop_line(line, 2) == np.array([2, 3, 0.1, 1, 2], dtype=complex))
-    assert np.all(_reloop_line(line, 0) == np.array([0.1, 1, 2, 3, 0.1], dtype=complex))
-    assert np.all(_reloop_line(line, 4) == np.array([0.1, 1, 2, 3, 0.1], dtype=complex))
-
-
-def test_reloop_line_small():
-    line = np.array([3, 3], dtype=complex)
-    assert np.all(_reloop_line(line, 0) == line)
-    assert np.all(_reloop_line(line, 1) == line)
+def test_line_collection_pen_up_trajectories():
+    lc = LineCollection([(0, 100j, 1000, 10), (5j, 3, 25j), (3 + 3j, 100, 10j)])
+    pen_up = lc.pen_up_trajectories()
+    assert len(pen_up) == 2
+    assert line_collection_contains(pen_up, [10, 5j])
+    assert line_collection_contains(pen_up, [25j, 3 + 3j])
 
 
 def test_vector_data_lid_iteration():
@@ -161,18 +161,59 @@ def test_vector_data_bounds_empty_layer():
     assert vd.bounds() == (0, 0, 10, 10)
 
 
+def _all_line_collection_ops(lc: LineCollection):
+    lc.merge(1)
+    lc.scale(2, 2)
+    lc.translate(2, 2)
+    lc.rotate(10)
+    lc.reloop(1)
+    lc.skew(4, 4)
+    lc.bounds()
+    # to be continued...
+
+
+def test_ops_on_empty_line_collection():
+    lc = LineCollection()
+    _all_line_collection_ops(lc)
+
+
+def test_ops_on_degenerate_line_collection():
+    lc = LineCollection([np.array([], dtype=complex).reshape(-1)])
+    _all_line_collection_ops(lc)
+
+    lc = LineCollection([np.array([complex(1, 1)])])
+    _all_line_collection_ops(lc)
+
+
+def _all_vector_data_ops(vd: VectorData):
+    vd.bounds()
+    vd.length()
+    vd.segment_count()
+    # to be completed..
+
+
+def test_ops_on_emtpy_vector_data():
+    vd = VectorData()
+    _all_vector_data_ops(vd)
+
+
+def test_ops_on_vector_data_with_emtpy_layer():
+    vd = VectorData()
+    lc = LineCollection()
+    vd.add(lc, 1)
+    _all_vector_data_ops(vd)
+
+
 @pytest.mark.parametrize(
-    ["line", "step", "expected"],
+    ["lines", "merge_lines"],
     [
-        ([0, 10], 1, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
-        ([0, 1, 3, 10], 1, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
-        ([0, 1j, 3j, 10j], 1, [0, 1j, 2j, 3j, 4j, 5j, 6j, 7j, 8j, 9j, 10j]),
-        ([0, 10], 10, [0, 10]),
-        ([0, 10], 1.01, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
-        ([0, 1, 1 + 1j, 1j, 0], 0.5, [0, 0.5, 1, 1 + 0.5j, 1 + 1j, 0.5 + 1j, 1j, 0.5j, 0]),
+        ([[0, 10], [30, 40]], [[0, 10], [30, 40]]),
+        ([[0, 10], [10, 20], [30, 40]], [[0, 10, 10, 20], [30, 40]]),
+        ([[10, 0], [20, 10], [40, 30]], [[0, 10, 10, 20], [30, 40]]),
     ],
 )
-def test_interpolate_line(line, step, expected):
-    result = interpolate_line(np.array(line, dtype=complex), step)
-    assert len(result) == len(expected)
-    assert np.all(np.isclose(result, np.array(expected, dtype=complex),))
+def test_line_collection_merge(lines, merge_lines):
+    lc = LineCollection(lines)
+    lc.merge(0.1)
+
+    assert _line_set(lc) == _line_set(merge_lines)
