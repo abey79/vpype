@@ -90,15 +90,15 @@ Merging multiple designs into a multi-layer SVG
 
 This command will :ref:`cmd_read` two SVG files onto two different layers, then :ref:`cmd_write` them into a single SVG file::
 
-  $ vpype read input1.svg --layer 1 read input2.svg --layer 2 write output.svg
+  $ vpype read -m --layer 1 input1.svg read -m --layer 2 input2.svg write output.svg
 
 This command will :ref:`cmd_read` two SVG files onto two different layers, rotate one layer 180 degrees, then :ref:`cmd_write` both layers into a single SVG file::
 
-  $ vpype read input1.svg --layer 1 read input2.svg --layer 2 rotate --layer 2 180 write output.svg
+  $ vpype read -m --layer 1 input1.svg read -m --layer 2 input2.svg rotate --layer 2 180 write output.svg
 
 This command will :ref:`cmd_read` two SVG files onto two different layers, :ref:`cmd_translate` (i.e. move) one of them 0.1cm down and to the right, and then :ref:`cmd_write` both layers into a single SVG file with custom layer names "Pen 1" and "Pen 2"::
 
- $ vpype read input1.svg --layer 1 read input2.svg --layer 2 translate --layer 2 0.1cm 0.1cm write --layer-label “Pen %d” output.svg
+ $ vpype read -m --layer 1 input1.svg read -m --layer 2 input2.svg translate --layer 2 0.1cm 0.1cm write --layer-label "Pen %d" output.svg
 
 
 Repeating a design on a grid
