@@ -35,6 +35,7 @@ def as_vector(a: np.ndarray):
     return a.view(dtype=float).reshape(len(a), 2)
 
 
+# noinspection PyShadowingNames
 class LineCollection:
     """
     :py:class:`LineCollection` encapsulate a list of piecewise linear lines (or paths). Lines
@@ -574,6 +575,16 @@ class VectorData:
             return a[:, 0].min(), a[:, 1].min(), a[:, 2].max(), a[:, 3].max()
         else:
             return None
+
+    def crop(self, x1: float, y1: float, x2: float, y2: float) -> None:
+        """Crop all layers to a rectangular area.
+
+        Args:
+            x1, y1: first corner of the crop area
+            x2, y2: second corner of the crop area
+        """
+        for layer in self._layers.values():
+            layer.crop(x1, y1, x2, y2)
 
     def length(self) -> float:
         """Return the total length of the paths.

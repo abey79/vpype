@@ -4,3 +4,8 @@ requires = ["setuptools", "wheel", "numpy"]
 [tool.black]
 line-length = 95
 target-version = ["py36", "py37", "py38"]
+
+[tool.isort]
+profile = "black"
+line_length = 95
+src_paths = ["vpype", "vpype_cli", "tests"]

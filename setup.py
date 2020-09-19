@@ -18,6 +18,7 @@ setup(
     license=license,
     packages=["vpype", "vpype_cli"],
     install_requires=[
+        'attrs',
         'click>=7.1',
         'click-plugins',
         'matplotlib',

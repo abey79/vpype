@@ -19,6 +19,7 @@ MINIMAL_COMMANDS = [
     "read '__ROOT__/examples/bc_template.svg'",
     "read -m '__ROOT__/examples/bc_template.svg'",
     "write -f svg -",
+    "write -f hpgl -d hp7475a -p a4 -",
     "rotate 0",
     "scale 1 1",
     "scaleto 10cm 10cm",

@@ -1,6 +1,7 @@
 from .decorators import *
 from .geometry import *
 from .layers import *
+from .hpgl import *
 from .io import *
 from .line_index import *
 from .model import *
