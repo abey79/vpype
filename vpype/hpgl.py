@@ -1,10 +1,16 @@
-from typing import List, Tuple, Optional
+import pathlib
+from typing import List, Tuple, Optional, Dict, Any, Sequence, Union
 
 import attr
+import toml
 
 from .utils import convert_length
 
 __all__ = ["PaperConfig", "PlotterConfig", "get_plotter_config"]
+
+
+def _convert_length_pair(data: Sequence[Union[float, str]]) -> Tuple[float, float]:
+    return convert_length(data[0]), convert_length(data[1])
 
 
 @attr.s(auto_attribs=True, frozen=True)
@@ -19,6 +25,19 @@ class PaperConfig:
     set_ps: Optional[int] = None  # if set, call PS with corresponding value
     aka_names: List[str] = []
 
+    @classmethod
+    def from_config(cls, data: Dict[str, Any]) -> "PaperConfig":
+        return cls(
+            name=data["name"],
+            paper_size=_convert_length_pair(data["paper_size"]),
+            x_range=tuple(data["x_range"]),
+            y_range=tuple(data["y_range"]),
+            y_axis_up=data["y_axis_up"],
+            origin_location=_convert_length_pair(data["origin_location"]),
+            set_ps=data.get("set_ps", None),
+            aka_names=data.get("aka_names", []),
+        )
+
 
 @attr.s(auto_attribs=True, frozen=True)
 class PlotterConfig:
@@ -26,6 +45,15 @@ class PlotterConfig:
     paper_configs: List[PaperConfig]
     plotter_unit_length: float
     pen_count: int
+
+    @classmethod
+    def from_config(cls, data: Dict[str, Any]) -> "PlotterConfig":
+        return cls(
+            name=data["name"],
+            paper_configs=[PaperConfig.from_config(d) for d in data["paper"]],
+            plotter_unit_length=convert_length(data["plotter_unit_length"]),
+            pen_count=data["pen_count"],
+        )
 
     def paper_config(self, paper: str) -> PaperConfig:
         for pc in self.paper_configs:
@@ -37,57 +65,15 @@ class PlotterConfig:
         )
 
 
-PLOTTER_DEFS = {
-    "hp7475a": PlotterConfig(
-        name="hp7475a",
-        plotter_unit_length=convert_length("0.02488mm"),
-        pen_count=6,
-        paper_configs=[
-            PaperConfig(
-                name="a4",
-                paper_size=(convert_length("297mm"), convert_length("210mm")),
-                x_range=(0, 11040),
-                y_range=(0, 7721),
-                y_axis_up=True,
-                origin_location=(convert_length("10mm"), convert_length("206mm")),
-                set_ps=4,
-            ),
-            PaperConfig(
-                name="a3",
-                paper_size=(convert_length("420mm"), convert_length("297mm")),
-                x_range=(0, 16158),
-                y_range=(0, 11040),
-                y_axis_up=True,
-                origin_location=(convert_length("15mm"), convert_length("287mm")),
-                set_ps=0,
-            ),
-            PaperConfig(
-                name="a",
-                aka_names=["ansi_a", "letter"],
-                paper_size=(convert_length("11in"), convert_length("8.5in")),
-                x_range=(0, 10365),
-                y_range=(0, 7962),
-                y_axis_up=True,
-                origin_location=(convert_length("10mm"), convert_length("211mm")),
-                set_ps=4,
-            ),
-            PaperConfig(
-                name="b",
-                aka_names=["ansi_b", "tabloid"],
-                paper_size=(convert_length("17in"), convert_length("11in")),
-                x_range=(0, 16640),
-                y_range=(0, 10365),
-                y_axis_up=True,
-                origin_location=(convert_length("15mm"), convert_length("287mm")),
-                set_ps=0,
-            ),
-        ],
-    )
-}
+def _read_config_file(path) -> Dict[str, PlotterConfig]:
+    return {k: PlotterConfig.from_config(v) for k, v in toml.load(path).items()}
+
+
+_PLOTTER_DEFS = _read_config_file(str(pathlib.Path(__file__).parent / "hpgl.toml"))
 
 
 def get_plotter_config(name: str) -> PlotterConfig:
-    if name in PLOTTER_DEFS:
-        return PLOTTER_DEFS[name]
+    if name in _PLOTTER_DEFS:
+        return _PLOTTER_DEFS[name]
     else:
         raise NotImplementedError(f"no configuration available for plotter '{name}'")

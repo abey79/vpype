@@ -17,6 +17,7 @@ setup(
     url="https://github.com/abey79/vpype",
     license=license,
     packages=["vpype", "vpype_cli"],
+    include_package_data=True,
     install_requires=[
         'attrs',
         'click>=7.1',
@@ -26,6 +27,7 @@ setup(
         'shapely[vectorized]',
         'svgwrite',
         'svgpathtools @ git+https://github.com/abey79/svgpathtools@vpype-fixes',
+        'toml',
     ],
     entry_points='''
         [console_scripts]
