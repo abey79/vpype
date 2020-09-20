@@ -1,12 +1,16 @@
+import os
 import pathlib
-from typing import List, Tuple, Optional, Dict, Any, Sequence, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import attr
 import toml
 
 from .utils import convert_length
 
-__all__ = ["PaperConfig", "PlotterConfig", "get_plotter_config"]
+__all__ = ["PaperConfig", "PlotterConfig", "get_plotter_config", "add_config"]
+
+
+_PLOTTER_DEFS = {}
 
 
 def _convert_length_pair(data: Sequence[Union[float, str]]) -> Tuple[float, float]:
@@ -30,8 +34,8 @@ class PaperConfig:
         return cls(
             name=data["name"],
             paper_size=_convert_length_pair(data["paper_size"]),
-            x_range=tuple(data["x_range"]),
-            y_range=tuple(data["y_range"]),
+            x_range=(data["x_range"][0], data["x_range"][1]),
+            y_range=(data["y_range"][0], data["y_range"][1]),
             y_axis_up=data["y_axis_up"],
             origin_location=_convert_length_pair(data["origin_location"]),
             set_ps=data.get("set_ps", None),
@@ -69,7 +73,8 @@ def _read_config_file(path) -> Dict[str, PlotterConfig]:
     return {k: PlotterConfig.from_config(v) for k, v in toml.load(path).items()}
 
 
-_PLOTTER_DEFS = _read_config_file(str(pathlib.Path(__file__).parent / "hpgl.toml"))
+def add_config(path: str) -> None:
+    _PLOTTER_DEFS.update({k: PlotterConfig.from_config(v) for k, v in toml.load(path).items()})
 
 
 def get_plotter_config(name: str) -> PlotterConfig:
@@ -77,3 +82,14 @@ def get_plotter_config(name: str) -> PlotterConfig:
         return _PLOTTER_DEFS[name]
     else:
         raise NotImplementedError(f"no configuration available for plotter '{name}'")
+
+
+def _init():
+    add_config(str(pathlib.Path(__file__).parent / "hpgl.toml"))
+
+    path = os.path.expanduser("~/.vpype_hpgl.toml")
+    if os.path.exists(path):
+        add_config(path)
+
+
+_init()
