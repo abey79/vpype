@@ -68,7 +68,7 @@ PLOTTER_DEFS = {
                 x_range=(0, 10365),
                 y_range=(0, 7962),
                 y_axis_up=True,
-                origin_location=(convert_length("10mm"), convert_length("206mm")),
+                origin_location=(convert_length("10mm"), convert_length("211mm")),
                 set_ps=4,
             ),
             PaperConfig(
