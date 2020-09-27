@@ -5,13 +5,15 @@ from typing import Optional
 import click
 
 from vpype import (
+    CONFIG_MANAGER,
     PAGE_FORMATS,
     VectorData,
+    convert_page_format,
     global_processor,
     write_hpgl,
     write_svg,
-    convert_page_format,
 )
+
 from .cli import cli
 
 WRITE_HELP = f"""Save geometries to a SVG file.
@@ -150,7 +152,7 @@ def write(
     pen_up: bool,
     color_mode: str,
     single_path: bool,
-    device: str,
+    device: Optional[str],
     velocity: Optional[int],
 ):
     """Write command."""
@@ -193,7 +195,7 @@ def write(
         )
     else:
         logging.warning(
-            f"write: format could not be inferred or format unknown '{page_format}', "
+            f"write: format could not be inferred or format unknown '{file_format}', "
             "no file created"
         )
 

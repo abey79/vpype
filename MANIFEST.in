@@ -1,1 +1,1 @@
-include vpype/hpgl.toml
+include vpype/hpgl_devices.toml

@@ -7,8 +7,7 @@ import copy
 import datetime
 import math
 import re
-from typing import Tuple, Optional
-from typing import Union, List, TextIO
+from typing import List, Optional, TextIO, Tuple, Union
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element
 
@@ -19,8 +18,8 @@ from svgpathtools import SVG_NAMESPACE
 from svgpathtools.document import flatten_group
 from svgwrite.extensions import Inkscape
 
-from .hpgl import get_plotter_config
-from .model import LineCollection, as_vector, VectorData
+from .config import CONFIG_MANAGER
+from .model import LineCollection, VectorData, as_vector
 from .utils import UNITS, convert_length
 
 __all__ = ["read_svg", "read_multilayer_svg", "write_svg", "write_hpgl"]
@@ -425,7 +424,7 @@ def write_hpgl(
     page_format: str,
     landscape: bool,
     center: bool,
-    device: str,
+    device: Optional[str],
     velocity: Optional[float],
 ) -> None:
     """
@@ -449,8 +448,17 @@ def write_hpgl(
     if vector_data.is_empty():
         return
 
-    plotter_config = get_plotter_config(device)
+    if device is None:
+        device = CONFIG_MANAGER.get_command_config("write").get("default_hpgl_device", None)
+    plotter_config = CONFIG_MANAGER.get_plotter_config(str(device))
+    if plotter_config is None:
+        raise ValueError(f"no configuration available for plotter '{device}'")
     paper_config = plotter_config.paper_config(page_format)
+    if paper_config is None:
+        raise ValueError(
+            f"no configuration available for paper size '{page_format}' with plotter "
+            f"'{device}'"
+        )
 
     # are plotter coordinate placed in landscape or portrait orientation?
     coords_landscape = paper_config.paper_size[0] > paper_config.paper_size[1]
