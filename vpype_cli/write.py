@@ -165,13 +165,15 @@ def write(
         file_format = ext.lstrip(".").lower()
 
     if file_format == "svg":
+        page_format = convert_page_format(page_format)
+
         if landscape:
             page_format = page_format[::-1]
 
         write_svg(
             output=output,
             vector_data=vector_data,
-            page_format=convert_page_format(page_format),
+            page_format=page_format,
             center=center,
             source_string=cmd_string if cmd_string is not None else "",
             layer_label_format=layer_label,
