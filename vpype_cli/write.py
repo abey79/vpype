@@ -1,16 +1,31 @@
 import logging
-from typing import Tuple
+import os
+from typing import Optional
 
 import click
 
-from vpype import global_processor, write_svg, VectorData, PAGE_FORMATS, PageSizeType
+from vpype import (
+    CONFIG_MANAGER,
+    PAGE_FORMATS,
+    VectorData,
+    convert_page_format,
+    global_processor,
+    write_hpgl,
+    write_svg,
+)
+
 from .cli import cli
 
-WRITE_HELP = f"""Save geometries to a SVG file.
+WRITE_HELP = f"""Save geometries to a file.
 
-By default, the SVG generated has bounds tightly fitted around the geometries. Optionally,
-a page format can be provided with the `--page-format FORMAT` option. `FORMAT` may be one
-of:
+The `write` command support two format: SVG and HPGL. The format is determined based on the
+file extension used for `OUTPUT` or the `--file-format` option. This is particular useful when
+`OUTPUT` is a single dash (`-`), in which case the ouput is printed to stdout instead of a
+file.
+
+When writing to SVG, the file has bounds tightly fitted around the geometries by default.
+Optionally, a page format can be provided with the `--page-format FORMAT` option. `FORMAT` may
+be one of:
 
     {', '.join(PAGE_FORMATS.keys())}
 
@@ -45,7 +60,22 @@ generated with the `--pen-up` flag. As most plotting tools will include these pa
 output, this option should be used for previsualisation only. The Axidraw tools will however
 ignore them.
 
-If `OUTPUT` is a single dash (`-`), SVG content is printed to stdout instead of a file.
+When writing to HPGL, a device name must be provided with the `--device` option. The
+corresponding device must be configured in the built-in or a user-provided configuration file
+(see the documentation for more details). The following devices are currently available:
+
+    {', '.join(CONFIG_MANAGER.get_plotter_list())}
+
+In HPGL mode, because the coordinate system depends on the configuration, the `--page-format`
+option is mandatory, and is restricted to the paper formats defined in the corresponding
+device's configuration. The plotter may as well need to be specifically configured for the
+desired paper format (e.g. for A4 or A3, the HP 7475a's corresponding DIP switch must be set to
+metric mode).
+
+The `--landscape` and `--center` options are accepted and honored in HPGL.
+
+Optionally, the HPGL-only `--velocity` can be provided, in which case a `VS` command will be
+emitted with the provided value.
 
 Examples:
 
@@ -71,26 +101,31 @@ Examples:
 
     Output SVG to stdout:
 
-        vpype [...] write -
+        vpype [...] write --format SVG -
+
+    Write a A4 page with portrait orientation HPGL file:
+
+        vpype [...] write --device hp7475a --page-format a4 --center
 """
 
 
 @cli.command(group="Output", help=WRITE_HELP)
 @click.argument("output", type=click.File("w"))
 @click.option(
-    "-s",
-    "--single-path",
-    is_flag=True,
-    help="Generate a single compound path instead of individual paths.",
+    "-f",
+    "--format",
+    "file_format",
+    type=click.Choice(["svg", "hpgl"], case_sensitive=False),
+    help="Output format (inferred from file extension by default).",
 )
 @click.option(
     "-p",
     "--page-format",
-    type=PageSizeType(),
+    type=str,
     default="tight",
     help=(
         "Set the bounds of the SVG to a specific page format. If omitted, the SVG size it set "
-        "to the geometry bounding box."
+        "to the geometry bounding box. May not be omitted for HPGL."
     ),
 )
 @click.option(
@@ -100,48 +135,92 @@ Examples:
     "-c", "--center", is_flag=True, help="Center the geometries within the SVG bounds.",
 )
 @click.option(
-    "-ll", "--layer-label", type=str, default="%d", help="Pattern used to for naming layers."
+    "-ll",
+    "--layer-label",
+    type=str,
+    default="%d",
+    help="[SVG only] Pattern used to for naming layers.",
 )
-@click.option("-pu", "--pen-up", is_flag=True, help="Generate pen-up trajectories.")
+@click.option("-pu", "--pen-up", is_flag=True, help="[SVG only] Generate pen-up trajectories.")
 @click.option(
     "-m",
     "--color-mode",
     type=click.Choice(["none", "layer", "path"]),
     default="layer",
-    help="Color mode for paths (default: layer).",
+    help="[SVG only] Color mode for paths (default: layer).",
+)
+@click.option(
+    "-s",
+    "--single-path",
+    is_flag=True,
+    help="[SVG only] Generate a single compound path instead of individual paths.",
+)
+@click.option("-d", "--device", type=str, help="[HPGL only] Type of the plotter device.")
+@click.option(
+    "-vs",
+    "--velocity",
+    type=float,
+    help="[HPGL only] Emit a VS command with the provided value.",
 )
 @click.pass_obj  # to obtain the command string
 @global_processor
 def write(
     vector_data: VectorData,
-    cmd_string: str,
+    cmd_string: Optional[str],
     output,
-    single_path: bool,
-    page_format: Tuple[float, float],
+    file_format: str,
+    page_format: str,
     landscape: bool,
     center: bool,
     layer_label: str,
     pen_up: bool,
     color_mode: str,
+    single_path: bool,
+    device: Optional[str],
+    velocity: Optional[int],
 ):
     """Write command."""
 
     if vector_data.is_empty():
         logging.warning("no geometry to save, no file created")
-    else:
+        return vector_data
+
+    if file_format is None:
+        # infer format
+        _, ext = os.path.splitext(output.name)
+        file_format = ext.lstrip(".").lower()
+
+    if file_format == "svg":
+        page_format_px = convert_page_format(page_format)
+
         if landscape:
-            page_format = page_format[::-1]
+            page_format_px = page_format_px[::-1]
 
         write_svg(
             output=output,
             vector_data=vector_data,
-            page_format=page_format,
+            page_format=page_format_px,
             center=center,
-            source_string=cmd_string,
+            source_string=cmd_string if cmd_string is not None else "",
             layer_label_format=layer_label,
             single_path=single_path,
             show_pen_up=pen_up,
             color_mode=color_mode,
+        )
+    elif file_format == "hpgl":
+        write_hpgl(
+            output=output,
+            vector_data=vector_data,
+            landscape=landscape,
+            center=center,
+            device=device,
+            page_format=page_format,
+            velocity=velocity,
+        )
+    else:
+        logging.warning(
+            f"write: format could not be inferred or format unknown '{file_format}', "
+            "no file created"
         )
 
     return vector_data

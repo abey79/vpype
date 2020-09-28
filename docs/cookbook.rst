@@ -6,6 +6,7 @@
 Cookbook
 ========
 
+.. highlight:: bash
 
 Laying out a SVG for plotting
 =============================
@@ -88,17 +89,117 @@ This command will :ref:`cmd_read` an SVG file, use :ref:`cmd_linesort` to sort t
 Merging multiple designs into a multi-layer SVG
 ===============================================
 
-This command will :ref:`cmd_read` two SVG files onto two different layers, then :ref:`cmd_write` them into a single SVG file::
+This command will :ref:`cmd_read` two SVG files onto two different layers, then :ref:`cmd_write` them into a single SVG
+file::
 
-  $ vpype read -m --layer 1 input1.svg read -m --layer 2 input2.svg write output.svg
+  $ vpype read --single-layer --layer 1 input1.svg read --single-layer --layer 2 input2.svg write output.svg
 
-This command will :ref:`cmd_read` two SVG files onto two different layers, rotate one layer 180 degrees, then :ref:`cmd_write` both layers into a single SVG file::
+Note the use of ``--single-layer``. It is necessary to make sure that the input SVG is merged into a single layer and is
+necessary to enable the ``--layer`` option.
 
-  $ vpype read -m --layer 1 input1.svg read -m --layer 2 input2.svg rotate --layer 2 180 write output.svg
+This command will :ref:`cmd_read` two SVG files onto two different layers, rotate one layer 180 degrees, then
+:ref:`cmd_write` both layers into a single SVG file::
 
-This command will :ref:`cmd_read` two SVG files onto two different layers, :ref:`cmd_translate` (i.e. move) one of them 0.1cm down and to the right, and then :ref:`cmd_write` both layers into a single SVG file with custom layer names "Pen 1" and "Pen 2"::
+  $ vpype read --single-layer --layer 1 input1.svg read --single-layer --layer 2 input2.svg rotate --layer 2 180 write output.svg
 
- $ vpype read -m --layer 1 input1.svg read -m --layer 2 input2.svg translate --layer 2 0.1cm 0.1cm write --layer-label "Pen %d" output.svg
+This command will :ref:`cmd_read` two SVG files onto two different layers, :ref:`cmd_translate` (i.e. move) one of them
+0.1cm down and to the right, and then :ref:`cmd_write` both layers into a single SVG file with custom layer names
+"Pen 1" and "Pen 2"::
+
+ $ vpype read --single-layer --layer 1 input1.svg read --single-layer --layer 2 input2.svg translate --layer 2 0.1cm 0.1cm write --layer-label "Pen %d" output.svg
+
+
+Converting a SVG to HPGL
+========================
+
+For vintage plotters, the :ref:`cmd_write` command is capable of generating HPGL code instead of SVG. HPGL output format
+is automatically selected if the output path file extension is ``.hpgl``. Since HPGL coordinate systems vary widely from
+plotter to plotter and even for different physical paper format, the plotter model and the paper format must be provided
+to the :ref:`cmd_write` command::
+
+  $ vpype read input.svg write --device hp7475a --page-format a4 --landscape --center output.hpgl
+
+The plotter type/paper format combination must exist in the built-in or user-provided configuration file. See
+:ref:`faq_custom_hpgl_config` for information on how to create one.
+
+It is typically useful to optimize the input SVG during the conversion. The following example is typical of real-world
+use::
+
+  $ vpype read input.svg linesimplify reloop linemerge linesort write --device hp7475a --page-format a4 output.hpgl
+
+
+Defining a default HPGL plotter device
+======================================
+
+If you are using the same type of plotter regularly, it may be cumbersome to systematically add the ``--device`` option
+to the :ref:`cmd_write` command. The default device can be set in the ``~/.vpype.toml`` configuration file by adding the
+following section:
+
+  .. code-block:: toml
+
+    [command.write]
+    default_hpgl_device = "hp7475a"
+
+
+.. _faq_custom_hpgl_config:
+
+Creating a custom configuration file for a HPGL plotter
+=======================================================
+
+The configuration for a number of HPGL plotter is bundled with vpype (run ``vpype write --help`` for a list). If your
+plotter is not included, it is possible to define your own plotter configuration either in `~/.vpype.toml` or any other
+file. In the latter case, you must instruct vpype to load the configuration using the ``--config`` option::
+
+  $ vpype --config my_config_file.toml read input.svg [...] write --device my_plotter --page-format a4 output.hpgl
+
+The configuration file must first include a plotter section with the following format:
+
+  .. code-block:: toml
+
+    [device.my_plotter]
+    name = "My Plotter"                 # human-readable name for the plotter
+    plotter_unit_length = "0.02488mm"   # numeric values in pixel or string with units
+    pen_count = 6                       # number of pen supported by the plotter
+
+In the configuration file, all numerical values are in CSS pixel unit (1/96th of an inch). Alternatively, strings
+containing the numerical value with a unit can be used and will be correctly interpreted.
+
+Then, the configuration file must include one ``paper`` section for each paper format supported by the plotter:
+
+  .. code-block:: toml
+
+    [[device.my_plotter.paper]]         # note the double brackets!
+    name = "a"                          # name of the paper format
+
+    paper_size = ["11in", "8.5in"]      # physical paper size / CAUTION: order must respect
+                                        # the native X/Y axis orientation of the plotter
+
+    x_range = [0, 16640]                # admissible range in plotter units along the X axis
+    y_range = [0, 10365]                # admissible range in plotter units along the Y axis
+    y_axis_up = true                    # set to true if the plotter's Y axis points up on
+                                        # the physical page
+
+    origin_location = [".5in", "8in"]   # physical location from the page's top-left corner of
+                                        # the (0, 0) plotter unit coordinates
+
+    aka_names = ["ansi_a", "letter"]    # (optional) name synonyms that will be recognised by
+                                        # the `--paper-format` option of the `write` command
+
+    set_ps = 0                          # (optional) if present, a PS command with the
+                                        # corresponding value is generated
+
+While most of the parameters above are self-explanatory or easy to understand from the comments, there are several
+aspects that require specific caution:
+
+* ``paper_size`` *must* be defined in the order corresponding to the plotter's native X/Y axis orientation. In the
+  example above, the long side is specified before the short side because the plotter's native coordinate system has
+  its X axis oriented along the long side the Y axis oriented along the short side of the page.
+* ``origin_location`` defines the physical location of (0, 0) plotter unit coordinate on the page, with respect to the
+  top-left corner of the page in the orientation implied by ``paper_size``. In the example above, since the long edge
+  is defined first, ``origin_location`` is defined based on the top-left corner in landscape orientation.
+* ``y_axis_up`` defines the orientation of the plotter's native Y axis. Note that a value of ``true`` does **not** imply
+  that ``origin_location`` is measured from the bottom-left corner.
+
 
 
 Repeating a design on a grid

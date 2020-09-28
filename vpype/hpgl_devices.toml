@@ -1,0 +1,42 @@
+[device.hp7475a]
+name = "hp7475a"
+plotter_unit_length = "0.02488mm"
+pen_count = 6
+
+[[device.hp7475a.paper]]
+name = "a4"
+paper_size = ["297mm", "210mm"]
+x_range = [0, 11040]
+y_range = [0, 7721]
+y_axis_up = true
+origin_location = ["10mm", "206mm"]
+set_ps = 4
+
+[[device.hp7475a.paper]]
+name = "a3"
+paper_size = ["420mm", "297mm"]
+x_range = [0, 16158]
+y_range = [0, 11040]
+y_axis_up = true
+origin_location = ["15mm", "287mm"]
+set_ps = 0
+
+[[device.hp7475a.paper]]
+name = "a"
+aka_names = ["ansi_a", "letter"]
+paper_size = ["11in", "8.5in"]
+x_range = [0, 10365]
+y_range = [0, 7962]
+y_axis_up = true
+origin_location = ["10mm","211mm"]
+set_ps = 4
+
+[[device.hp7475a.paper]]
+name = "b"
+aka_names = ["ansi_b", "tabloid"]
+paper_size = ["17in", "11in"]
+x_range = [0, 16640]
+y_range = [0, 10365]
+y_axis_up = true
+origin_location = ["15mm", "287mm"]
+set_ps = 0

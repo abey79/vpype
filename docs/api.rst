@@ -38,6 +38,8 @@ File I/O
 
 .. autofunction:: write_svg
 
+.. autofunction:: write_hpgl
+
 
 Primitives
 ==========
@@ -86,6 +88,18 @@ Layer management
 .. autofunction:: multiple_to_layer_ids
 
 .. autoclass:: VpypeState
+   :members:
+
+Configuration
+=============
+
+.. autoclass:: ConfigManager
+   :members:
+
+.. autoclass:: PlotterConfig
+   :members:
+
+.. autoclass:: PaperConfig
    :members:
 
 
