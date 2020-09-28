@@ -3,7 +3,8 @@ import matplotlib.collections
 import matplotlib.pyplot as plt
 import numpy as np
 
-from vpype import global_processor, as_vector, VectorData, convert
+from vpype import VectorData, as_vector, convert, global_processor
+
 from .cli import cli
 
 COLORS = [
