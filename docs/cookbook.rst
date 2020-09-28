@@ -89,17 +89,24 @@ This command will :ref:`cmd_read` an SVG file, use :ref:`cmd_linesort` to sort t
 Merging multiple designs into a multi-layer SVG
 ===============================================
 
-This command will :ref:`cmd_read` two SVG files onto two different layers, then :ref:`cmd_write` them into a single SVG file::
+This command will :ref:`cmd_read` two SVG files onto two different layers, then :ref:`cmd_write` them into a single SVG
+file::
 
-  $ vpype read -m --layer 1 input1.svg read -m --layer 2 input2.svg write output.svg
+  $ vpype read --single-layer --layer 1 input1.svg read --single-layer --layer 2 input2.svg write output.svg
 
-This command will :ref:`cmd_read` two SVG files onto two different layers, rotate one layer 180 degrees, then :ref:`cmd_write` both layers into a single SVG file::
+Note the use of ``--single-layer``. It is necessary to make sure that the input SVG is merged into a single layer and is
+necessary to enable the ``--layer`` option.
 
-  $ vpype read -m --layer 1 input1.svg read -m --layer 2 input2.svg rotate --layer 2 180 write output.svg
+This command will :ref:`cmd_read` two SVG files onto two different layers, rotate one layer 180 degrees, then
+:ref:`cmd_write` both layers into a single SVG file::
 
-This command will :ref:`cmd_read` two SVG files onto two different layers, :ref:`cmd_translate` (i.e. move) one of them 0.1cm down and to the right, and then :ref:`cmd_write` both layers into a single SVG file with custom layer names "Pen 1" and "Pen 2"::
+  $ vpype read --single-layer --layer 1 input1.svg read --single-layer --layer 2 input2.svg rotate --layer 2 180 write output.svg
 
- $ vpype read -m --layer 1 input1.svg read -m --layer 2 input2.svg translate --layer 2 0.1cm 0.1cm write --layer-label "Pen %d" output.svg
+This command will :ref:`cmd_read` two SVG files onto two different layers, :ref:`cmd_translate` (i.e. move) one of them
+0.1cm down and to the right, and then :ref:`cmd_write` both layers into a single SVG file with custom layer names
+"Pen 1" and "Pen 2"::
+
+ $ vpype read --single-layer --layer 1 input1.svg read --single-layer --layer 2 input2.svg translate --layer 2 0.1cm 0.1cm write --layer-label "Pen %d" output.svg
 
 
 Converting a SVG to HPGL
