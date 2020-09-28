@@ -80,8 +80,10 @@ def simple_printer_config(config_file_factory):
     ],
 )
 def test_hpgl_simple(runner, simple_printer_config, commands, write_opts, expected):
+    # Note: passing a single string to invoke runs it through shlex and removes the windows
+    # path back-slash, thus the split.
     res = runner.invoke(
-        cli, f"-c {simple_printer_config} {commands} write -f hpgl {write_opts} -"
+        cli, f"-c {simple_printer_config} {commands} write -f hpgl {write_opts} -".split(" ")
     )
 
     assert res.stdout.strip() == expected
