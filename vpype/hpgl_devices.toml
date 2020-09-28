@@ -28,7 +28,7 @@ paper_size = ["11in", "8.5in"]
 x_range = [0, 10365]
 y_range = [0, 7962]
 y_axis_up = true
-origin_location = ["10mm","211mm"]
+origin_location = ["10mm", "211mm"]
 set_ps = 4
 
 [[device.hp7475a.paper]]

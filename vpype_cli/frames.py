@@ -1,6 +1,7 @@
 import click
 
-from vpype import LineCollection, LengthType, generator, VpypeState, pass_state
+from vpype import LengthType, LineCollection, VpypeState, generator, pass_state
+
 from .cli import cli
 
 

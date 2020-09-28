@@ -3,7 +3,7 @@
 """
 
 from contextlib import contextmanager
-from typing import Union, List, Optional
+from typing import List, Optional, Union
 
 import click
 

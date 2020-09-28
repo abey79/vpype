@@ -4,12 +4,12 @@
 Implementation of vpype's data model
 """
 import math
-from typing import Union, Iterable, List, Dict, Tuple, Optional, Iterator
+from typing import Dict, Iterable, Iterator, List, Optional, Tuple, Union
 
 import numpy as np
-from shapely.geometry import MultiLineString, LineString, LinearRing
+from shapely.geometry import LinearRing, LineString, MultiLineString
 
-from .geometry import reloop, crop
+from .geometry import crop, reloop
 from .line_index import LineIndex
 
 # REMINDER: anything added here must be added to docs/api.rst

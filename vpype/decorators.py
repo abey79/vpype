@@ -9,7 +9,7 @@ from functools import update_wrapper
 
 import click
 
-from .layers import LayerType, VpypeState, single_to_layer_id, multiple_to_layer_ids
+from .layers import LayerType, VpypeState, multiple_to_layer_ids, single_to_layer_id
 
 # REMINDER: anything added here must be added to docs/api.rst
 __all__ = [
@@ -186,7 +186,6 @@ def generator(f):
 
         # noinspection PyShadowingNames
         def generator(state: VpypeState) -> VpypeState:
-
             with state.current():
                 target_layer = single_to_layer_id(layer, state.vector_data)
 

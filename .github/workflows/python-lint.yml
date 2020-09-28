@@ -1,4 +1,4 @@
-name: Test
+name: Python Lint
 
 on:
   push:
@@ -10,29 +10,20 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        python-version: [3.6, 3.7, 3.8]
-        os: [ubuntu-latest, windows-latest, macos-latest]
-
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python
       uses: actions/setup-python@v1
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: 3.8
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pytest
+        pip install -r requirements.txt
         pip install .
-    - name: Pytest
-      run: |
-        pytest
     - name: Python Code Quality and Lint
-      if: matrix.os == 'ubuntu-latest'
-      uses: ricardochaves/python-lint@v1.1.0
+      uses: abey79/python-lint@master
       with:
         # A list of all paths to test
         python-root-list: "vpype vpype_cli tests"
@@ -47,16 +38,16 @@ jobs:
         # Use mypy
         use-mypy: true # optional, default is true
         # Use isort
-        use-isort: false # optional, default is true
+        use-isort: true # optional, default is true
         # Extra options: pylint $(extra-pylint-options) $(python-root-list)
-        #extra-pylint-options: # optional, default is 
+        #extra-pylint-options: # optional, default is
         # Extra options: pycodestyle $(extra-pycodestyle-options) $(python-root-list)
-        #extra-pycodestyle-options: # optional, default is 
+        #extra-pycodestyle-options: # optional, default is
         # Extra options: flake8 $(extra-flake8-options) $(python-root-list)
-        #extra-flake8-options: # optional, default is 
+        #extra-flake8-options: # optional, default is
         # Extra options: black --check $(extra-black-options) $(python-root-list)
-        #extra-black-options: # optional, default is 
+        extra-black-options: --diff # optional, default is
         # Extra options: mypy $(extra-mypy-options) $(python-root-list)
-        #extra-mypy-options: # optional, default is 
-        # Extra options: isort -rc $(extra-isort-options) $(python-root-list) -c --diff 
-        #extra-isort-options: # optional, default is 
+        #extra-mypy-options: # optional, default is
+        # Extra options: isort -rc $(extra-isort-options) $(python-root-list) -c --diff
+        #extra-isort-options: # optional, default is

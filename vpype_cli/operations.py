@@ -1,19 +1,20 @@
 import logging
-from typing import Union, List
+from typing import List, Union
 
 import click
 import numpy as np
 
 from vpype import (
-    LineCollection,
-    LengthType,
-    layer_processor,
-    LineIndex,
-    global_processor,
-    multiple_to_layer_ids,
-    VectorData,
     LayerType,
+    LengthType,
+    LineCollection,
+    LineIndex,
+    VectorData,
+    global_processor,
+    layer_processor,
+    multiple_to_layer_ids,
 )
+
 from .cli import cli
 
 

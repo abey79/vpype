@@ -1,5 +1,6 @@
 # register all commands
 from .blocks import *
+from .cli import begin, end
 from .debug import *
 from .frames import *
 from .generators import *
@@ -11,4 +12,3 @@ from .script import *
 from .show import *
 from .transforms import *
 from .write import *
-from .cli import begin, end

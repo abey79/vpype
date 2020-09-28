@@ -2,8 +2,9 @@ from typing import Tuple
 
 import click
 
-from vpype import block_processor, VectorData, LengthType
-from .cli import cli, BlockProcessor, execute_processors
+from vpype import LengthType, VectorData, block_processor
+
+from .cli import BlockProcessor, cli, execute_processors
 
 
 @cli.command("grid", group="Block processors")
