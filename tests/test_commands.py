@@ -1,7 +1,7 @@
 import itertools
 
-import pytest
 import numpy as np
+import pytest
 
 from vpype_cli import cli
 from vpype_cli.debug import DebugData
