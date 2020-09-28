@@ -16,11 +16,16 @@ from vpype import (
 
 from .cli import cli
 
-WRITE_HELP = f"""Save geometries to a SVG file.
+WRITE_HELP = f"""Save geometries to a file.
 
-By default, the SVG generated has bounds tightly fitted around the geometries. Optionally,
-a page format can be provided with the `--page-format FORMAT` option. `FORMAT` may be one
-of:
+The `write` command support two format: SVG and HPGL. The format is determined based on the
+file extension used for `OUTPUT` or the `--file-format` option. This is particular useful when
+`OUTPUT` is a single dash (`-`), in which case the ouput is printed to stdout instead of a
+file.
+
+When writing to SVG, the file has bounds tightly fitted around the geometries by default.
+Optionally, a page format can be provided with the `--page-format FORMAT` option. `FORMAT` may
+be one of:
 
     {', '.join(PAGE_FORMATS.keys())}
 
@@ -55,7 +60,22 @@ generated with the `--pen-up` flag. As most plotting tools will include these pa
 output, this option should be used for previsualisation only. The Axidraw tools will however
 ignore them.
 
-If `OUTPUT` is a single dash (`-`), SVG content is printed to stdout instead of a file.
+When writing to HPGL, a device name must be provided with the `--device` option. The
+corresponding device must be configured in the built-in or a user-provided configuration file
+(see the documentation for more details). The following devices are currently available:
+
+    {', '.join(CONFIG_MANAGER.get_plotter_list())}
+
+In HPGL mode, because the coordinate system depends on the configuration, the `--page-format`
+option is mandatory, and is restricted to the paper formats defined in the corresponding
+device's configuration. The plotter may as well need to be specifically configured for the
+desired paper format (e.g. for A4 or A3, the HP 7475a's corresponding DIP switch must be set to
+metric mode).
+
+The `--landscape` and `--center` options are accepted and honored in HPGL.
+
+Optionally, the HPGL-only `--velocity` can be provided, in which case a `VS` command will be
+emitted with the provided value.
 
 Examples:
 
@@ -81,7 +101,11 @@ Examples:
 
     Output SVG to stdout:
 
-        vpype [...] write -
+        vpype [...] write --format SVG -
+
+    Write a A4 page with portrait orientation HPGL file:
+
+        vpype [...] write --device hp7475a --page-format a4 --center
 """
 
 

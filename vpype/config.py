@@ -41,15 +41,21 @@ def _convert_length_pair(data: Sequence[Union[float, str]]) -> Tuple[float, floa
 
 @attr.s(auto_attribs=True, frozen=True)
 class PaperConfig:
-    name: str
-    paper_size: Tuple[float, float]  #: X/Y axis convention of the plotter
-    x_range: Tuple[int, int]
-    y_range: Tuple[int, int]
-    y_axis_up: bool
-    origin_location: Tuple[float, float]  #: same coordinates as ``format``
+    """Data class containing configuration for a give plotter type/paper size combinations."""
 
-    set_ps: Optional[int] = None  # if set, call PS with corresponding value
-    aka_names: List[str] = []
+    name: str  #: name of the paper format
+    paper_size: Tuple[float, float]  #: X/Y axis convention of the plotter
+    x_range: Tuple[int, int]  #: admissible range of X coordinates
+    y_range: Tuple[int, int]  #: admissible range of Y coordinates
+    y_axis_up: bool  #: if True, the Y axis point upwards instead of downwards
+    origin_location: Tuple[
+        float, float
+    ]  #: location on paper of the (0, 0) plotter unit coordinates
+
+    set_ps: Optional[int] = None  #: if not None, call PS with corresponding value
+    aka_names: List[
+        str
+    ] = []  #: alternative paper names (will be found by :func:`paper_config`
 
     @classmethod
     def from_config(cls, data: Dict[str, Any]) -> "PaperConfig":
@@ -67,10 +73,12 @@ class PaperConfig:
 
 @attr.s(auto_attribs=True, frozen=True)
 class PlotterConfig:
-    name: str
-    paper_configs: List[PaperConfig]
-    plotter_unit_length: float
-    pen_count: int
+    """Data class containing configuration for a given plotter type."""
+
+    name: str  #: name of the plotter
+    paper_configs: List[PaperConfig]  #: list of :class:`PaperConfig` instance
+    plotter_unit_length: float  #: phyiscal size of plotter units (in pixel)
+    pen_count: int  #: number of pen supported by the plotter
 
     @classmethod
     def from_config(cls, data: Dict[str, Any]) -> "PlotterConfig":
@@ -97,6 +105,21 @@ class PlotterConfig:
 
 
 class ConfigManager:
+    """Helper class to handle vpype's TOML configuration files.
+
+    This class is typically used via its singleton instance ``CONFIG_MANAGER``::
+
+        >>> from vpype import CONFIG_MANAGER
+        >>> my_config = CONFIG_MANAGER.config.get("my_config", None)
+
+    Helper methods are provided for specific aspects of configuration, such as command-specific
+    configs or HPGL-related configs.
+
+    By default, built-in configuration packaged with vpype are loaded at startup. If a file
+    exists at path ``~/.vpype.toml``, it will be loaded as well. Additionaly files may be
+    loaded using the :func:`load_config_file` method.
+    """
+
     def __init__(self):
         self._config: Dict = {}
 
@@ -126,8 +149,16 @@ class ConfigManager:
         logging.info(f"loading config file at {path}")
         self._config = _update(self._config, toml.load(path))
 
+    def get_plotter_list(self) -> List[str]:
+        """Returns a list of plotter names whose configuration is available.
+
+        Returns:
+            list of plotter name
+        """
+        return list(self.config.get("device", {}).keys())
+
     def get_plotter_config(self, name: str) -> Optional[PlotterConfig]:
-        """Returns a :class:`PlotterConfig` instance for plotter ``name`.
+        """Returns a :class:`PlotterConfig` instance for plotter ``name``.
 
         Args:
             name: name of desired plotter

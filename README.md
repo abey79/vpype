@@ -30,6 +30,10 @@ are, for illustration, a few examples of what it can do:
     ```bash
     $ vpype begin grid -o 1cm 1cm 10 13 script alien_letter.py scaleto 0.5cm 0.5cm end show
     ```
+- Export to HPGL for vintage plotters.
+    ```bash
+    $ vpype read input.svg write --device hp7475a --page-format a4 --landscape --center output.hpgl
+    ```
 
 At its core, _vpype_ allows the user to build pipelines of _commands_, each of which receives a
 collection of vector graphics (basically, lines), modifies them and/or produce new ones, and pass them to the next
@@ -170,7 +174,7 @@ Here is a non-exhaustive list of important commands:
 - `frame`: add a simple frame around the geometries
 - `lmove`, `lcopy`, `ldelete`: various layer manipulation commands 
 - `show`: display the geometries in a `matplotlib` window
-- `write`: save the geometries as a SVG file
+- `write`: save the geometries as a SVG or HPGL file
 
 
 ### Data model and units

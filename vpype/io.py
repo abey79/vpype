@@ -437,29 +437,33 @@ def _get_hpgl_config(
 
 
 def write_hpgl(
-    vector_data: VectorData,
     output: TextIO,
+    vector_data: VectorData,
     page_format: str,
     landscape: bool,
     center: bool,
     device: Optional[str],
     velocity: Optional[float],
 ) -> None:
-    """
+    """Create a HPGL file from the :class:`VectorData` instance.
 
-    TODO:
-    - configuration file
-    - fix "write" help string
-    - doc/api ref/etc.
+    The ``device``/``page_format`` combination must be defined in the built-in or user-provided
+    config files or an exception will be raised.
+
+    By default, no translation is applied on the geometry. If `center=True`, geometries are
+    moved to the center of the page.
+
+    No scaling or rotation is applied to geometries.
 
     Args:
-        vector_data:
-        output:
-        page_format:
-        device:
-        center:
-        landscape:
-        velocity:
+        output: text-mode IO stream where SVG code will be written
+        vector_data: geometries to be written
+        page_format: page format string (it must be configured for the selected device)
+        landscape: if True, the geometries are generated in landscape orientation
+        center: center geometries on page before export
+        device: name of the device to use (the corresponding config must exists). If not
+            provided, a default device must be configured, which will be used.
+        velocity: if provided, a VS command will be generated with the corresponding value
     """
 
     # empty HPGL is acceptable there are no geometries to plot
