@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import pytest
 from click.testing import CliRunner
@@ -25,10 +27,11 @@ def config_manager():
 
 
 @pytest.fixture(scope="session")
-def config_file_factory(tmp_path_factory):
+def config_file_factory(tmpdir_factory):
     def _make_config_file(text: str) -> str:
-        path = tmp_path_factory.mktemp("config_file") / "config.toml"
-        path.write_text(text)
-        return str(path)
+        path = os.path.join(tmpdir_factory.mktemp("config_file"), "config.toml")
+        with open(path, "w") as fp:
+            fp.write(text)
+        return path
 
     return _make_config_file
