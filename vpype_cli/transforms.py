@@ -1,18 +1,19 @@
 import logging
 import math
-from typing import Tuple, Union, List, Optional, cast
+from typing import List, Optional, Tuple, Union, cast
 
 import click
 
 from vpype import (
-    global_processor,
-    VectorData,
-    LineCollection,
-    LengthType,
-    layer_processor,
     LayerType,
+    LengthType,
+    LineCollection,
+    VectorData,
+    global_processor,
+    layer_processor,
     multiple_to_layer_ids,
 )
+
 from .cli import cli
 
 
