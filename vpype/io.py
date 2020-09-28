@@ -18,7 +18,7 @@ from svgpathtools import SVG_NAMESPACE
 from svgpathtools.document import flatten_group
 from svgwrite.extensions import Inkscape
 
-from .config import CONFIG_MANAGER
+from .config import CONFIG_MANAGER, PaperConfig, PlotterConfig
 from .model import LineCollection, VectorData, as_vector
 from .utils import UNITS, convert_length
 
@@ -418,6 +418,24 @@ def write_svg(
     dwg.write(output, pretty=True)
 
 
+def _get_hpgl_config(
+    device: Optional[str], page_format: str
+) -> Tuple[PlotterConfig, PaperConfig]:
+    if device is None:
+        device = CONFIG_MANAGER.get_command_config("write").get("default_hpgl_device", None)
+    plotter_config = CONFIG_MANAGER.get_plotter_config(str(device))
+    if plotter_config is None:
+        raise ValueError(f"no configuration available for plotter '{device}'")
+    paper_config = plotter_config.paper_config(page_format)
+    if paper_config is None:
+        raise ValueError(
+            f"no configuration available for paper size '{page_format}' with plotter "
+            f"'{device}'"
+        )
+
+    return plotter_config, paper_config
+
+
 def write_hpgl(
     vector_data: VectorData,
     output: TextIO,
@@ -448,17 +466,7 @@ def write_hpgl(
     if vector_data.is_empty():
         return
 
-    if device is None:
-        device = CONFIG_MANAGER.get_command_config("write").get("default_hpgl_device", None)
-    plotter_config = CONFIG_MANAGER.get_plotter_config(str(device))
-    if plotter_config is None:
-        raise ValueError(f"no configuration available for plotter '{device}'")
-    paper_config = plotter_config.paper_config(page_format)
-    if paper_config is None:
-        raise ValueError(
-            f"no configuration available for paper size '{page_format}' with plotter "
-            f"'{device}'"
-        )
+    plotter_config, paper_config = _get_hpgl_config(device, page_format)
 
     # are plotter coordinate placed in landscape or portrait orientation?
     coords_landscape = paper_config.paper_size[0] > paper_config.paper_size[1]
