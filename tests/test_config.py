@@ -1,28 +1,8 @@
-import pytest
-
-import vpype as vp
-
-
-@pytest.fixture
-def cfg():
-    return vp.ConfigManager()
+def test_config_is_empty(config_manager):
+    assert config_manager.config == {}
 
 
-@pytest.fixture
-def config_file_factory(tmp_path_factory):
-    def _make_config_file(text: str) -> str:
-        path = tmp_path_factory.mktemp("config_file") / "config.toml"
-        path.write_text(text)
-        return str(path)
-
-    return _make_config_file
-
-
-def test_config_is_empty(cfg):
-    assert cfg.config == {}
-
-
-def test_config_simple(cfg, config_file_factory):
+def test_config_simple(config_manager, config_file_factory):
     path = config_file_factory(
         """
         a = 1
@@ -30,11 +10,11 @@ def test_config_simple(cfg, config_file_factory):
         c = "hello"
         """
     )
-    cfg.load_config_file(path)
-    assert cfg.config == {"a": 1, "b": True, "c": "hello"}
+    config_manager.load_config_file(path)
+    assert config_manager.config == {"a": 1, "b": True, "c": "hello"}
 
 
-def test_config_merge_dict_simple(cfg, config_file_factory):
+def test_config_merge_dict_simple(config_manager, config_file_factory):
     p1 = config_file_factory(
         """
         [global]
@@ -49,12 +29,12 @@ def test_config_merge_dict_simple(cfg, config_file_factory):
         """
     )
 
-    cfg.load_config_file(p1)
-    cfg.load_config_file(p2)
-    assert cfg.config == {"global": {"a": 1, "b": 2, "c": 3}}
+    config_manager.load_config_file(p1)
+    config_manager.load_config_file(p2)
+    assert config_manager.config == {"global": {"a": 1, "b": 2, "c": 3}}
 
 
-def test_config_merge_dict_override(cfg, config_file_factory):
+def test_config_merge_dict_override(config_manager, config_file_factory):
     p1 = config_file_factory(
         """
         [global]
@@ -70,12 +50,12 @@ def test_config_merge_dict_override(cfg, config_file_factory):
         """
     )
 
-    cfg.load_config_file(p1)
-    cfg.load_config_file(p2)
-    assert cfg.config == {"global": {"a": 5, "b": 2, "c": 3}}
+    config_manager.load_config_file(p1)
+    config_manager.load_config_file(p2)
+    assert config_manager.config == {"global": {"a": 5, "b": 2, "c": 3}}
 
 
-def test_config_merge_simple_array_must_overwrite(cfg, config_file_factory):
+def test_config_merge_simple_array_must_overwrite(config_manager, config_file_factory):
     p1 = config_file_factory(
         """
         a = 1
@@ -89,12 +69,12 @@ def test_config_merge_simple_array_must_overwrite(cfg, config_file_factory):
         """
     )
 
-    cfg.load_config_file(p1)
-    cfg.load_config_file(p2)
-    assert cfg.config == {"a": 1, "b": [10, 11, 12], "c": 10}
+    config_manager.load_config_file(p1)
+    config_manager.load_config_file(p2)
+    assert config_manager.config == {"a": 1, "b": [10, 11, 12], "c": 10}
 
 
-def test_config_merge_table_must_extend(cfg, config_file_factory):
+def test_config_merge_table_must_extend(config_manager, config_file_factory):
     p1 = config_file_factory(
         """
         [[test]]
@@ -108,6 +88,6 @@ def test_config_merge_table_must_extend(cfg, config_file_factory):
         """
     )
 
-    cfg.load_config_file(p1)
-    cfg.load_config_file(p2)
-    assert cfg.config == {"test": [{"a": 1}, {"b": 2}]}
+    config_manager.load_config_file(p1)
+    config_manager.load_config_file(p2)
+    assert config_manager.config == {"test": [{"a": 1}, {"b": 2}]}
