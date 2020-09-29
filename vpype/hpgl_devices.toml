@@ -40,3 +40,35 @@ y_range = [0, 10365]
 y_axis_up = true
 origin_location = ["15mm", "287mm"]
 set_ps = 0
+
+[device.calcomp_designmate]
+name = "designmate"
+plotter_unit_length = "0.02488mm"
+pen_count = 8
+
+[[device.calcomp_designmate.paper]]
+name = "a4"
+paper_size = ["297mm", "210mm"]
+x_range = [0, 11040]
+y_range = [0, 7721]
+y_axis_up = true
+origin_location = ["12mm", "198mm"]
+set_ps = 0
+
+[[device.calcomp_designmate.paper]]
+name = "a3_landscape"
+paper_size = ["420mm", "297mm"]
+x_range = [0, 15722]
+y_range = [0, 10300]
+y_axis_up = true
+origin_location = ["12mm", "285mm"]
+set_ps = 0
+
+[[device.calcomp_designmate.paper]]
+name = "a3_portrait"
+paper_size = ["420mm", "297mm"]
+x_range = [0, 15207]
+y_range = [0, 10853]
+y_axis_up = true
+origin_location = ["12mm", "272mm"]
+set_ps = 0
