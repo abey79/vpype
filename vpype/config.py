@@ -52,7 +52,12 @@ class PaperConfig:
         float, float
     ]  #: location on paper of the (0, 0) plotter unit coordinates
 
+    info: str = ""  #: information printed to the user when paper is used
+    rotate_180: bool = False  #: if True, the geometries are rotated by 180 degrees on the page
     set_ps: Optional[int] = None  #: if not None, call PS with corresponding value
+    final_pu_params: Optional[
+        str
+    ] = None  #: if not None, these params are added to the final PU command
     aka_names: List[
         str
     ] = []  #: alternative paper names (will be found by :func:`paper_config`
@@ -66,7 +71,10 @@ class PaperConfig:
             y_range=(data["y_range"][0], data["y_range"][1]),
             y_axis_up=data["y_axis_up"],
             origin_location=_convert_length_pair(data["origin_location"]),
+            info=data.get("info", ""),
+            rotate_180=data.get("rotate_180", False),
             set_ps=data.get("set_ps", None),
+            final_pu_params=data.get("final_pu_params", None),
             aka_names=data.get("aka_names", []),
         )
 
@@ -80,6 +88,8 @@ class PlotterConfig:
     plotter_unit_length: float  #: phyiscal size of plotter units (in pixel)
     pen_count: int  #: number of pen supported by the plotter
 
+    info: str = ""  #: information printed to the user when plotter is used
+
     @classmethod
     def from_config(cls, data: Dict[str, Any]) -> "PlotterConfig":
         return cls(
@@ -87,6 +97,7 @@ class PlotterConfig:
             paper_configs=[PaperConfig.from_config(d) for d in data["paper"]],
             plotter_unit_length=convert_length(data["plotter_unit_length"]),
             pen_count=data["pen_count"],
+            info=data.get("info", ""),
         )
 
     def paper_config(self, paper: str) -> Optional[PaperConfig]:

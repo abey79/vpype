@@ -5,6 +5,7 @@ pen_count = 6
 
 [[device.hp7475a.paper]]
 name = "a4"
+info = "The plotter must be configured in Metric mode."
 paper_size = ["297mm", "210mm"]
 x_range = [0, 11040]
 y_range = [0, 7721]
@@ -14,6 +15,7 @@ set_ps = 4
 
 [[device.hp7475a.paper]]
 name = "a3"
+info = "The plotter must be configured in Metric mode."
 paper_size = ["420mm", "297mm"]
 x_range = [0, 16158]
 y_range = [0, 11040]
@@ -24,6 +26,7 @@ set_ps = 0
 [[device.hp7475a.paper]]
 name = "a"
 aka_names = ["ansi_a", "letter"]
+info = "The plotter must be configured in Imperal mode."
 paper_size = ["11in", "8.5in"]
 x_range = [0, 10365]
 y_range = [0, 7962]
@@ -34,6 +37,7 @@ set_ps = 4
 [[device.hp7475a.paper]]
 name = "b"
 aka_names = ["ansi_b", "tabloid"]
+info = "The plotter must be configured in Imperal mode."
 paper_size = ["17in", "11in"]
 x_range = [0, 16640]
 y_range = [0, 10365]

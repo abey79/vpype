@@ -13,7 +13,7 @@ def random_line(length: int) -> np.ndarray:
 
 @pytest.fixture
 def runner():
-    return CliRunner()
+    return CliRunner(mix_stderr=False)
 
 
 @pytest.fixture(scope="session")
