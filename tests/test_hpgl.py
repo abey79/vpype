@@ -55,6 +55,15 @@ def simple_printer_config(config_file_factory):
         origin_location = [0, 0]
         rotate_180 = true
         
+        [[device.simple.paper]]
+        name = "simple_final_pu"
+        paper_size = [10, 15]
+        x_range = [0, 10]
+        y_range = [0, 15]
+        y_axis_up = false
+        origin_location = [0, 0]
+        final_pu_params = "0,0"
+        
         [device.double]
         name = "simple"
         plotter_unit_length = 0.5
@@ -105,6 +114,11 @@ def simple_printer_config(config_file_factory):
             "line 2 3 6 4",
             "-d simple -p simple_rotate_180",
             "IN;DF;SP1;PU8,12;PD4,11;PU;SP0;IN;",
+        ),
+        (
+            "line 2 3 6 4",
+            "-d simple -p simple_final_pu",
+            "IN;DF;SP1;PU2,3;PD6,4;PU0,0;SP0;IN;",
         ),
         ("line 3 5 4 6", "-d double -p simple", "IN;DF;SP1;PU6,10;PD8,12;PU;SP0;IN;"),
     ],

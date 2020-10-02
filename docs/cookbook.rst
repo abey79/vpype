@@ -194,6 +194,9 @@ Then, the configuration file must include one ``paper`` section for each paper f
     set_ps = 0                          # (optional) if present, a PS command with the
                                         # corresponding value is generated
 
+    final_pu_params = "0,0"             # (optional) if present, specifies parameter to pass
+                                        # to the final `PU;` command
+
     info = "Paper loading..."           # (optional) human-readable information on how the
                                         # paper must be loaded for this configuration to work
                                         # as expected

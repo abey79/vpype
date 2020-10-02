@@ -543,6 +543,8 @@ def write_hpgl(
             output.write(",".join(complex_to_str(p) for p in line[1:]))
             output.write(";")
 
-        output.write("PU;")
+        output.write(
+            f"PU{paper_config.final_pu_params if paper_config.final_pu_params else ''};"
+        )
 
     output.write("SP0;IN;\n")

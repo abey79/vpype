@@ -55,6 +55,9 @@ class PaperConfig:
     info: str = ""  #: information printed to the user when paper is used
     rotate_180: bool = False  #: if True, the geometries are rotated by 180 degrees on the page
     set_ps: Optional[int] = None  #: if not None, call PS with corresponding value
+    final_pu_params: Optional[
+        str
+    ] = None  #: if not None, these params are added to the final PU command
     aka_names: List[
         str
     ] = []  #: alternative paper names (will be found by :func:`paper_config`
@@ -71,6 +74,7 @@ class PaperConfig:
             info=data.get("info", ""),
             rotate_180=data.get("rotate_180", False),
             set_ps=data.get("set_ps", None),
+            final_pu_params=data.get("final_pu_params", None),
             aka_names=data.get("aka_names", []),
         )
 
