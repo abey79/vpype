@@ -161,6 +161,10 @@ The configuration file must first include a plotter section with the following f
     plotter_unit_length = "0.02488mm"   # numeric values in pixel or string with units
     pen_count = 6                       # number of pen supported by the plotter
 
+    info = "Plot configuration..."      # (optional) human-readable information on how
+                                        # the plotter must be configured for this
+                                        # configuration to work as expected
+
 In the configuration file, all numerical values are in CSS pixel unit (1/96th of an inch). Alternatively, strings
 containing the numerical value with a unit can be used and will be correctly interpreted.
 
@@ -174,19 +178,26 @@ Then, the configuration file must include one ``paper`` section for each paper f
     paper_size = ["11in", "8.5in"]      # physical paper size / CAUTION: order must respect
                                         # the native X/Y axis orientation of the plotter
 
+    origin_location = [".5in", "8in"]   # physical location from the page's top-left corner of
+                                        # the (0, 0) plotter unit coordinates
+
     x_range = [0, 16640]                # admissible range in plotter units along the X axis
     y_range = [0, 10365]                # admissible range in plotter units along the Y axis
     y_axis_up = true                    # set to true if the plotter's Y axis points up on
                                         # the physical page
-
-    origin_location = [".5in", "8in"]   # physical location from the page's top-left corner of
-                                        # the (0, 0) plotter unit coordinates
+    rotate_180 = true                   # (optional) set to true to rotate the geometries by
+                                        # 180 degrees on the page
 
     aka_names = ["ansi_a", "letter"]    # (optional) name synonyms that will be recognised by
                                         # the `--paper-format` option of the `write` command
 
     set_ps = 0                          # (optional) if present, a PS command with the
                                         # corresponding value is generated
+
+    info = "Paper loading..."           # (optional) human-readable information on how the
+                                        # paper must be loaded for this configuration to work
+                                        # as expected
+
 
 While most of the parameters above are self-explanatory or easy to understand from the comments, there are several
 aspects that require specific caution:

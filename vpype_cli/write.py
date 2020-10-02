@@ -20,7 +20,7 @@ WRITE_HELP = f"""Save geometries to a file.
 
 The `write` command support two format: SVG and HPGL. The format is determined based on the
 file extension used for `OUTPUT` or the `--file-format` option. This is particular useful when
-`OUTPUT` is a single dash (`-`), in which case the ouput is printed to stdout instead of a
+`OUTPUT` is a single dash (`-`), in which case the output is printed to stdout instead of a
 file.
 
 When writing to SVG, the file has bounds tightly fitted around the geometries by default.
@@ -162,6 +162,12 @@ Examples:
     type=float,
     help="[HPGL only] Emit a VS command with the provided value.",
 )
+@click.option(
+    "-q",
+    "--quiet",
+    is_flag=True,
+    help="[HPGL only] Do not display the plotter configuration or paper loading information.",
+)
 @click.pass_obj  # to obtain the command string
 @global_processor
 def write(
@@ -178,6 +184,7 @@ def write(
     single_path: bool,
     device: Optional[str],
     velocity: Optional[int],
+    quiet: bool,
 ):
     """Write command."""
 
@@ -216,6 +223,7 @@ def write(
             device=device,
             page_format=page_format,
             velocity=velocity,
+            quiet=quiet,
         )
     else:
         logging.warning(

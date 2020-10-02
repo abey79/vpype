@@ -11,6 +11,7 @@ from typing import List, Optional, TextIO, Tuple, Union
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element
 
+import click
 import numpy as np
 import svgpathtools as svg
 import svgwrite
@@ -444,6 +445,7 @@ def write_hpgl(
     center: bool,
     device: Optional[str],
     velocity: Optional[float],
+    quiet: bool = False,
 ) -> None:
     """Create a HPGL file from the :class:`VectorData` instance.
 
@@ -464,6 +466,7 @@ def write_hpgl(
         device: name of the device to use (the corresponding config must exists). If not
             provided, a default device must be configured, which will be used.
         velocity: if provided, a VS command will be generated with the corresponding value
+        quiet: if True, do not print the plotter/paper info strings
     """
 
     # empty HPGL is acceptable there are no geometries to plot
@@ -471,6 +474,13 @@ def write_hpgl(
         return
 
     plotter_config, paper_config = _get_hpgl_config(device, page_format)
+    if not quiet:
+        if plotter_config.info:
+            # use of echo instead of print needed for testability
+            # https://github.com/pallets/click/issues/1678
+            click.echo(plotter_config.info, err=True)
+        if paper_config.info:
+            click.echo(paper_config.info, err=True)
 
     # are plotter coordinate placed in landscape or portrait orientation?
     coords_landscape = paper_config.paper_size[0] > paper_config.paper_size[1]
@@ -486,6 +496,10 @@ def write_hpgl(
     if landscape != coords_landscape:
         vector_data.rotate(-math.pi / 2)
         vector_data.translate(0, paper_config.paper_size[1])
+
+    if paper_config.rotate_180:
+        vector_data.scale(-1, -1)
+        vector_data.translate(*paper_config.paper_size)
 
     if center:
         bounds = vector_data.bounds()
