@@ -11,6 +11,7 @@ x_range = [0, 11040]
 y_range = [0, 7721]
 y_axis_up = true
 origin_location = ["10mm", "206mm"]
+final_pu_params = "11040,7721"
 set_ps = 4
 
 [[device.hp7475a.paper]]
@@ -21,6 +22,7 @@ x_range = [0, 16158]
 y_range = [0, 11040]
 y_axis_up = true
 origin_location = ["15mm", "287mm"]
+final_pu_params = "0,11040"
 set_ps = 0
 
 [[device.hp7475a.paper]]
@@ -32,6 +34,7 @@ x_range = [0, 10365]
 y_range = [0, 7962]
 y_axis_up = true
 origin_location = ["10mm", "211mm"]
+final_pu_params = "10365,7962"
 set_ps = 4
 
 [[device.hp7475a.paper]]
@@ -43,6 +46,7 @@ x_range = [0, 16640]
 y_range = [0, 10365]
 y_axis_up = true
 origin_location = ["15mm", "287mm"]
+final_pu_params = "0,10365"
 set_ps = 0
 
 [device.designmate]
