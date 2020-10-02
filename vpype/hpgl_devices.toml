@@ -56,7 +56,7 @@ y_range = [0, 6835]
 y_axis_up = true
 origin_location = ["15mm", "196mm"]
 rotate_180 = true
-info = "A$ can only be loaded in landscape orientaion in the Designmate. Does NOT affect the drawing orientation."
+info = "A4 can only be loaded in landscape orientaion in the Designmate. Does NOT affect the drawing orientation."
 
 [[device.designmate.paper]]
 name = "a3"
@@ -67,7 +67,7 @@ y_range = [0, 10853]
 y_axis_up = true
 origin_location = ["22mm", "285mmmm"]
 rotate_180 = true
-info = "A3 paper loaded in portrait orientaion in the plotter. Does NOT affect drawing orientaion, only page margins."
+info = "A3 paper loaded in portrait orientation in the plotter. Does NOT affect drawing orientaion, only page margins."
 
 [[device.designmate.paper]]
 name = "a3l"
