@@ -44,3 +44,57 @@ y_range = [0, 10365]
 y_axis_up = true
 origin_location = ["15mm", "287mm"]
 set_ps = 0
+
+[device.designmate]
+name = "Calcomp Designmate"
+plotter_unit_length = "0.02488mm"
+pen_count = 8
+info = "Plotter set to Auto rotation, this will plot a drawing in portrait layout regardless of the physical layout of the paper when loaded into the plotter."
+
+[[device.designmate.paper]]
+name = "a4"
+aka_names = ["A4"]
+paper_size = ["297mm", "210mm"]
+x_range = [0, 10740]
+y_range = [0, 6835]
+y_axis_up = true
+origin_location = ["15mm", "196mm"]
+rotate_180 = true
+info = "A4 can only be loaded in landscape orientation in the Designmate. Does NOT affect the drawing orientation."
+
+[[device.designmate.paper]]
+name = "a3"
+aka_names = ["A3"]
+paper_size = ["420mm", "297mm"]
+x_range = [0, 15207]
+y_range = [0, 10853]
+y_axis_up = true
+origin_location = ["22mm", "285mmmm"]
+rotate_180 = true
+info = "A3 paper loaded in portrait orientation in the plotter. Does NOT affect drawing orientation, only page margins."
+
+[[device.designmate.paper]]
+name = "a3l"
+aka_names = ["A3l", "a3landscape", "A3landscape", "A3L"]
+paper_size = ["420mm", "297mm"]
+x_range = [0, 15790]
+y_range = [0, 10300]
+y_axis_up = true
+origin_location = ["10mm", "285mm"]
+rotate_180 = true
+info = "A3 paper loaded in landscape orientation in the plotter. Does NOT affect drawing orientation, only page margins."
+
+[device.hp7440a]
+name = "HP 7440a"
+plotter_unit_length = "0.02488mm"
+pen_count = 8
+
+[[device.hp7440a.paper]]
+name = "a4"
+aka_names = ["A4"]
+paper_size = ["297mm", "210mm"]
+x_range = [0, 11040]
+y_range = [0, 7721]
+y_axis_up = true
+origin_location = ["15mm", "200mm"]
+info = "The plotter dip switches must be set to Metric paper sizes mode."
