@@ -275,7 +275,7 @@ def _line_to_path(dwg: svgwrite.Drawing, lines: Union[np.ndarray, LineCollection
         lines = [lines]
 
     def single_line_to_path(line: np.ndarray) -> str:
-        if line[0] == line[-1]:
+        if line[0] == line[-1] and len(line) > 2:
             closed = True
             line = line[:-1]
         else:
