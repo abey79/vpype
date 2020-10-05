@@ -85,7 +85,7 @@ Examples:
 
     Write to a portrait A4 page:
 
-        vpype [...] write --page-format a4 output.svg 
+        vpype [...] write --page-format a4 output.svg
 
     Write to a 13x9 inch page and center the geometries:
 
