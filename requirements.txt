@@ -9,7 +9,7 @@ shapely[vectorized]
 svgwrite
 toml
 
-git+https://github.com/abey79/svgpathtools@vpype-fixes#egg=svgpathtools
+git+https://github.com/abey79/svgpathtools@vpype#egg=svgpathtools
 
 
 # dev/test
