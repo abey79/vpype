@@ -15,8 +15,6 @@ import click
 import numpy as np
 import svgpathtools as svg
 import svgwrite
-from svgpathtools import SVG_NAMESPACE
-from svgpathtools.document import flatten_group
 from svgwrite.extensions import Inkscape
 
 from .config import CONFIG_MANAGER, PaperConfig, PlotterConfig
@@ -102,7 +100,7 @@ def _convert_flattened_paths(
         # we merge them in a single line (e.g. line string, etc.). If there are disconnection
         # in the path (e.g. multiple "M" commands), we create several lines
         sub_paths: List[List[complex]] = []
-        for elem in result.path:
+        for elem in result:
             if isinstance(elem, svg.Line):
                 coords = [elem.start, elem.end]
             else:
@@ -161,7 +159,7 @@ def read_svg(
     doc = svg.Document(filename)
     width, height, scale_x, scale_y, offset_x, offset_y = _calculate_page_size(doc.root)
     lc = _convert_flattened_paths(
-        doc.flatten_all_paths(), quantization, scale_x, scale_y, offset_x, offset_y, simplify,
+        doc.paths(), quantization, scale_x, scale_y, offset_x, offset_y, simplify,
     )
 
     if return_size:
@@ -208,7 +206,7 @@ def read_multilayer_svg(
     vector_data = VectorData()
 
     # non-group top level elements are loaded in layer 1
-    top_level_elements = doc.flatten_all_paths(group_filter=lambda x: x is doc.root)
+    top_level_elements = doc.paths(group_filter=lambda x: x is doc.root)
     if top_level_elements:
         vector_data.add(
             _convert_flattened_paths(
@@ -223,7 +221,7 @@ def read_multilayer_svg(
             1,
         )
 
-    for i, g in enumerate(doc.root.iterfind("svg:g", SVG_NAMESPACE)):
+    for i, g in enumerate(doc.root.iterfind("svg:g", svg.SVG_NAMESPACE)):
         # compute a decent layer ID
         lid_str = re.sub(
             "[^0-9]", "", g.get("{http://www.inkscape.org/namespaces/inkscape}label") or ""
@@ -239,7 +237,7 @@ def read_multilayer_svg(
 
         vector_data.add(
             _convert_flattened_paths(
-                flatten_group(g, g),
+                doc.paths_from_group(g, g),
                 quantization,
                 scale_x,
                 scale_y,
@@ -275,7 +273,7 @@ def _line_to_path(dwg: svgwrite.Drawing, lines: Union[np.ndarray, LineCollection
         lines = [lines]
 
     def single_line_to_path(line: np.ndarray) -> str:
-        if line[0] == line[-1]:
+        if line[0] == line[-1] and len(line) > 2:
             closed = True
             line = line[:-1]
         else:
