@@ -1,4 +1,5 @@
 import click
+from typing import Tuple
 
 import vpype as vp
 
@@ -25,13 +26,24 @@ def line(x0: float, y0: float, x1: float, y1: float) -> vp.LineCollection:
 @click.argument("y", type=vp.LengthType())
 @click.argument("width", type=vp.LengthType())
 @click.argument("height", type=vp.LengthType())
+@click.option(
+    "--radii",
+    "-r",
+    type=vp.LengthType(),
+    nargs=4,
+    default=(0, 0, 0, 0),
+    help="Top-left, top-right, bottom-right and bottom-left corner radii.",
+)
 @vp.generator
-def rect(x: float, y: float, width: float, height: float) -> vp.LineCollection:
+def rect(
+    x: float, y: float, width: float, height: float, radii: Tuple[float, float, float, float]
+) -> vp.LineCollection:
     """Generate a rectangle.
 
     The rectangle is defined by its top left corner (X, Y) and its width and height.
+    Radius can be specified for each corner with tl, tr, br, bl.
     """
-    return vp.LineCollection([vp.rect(x, y, width, height)])
+    return vp.LineCollection([vp.rect(x, y, width, height, *radii)])
 
 
 @cli.command(group="Primitives")
