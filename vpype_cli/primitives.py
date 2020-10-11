@@ -1,5 +1,6 @@
-import click
 from typing import Tuple
+
+import click
 
 import vpype as vp
 
