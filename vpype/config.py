@@ -101,16 +101,33 @@ class PlotterConfig:
         )
 
     def paper_config(self, paper: str) -> Optional[PaperConfig]:
-        """Return the paper configuration for `paper` or none if not found.
+        """Return the paper configuration for ``paper`` or none if not found.
 
         Args:
-            paper: desired paper format
+            paper: desired paper format designator
 
         Returns:
-            the :class:`PaperConfig` instance corresponding to `paper` or None if not found
+            the :class:`PaperConfig` instance corresponding to ``paper`` or None if not found
         """
         for pc in self.paper_configs:
             if paper == pc.name or paper in pc.aka_names:
+                return pc
+        return None
+
+    def paper_config_from_format(
+        self, page_format: Tuple[float, float]
+    ) -> Optional[PaperConfig]:
+        """Look for a paper configuration matching ``paper_format`` and return it if found.
+
+        Args:
+            page_format: desired page format
+
+        Returns:
+            the :class:`PaperConfig` instance corresponding to ``paper_format`` or None if not
+            found
+        """
+        for pc in self.paper_configs:
+            if pc.paper_size == page_format or pc.paper_size == tuple(reversed(page_format)):
                 return pc
         return None
 

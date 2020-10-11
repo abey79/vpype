@@ -1,5 +1,6 @@
 import pytest
 
+import vpype as vp
 from vpype_cli import cli
 
 
@@ -63,6 +64,14 @@ def simple_printer_config(config_file_factory):
         y_axis_up = false
         origin_location = [0, 0]
         final_pu_params = "0,0"
+        
+        [[device.simple.paper]]
+        name = "simple_big"
+        paper_size = [20, 30]
+        x_range = [0, 20]
+        y_range = [0, 30]
+        y_axis_up = false
+        origin_location = [0, 0]
         
         [device.double]
         name = "simple"
@@ -152,3 +161,18 @@ def test_hpgl_info_quiet(runner, simple_printer_config):
     )
 
     assert res.stderr == ""
+
+
+@pytest.mark.parametrize(
+    ["paper_format", "expected_name"],
+    [
+        [(10, 15), "simple"],
+        [(15, 10), "simple"],
+        [(20, 30), "simple_big"],
+        [(30, 20), "simple_big"],
+    ],
+)
+def test_hpgl_paper_config_from_format(simple_printer_config, paper_format, expected_name):
+    vp.CONFIG_MANAGER.load_config_file(simple_printer_config)
+    pc = vp.CONFIG_MANAGER.get_plotter_config("simple").paper_config_from_format(paper_format)
+    assert pc.name == expected_name
