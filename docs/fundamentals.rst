@@ -94,7 +94,7 @@ For generators, ``--layer new`` can be used to generate geometries in a new, emp
 
 A few more examples of generators include:
 
-* :ref:`cmd_rect`: generates a rectangle
+* :ref:`cmd_rect`: generates a rectangle, with optional rounded angles
 * :ref:`cmd_ellipse`: generates lines approximating an ellipse
 * :ref:`cmd_arc`: generates lines approximating a circular arc
 * :ref:`cmd_frame`: generates a single-line frame around the existing geometries
