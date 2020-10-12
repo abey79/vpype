@@ -4,15 +4,16 @@ from typing import Optional, cast
 import click
 
 from vpype import (
-    LengthType,
-    read_svg,
-    global_processor,
-    VectorData,
-    read_multilayer_svg,
     LayerType,
-    single_to_layer_id,
+    LengthType,
     LineCollection,
+    VectorData,
+    global_processor,
+    read_multilayer_svg,
+    read_svg,
+    single_to_layer_id,
 )
+
 from .cli import cli
 
 

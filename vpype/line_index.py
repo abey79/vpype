@@ -3,7 +3,7 @@
 """
 
 import logging
-from typing import Optional, Tuple, Iterable
+from typing import Iterable, Optional, Tuple
 
 import numpy as np
 from scipy.spatial import cKDTree as KDTree

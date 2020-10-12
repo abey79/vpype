@@ -33,6 +33,7 @@ extensions = [
     "sphinx_rtd_theme",
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
+    "sphinx.ext.intersphinx",
     "sphinx_click.ext",
     "sphinx_autodoc_typehints",
     # "alabaster",
@@ -74,6 +75,15 @@ html_theme = "sphinx_rtd_theme"
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
+
+# -- Intersphinx options
+intersphinx_mapping = {'shapely': ('https://shapely.readthedocs.io/en/latest/', None)}
+
+
+
+# -- Napoleon options
+
+napoleon_include_init_with_doc = True
 
 # def setup(app):
 #     app.add_config_value('recommonmark_config', {

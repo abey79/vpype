@@ -4,7 +4,7 @@ import pytest
 from vpype import interpolate
 
 # noinspection PyProtectedMember
-from vpype.geometry import reloop, crop_half_plane, _interpolate_crop, crop
+from vpype.geometry import _interpolate_crop, crop, crop_half_plane, reloop
 
 
 def test_reloop_small():

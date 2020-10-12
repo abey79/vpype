@@ -1,6 +1,5 @@
 from setuptools import setup
 
-
 with open("README.md") as f:
     readme = f.read()
 
@@ -17,17 +16,20 @@ setup(
     url="https://github.com/abey79/vpype",
     license=license,
     packages=["vpype", "vpype_cli"],
+    include_package_data=True,
     install_requires=[
-        'click>=7.1',
-        'click-plugins',
-        'matplotlib',
-        'scipy',  # scipy is needed to optimize svgpathtools' curve linearization
-        'shapely[vectorized]',
-        'svgwrite',
-        'svgpathtools @ git+https://github.com/abey79/svgpathtools@vpype-fixes',
+        "attrs",
+        "click>=7.1",
+        "click-plugins",
+        "matplotlib",
+        "scipy",  # scipy is needed to optimize svgpathtools' curve linearization
+        "shapely[vectorized]",
+        "svgwrite",
+        "svgpathtools @ git+https://github.com/abey79/svgpathtools@vpype",
+        "toml",
     ],
-    entry_points='''
+    entry_points="""
         [console_scripts]
         vpype=vpype_cli.cli:cli
-    '''
+    """,
 )

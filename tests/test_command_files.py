@@ -2,8 +2,8 @@ import io
 
 import pytest
 
+from vpype_cli.cli import cli, extract_arguments
 from vpype_cli.debug import DebugData
-from vpype_cli.cli import extract_arguments, cli
 
 
 @pytest.mark.parametrize(

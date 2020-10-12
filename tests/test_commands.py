@@ -1,7 +1,7 @@
 import itertools
 
-import pytest
 import numpy as np
+import pytest
 
 from vpype_cli import cli
 from vpype_cli.debug import DebugData
@@ -18,7 +18,8 @@ MINIMAL_COMMANDS = [
     "ellipse 0 0 2 4",
     "read '__ROOT__/examples/bc_template.svg'",
     "read -m '__ROOT__/examples/bc_template.svg'",
-    "write -",
+    "write -f svg -",
+    "write -f hpgl -d hp7475a -p a4 -",
     "rotate 0",
     "scale 1 1",
     "scaleto 10cm 10cm",

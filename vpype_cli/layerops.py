@@ -1,13 +1,14 @@
 import click
 
 from vpype import (
-    global_processor,
     LayerType,
+    LineCollection,
     VectorData,
+    global_processor,
     multiple_to_layer_ids,
     single_to_layer_id,
-    LineCollection,
 )
+
 from .cli import cli
 
 

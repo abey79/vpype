@@ -2,11 +2,12 @@
 Hidden debug commands to help testing.
 """
 import json
-from typing import Any, Dict, Iterable, Sequence, List
+from typing import Any, Dict, Iterable, List, Sequence
 
 import numpy as np
 
-from vpype import global_processor, as_vector, VectorData, LineCollection
+from vpype import LineCollection, VectorData, as_vector, global_processor
+
 from .cli import cli
 
 debug_data: List[Dict[str, Any]] = []

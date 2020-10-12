@@ -1,7 +1,8 @@
-from typing import Iterable, Tuple, Set, Sequence
+from typing import Iterable, Sequence, Set, Tuple
+
 import numpy as np
 import pytest
-from shapely.geometry import MultiLineString, LineString, Point, LinearRing
+from shapely.geometry import LinearRing, LineString, MultiLineString, Point
 
 from vpype import LineCollection, VectorData
 

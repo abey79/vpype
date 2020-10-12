@@ -3,7 +3,7 @@
 """
 
 import re
-from typing import Union, Tuple
+from typing import Tuple, Union
 
 import click
 
@@ -100,7 +100,7 @@ def convert_page_format(value: str) -> Tuple[float, float]:
     )
 
     if not match:
-        raise ValueError()
+        raise ValueError(f"page format '{value}' unknown")
 
     x, x_unit, y, y_unit = match.groups()
 

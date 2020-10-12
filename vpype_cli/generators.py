@@ -3,7 +3,8 @@ from typing import Tuple
 import click
 import numpy as np
 
-from vpype import LineCollection, LengthType, generator
+from vpype import LengthType, LineCollection, generator
+
 from .cli import cli
 
 

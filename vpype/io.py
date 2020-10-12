@@ -7,22 +7,21 @@ import copy
 import datetime
 import math
 import re
-from typing import Tuple, Optional
-from typing import Union, List, TextIO
+from typing import List, Optional, TextIO, Tuple, Union
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element
 
+import click
 import numpy as np
 import svgpathtools as svg
 import svgwrite
-from svgpathtools import SVG_NAMESPACE
-from svgpathtools.document import flatten_group
 from svgwrite.extensions import Inkscape
 
-from .model import LineCollection, as_vector, VectorData
+from .config import CONFIG_MANAGER, PaperConfig, PlotterConfig
+from .model import LineCollection, VectorData, as_vector
 from .utils import UNITS, convert_length
 
-__all__ = ["read_svg", "read_multilayer_svg", "write_svg"]
+__all__ = ["read_svg", "read_multilayer_svg", "write_svg", "write_hpgl"]
 
 _COLORS = [
     "#00f",
@@ -101,7 +100,7 @@ def _convert_flattened_paths(
         # we merge them in a single line (e.g. line string, etc.). If there are disconnection
         # in the path (e.g. multiple "M" commands), we create several lines
         sub_paths: List[List[complex]] = []
-        for elem in result.path:
+        for elem in result:
             if isinstance(elem, svg.Line):
                 coords = [elem.start, elem.end]
             else:
@@ -160,7 +159,7 @@ def read_svg(
     doc = svg.Document(filename)
     width, height, scale_x, scale_y, offset_x, offset_y = _calculate_page_size(doc.root)
     lc = _convert_flattened_paths(
-        doc.flatten_all_paths(), quantization, scale_x, scale_y, offset_x, offset_y, simplify,
+        doc.paths(), quantization, scale_x, scale_y, offset_x, offset_y, simplify,
     )
 
     if return_size:
@@ -207,7 +206,7 @@ def read_multilayer_svg(
     vector_data = VectorData()
 
     # non-group top level elements are loaded in layer 1
-    top_level_elements = doc.flatten_all_paths(group_filter=lambda x: x is doc.root)
+    top_level_elements = doc.paths(group_filter=lambda x: x is doc.root)
     if top_level_elements:
         vector_data.add(
             _convert_flattened_paths(
@@ -222,7 +221,7 @@ def read_multilayer_svg(
             1,
         )
 
-    for i, g in enumerate(doc.root.iterfind("svg:g", SVG_NAMESPACE)):
+    for i, g in enumerate(doc.root.iterfind("svg:g", svg.SVG_NAMESPACE)):
         # compute a decent layer ID
         lid_str = re.sub(
             "[^0-9]", "", g.get("{http://www.inkscape.org/namespaces/inkscape}label") or ""
@@ -238,7 +237,7 @@ def read_multilayer_svg(
 
         vector_data.add(
             _convert_flattened_paths(
-                flatten_group(g, g),
+                doc.paths_from_group(g, g),
                 quantization,
                 scale_x,
                 scale_y,
@@ -274,7 +273,7 @@ def _line_to_path(dwg: svgwrite.Drawing, lines: Union[np.ndarray, LineCollection
         lines = [lines]
 
     def single_line_to_path(line: np.ndarray) -> str:
-        if line[0] == line[-1]:
+        if line[0] == line[-1] and len(line) > 2:
             closed = True
             line = line[:-1]
         else:
@@ -416,3 +415,134 @@ def write_svg(
         dwg.add(group)
 
     dwg.write(output, pretty=True)
+
+
+def _get_hpgl_config(
+    device: Optional[str], page_format: str
+) -> Tuple[PlotterConfig, PaperConfig]:
+    if device is None:
+        device = CONFIG_MANAGER.get_command_config("write").get("default_hpgl_device", None)
+    plotter_config = CONFIG_MANAGER.get_plotter_config(str(device))
+    if plotter_config is None:
+        raise ValueError(f"no configuration available for plotter '{device}'")
+    paper_config = plotter_config.paper_config(page_format)
+    if paper_config is None:
+        raise ValueError(
+            f"no configuration available for paper size '{page_format}' with plotter "
+            f"'{device}'"
+        )
+
+    return plotter_config, paper_config
+
+
+def write_hpgl(
+    output: TextIO,
+    vector_data: VectorData,
+    page_format: str,
+    landscape: bool,
+    center: bool,
+    device: Optional[str],
+    velocity: Optional[float],
+    quiet: bool = False,
+) -> None:
+    """Create a HPGL file from the :class:`VectorData` instance.
+
+    The ``device``/``page_format`` combination must be defined in the built-in or user-provided
+    config files or an exception will be raised.
+
+    By default, no translation is applied on the geometry. If `center=True`, geometries are
+    moved to the center of the page.
+
+    No scaling or rotation is applied to geometries.
+
+    Args:
+        output: text-mode IO stream where SVG code will be written
+        vector_data: geometries to be written
+        page_format: page format string (it must be configured for the selected device)
+        landscape: if True, the geometries are generated in landscape orientation
+        center: center geometries on page before export
+        device: name of the device to use (the corresponding config must exists). If not
+            provided, a default device must be configured, which will be used.
+        velocity: if provided, a VS command will be generated with the corresponding value
+        quiet: if True, do not print the plotter/paper info strings
+    """
+
+    # empty HPGL is acceptable there are no geometries to plot
+    if vector_data.is_empty():
+        return
+
+    plotter_config, paper_config = _get_hpgl_config(device, page_format)
+    if not quiet:
+        if plotter_config.info:
+            # use of echo instead of print needed for testability
+            # https://github.com/pallets/click/issues/1678
+            click.echo(plotter_config.info, err=True)
+        if paper_config.info:
+            click.echo(paper_config.info, err=True)
+
+    # are plotter coordinate placed in landscape or portrait orientation?
+    coords_landscape = paper_config.paper_size[0] > paper_config.paper_size[1]
+
+    # vector data preprocessing:
+    # - make a copy
+    # - deal with orientation mismatch
+    # - optionally center on paper
+    # - convert to plotter units
+    # - crop to plotter limits
+    vector_data = copy.deepcopy(vector_data)
+
+    if landscape != coords_landscape:
+        vector_data.rotate(-math.pi / 2)
+        vector_data.translate(0, paper_config.paper_size[1])
+
+    if paper_config.rotate_180:
+        vector_data.scale(-1, -1)
+        vector_data.translate(*paper_config.paper_size)
+
+    if center:
+        bounds = vector_data.bounds()
+        if bounds is not None:
+            vector_data.translate(
+                (paper_config.paper_size[0] - (bounds[2] - bounds[0])) / 2.0 - bounds[0],
+                (paper_config.paper_size[1] - (bounds[3] - bounds[1])) / 2.0 - bounds[1],
+            )
+
+    vector_data.translate(-paper_config.origin_location[0], -paper_config.origin_location[1])
+    unit_per_pixel = 1 / plotter_config.plotter_unit_length
+    vector_data.scale(
+        unit_per_pixel, -unit_per_pixel if paper_config.y_axis_up else unit_per_pixel
+    )
+    vector_data.crop(
+        paper_config.x_range[0],
+        paper_config.y_range[0],
+        paper_config.x_range[1],
+        paper_config.y_range[1],
+    )
+
+    # output HPGL
+    def complex_to_str(p: complex) -> str:
+        return f"{int(round(p.real))},{int(round(p.imag))}"
+
+    output.write("IN;DF;")
+    if velocity is not None:
+        output.write(f"VS{velocity};")
+    if paper_config.set_ps is not None:
+        output.write(f"PS{int(paper_config.set_ps)};")
+
+    for layer_id in sorted(vector_data.layers.keys()):
+        pen_id = 1 + (layer_id - 1) % plotter_config.pen_count
+        output.write(f"SP{pen_id};")
+
+        for line in vector_data.layers[layer_id]:
+            if len(line) < 2:
+                continue
+            output.write(f"PU{complex_to_str(line[0])};")
+            output.write(f"PD")
+            output.write(",".join(complex_to_str(p) for p in line[1:]))
+            output.write(";")
+
+        output.write(
+            f"PU{paper_config.final_pu_params if paper_config.final_pu_params else ''};"
+        )
+
+    output.write("SP0;IN;\n")

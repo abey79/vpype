@@ -2,16 +2,16 @@ import logging
 import os
 import random
 import shlex
-from typing import TextIO, List, Union, Any
+from typing import Any, List, TextIO, Union
 
 import click
+import numpy as np
 from click import get_os_args
 from click_plugins import with_plugins
-import numpy as np
 from pkg_resources import iter_entry_points
 from shapely.geometry import MultiLineString
 
-from vpype import VpypeState
+from vpype import CONFIG_MANAGER, VpypeState
 
 
 class GroupedGroup(click.Group):
@@ -84,8 +84,11 @@ class GroupedGroup(click.Group):
     help="Record this command in a `vpype_history.txt` in the current directory.",
 )
 @click.option("-s", "--seed", type=int, help="Specify the RNG seed.")
+@click.option(
+    "-c", "--config", type=click.Path(exists=True), help="Load an additional config file."
+)
 @click.pass_context
-def cli(ctx, verbose, include, history, seed):
+def cli(ctx, verbose, include, history, seed, config):
     """Execute the vector processing pipeline passed as argument."""
     logging.basicConfig()
     if verbose == 0:
@@ -111,10 +114,13 @@ def cli(ctx, verbose, include, history, seed):
     np.random.seed(seed)
     random.seed(seed)
 
+    if config is not None:
+        CONFIG_MANAGER.load_config_file(config)
+
 
 # noinspection PyShadowingNames,PyUnusedLocal
 @cli.resultcallback()
-def process_pipeline(processors, verbose, include, history, seed):
+def process_pipeline(processors, verbose, include, history, seed, config):
     execute_processors(processors)
 
 
@@ -257,11 +263,7 @@ def extract_arguments(f: TextIO) -> List[str]:
     """
     args = []
     for line in f.readlines():
-        idx = line.find("#")
-        if idx != -1:
-            line = line[:idx]
-
-        args.extend(shlex.split(line))
+        args.extend(shlex.split(line, comments=True))
     return args
 
 
