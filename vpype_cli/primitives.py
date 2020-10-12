@@ -35,16 +35,41 @@ def line(x0: float, y0: float, x1: float, y1: float) -> vp.LineCollection:
     default=(0, 0, 0, 0),
     help="Top-left, top-right, bottom-right and bottom-left corner radii.",
 )
+@click.option(
+    "-q",
+    "--quantization",
+    type=vp.LengthType(),
+    default="1mm",
+    help="Maximum length of segments approximating the rounded angles.",
+)
 @vp.generator
 def rect(
-    x: float, y: float, width: float, height: float, radii: Tuple[float, float, float, float]
+    x: float,
+    y: float,
+    width: float,
+    height: float,
+    radii: Tuple[float, float, float, float],
+    quantization: float,
 ) -> vp.LineCollection:
-    """Generate a rectangle.
+    """Generate a rectangle, with optional rounded angles.
 
     The rectangle is defined by its top left corner (X, Y) and its width and height.
-    Radius can be specified for each corner with tl, tr, br, bl.
+
+    Examples:
+
+        Straight-angle rectangle:
+
+            vpype rect 10cm 10cm 3cm 2cm show
+
+        Rounded-angle rectangle:
+
+            vpype rect --radii 5mm 5mm 5mm 5mm 10cm 10cm 3cm 2cm show
+
+        Rounded-angle rectangle with quantization control:
+
+            vpype rect --quantization 0.1mm --radii 5mm 5mm 5mm 5mm 10cm 10cm 3cm 2cm show
     """
-    return vp.LineCollection([vp.rect(x, y, width, height, *radii)])
+    return vp.LineCollection([vp.rect(x, y, width, height, *radii, quantization)])
 
 
 @cli.command(group="Primitives")
@@ -59,7 +84,7 @@ def rect(
     "--quantization",
     type=vp.LengthType(),
     default="1mm",
-    help="Maximum length of segments approximating the circle.",
+    help="Maximum length of segments approximating the arc.",
 )
 @vp.generator
 def arc(

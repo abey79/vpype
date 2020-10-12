@@ -33,8 +33,9 @@ def rect(
     tr: float = 0,
     br: float = 0,
     bl: float = 0,
+    quantization: float = 0.1,
 ) -> np.ndarray:
-    """Build a rectangular path
+    """Build a rectangular path, with optional rounded angles.
 
     Args:
         x: top-left corner X coordinate
@@ -45,6 +46,7 @@ def rect(
         tr: top-right corner radius (0 if not provided)
         br: bottom-right corner radius (0 if not provided)
         bl: bottom-left corner radius (0 if not provided)
+        quantization: maximum size of segments approximating round corners
 
     Returns:
         rectangular path
@@ -67,22 +69,22 @@ def rect(
         br *= scale
 
     if tl != 0:
-        p1 = arc(x + tl, y + tl, tl, tl, 90, 180)
+        p1 = arc(x + tl, y + tl, tl, tl, 90, 180, quantization)
     else:
         p1 = np.array([complex(x, y)])
 
     if bl != 0:
-        p2 = arc(x + bl, y + height - bl, bl, bl, 180, 270)
+        p2 = arc(x + bl, y + height - bl, bl, bl, 180, 270, quantization)
     else:
         p2 = np.array([complex(x, y + height)])
 
     if br != 0:
-        p3 = arc(x + width - br, y + height - br, br, br, 270, 360)
+        p3 = arc(x + width - br, y + height - br, br, br, 270, 360, quantization)
     else:
         p3 = np.array([complex(x + width, y + height)])
 
     if tr != 0:
-        p4 = arc(x + width - tr, y + tr, tr, tr, 0, 90)
+        p4 = arc(x + width - tr, y + tr, tr, tr, 0, 90, quantization)
     else:
         p4 = np.array([complex(x + width, y)])
 
