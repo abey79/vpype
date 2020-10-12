@@ -43,6 +43,7 @@ PAGE_FORMATS = {
     "letter": _mm_to_px(215.9, 279.4),
     "legal": _mm_to_px(215.9, 355.6),
     "executive": _mm_to_px(185.15, 266.7),
+    "tabloid": _mm_to_px(279.4, 431.8),
 }
 
 

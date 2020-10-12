@@ -18,6 +18,7 @@ HPGL plotter have specific config support::
 """
 
 import logging
+import math
 import os
 import pathlib
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
@@ -126,8 +127,14 @@ class PlotterConfig:
             the :class:`PaperConfig` instance corresponding to ``paper_format`` or None if not
             found
         """
+
+        def _isclose_tuple(a, b):
+            return all(math.isclose(aa, bb) for aa, bb in zip(a, b))
+
         for pc in self.paper_configs:
-            if pc.paper_size == page_format or pc.paper_size == tuple(reversed(page_format)):
+            if _isclose_tuple(pc.paper_size, page_format) or _isclose_tuple(
+                pc.paper_size, tuple(reversed(page_format))
+            ):
                 return pc
         return None
 
