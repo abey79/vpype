@@ -280,9 +280,9 @@ def filter_command(
     """
     keys = []
     if min_length is not None:
-        keys.append(lambda line: vp.min_length(line, cast(float, min_length)))
+        keys.append(lambda line: vp.line_length(line) >= cast(float, min_length))
     if max_length is not None:
-        keys.append(lambda line: vp.max_length(line, cast(float, max_length)))
+        keys.append(lambda line: vp.line_length(line) <= cast(float, max_length))
     if closed:
         keys.append(lambda line: vp.is_closed(line, tolerance))
     if not_closed:
@@ -292,4 +292,5 @@ def filter_command(
         lines.filter(lambda line: vp.union(line, keys))
     else:
         logging.warning("filter: no criterion was provided, all geometries are preserved")
+
     return lines

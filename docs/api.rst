@@ -58,6 +58,10 @@ Primitives
 Geometry
 ========
 
+.. autofunction:: line_length
+
+.. autofunction:: is_closed
+
 .. autofunction:: interpolate
 
 .. autofunction:: crop_half_plane
@@ -65,18 +69,6 @@ Geometry
 .. autofunction:: crop
 
 .. autofunction:: reloop
-
-
-Filters
-=======
-
-.. autofunction:: union
-
-.. autofunction:: min_length
-
-.. autofunction:: max_length
-
-.. autofunction:: is_closed
 
 
 Unit management
@@ -125,3 +117,5 @@ Misc
    :members:
 
 .. autofunction:: as_vector
+
+.. autofunction:: union
