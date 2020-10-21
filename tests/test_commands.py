@@ -36,6 +36,7 @@ MINIMAL_COMMANDS = [
     "ldelete 1",
     "trim 1mm 1mm",
     "splitall",
+    "filter --min-length 1mm",
 ]
 
 

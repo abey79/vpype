@@ -67,6 +67,18 @@ Geometry
 .. autofunction:: reloop
 
 
+Filters
+=======
+
+.. autofunction:: union
+
+.. autofunction:: min_length
+
+.. autofunction:: max_length
+
+.. autofunction:: is_closed
+
+
 Unit management
 ===============
 
