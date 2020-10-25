@@ -90,7 +90,8 @@ Examples:
     default="tight",
     help=(
         "Set the bounds of the SVG to a specific page format. If omitted, the SVG size it set "
-        "to the geometry bounding box."
+        "to the geometry bounding box. "
+        f"Default page formats are: {', '.join(PAGE_FORMATS.keys())}"
     ),
 )
 @click.option(
