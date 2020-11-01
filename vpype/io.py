@@ -1,7 +1,4 @@
-"""
-.. module:: vpype
-
-File import/export functions.
+"""File import/export functions.
 """
 import copy
 import datetime

@@ -1,7 +1,3 @@
-"""
-.. module:: vpype
-"""
-
 from contextlib import contextmanager
 from typing import List, Optional, Union
 

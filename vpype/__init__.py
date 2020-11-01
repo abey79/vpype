@@ -1,3 +1,5 @@
+"""vpype core API."""
+
 from .config import *
 from .decorators import *
 from .geometry import *

@@ -1,7 +1,3 @@
-"""
-.. module:: vpype
-"""
-
 import math
 
 import numpy as np
