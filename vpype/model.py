@@ -1,7 +1,4 @@
-"""
-.. module:: vpype
-
-Implementation of vpype's data model
+"""Implementation of vpype's data model
 """
 import math
 from typing import Dict, Iterable, Iterator, List, Optional, Tuple, Union

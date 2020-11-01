@@ -1,7 +1,4 @@
-"""
-.. module:: vpype
-
-Config file support for vpype.
+"""Config file support for vpype.
 
 Configuration data is accessed via the ``CONFIG_MANAGER`` global variable::
 

@@ -1,7 +1,3 @@
-"""
-.. module:: vpype
-"""
-
 import re
 from typing import Tuple, Union
 
