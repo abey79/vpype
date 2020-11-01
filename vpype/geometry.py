@@ -141,8 +141,10 @@ def crop(line: np.ndarray, x1: float, y1: float, x2: float, y2: float) -> List[n
     """Crop a polyline to a rectangular area.
 
     Args:
-        x1, y1: bottom-left corner of the crop area
-        x2, y2: top-right corner of the crop area
+        x1: left coordinate of the crop area
+        y1: bottom coordinate of the crop area
+        x2: right coordinate of the crop area
+        y2: top coordinate of the crop area
 
     Returns:
         list of lines resulting of the crop (emtpy if x1 > x2 or y1 > y2)

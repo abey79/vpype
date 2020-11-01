@@ -13,16 +13,13 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
-import alabaster
-
-from recommonmark.transform import AutoStructify
 
 # -- Project information -----------------------------------------------------
 
 project = "vpype"
+# noinspection PyShadowingBuiltins
 copyright = "2020, Antoine Beyeler"
 author = "Antoine Beyeler"
-
 
 # -- General configuration ---------------------------------------------------
 
@@ -30,21 +27,25 @@ author = "Antoine Beyeler"
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "sphinx_rtd_theme",
     "sphinx.ext.autodoc",
-    "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.napoleon",
     "sphinx_click.ext",
     "sphinx_autodoc_typehints",
     # "alabaster",
     # "recommonmark",
-    #'autoapi.extension',
+    # 'autoapi.extension',
 ]
 
 # -- Autoapi configuration ------------------------------------------------
 # autoapi_dirs = ['../vpype']
 # autoapi_options = ['members', 'undoc-members', 'show-inheritance']
 # autoapi_generate_api_docs = False
+
+autosummary_generate = True
+add_module_names = False
+autosummary_imported_members = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -54,12 +55,10 @@ templates_path = ["_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "venv", ".*"]
 
-
 # -- Global options ----------------------------------------------------------
 
 # Don't mess with double-dash used in CLI options
 smartquotes_action = "qe"
-
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -75,11 +74,12 @@ html_theme = "sphinx_rtd_theme"
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
-
 # -- Intersphinx options
-intersphinx_mapping = {'shapely': ('https://shapely.readthedocs.io/en/latest/', None)}
-
-
+intersphinx_mapping = {
+    "shapely": ("https://shapely.readthedocs.io/en/latest/", None),
+    "click": ("https://click.palletsprojects.com/en/7.x/", None),
+    "python": ("https://docs.python.org/3/", None),
+}
 
 # -- Napoleon options
 

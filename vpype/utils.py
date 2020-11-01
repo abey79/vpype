@@ -114,6 +114,23 @@ def convert_page_format(value: str) -> Tuple[float, float]:
 
 
 class LengthType(click.ParamType):
+    """:class:`click.ParamType` sub-class to automatically converts a user-provided length
+    string (which may contain units) into a value in CSS pixel units. This class uses
+    :func:`convert_length` internally.
+
+    Example::
+
+        >>> import click
+        >>> import vpype_cli
+        >>> import vpype
+        >>> @vpype_cli.cli.command(group="my commands")
+        ... @click.argument("x", type=vpype.LengthType())
+        ... @click.option("-o", "--option", type=vpype.LengthType(), default="1mm")
+        ... @vpype.generator
+        ... def my_command(x: float, option: float):
+        ...     pass
+    """
+
     name = "length"
 
     def convert(self, value, param, ctx):
@@ -127,6 +144,22 @@ Length = LengthType  # TODO: to be deprecated
 
 
 class PageSizeType(click.ParamType):
+    """:class:`click.ParamType` sub-class to automatically converts a user-provided page format
+       string into a tuple of float in CSS pixel units. See :func:`convert_page_format` for
+       information on the page format descriptor syntax.
+
+       Example::
+
+           >>> import click
+           >>> import vpype_cli
+           >>> import vpype
+           >>> @vpype_cli.cli.command(group="my commands")
+           ... @click.argument("fmt", type=vpype.PageSizeType())
+           ... @vpype.generator
+           ... def my_command(fmt: Tuple[float, float]):
+           ...     pass
+    """
+
     name = "PAGESIZE"
 
     def convert(self, value, param, ctx) -> Tuple[float, float]:
