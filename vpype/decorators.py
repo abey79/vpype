@@ -1,7 +1,3 @@
-"""
-.. module:: vpype
-"""
-
 import datetime
 import logging
 import math
@@ -213,8 +209,7 @@ def generator(f):
 
 
 def block_processor(c):
-    """
-    Create an instance of the block layer_processor class
+    """Create an instance of the block processor class
     """
 
     def new_func(*args, **kwargs):
