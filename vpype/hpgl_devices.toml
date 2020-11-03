@@ -106,3 +106,30 @@ y_axis_up = true
 origin_location = ["15mm", "200mm"]
 final_pu_params = "0,7721"
 info = "The plotter dip switches must be set to Metric paper sizes mode."
+
+[device.dxy1250]
+name = "Roland DXY-1250"
+plotter_unit_length = "0.025mm"
+pen_count = 8
+
+[[device.dxy1250.paper]]
+name = "a4"
+info = "The plotter must be configured in ISO A3 mode (all dip switches off), place a4 paper bottom left (0,0) of the flatbed with the longest side along X."
+paper_size = ["297mm", "210mm"]
+x_range = [0, 16158]
+y_range = [0, 11040]
+y_axis_up = true
+origin_location = ["0mm", "210mm"]
+final_pu_params = "16158,11040"
+set_ps = 4
+
+[[device.dxy1250.paper]]
+name = "a3"
+info = "The plotter must be configured in ISO A3 mode (all dip switches off), place a3 paper bottom left (0,0) of the flatbed with the longest side along X."
+paper_size = ["420mm", "297mm"]
+x_range = [0, 16158]
+y_range = [0, 11040]
+y_axis_up = true
+origin_location = ["0mm", "297mm"]
+final_pu_params = "16158,11040"
+set_ps = 0
