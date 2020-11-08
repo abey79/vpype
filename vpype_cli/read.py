@@ -58,18 +58,18 @@ def read(
     The following logic is used to determine in which layer each SVG top-level group is
     imported:
 
-        - If a `inkscape:label` attribute is present and contains digit characters, it is
-    stripped of non-digit characters the resulting number is used as target layer. If the
-    resulting number is 0, layer 1 is used instead.
+        - If a `inkscape:label` attribute is present and contains digit characters, it is \
+stripped of non-digit characters the resulting number is used as target layer. If the \
+resulting number is 0, layer 1 is used instead.
 
         - If the previous step fails, the same logic is applied to the `id` attribute.
 
-        - If both previous steps fail, the target layer matches the top-level group's order of
-    appearance.
+        - If both previous steps fail, the target layer matches the top-level group's order \
+of appearance.
 
-    Using `--single-layer`, the `read` command operates in single-layer mode. In this mode, all
-    geometries are in a single layer regardless of the group structure. The current target
-    layer is used default and can be specified with the `--layer` option.
+    Using `--single-layer`, the `read` command operates in single-layer mode. In this mode, \
+all geometries are in a single layer regardless of the group structure. The current target \
+layer is used default and can be specified with the `--layer` option.
 
     This command only extracts path elements as well as primitives (rectangles, ellipses,
     lines, polylines, polygons). Other elements such as text and bitmap images are discarded,

@@ -14,8 +14,7 @@ from .cli import cli
 @click.argument("y1", type=vp.LengthType())
 @vp.generator
 def line(x0: float, y0: float, x1: float, y1: float) -> vp.LineCollection:
-    """
-    Generate a single line.
+    """Generate a single line.
 
     The line starts at (X0, Y0) and ends at (X1, Y1). All arguments understand supported units.
     """

@@ -37,7 +37,7 @@ def lcopy(vector_data, sources, dest):
 
             vpype [...] lcopy 1,2 new [...]  # make new layer with merged copy of layer 1 and 2
 
-        Add a merged copy of all layers to layer 1. If layer 1 previously had content, this
+        Add a merged copy of all layers to layer 1. If layer 1 previously had content, this \
 content is not duplicated:
 
             vpype [...] lcopy all 1 [...]
