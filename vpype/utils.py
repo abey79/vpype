@@ -1,7 +1,8 @@
 import re
-from typing import Tuple, Union
+from typing import Callable, List, Tuple, Union
 
 import click
+import numpy as np
 
 # REMINDER: anything added here must be added to docs/api.rst
 __all__ = [
@@ -13,6 +14,7 @@ __all__ = [
     "convert",
     "convert_length",
     "convert_page_format",
+    "union",
 ]
 
 
@@ -163,3 +165,20 @@ class PageSizeType(click.ParamType):
             return convert_page_format(value)
         except ValueError:
             self.fail(f"parameter {value} is not a valid page format")
+
+
+def union(line: np.ndarray, keys: List[Callable[[np.ndarray], bool]]) -> bool:
+    """Returns True if every callables in ``keys`` return True (similar to ``all()``. This
+    function is typically used with :meth:`LineCollection.filter`.
+
+    Args:
+        line: line to test
+        keys: list of callables
+
+    Returns:
+        True if every callables return True
+    """
+    for key in keys:
+        if not key(line):
+            return False
+    return True

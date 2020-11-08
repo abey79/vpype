@@ -1,23 +1,23 @@
 import numpy as np
 import pytest
 
-from vpype import interpolate
+import vpype as vp
 
 # noinspection PyProtectedMember
-from vpype.geometry import _interpolate_crop, crop, crop_half_plane, reloop
+from vpype.geometry import _interpolate_crop
 
 
 def test_reloop_small():
     line = np.array([3, 3], dtype=complex)
-    assert np.all(reloop(line, 0) == line)
-    assert np.all(reloop(line, 1) == line)
+    assert np.all(vp.reloop(line, 0) == line)
+    assert np.all(vp.reloop(line, 1) == line)
 
 
 def test_reloop():
     line = np.array([0, 1, 2, 3, 0.2], dtype=complex)
-    assert np.all(reloop(line, 2) == np.array([2, 3, 0.1, 1, 2], dtype=complex))
-    assert np.all(reloop(line, 0) == np.array([0.1, 1, 2, 3, 0.1], dtype=complex))
-    assert np.all(reloop(line, 4) == np.array([0.1, 1, 2, 3, 0.1], dtype=complex))
+    assert np.all(vp.reloop(line, 2) == np.array([2, 3, 0.1, 1, 2], dtype=complex))
+    assert np.all(vp.reloop(line, 0) == np.array([0.1, 1, 2, 3, 0.1], dtype=complex))
+    assert np.all(vp.reloop(line, 4) == np.array([0.1, 1, 2, 3, 0.1], dtype=complex))
 
 
 @pytest.mark.parametrize(
@@ -32,7 +32,7 @@ def test_reloop():
     ],
 )
 def test_interpolate(line, step, expected):
-    result = interpolate(np.array(line, dtype=complex), step)
+    result = vp.interpolate(np.array(line, dtype=complex), step)
     assert len(result) == len(expected)
     assert np.all(np.isclose(result, np.array(expected, dtype=complex),))
 
@@ -66,7 +66,9 @@ def test_interpolate_crop():
     ],
 )
 def test_crop_half_plane_x_gt_0(line, expected):
-    result = crop_half_plane(np.array(line, dtype=complex), loc=0, axis=0, keep_smaller=False)
+    result = vp.crop_half_plane(
+        np.array(line, dtype=complex), loc=0, axis=0, keep_smaller=False
+    )
 
     assert len(result) == len(expected)
     for res, exp in zip(result, expected):
@@ -87,8 +89,29 @@ def test_crop_half_plane_x_gt_0(line, expected):
     ],
 )
 def test_crop_unit_square(line, expected):
-    result = crop(np.array(line, dtype=complex), 0, 0, 1, 1)
+    result = vp.crop(np.array(line, dtype=complex), 0, 0, 1, 1)
 
     assert len(result) == len(expected)
     for res, exp in zip(result, expected):
         assert np.all(res == np.array(exp, dtype=complex))
+
+
+def test_is_closed():
+    assert vp.is_closed(np.array([0, 1, 2j, 0]), tolerance=0.1)
+    assert vp.is_closed(np.array([0, 1, 2j, 0.1]), tolerance=0.1)
+    assert not vp.is_closed(np.array([0, 1, 2j, 0.1]), tolerance=0.099)
+
+
+@pytest.mark.parametrize(
+    ("line", "length"),
+    [
+        ([1j], 0),
+        ([0, 1j], 1),
+        ([0, 1j, 1j + 2], 3),
+        ([0, 100, 100 + 100j], 200),
+        ([], 0),
+        ([1000j, 1001j], 1),
+    ],
+)
+def test_line_length(line, length):
+    assert vp.line_length(np.array(line, dtype=complex)) == length

@@ -1,30 +1,21 @@
 import logging
-from typing import List, Union
+from typing import List, Optional, Union, cast
 
 import click
 import numpy as np
 
-from vpype import (
-    LayerType,
-    LengthType,
-    LineCollection,
-    LineIndex,
-    VectorData,
-    global_processor,
-    layer_processor,
-    multiple_to_layer_ids,
-)
+import vpype as vp
 
 from .cli import cli
 
 
 @cli.command(group="Operations")
-@click.argument("x", type=LengthType(), required=True)
-@click.argument("y", type=LengthType(), required=True)
-@click.argument("width", type=LengthType(), required=True)
-@click.argument("height", type=LengthType(), required=True)
-@layer_processor
-def crop(lines: LineCollection, x: float, y: float, width: float, height: float):
+@click.argument("x", type=vp.LengthType(), required=True)
+@click.argument("y", type=vp.LengthType(), required=True)
+@click.argument("width", type=vp.LengthType(), required=True)
+@click.argument("height", type=vp.LengthType(), required=True)
+@vp.layer_processor
+def crop(lines: vp.LineCollection, x: float, y: float, width: float, height: float):
     """Crop the geometries.
 
     The crop area is defined by the (X, Y) top-left corner and the WIDTH and HEIGHT arguments.
@@ -36,19 +27,19 @@ def crop(lines: LineCollection, x: float, y: float, width: float, height: float)
 
 
 @cli.command(group="Operations")
-@click.argument("margin_x", type=LengthType(), required=True)
-@click.argument("margin_y", type=LengthType(), required=True)
+@click.argument("margin_x", type=vp.LengthType(), required=True)
+@click.argument("margin_y", type=vp.LengthType(), required=True)
 @click.option(
     "-l",
     "--layer",
-    type=LayerType(accept_multiple=True),
+    type=vp.LayerType(accept_multiple=True),
     default="all",
     help="Target layer(s).",
 )
-@global_processor
+@vp.global_processor
 def trim(
-    vector_data: VectorData, margin_x: float, margin_y: float, layer: Union[int, List[int]]
-) -> VectorData:
+    vector_data: vp.VectorData, margin_x: float, margin_y: float, layer: Union[int, List[int]]
+) -> vp.VectorData:
     """Trim the geometries by some margin.
 
     This command trims the geometries by the provided X and Y margins with respect to the
@@ -59,7 +50,7 @@ def trim(
     that of the listed layers.
     """
 
-    layer_ids = multiple_to_layer_ids(layer, vector_data)
+    layer_ids = vp.multiple_to_layer_ids(layer, vector_data)
     bounds = vector_data.bounds(layer_ids)
 
     if not bounds:
@@ -85,15 +76,15 @@ def trim(
 @click.option(
     "-t",
     "--tolerance",
-    type=LengthType(),
+    type=vp.LengthType(),
     default="0.05mm",
     help="Maximum distance between two line endings that should be merged.",
 )
 @click.option(
     "-f", "--no-flip", is_flag=True, help="Disable reversing stroke direction for merging."
 )
-@layer_processor
-def linemerge(lines: LineCollection, tolerance: float, no_flip: bool = True):
+@vp.layer_processor
+def linemerge(lines: vp.LineCollection, tolerance: float, no_flip: bool = True):
     """
     Merge lines whose endings overlap or are very close.
 
@@ -116,8 +107,8 @@ def linemerge(lines: LineCollection, tolerance: float, no_flip: bool = True):
     is_flag=True,
     help="Disable reversing stroke direction for optimization.",
 )
-@layer_processor
-def linesort(lines: LineCollection, no_flip: bool = True):
+@vp.layer_processor
+def linesort(lines: vp.LineCollection, no_flip: bool = True):
     """
     Sort lines to minimize the pen-up travel distance.
 
@@ -128,8 +119,8 @@ def linesort(lines: LineCollection, no_flip: bool = True):
     if len(lines) < 2:
         return lines
 
-    index = LineIndex(lines[1:], reverse=not no_flip)
-    new_lines = LineCollection([lines[0]])
+    index = vp.LineIndex(lines[1:], reverse=not no_flip)
+    new_lines = vp.LineCollection([lines[0]])
 
     while len(index) > 0:
         idx, reverse = index.find_nearest(new_lines[-1][-1])
@@ -150,12 +141,12 @@ def linesort(lines: LineCollection, no_flip: bool = True):
 @click.option(
     "-t",
     "--tolerance",
-    type=LengthType(),
+    type=vp.LengthType(),
     default="0.05mm",
     help="Controls how far from the original geometry simplified points may lie.",
 )
-@layer_processor
-def linesimplify(lines: LineCollection, tolerance):
+@vp.layer_processor
+def linesimplify(lines: vp.LineCollection, tolerance):
     """
     Reduce the number of segments in the geometries.
 
@@ -168,7 +159,7 @@ def linesimplify(lines: LineCollection, tolerance):
     # Note: preserve_topology must be False, otherwise non-simple (ie intersecting) MLS will
     # not be simplified (see https://github.com/Toblerity/Shapely/issues/911)
     mls = lines.as_mls().simplify(tolerance=tolerance, preserve_topology=False)
-    new_lines = LineCollection(mls)
+    new_lines = vp.LineCollection(mls)
 
     logging.info(
         f"simplify: reduced segment count from {lines.segment_count()} to "
@@ -182,13 +173,13 @@ def linesimplify(lines: LineCollection, tolerance):
 @click.option(
     "-t",
     "--tolerance",
-    type=LengthType(),
+    type=vp.LengthType(),
     default="0.05mm",
     help="Controls how close the path beginning and end must be to consider it closed ("
     "default: 0.05mm).",
 )
-@layer_processor
-def reloop(lines: LineCollection, tolerance):
+@vp.layer_processor
+def reloop(lines: vp.LineCollection, tolerance):
     """Randomize the seam location of closed paths.
 
     When plotted, closed path may exhibit a visible mark at the seam, i.e. the location where
@@ -207,8 +198,8 @@ def reloop(lines: LineCollection, tolerance):
 @click.option(
     "-n", "--count", type=int, default=2, help="How many pass for each line (default: 2).",
 )
-@layer_processor
-def multipass(lines: LineCollection, count: int):
+@vp.layer_processor
+def multipass(lines: vp.LineCollection, count: int):
     """
     Add multiple passes to each line
 
@@ -218,7 +209,7 @@ def multipass(lines: LineCollection, count: int):
     if count < 2:
         return lines
 
-    new_lines = LineCollection()
+    new_lines = vp.LineCollection()
     for line in lines:
         new_lines.append(
             np.hstack(
@@ -230,8 +221,8 @@ def multipass(lines: LineCollection, count: int):
 
 
 @cli.command(group="Operations")
-@layer_processor
-def splitall(lines: LineCollection) -> LineCollection:
+@vp.layer_processor
+def splitall(lines: vp.LineCollection) -> vp.LineCollection:
     """
     Split all paths into their constituent segments.
 
@@ -242,7 +233,64 @@ def splitall(lines: LineCollection) -> LineCollection:
     segments, this command may significantly increase the processing time of the pipeline.
     """
 
-    new_lines = LineCollection()
+    new_lines = vp.LineCollection()
     for line in lines:
         new_lines.extend([line[i : i + 2] for i in range(len(line) - 1)])
     return new_lines
+
+
+@cli.command(name="filter", group="Operations")
+@click.option(
+    "--min-length",
+    "-m",
+    type=vp.LengthType(),
+    help="keep lines whose length is no shorter than value",
+)
+@click.option(
+    "--max-length",
+    "-M",
+    type=vp.LengthType(),
+    help="keep lines whose length is no greater than value",
+)
+@click.option("--closed", "-c", is_flag=True, help="keep closed lines")
+@click.option("--not-closed", "-o", is_flag=True, help="reject closed lines")
+@click.option(
+    "--tolerance",
+    "-t",
+    type=vp.LengthType(),
+    default="0.05mm",
+    help="tolerance used to determined if a line is closed or not (default: 0.05mm)",
+)
+@vp.layer_processor
+def filter_command(
+    lines: vp.LineCollection,
+    min_length: Optional[float],
+    max_length: Optional[float],
+    closed: bool,
+    not_closed: bool,
+    tolerance: float,
+) -> vp.LineCollection:
+    """Filter paths according to specified criterion.
+
+    When an option is provided (e.g. `--min-length 10cm`) the corresponding criterion is
+    applied and paths which do not respect the criterion (e.g. a 9cm-long path) are rejected.
+
+    If multiple options are provided, paths will be kept only if they respect every
+    corresponding criterion (i.e. logical AND operator).
+    """
+    keys = []
+    if min_length is not None:
+        keys.append(lambda line: vp.line_length(line) >= cast(float, min_length))
+    if max_length is not None:
+        keys.append(lambda line: vp.line_length(line) <= cast(float, max_length))
+    if closed:
+        keys.append(lambda line: vp.is_closed(line, tolerance))
+    if not_closed:
+        keys.append(lambda line: not vp.is_closed(line, tolerance))
+
+    if keys:
+        lines.filter(lambda line: vp.union(line, keys))
+    else:
+        logging.warning("filter: no criterion was provided, all geometries are preserved")
+
+    return lines

@@ -3,7 +3,25 @@ from typing import List, Optional
 
 import numpy as np
 
-__all__ = ["interpolate", "crop_half_plane", "crop", "reloop"]
+__all__ = ["line_length", "is_closed", "interpolate", "crop_half_plane", "crop", "reloop"]
+
+
+def line_length(line: np.ndarray) -> float:
+    """Compute the length of a line."""
+    return float(np.sum(np.abs(np.diff(line))))
+
+
+def is_closed(line: np.ndarray, tolerance: float) -> bool:
+    """Check if a line is closed.
+
+    Args:
+        line: the line to test
+        tolerance: max distance between starting and ending point to consider a path is_closed
+
+    Returns:
+        True if line is is_closed
+    """
+    return len(line) > 1 and np.abs(line[-1] - line[0]) <= tolerance
 
 
 def interpolate(line: np.ndarray, step: float) -> np.ndarray:
@@ -97,7 +115,7 @@ def crop_half_plane(
     for start, stop in zip(start_idx, stop_idx):
         if start == -1:
             sub_line = np.hstack(
-                [line[: stop + 1], _interpolate_crop(line[stop], line[stop + 1], loc, axis),]
+                [line[: stop + 1], _interpolate_crop(line[stop], line[stop + 1], loc, axis)]
             )
         elif stop == inf:
             sub_line = np.hstack(

@@ -1,7 +1,7 @@
 """Implementation of vpype's data model
 """
 import math
-from typing import Dict, Iterable, Iterator, List, Optional, Tuple, Union
+from typing import Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Union
 
 import numpy as np
 from shapely.geometry import LinearRing, LineString, MultiLineString
@@ -254,6 +254,14 @@ class LineCollection:
             for line in self._lines:
                 new_lines.extend(crop(line, x1, y1, x2, y2))
             self._lines = new_lines
+
+    def filter(self, key: Callable[[np.ndarray], bool]) -> None:
+        """Remove lines from the :class:`LineCollection` for which key returns False.
+
+        Args:
+            key: filter (returns True if the line should be kept or False otherwise)
+        """
+        self._lines = [line for line in self._lines if key(line)]
 
     def merge(self, tolerance: float, flip: bool = True) -> None:
         """Merge lines whose endings overlap or are very close.

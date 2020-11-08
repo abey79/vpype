@@ -39,6 +39,10 @@ CLI reference
 .. click:: vpype_cli:frame
    :prog: frame
 
+.. _cmd_filter:
+.. click:: vpype_cli:filter_command
+   :prog: filter
+
 .. _cmd_grid:
 .. click:: vpype_cli:GridBlockProcessor
    :prog: grid

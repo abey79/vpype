@@ -106,7 +106,17 @@ This command will :ref:`cmd_read` two SVG files onto two different layers, :ref:
 0.1cm down and to the right, and then :ref:`cmd_write` both layers into a single SVG file with custom layer names
 "Pen 1" and "Pen 2"::
 
- $ vpype read --single-layer --layer 1 input1.svg read --single-layer --layer 2 input2.svg translate --layer 2 0.1cm 0.1cm write --layer-label "Pen %d" output.svg
+  $ vpype read --single-layer --layer 1 input1.svg read --single-layer --layer 2 input2.svg translate --layer 2 0.1cm 0.1cm write --layer-label "Pen %d" output.svg
+
+
+Filtering out small lines
+=========================
+
+In some cases (for example when using Blender's freestyle renderer), SVG files can contain a lot of tiny lines which
+significantly increase the plotting time and may be detrimental to the final look. These small lines can easily be
+removed thanks to the :ref:`cmd_filter` command::
+
+  $ vpype read input.svg filter --min-length 0.5mm write output.svg
 
 
 Converting a SVG to HPGL
@@ -214,6 +224,41 @@ aspects that require specific caution:
 * ``y_axis_up`` defines the orientation of the plotter's native Y axis. Note that a value of ``true`` does **not** imply
   that ``origin_location`` is measured from the bottom-left corner.
 
+
+Batch processing many SVG with bash scripts and ``parallel``
+============================================================
+
+Computers offer endless avenues for automation, which depend on OS and the type of task at hand. Here is one way to
+easily process a large number of SVG with the same vpype pipeline. This approach relies on a  bash script and the
+`GNU Parallel <https://www.gnu.org/software/parallel/>`_ software and is best suited to Unix/Linux/macOS computers.
+Thanks to ``parallel``, it takes advantage of all the processing cores available.
+
+The first step is create a script to generate all the vpype commands corresponding to each of the SVG file to process::
+
+  #!/bin/bash
+
+  # Loop over all the files
+  for file in *.svg; do
+    echo "Processing $file"
+    # edit the following line with the exact command you want to run
+    echo vpype read "$file" linemerge linesort  write -p a4 -c processed/"$file" >> batch.txt
+  done
+
+Name this file ``create_batch.sh``, move it next to your SVG files, and make it executable with the following command::
+
+  $ chmod +x create_batch.sh
+
+You can then execute it::
+
+  $ ./create_batch.sh
+
+This script will create a new file called ``batch.txt`` which contains all the vpype commands to be executed, one per
+line. It can be opened in a text editor to verify that everything is as it should Finally, use the ``parallel`` command
+(which you must first install on your computer) to execute everything using all available processing cores::
+
+  $ parallel < batch.txt
+
+The processed files will be saved in the ``processed`` sub-directory.
 
 
 Repeating a design on a grid
