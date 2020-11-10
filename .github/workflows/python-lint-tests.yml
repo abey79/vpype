@@ -79,6 +79,9 @@ jobs:
       with:
         virtualenvs-create: true
         virtualenvs-in-project: true
+    # this is to force lock file update, as per https://github.com/python-poetry/poetry/issues/1614
+    # and until https://github.com/python-poetry/poetry/pull/3039 is merged
+    - run: poetry add insecure-package && poetry remove insecure-package
     - name: Set up cache
       uses: actions/cache@v1
       id: cached-poetry-dependencies
