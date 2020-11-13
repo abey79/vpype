@@ -1,3 +1,4 @@
+import importlib.metadata
 import logging
 import os
 import random
@@ -75,6 +76,9 @@ class GroupedGroup(click.Group):
 # noinspection PyUnusedLocal
 @with_plugins(iter_entry_points("vpype.plugins"))
 @click.group(cls=GroupedGroup, chain=True)
+@click.version_option(
+    version=importlib.metadata.version("vpype"), message="%(prog)s %(version)s"
+)
 @click.option("-v", "--verbose", count=True)
 @click.option("-I", "--include", type=click.Path(), help="Load commands from a command file.")
 @click.option(
