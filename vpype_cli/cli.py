@@ -235,8 +235,7 @@ class EndBlock:
 
 @cli.command(group="Block control")
 def end():
-    """Marks the end of a block.
-    """
+    """Marks the end of a block."""
     return EndBlock()
 
 
