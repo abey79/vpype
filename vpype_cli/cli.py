@@ -1,4 +1,3 @@
-import importlib.metadata
 import logging
 import os
 import random
@@ -6,6 +5,7 @@ import shlex
 from typing import Any, List, TextIO, Union
 
 import click
+import importlib_metadata
 import numpy as np
 from click import get_os_args
 from click_plugins import with_plugins
@@ -77,7 +77,7 @@ class GroupedGroup(click.Group):
 @with_plugins(iter_entry_points("vpype.plugins"))
 @click.group(cls=GroupedGroup, chain=True)
 @click.version_option(
-    version=importlib.metadata.version("vpype"), message="%(prog)s %(version)s"
+    version=importlib_metadata.version("vpype"), message="%(prog)s %(version)s"
 )
 @click.option("-v", "--verbose", count=True)
 @click.option("-I", "--include", type=click.Path(), help="Load commands from a command file.")
