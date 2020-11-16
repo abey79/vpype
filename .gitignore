@@ -145,4 +145,3 @@ cython_debug/
 /W3C_SVG_11_TestSuite
 /my_work
 /pip-wheel-metadata
-poetry.lock
