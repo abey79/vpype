@@ -90,5 +90,5 @@ jobs:
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
     - name: Pytest
       run: |
-        source .venv/bin/activate
+        source $VENV
         pytest
