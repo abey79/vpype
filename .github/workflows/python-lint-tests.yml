@@ -84,9 +84,11 @@ jobs:
       with:
         path: .venv
         key: venv-${{ runner.os }}-${{ steps.full-python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
+        # disable cache for windows, I can't get it to work
+        if: ${{ runner.os }} != 'windows-latest'
     - name: Install dependencies
       run: poetry install
-      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      if: ${{ runner.os }} == 'windows-latest' || steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
     - name: Pytest
       run: |
         source $VENV
