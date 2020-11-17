@@ -374,39 +374,7 @@ requests](https://github.com/abey79/vpype/pulls) to contribute actual code. Note
 
 ### Development environment
 
-The first step in setting up the dev environment cleanly is to download the code:
-
-```bash
-$ git clone https://github.com/abey79/vpype.git
-```
-
-Then, create a virtual environment, update pip and install development dependencies:
-
-```bash
-$ cd vpype
-$ python3 -m venv venv
-$ source venv/bin/activate
-$ pip install --upgrade pip
-$ pip install -r requirements.txt
-```
-
-Finally, install your copy of _vpype_ as an editable package:
-
-```
-$ pip install -e .
-```
-
-The `vpype` executable will then be available in the terminal and be based on the locally stored source code (including your edits).
-If you are using an IDE, point its run/debug configuration to `venv/bin/bin/vpype`.
-
-
-### Running the CI tests
-
-You can run tests with the following command:
-
-```bash
-$ pytest
-```
+Refer to the [documentation](https://vpype.readthedocs.io/en/latest/contributing.html#development-environment).
 
 
 ## License

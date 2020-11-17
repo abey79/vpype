@@ -196,7 +196,7 @@ def reloop(lines: vp.LineCollection, tolerance):
 
 @cli.command(group="Operations")
 @click.option(
-    "-n", "--count", type=int, default=2, help="How many pass for each line (default: 2).",
+    "-n", "--count", type=int, default=2, help="How many pass for each line (default: 2)."
 )
 @vp.layer_processor
 def multipass(lines: vp.LineCollection, count: int):

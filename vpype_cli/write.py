@@ -129,10 +129,10 @@ Examples:
     ),
 )
 @click.option(
-    "-l", "--landscape", is_flag=True, help="Use landscape orientation instead of portrait.",
+    "-l", "--landscape", is_flag=True, help="Use landscape orientation instead of portrait."
 )
 @click.option(
-    "-c", "--center", is_flag=True, help="Center the geometries within the SVG bounds.",
+    "-c", "--center", is_flag=True, help="Center the geometries within the SVG bounds."
 )
 @click.option(
     "-ll",

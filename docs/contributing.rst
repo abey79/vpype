@@ -26,43 +26,41 @@ This project is young and actively developed. There are many ways in which you c
 Development guidelines:
 
 * Write tests for your code (this project uses `pytest <https://docs.pytest.org/>`_).
-* Use `black <https://github.com/psf/black>`_ for code formatting.
+* Use `black <https://github.com/psf/black>`_ for code formatting and `isort <https://pycqa.github.io/isort/>`_ for
+  consistent imports.
 
 
 Development environment
 =======================
 
-The first step is to download the code:
+.. highlight:: bash
 
-.. code-block:: bash
+*vpype* uses `Poetry <https://python-poetry.org>`_ for packaging and dependency management and its `installation
+<https://python-poetry.org/docs/#installation>`_ is required to prepare the development environment::
+
+  $ curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+
+(See Poetry's documentation for alternative means of installation.)
+
+You can then download *vpype*, prepare a virtual environment and install all dependencies with a few commands::
 
   $ git clone https://github.com/abey79/vpype.git
-
-Then, create a virtual environment, update pip and install development dependencies:
-
-.. code-block:: bash
-
   $ cd vpype
-  $ python3 -m venv venv
-  $ source venv/bin/activate
-  $ pip install --upgrade pip
-  $ pip install -r requirements.txt
+  $ poetry install
 
-Finally, install your copy of *vpype* in editable mode:
+You can execute *vpype* (which installed in the project's virtual environment managed by Poetry) with the ``poetry
+run`` command::
 
-.. code-block:: bash
+  $ poetry run vpype --help
 
-  $ pip install --editable .
+Alternatively, you can activate the virtual environment and then directly use *vpype*::
 
-The ``vpype`` executable will then be available in the terminal and be based on the actual source. If you are using an
-IDE, point its run/debug configuration to ``venv/bin/vpype``.
-
+  $ poetry shell
+  $ vpype --help
 
 Running the tests
 =================
 
-You can run tests with the following command:
+You can run tests with the following command::
 
-.. code-block:: bash
-
-  $ pytest
+  $ poetry run pytest
