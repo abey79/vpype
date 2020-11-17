@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "vpype"
 version = "0.1.0"
-description = "TODO"
+description = "The Swiss Army knife of vector graphics for pen plotters"
 authors = ["Antoine Beyeler <abeyeler@ab-ware.com>"]
 license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/abey79/vpype"
-documentation = "https://vpype.readthedocs.io/"
+documentation = "https://vpype.readthedocs.io/en/latest/"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: Console",
