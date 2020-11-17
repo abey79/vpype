@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "vpype"
 version = "0.1.0"
-description = ""
+description = "TODO"
 authors = ["Antoine Beyeler <abeyeler@ab-ware.com>"]
 license = "MIT"
 readme = "README.md"
