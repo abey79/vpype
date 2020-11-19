@@ -79,6 +79,23 @@ def _calculate_page_size(
     return width, height, scale_x, scale_y, offset_x, offset_y
 
 
+def _arc_point_parallel(arc, t):
+    out = np.empty(t.shape, dtype=complex)
+
+    angle = np.radians(arc.theta + t * arc.delta)
+    cosphi = arc.rot_matrix.real
+    sinphi = arc.rot_matrix.imag
+    rx = arc.radius.real
+    ry = arc.radius.imag
+
+    out.real = rx * cosphi * np.cos(angle) - ry * sinphi * np.sin(angle) + arc.center.real
+    out.imag = rx * sinphi * np.cos(angle) + ry * cosphi * np.sin(angle) + arc.center.imag
+
+    out[t == 0] = arc.start
+    out[t == 1] = arc.end
+    return out
+
+
 def _convert_flattened_paths(
     paths: List,
     quantization: float,
@@ -110,6 +127,9 @@ def _convert_flattened_paths(
         for elem in result:
             if isinstance(elem, svg.Line):
                 coords = [elem.start, elem.end]
+            if isinstance(elem, svg.Arc):
+                step = int(math.ceil(elem.length() / quantization))
+                coords = list(_arc_point_parallel(elem, np.linspace(0, 1, step)))
             else:
                 # This is a curved element that we approximate with small segments
                 step = int(math.ceil(elem.length() / quantization))
