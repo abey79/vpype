@@ -75,7 +75,7 @@ class DebugData:
                 [np.array([x + 1j * y for x, y in line]) for line in lines]
             )
 
-    def bounds_within(self, x: float, y: float, width: float, height: float,) -> bool:
+    def bounds_within(self, x: float, y: float, width: float, height: float) -> bool:
         """
         Test if coordinates are inside. If `x` and `y` are provided only, consider input as
         a point. If `width` and `height` are passed as well, consider input as rect.
@@ -149,6 +149,7 @@ def stat(vector_data: VectorData):
         print(f"  Median pen-up length: {pen_up_median}")
         print(f"  Path count: {len(layer)}")
         print(f"  Segment count: {layer.segment_count()}")
+        print(f"  Mean segment length: {length / layer.segment_count()}")
         print(f"  Bounds: {layer.bounds()}")
     print(f"Totals")
     print(f"  Layer count: {len(vector_data.layers)}")
@@ -157,6 +158,7 @@ def stat(vector_data: VectorData):
     print(f"  Total length: {length_tot + pen_up_length_tot}")
     print(f"  Path count: {sum(len(layer) for layer in vector_data.layers.values())}")
     print(f"  Segment count: {vector_data.segment_count()}")
+    print(f"  Mean segment length: {length_tot / vector_data.segment_count()}")
     print(f"  Bounds: {vector_data.bounds()}")
     print("========================= ")
 
