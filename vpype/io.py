@@ -127,7 +127,7 @@ def _convert_flattened_paths(
         for elem in result:
             if isinstance(elem, svg.Line):
                 coords = [elem.start, elem.end]
-            if isinstance(elem, svg.Arc):
+            elif isinstance(elem, svg.Arc):
                 step = int(math.ceil(elem.length() / quantization))
                 coords = list(_arc_point_parallel(elem, np.linspace(0, 1, step)))
             else:
