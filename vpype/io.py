@@ -1,24 +1,28 @@
 """File import/export functions.
 """
+import contextlib
 import copy
 import datetime
 import math
 import re
+import time
 from typing import List, Optional, TextIO, Tuple, Union
 from xml.etree import ElementTree
-from xml.etree.ElementTree import Element
 
 import click
 import numpy as np
-import svgpathtools as svg
+import svgelements
 import svgwrite
+from pathos.multiprocessing import ProcessingPool as Pool
 from svgwrite.extensions import Inkscape
 
 from .config import CONFIG_MANAGER, PaperConfig, PlotterConfig
 from .model import LineCollection, VectorData, as_vector
-from .utils import UNITS, convert_length
+from .utils import UNITS
+from .zingl import ZinglPlotter
 
 __all__ = ["read_svg", "read_multilayer_svg", "write_svg", "write_hpgl"]
+
 
 _COLORS = [
     "#00f",
@@ -32,44 +36,80 @@ _COLORS = [
 ]
 
 
-def _calculate_page_size(
-    root: Element,
-) -> Tuple[Optional[float], Optional[float], float, float, float, float]:
-    """Interpret the viewBox, width and height attribs and compute proper scaling coefficients.
+def _convert_flattened_paths(
+    paths: List,
+    quantization: float,
+    simplify: bool,
+) -> "LineCollection":
+    """Convert a list of FlattenedPaths to a :class:`LineCollection`.
 
     Args:
-        root: SVG's root element
+        paths: list of FlattenedPaths
+        quantization: maximum length of linear elements to approximate curve paths
+        simplify: should Shapely's simplify be run
 
     Returns:
-        tuple of width, height, scale X, scale Y, offset X, offset Y
+        new :class:`LineCollection` instance containing the converted geometries
     """
-    width = height = None
-    if "viewBox" in root.attrib:
-        # A view box is defined so we must correctly scale from user coordinates
-        # https://css-tricks.com/scale-svg/
-        # TODO: we should honor the `preserveAspectRatio` attribute
 
-        viewbox_min_x, viewbox_min_y, viewbox_width, viewbox_height = [
-            float(s) for s in root.attrib["viewBox"].split()
-        ]
+    lc = LineCollection()
 
-        width = convert_length(root.attrib.get("width", viewbox_width))
-        height = convert_length(root.attrib.get("height", viewbox_height))
+    def _process_path(path):
+        path_list = []
 
-        scale_x = width / viewbox_width
-        scale_y = height / viewbox_height
-        offset_x = -viewbox_min_x
-        offset_y = -viewbox_min_y
-    else:
-        scale_x = 1
-        scale_y = 1
-        offset_x = 0
-        offset_y = 0
+        def _append_path(p):
+            # convert to numpy array, remove consecutive duplicates and save line
+            l = np.array(p, dtype=complex)
+            idx = np.ones(len(l), dtype=bool)
+            idx[1:] = l[1:] != l[:-1]
+            path_list.append(l[idx])
 
-    return width, height, scale_x, scale_y, offset_x, offset_y
+        line: List[complex] = []
+        for seg in path:
+            if isinstance(seg, svgelements.Move):
+                if line:
+                    _append_path(line)
+                line = [complex(*seg.end)]
+                continue
+            elif isinstance(seg, svgelements.Line) or isinstance(seg, svgelements.Close):
+                line.append(complex(*seg.start))
+                line.append(complex(*seg.end))
+            else:
+                # This is a curved element that we approximate with small segments
+                step = int(math.ceil(seg.length() / quantization))
+                line.append(complex(*seg.start))
+                line.extend(complex(*seg.point((i + 1) / step)) for i in range(step - 1))
+                line.append(complex(*seg.end))
+
+        if line:
+            _append_path(line)
+
+        return path_list
+
+    # with Pool() as p:
+    #    results = p.map(_process_path, paths)
+    results = map(_process_path, paths)
+
+    lc = LineCollection()
+    for line_arr in results:
+        lc.extend(line_arr)
+
+    if simplify:
+        mls = lc.as_mls()
+        lc = LineCollection(mls.simplify(tolerance=quantization))
+
+    return lc
 
 
-def _convert_flattened_paths(
+@contextlib.contextmanager
+def timer(s):
+    start = time.perf_counter()
+    yield
+    stop = time.perf_counter()
+    print(f"Timer task '{s}': {stop - start}s")
+
+
+def _convert_flattened_paths_zingl(
     paths: List,
     quantization: float,
     scale_x: float,
@@ -91,6 +131,12 @@ def _convert_flattened_paths(
         new :class:`LineCollection` instance containing the converted geometries
     """
 
+    # scale so that one pixel = quantization
+    # TODO: apply scale_x, scale_y as well
+
+    m = svgelements.Matrix.scale(1 / quantization)
+    m_inv = svgelements.Matrix.scale(quantization)
+
     lc = LineCollection()
     for result in paths:
         # Here we load the sub-part of the path element. If such sub-parts are connected,
@@ -98,14 +144,13 @@ def _convert_flattened_paths(
         # in the path (e.g. multiple "M" commands), we create several lines
         sub_paths: List[List[complex]] = []
         for elem in result:
-            if isinstance(elem, svg.Line):
-                coords = [elem.start, elem.end]
+            if isinstance(elem, svgelements.Line) or isinstance(elem, svgelements.Close):
+                coords = [complex(*elem.start), complex(*elem.end)]
+            elif isinstance(elem, svgelements.Move):
+                continue
             else:
-                # This is a curved element that we approximate with small segments
-                step = int(math.ceil(elem.length() / quantization))
-                coords = [elem.start]
-                coords.extend(elem.point((i + 1) / step) for i in range(step - 1))
-                coords.append(elem.end)
+                coords = np.array(list(ZinglPlotter.linearize(elem * m, "1px")))
+                print(coords)
 
             # merge to last sub path if first coordinates match
             if sub_paths:
@@ -153,13 +198,33 @@ def read_svg(
         imported geometries, and optionally width and height of the SVG
     """
 
-    doc = svg.Document(filename)
-    width, height, scale_x, scale_y, offset_x, offset_y = _calculate_page_size(doc.root)
-    lc = _convert_flattened_paths(
-        doc.paths(), quantization, scale_x, scale_y, offset_x, offset_y, simplify,
-    )
+    # TODO: default width/height should be provided in the rare case we get
+    # % value in there
+    with timer("SVG.parse"):
+        svg = svgelements.SVG.parse(filename)
+
+    with timer("svg.elements() extraction"):
+        paths = []
+        for elem in svg.elements():
+            if isinstance(elem, svgelements.Shape):
+                e = svgelements.Path(elem)
+                e.reify()  # In some cases the shape could not have reified, the path must.
+                if len(e) != 0:
+                    paths.append(e)
+            elif isinstance(elem, svgelements.Path):
+                if len(elem) != 0:
+                    paths.append(elem)
+
+    with timer("path conversion"):
+        lc = _convert_flattened_paths(
+            paths,
+            quantization,
+            simplify,
+        )
 
     if return_size:
+        width = svg.viewbox.viewbox_width
+        height = svg.viewbox.viewbox_height
         if width is None or height is None:
             _, _, width, height = lc.bounds() or 0, 0, 0, 0
         return lc, width, height
@@ -196,9 +261,9 @@ def read_multilayer_svg(
          imported geometries, and optionally width and height of the SVG
     """
 
-    doc = svg.Document(filename)
+    doc = svgelements.SVG.parse(filename)
 
-    width, height, scale_x, scale_y, offset_x, offset_y = _calculate_page_size(doc.root)
+    width, height, scale_x, scale_y, offset_x, offset_y = _calculate_page_size(doc.viewport)
 
     vector_data = VectorData()
 
