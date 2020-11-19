@@ -1,9 +1,11 @@
 """File import/export functions.
 """
+import contextlib
 import copy
 import datetime
 import math
 import re
+import time
 from typing import List, Optional, TextIO, Tuple, Union
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element
@@ -30,6 +32,14 @@ _COLORS = [
     "#cc0",
     "black",
 ]
+
+
+@contextlib.contextmanager
+def timer(s):
+    start = time.perf_counter()
+    yield
+    stop = time.perf_counter()
+    print(f"Timer task '{s}': {stop - start}s")
 
 
 def _calculate_page_size(
@@ -153,11 +163,20 @@ def read_svg(
         imported geometries, and optionally width and height of the SVG
     """
 
-    doc = svg.Document(filename)
-    width, height, scale_x, scale_y, offset_x, offset_y = _calculate_page_size(doc.root)
-    lc = _convert_flattened_paths(
-        doc.paths(), quantization, scale_x, scale_y, offset_x, offset_y, simplify,
-    )
+    with timer("svg.Document()"):
+        doc = svg.Document(filename)
+        width, height, scale_x, scale_y, offset_x, offset_y = _calculate_page_size(doc.root)
+
+    with timer("flatten all"):
+        lc = _convert_flattened_paths(
+            doc.paths(),
+            quantization,
+            scale_x,
+            scale_y,
+            offset_x,
+            offset_y,
+            simplify,
+        )
 
     if return_size:
         if width is None or height is None:
