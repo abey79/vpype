@@ -594,7 +594,7 @@ test = ["pytest"]
 
 [[package]]
 name = "svgelements"
-version = "1.2.6"
+version = "1.2.8"
 description = "Svg Elements Parsing"
 category = "main"
 optional = false
@@ -1091,8 +1091,8 @@ sphinxcontrib-serializinghtml = [
     {file = "sphinxcontrib_serializinghtml-1.1.4-py2.py3-none-any.whl", hash = "sha256:f242a81d423f59617a8e5cf16f5d4d74e28ee9a66f9e5b637a18082991db5a9a"},
 ]
 svgelements = [
-    {file = "svgelements-1.2.6-py2.py3-none-any.whl", hash = "sha256:fba577c17ee74ab51a4c48244d36777bd6a0753ce37f3b98c27289319a6fe8a0"},
-    {file = "svgelements-1.2.6.tar.gz", hash = "sha256:8532500c6622e333d739b463bb51a9f5d017121877c931b85fb6d6b313df8b1b"},
+    {file = "svgelements-1.2.8-py2.py3-none-any.whl", hash = "sha256:0821b577f23be72db2b512577f9527fbe26c543f5b73159c92ee4851c78f23fd"},
+    {file = "svgelements-1.2.8.tar.gz", hash = "sha256:54e071908ff8bb77d7e531e3adcc4211eef0d57fe0f0ea194033c8da0294f228"},
 ]
 svgwrite = [
     {file = "svgwrite-1.4-py3-none-any.whl", hash = "sha256:fa842fb3129a9399d19b5e9602a022fcc7f2f3f24713550e765c488ffafd743d"},

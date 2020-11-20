@@ -13,13 +13,11 @@ import click
 import numpy as np
 import svgelements
 import svgwrite
-from pathos.multiprocessing import ProcessingPool as Pool
 from svgwrite.extensions import Inkscape
 
 from .config import CONFIG_MANAGER, PaperConfig, PlotterConfig
 from .model import LineCollection, VectorData, as_vector
 from .utils import UNITS
-from .zingl import ZinglPlotter
 
 __all__ = ["read_svg", "read_multilayer_svg", "write_svg", "write_hpgl"]
 
@@ -52,45 +50,43 @@ def _convert_flattened_paths(
         new :class:`LineCollection` instance containing the converted geometries
     """
 
-    lc = LineCollection()
+    def _process_path(path: svgelements.Path) -> List[np.ndarray]:
+        if len(path) == 0:
+            return []
 
-    def _process_path(path):
-        path_list = []
+        if isinstance(path[0], svgelements.Move):
+            del path[0]
+
+        path_list: List[np.ndarray] = []
 
         def _append_path(p):
             # convert to numpy array, remove consecutive duplicates and save line
-            l = np.array(p, dtype=complex)
+            l = np.hstack(p)
             idx = np.ones(len(l), dtype=bool)
             idx[1:] = l[1:] != l[:-1]
             path_list.append(l[idx])
 
-        line: List[complex] = []
+        segments = []
         for seg in path:
             if isinstance(seg, svgelements.Move):
-                if line:
-                    _append_path(line)
-                line = [complex(*seg.end)]
-                continue
+                if segments:
+                    _append_path(segments)
+                segments = [seg.end.as_complex()]
             elif isinstance(seg, svgelements.Line) or isinstance(seg, svgelements.Close):
-                line.append(complex(*seg.start))
-                line.append(complex(*seg.end))
+                segments.append((seg.start.as_complex(), seg.end.as_complex()))
             else:
                 # This is a curved element that we approximate with small segments
                 step = int(math.ceil(seg.length() / quantization))
-                line.extend(seg._point_numpy(np.linspace(0, 1, step)))
+                segments.append(seg._point_numpy(np.linspace(0, 1, step)))
 
-        if line:
-            _append_path(line)
+        if segments:
+            _append_path(segments)
 
         return path_list
 
-    # with Pool() as p:
-    #    results = p.map(_process_path, paths)
-    results = map(_process_path, paths)
-
     lc = LineCollection()
-    for line_arr in results:
-        lc.extend(line_arr)
+    for results in map(_process_path, paths):
+        lc.extend(results)
 
     if simplify:
         mls = lc.as_mls()
@@ -107,80 +103,11 @@ def timer(s):
     print(f"Timer task '{s}': {stop - start}s")
 
 
-def _convert_flattened_paths_zingl(
-    paths: List,
-    quantization: float,
-    simplify: bool,
-) -> "LineCollection":
-    """Convert a list of FlattenedPaths to a :class:`LineCollection`.
-
-    Args:
-        paths: list of FlattenedPaths
-        quantization: maximum length of linear elements to approximate curve paths
-        simplify: should Shapely's simplify be run
-
-    Returns:
-        new :class:`LineCollection` instance containing the converted geometries
-    """
-
-    lc = LineCollection()
-
-    m = svgelements.Matrix.scale(1 / quantization)
-
-    def _process_path(path):
-        path_list = []
-
-        def _append_path(p):
-            # convert to numpy array, remove consecutive duplicates and save line
-            l = np.array(p, dtype=complex)
-            idx = np.ones(len(l), dtype=bool)
-            idx[1:] = l[1:] != l[:-1]
-            path_list.append(l[idx])
-
-        line: List[complex] = []
-        for seg in path:
-            if isinstance(seg, svgelements.Move):
-                if line:
-                    _append_path(line)
-                line = [complex(*seg.end)]
-                continue
-            elif isinstance(seg, svgelements.Line) or isinstance(seg, svgelements.Close):
-                line.append(complex(*seg.start))
-                line.append(complex(*seg.end))
-            else:
-                # line.append(complex(*seg.start))
-                coords = np.array(
-                    list(complex(x, y) for x, y, _ in ZinglPlotter.plot_segment(seg * m))
-                )
-                line.extend(coords * quantization)
-                # line.append(complex(*seg.end))
-
-        if line:
-            _append_path(line)
-
-        return path_list
-
-    # with Pool() as p:
-    #    results = p.map(_process_path, paths)
-    results = map(_process_path, paths)
-
-    lc = LineCollection()
-    for line_arr in results:
-        lc.extend(line_arr)
-
-    if simplify:
-        mls = lc.as_mls()
-        lc = LineCollection(mls.simplify(tolerance=quantization))
-
-    return lc
-
-
 def read_svg(
     filename: str,
     quantization: float,
     simplify: bool = False,
     return_size: bool = False,
-    zingl: bool = False,
 ) -> Union["LineCollection", Tuple["LineCollection", float, float]]:
     """Read a SVG file an return its content as a :class:`LineCollection` instance.
 
@@ -200,6 +127,7 @@ def read_svg(
     """
 
     # TODO: default width/height should be provided in the rare case we get
+    # TODO: remove timers
     # % value in there
     with timer("SVG.parse"):
         svg = svgelements.SVG.parse(filename)
@@ -217,11 +145,7 @@ def read_svg(
                     paths.append(elem)
 
     with timer("path conversion"):
-        if zingl:
-            func = _convert_flattened_paths_zingl
-        else:
-            func = _convert_flattened_paths
-        lc = func(
+        lc = _convert_flattened_paths(
             paths,
             quantization,
             simplify,

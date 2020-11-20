@@ -40,13 +40,6 @@ from .cli import cli
     default=False,
     help="Do not run the implicit simplify on imported geometries.",
 )
-@click.option(
-    "-z",
-    "--zingl",
-    is_flag=True,
-    default=False,
-    help="Use Zingl algo",
-)
 @global_processor
 def read(
     vector_data: VectorData,
@@ -55,7 +48,6 @@ def read(
     layer: Optional[int],
     quantization: float,
     no_simplify: bool,
-    zingl: bool,
 ) -> VectorData:
     """Extract geometries from a SVG file.
 
@@ -112,9 +104,7 @@ layer is used default and can be specified with the `--layer` option.
         vector_data.add(
             cast(
                 LineCollection,
-                read_svg(
-                    file, quantization=quantization, simplify=not no_simplify, zingl=zingl
-                ),
+                read_svg(file, quantization=quantization, simplify=not no_simplify),
             ),
             single_to_layer_id(layer, vector_data),
         )
