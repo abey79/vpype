@@ -77,9 +77,7 @@ def _convert_flattened_paths(
             else:
                 # This is a curved element that we approximate with small segments
                 step = int(math.ceil(seg.length() / quantization))
-                line.append(complex(*seg.start))
-                line.extend(complex(*seg.point((i + 1) / step)) for i in range(step - 1))
-                line.append(complex(*seg.end))
+                line.extend(seg._point_numpy(np.linspace(0, 1, step)))
 
         if line:
             _append_path(line)
