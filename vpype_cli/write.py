@@ -49,9 +49,6 @@ Layers are labelled with their numbers by default. If an alternative naming is r
 template pattern can be provided using the `--layer-label` option. The provided pattern must
 contain a C-style format specifier such as `%d` which will be replaced by the layer number.
 
-By default, paths will be exported individually. If it is preferable to have a single,
-compound path per layer, the `--single-path` flag can be used.
-
 For previsualization purposes, paths are colored by layer in the SVG. This can be controlled
 with the `--color-mode` option. Setting it "none" disables coloring and black paths are
 generated. Setting it to "path" gives a different color to each path (with a rotation),
@@ -149,12 +146,6 @@ Examples:
     default="layer",
     help="[SVG only] Color mode for paths (default: layer).",
 )
-@click.option(
-    "-s",
-    "--single-path",
-    is_flag=True,
-    help="[SVG only] Generate a single compound path instead of individual paths.",
-)
 @click.option("-d", "--device", type=str, help="[HPGL only] Type of the plotter device.")
 @click.option(
     "-vs",
@@ -181,7 +172,6 @@ def write(
     layer_label: str,
     pen_up: bool,
     color_mode: str,
-    single_path: bool,
     device: Optional[str],
     velocity: Optional[int],
     quiet: bool,
@@ -210,7 +200,6 @@ def write(
             center=center,
             source_string=cmd_string if cmd_string is not None else "",
             layer_label_format=layer_label,
-            single_path=single_path,
             show_pen_up=pen_up,
             color_mode=color_mode,
         )

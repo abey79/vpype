@@ -34,6 +34,53 @@ _COLORS = [
 ]
 
 
+class _ComplexStack:
+    """Complex number stack implemented with a numpy array"""
+
+    def __init__(self):
+        self._alloc = 100
+        self._stack = np.empty(shape=self._alloc, dtype=complex)
+        self._len = 0
+
+    def __len__(self) -> int:
+        return self._len
+
+    def _realloc(self, min_free: int = 1) -> None:
+        self._alloc = max(self._alloc * 2, self._len + min_free)
+        # noinspection PyTypeChecker
+        self._stack.resize(self._alloc, refcheck=False)
+
+    def append(self, c: complex) -> None:
+        if self._len == self._alloc:
+            self._realloc()
+        self._stack[self._len] = c
+        self._len += 1
+
+    def extend(self, a: np.ndarray) -> None:
+        l = len(a)
+        if self._len + l > self._alloc:
+            self._realloc(l)
+        self._stack[self._len : self._len + l] = a
+        self._len += l
+
+    # def extend_xy(self, x: np.ndarray, y: np.ndarray) -> None:
+    #     l = len(x)
+    #     if self._len + l > self._alloc:
+    #         self._realloc(l)
+    #     self._stack[self._len : self._len + l].real = x
+    #     self._stack[self._len : self._len + l].imag = y
+    #     self._len += l
+
+    def ends_with(self, c: complex) -> bool:
+        return self._stack[self._len - 1] == c if self._len > 0 else False
+
+    def get(self) -> np.ndarray:
+        self._alloc = self._len
+        # noinspection PyTypeChecker
+        self._stack.resize(self._alloc, refcheck=False)
+        return self._stack
+
+
 def _convert_flattened_paths(
     paths: List,
     quantization: float,
@@ -50,43 +97,46 @@ def _convert_flattened_paths(
         new :class:`LineCollection` instance containing the converted geometries
     """
 
-    def _process_path(path: svgelements.Path) -> List[np.ndarray]:
+    lc = LineCollection()
+
+    for path in paths:
         if len(path) == 0:
-            return []
+            continue
 
-        if isinstance(path[0], svgelements.Move):
-            del path[0]
-
-        path_list: List[np.ndarray] = []
-
-        def _append_path(p):
-            # convert to numpy array, remove consecutive duplicates and save line
-            l = np.hstack(p)
-            idx = np.ones(len(l), dtype=bool)
-            idx[1:] = l[1:] != l[:-1]
-            path_list.append(l[idx])
-
-        segments = []
+        point_stack = _ComplexStack()
         for seg in path:
             if isinstance(seg, svgelements.Move):
-                if segments:
-                    _append_path(segments)
-                segments = [seg.end.as_complex()]
-            elif isinstance(seg, svgelements.Line) or isinstance(seg, svgelements.Close):
-                segments.append((seg.start.as_complex(), seg.end.as_complex()))
+                if len(point_stack) > 0:
+                    lc.append(point_stack.get())
+                    point_stack = _ComplexStack()
+
+                point_stack.append(complex(seg.end))
+            elif isinstance(seg, (svgelements.Line, svgelements.Close)):
+                start = complex(seg.start)
+                end = complex(seg.end)
+                if not point_stack.ends_with(start):
+                    point_stack.append(start)
+                point_stack.append(end)
+            elif isinstance(seg, (svgelements.Polygon, svgelements.Polyline)):
+                line = np.array(seg.points, dtype=float)
+                line = line.view(dtype=complex).reshape(len(line))
+                if point_stack.ends_with(line[0]):
+                    point_stack.extend(line[1:])
+                else:
+                    point_stack.extend(line)
             else:
                 # This is a curved element that we approximate with small segments
                 step = int(math.ceil(seg.length() / quantization))
-                segments.append(seg._point_numpy(np.linspace(0, 1, step)))
+                line = seg.npoint(np.linspace(0, 1, step))
+                line = line.view(dtype=complex).reshape(len(line))
 
-        if segments:
-            _append_path(segments)
+                if point_stack.ends_with(line[0]):
+                    point_stack.extend(line[1:])
+                else:
+                    point_stack.extend(line)
 
-        return path_list
-
-    lc = LineCollection()
-    for results in map(_process_path, paths):
-        lc.extend(results)
+        if len(point_stack) > 0:
+            lc.append(point_stack.get())
 
     if simplify:
         mls = lc.as_mls()
@@ -135,14 +185,21 @@ def read_svg(
     with timer("svg.elements() extraction"):
         paths = []
         for elem in svg.elements():
-            if isinstance(elem, svgelements.Shape):
+            if isinstance(elem, svgelements.Path):
+                if len(elem) != 0:
+                    paths.append(elem)
+            elif isinstance(elem, (svgelements.Polyline, svgelements.Polygon)):
+                # Here we add a "fake" path containing just the Polyline/Polygon,
+                # to be treated specifically by _convert_flattened_paths.
+                path = [svgelements.Move(elem.points[0]), elem]
+                if isinstance(elem, svgelements.Polygon):
+                    path.append(svgelements.Close(elem.points[-1], elem.points[0]))
+                paths.append(path)
+            elif isinstance(elem, svgelements.Shape):
                 e = svgelements.Path(elem)
                 e.reify()  # In some cases the shape could not have reified, the path must.
                 if len(e) != 0:
                     paths.append(e)
-            elif isinstance(elem, svgelements.Path):
-                if len(elem) != 0:
-                    paths.append(elem)
 
     with timer("path conversion"):
         lc = _convert_flattened_paths(
@@ -247,42 +304,12 @@ def read_multilayer_svg(
         return vector_data
 
 
-def _line_to_path(dwg: svgwrite.Drawing, lines: Union[np.ndarray, LineCollection]):
-    """Convert a line into a SVG path element.
-
-    Accepts either a single line or a :py:class:`LineCollection`.
-
-    Args:
-        lines: line(s) to convert to path
-
-    Returns:
-        (svgwrite element): path element
-
-    """
-
-    if isinstance(lines, np.ndarray):
-        lines = [lines]
-
-    def single_line_to_path(line: np.ndarray) -> str:
-        if line[0] == line[-1] and len(line) > 2:
-            closed = True
-            line = line[:-1]
-        else:
-            closed = False
-        return (
-            "M" + " L".join(f"{x},{y}" for x, y in as_vector(line)) + (" Z" if closed else "")
-        )
-
-    return dwg.path(" ".join(single_line_to_path(line) for line in lines))
-
-
 def write_svg(
     output: TextIO,
     vector_data: VectorData,
     page_format: Tuple[float, float] = (0.0, 0.0),
     center: bool = False,
     source_string: str = "",
-    single_path: bool = False,
     layer_label_format: str = "%d",
     show_pen_up: bool = False,
     color_mode: str = "none",
@@ -300,9 +327,6 @@ def write_svg(
     Layers are named after `layer_label_format`, which may contain a C-style format specifier
     such as `%d` which will be replaced by the layer number.
 
-    If `single_path=True`, a single compound path is written per layer. Otherwise, each path
-    is exported individually.
-
     For previsualisation purposes, pen-up trajectories can be added to the SVG and path can
     be colored individually (``color_mode="path"``) or layer-by-layer (``color_mode="layer"``).
 
@@ -312,12 +336,10 @@ def write_svg(
         page_format: page (width, height) tuple in pixel, or (0, 0) for tight fit
         center: center geometries on page before export
         source_string: value of the `source` metadata
-        single_path: export geometries as a single compound path instead of multiple
-            individual paths
         layer_label_format: format string for layer label naming
         show_pen_up: add paths for the pen-up trajectories
         color_mode: "none" (no formatting), "layer" (one color per layer), "path" (one color
-            per path) (``color_mode="path"`` implies ``single_path=False``)
+            per path)
     """
 
     # compute bounds
@@ -376,7 +398,10 @@ def write_svg(
         group.attribs["id"] = "pen_up_trajectories"
 
         for layer in corrected_vector_data.layers.values():
-            group.add(_line_to_path(dwg, layer.pen_up_trajectories()))
+            for line in layer.pen_up_trajectories():
+                group.add(
+                    dwg.line((line[0].real, line[0].imag), (line[-1].real, line[-1].imag))
+                )
 
         dwg.add(group)
 
@@ -393,15 +418,21 @@ def write_svg(
         group.attribs["style"] = "display:inline"
         group.attribs["id"] = f"layer{layer_id}"
 
-        if single_path and color_mode != "path":
-            group.add(_line_to_path(dwg, layer))
-        else:
-            for line in layer:
-                path = _line_to_path(dwg, line)
-                if color_mode == "path":
-                    path.attribs["stroke"] = _COLORS[color_idx % len(_COLORS)]
-                    color_idx += 1
-                group.add(path)
+        for line in layer:
+            if len(line) <= 1:
+                continue
+
+            if len(line) == 2:
+                path = dwg.line((line[0].real, line[0].imag), (line[1].real, line[1].imag))
+            elif line[0] == line[-1]:
+                path = dwg.polygon((c.real, c.imag) for c in line[:-1])
+            else:
+                path = dwg.polyline((c.real, c.imag) for c in line)
+
+            if color_mode == "path":
+                path.attribs["stroke"] = _COLORS[color_idx % len(_COLORS)]
+                color_idx += 1
+            group.add(path)
 
         dwg.add(group)
 
