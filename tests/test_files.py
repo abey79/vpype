@@ -13,7 +13,7 @@ TEST_FILES = [
     os.path.join(directory, file)
     for directory, _, filenames in os.walk(TEST_FILE_DIRECTORY)
     for file in filenames
-    if file.endswith(".svg")
+    if file.endswith(".svg") and not file.startswith("_")
 ]
 
 

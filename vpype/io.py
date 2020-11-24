@@ -6,17 +6,19 @@ import datetime
 import math
 import re
 import time
-from typing import List, Optional, TextIO, Tuple, Union
+from typing import Iterator, List, Optional, TextIO, Tuple, Union
 from xml.etree import ElementTree
 
 import click
 import numpy as np
 import svgelements
 import svgwrite
+from multiprocess.pool import Pool
+from shapely.geometry import LineString
 from svgwrite.extensions import Inkscape
 
 from .config import CONFIG_MANAGER, PaperConfig, PlotterConfig
-from .model import LineCollection, VectorData, as_vector
+from .model import LineCollection, VectorData
 from .utils import UNITS
 
 __all__ = ["read_svg", "read_multilayer_svg", "write_svg", "write_hpgl"]
@@ -57,19 +59,11 @@ class _ComplexStack:
         self._len += 1
 
     def extend(self, a: np.ndarray) -> None:
-        l = len(a)
-        if self._len + l > self._alloc:
-            self._realloc(l)
-        self._stack[self._len : self._len + l] = a
-        self._len += l
-
-    # def extend_xy(self, x: np.ndarray, y: np.ndarray) -> None:
-    #     l = len(x)
-    #     if self._len + l > self._alloc:
-    #         self._realloc(l)
-    #     self._stack[self._len : self._len + l].real = x
-    #     self._stack[self._len : self._len + l].imag = y
-    #     self._len += l
+        len_a = len(a)
+        if self._len + len_a > self._alloc:
+            self._realloc(len_a)
+        self._stack[self._len : self._len + len_a] = a
+        self._len += len_a
 
     def ends_with(self, c: complex) -> bool:
         return self._stack[self._len - 1] == c if self._len > 0 else False
@@ -81,33 +75,41 @@ class _ComplexStack:
         return self._stack
 
 
+_PathListType = List[
+    Union[
+        # for actual paths and shapes transformed into paths
+        svgelements.Path,
+        # for the special case of Polygon and Polylines
+        List[Union[svgelements.PathSegment, svgelements.Polygon, svgelements.Polyline]],
+    ]
+]
+
+
 def _convert_flattened_paths(
-    paths: List,
-    quantization: float,
-    simplify: bool,
+    paths: _PathListType, quantization: float, simplify: bool, parallel: bool
 ) -> "LineCollection":
     """Convert a list of FlattenedPaths to a :class:`LineCollection`.
 
     Args:
         paths: list of FlattenedPaths
         quantization: maximum length of linear elements to approximate curve paths
-        simplify: should Shapely's simplify be run
+        simplify: should Shapely's simplify be run on curved elements after quantization
+        parallel: enable multiprocessing
 
     Returns:
         new :class:`LineCollection` instance containing the converted geometries
     """
 
-    lc = LineCollection()
-
-    for path in paths:
+    def _process_path(path):
         if len(path) == 0:
-            continue
+            return []
 
+        result = []
         point_stack = _ComplexStack()
         for seg in path:
             if isinstance(seg, svgelements.Move):
                 if len(point_stack) > 0:
-                    lc.append(point_stack.get())
+                    result.append(point_stack.get())
                     point_stack = _ComplexStack()
 
                 point_stack.append(complex(seg.end))
@@ -128,6 +130,10 @@ def _convert_flattened_paths(
                 # This is a curved element that we approximate with small segments
                 step = int(math.ceil(seg.length() / quantization))
                 line = seg.npoint(np.linspace(0, 1, step))
+
+                if simplify:
+                    line = np.array(LineString(line).simplify(tolerance=quantization))
+
                 line = line.view(dtype=complex).reshape(len(line))
 
                 if point_stack.ends_with(line[0]):
@@ -136,12 +142,20 @@ def _convert_flattened_paths(
                     point_stack.extend(line)
 
         if len(point_stack) > 0:
-            lc.append(point_stack.get())
+            result.append(point_stack.get())
 
-    if simplify:
-        mls = lc.as_mls()
-        lc = LineCollection(mls.simplify(tolerance=quantization))
+        return result
 
+    # benchmarking indicated that parallel processing only makes sense if simplify is used
+    if parallel:
+        with Pool() as p:
+            results = p.map(_process_path, paths)
+    else:
+        results = map(_process_path, paths)
+
+    lc = LineCollection()
+    for res in results:
+        lc.extend(res)
     return lc
 
 
@@ -153,10 +167,39 @@ def timer(s):
     print(f"Timer task '{s}': {stop - start}s")
 
 
+def _extract_paths(group: svgelements.Group, recursive) -> _PathListType:
+    """Extract everything from the provided SVG group."""
+
+    if recursive:
+        everything = group.select()
+    else:
+        everything = group
+    paths = []
+    for elem in everything:
+        if isinstance(elem, svgelements.Path):
+            if len(elem) != 0:
+                paths.append(elem)
+        elif isinstance(elem, (svgelements.Polyline, svgelements.Polygon)):
+            # Here we add a "fake" path containing just the Polyline/Polygon,
+            # to be treated specifically by _convert_flattened_paths.
+            path = [svgelements.Move(elem.points[0]), elem]
+            if isinstance(elem, svgelements.Polygon):
+                path.append(svgelements.Close(elem.points[-1], elem.points[0]))
+            paths.append(path)
+        elif isinstance(elem, svgelements.Shape):
+            e = svgelements.Path(elem)
+            e.reify()  # In some cases the shape could not have reified, the path must.
+            if len(e) != 0:
+                paths.append(e)
+
+    return paths
+
+
 def read_svg(
     filename: str,
     quantization: float,
     simplify: bool = False,
+    parallel: bool = False,
     return_size: bool = False,
 ) -> Union["LineCollection", Tuple["LineCollection", float, float]]:
     """Read a SVG file an return its content as a :class:`LineCollection` instance.
@@ -169,6 +212,8 @@ def read_svg(
         filename: path of the SVG file
         quantization: maximum size of segment used to approximate curved geometries
         simplify: run Shapely's simplify on loaded geometry
+        parallel: enable multiprocessing (only recommended for ``simplify=True`` and SVG with
+            many curves)
         return_size: if True, return a size 3 Tuple containing the geometries and the SVG
             width and height
 
@@ -176,37 +221,16 @@ def read_svg(
         imported geometries, and optionally width and height of the SVG
     """
 
-    # TODO: default width/height should be provided in the rare case we get
+    # TODO: default width/height should be provided in the rare case we get % value in there
     # TODO: remove timers
-    # % value in there
     with timer("SVG.parse"):
         svg = svgelements.SVG.parse(filename)
 
     with timer("svg.elements() extraction"):
-        paths = []
-        for elem in svg.elements():
-            if isinstance(elem, svgelements.Path):
-                if len(elem) != 0:
-                    paths.append(elem)
-            elif isinstance(elem, (svgelements.Polyline, svgelements.Polygon)):
-                # Here we add a "fake" path containing just the Polyline/Polygon,
-                # to be treated specifically by _convert_flattened_paths.
-                path = [svgelements.Move(elem.points[0]), elem]
-                if isinstance(elem, svgelements.Polygon):
-                    path.append(svgelements.Close(elem.points[-1], elem.points[0]))
-                paths.append(path)
-            elif isinstance(elem, svgelements.Shape):
-                e = svgelements.Path(elem)
-                e.reify()  # In some cases the shape could not have reified, the path must.
-                if len(e) != 0:
-                    paths.append(e)
+        paths = _extract_paths(svg, recursive=True)
 
     with timer("path conversion"):
-        lc = _convert_flattened_paths(
-            paths,
-            quantization,
-            simplify,
-        )
+        lc = _convert_flattened_paths(paths, quantization, simplify, parallel)
 
     if return_size:
         width = svg.viewbox.viewbox_width
@@ -219,7 +243,11 @@ def read_svg(
 
 
 def read_multilayer_svg(
-    filename: str, quantization: float, simplify: bool = False, return_size: bool = False
+    filename: str,
+    quantization: float,
+    simplify: bool = False,
+    parallel: bool = False,
+    return_size: bool = False,
 ) -> Union["VectorData", Tuple["VectorData", float, float]]:
     """Read a multilayer SVG file and return its content as a :class:`VectorData` instance
     retaining the SVG's layer structure.
@@ -240,6 +268,8 @@ def read_multilayer_svg(
         filename: path of the SVG file
         quantization: maximum size of segment used to approximate curved geometries
         simplify: run Shapely's simplify on loaded geometry
+        parallel: enable multiprocessing (only recommended for ``simplify=True`` and SVG with
+            many curves)
         return_size: if True, return a size 3 Tuple containing the geometries and the SVG
             width and height
 
@@ -247,35 +277,32 @@ def read_multilayer_svg(
          imported geometries, and optionally width and height of the SVG
     """
 
-    doc = svgelements.SVG.parse(filename)
-
-    width, height, scale_x, scale_y, offset_x, offset_y = _calculate_page_size(doc.viewport)
+    svg = svgelements.SVG.parse(filename)
 
     vector_data = VectorData()
 
     # non-group top level elements are loaded in layer 1
-    top_level_elements = doc.paths(group_filter=lambda x: x is doc.root)
-    if top_level_elements:
+    top_level_paths = _extract_paths(svg, recursive=False)
+    if top_level_paths:
         vector_data.add(
-            _convert_flattened_paths(
-                top_level_elements,
-                quantization,
-                scale_x,
-                scale_y,
-                offset_x,
-                offset_y,
-                simplify,
-            ),
+            _convert_flattened_paths(top_level_paths, quantization, simplify, parallel),
             1,
         )
 
-    for i, g in enumerate(doc.root.iterfind("svg:g", svg.SVG_NAMESPACE)):
+    def _find_groups(group: svgelements.Group) -> Iterator[svgelements.Group]:
+        for elem in group:
+            if isinstance(elem, svgelements.Group):
+                yield elem
+
+    for i, g in enumerate(_find_groups(svg)):
         # compute a decent layer ID
         lid_str = re.sub(
-            "[^0-9]", "", g.get("{http://www.inkscape.org/namespaces/inkscape}label") or ""
+            "[^0-9]",
+            "",
+            g.values.get("{http://www.inkscape.org/namespaces/inkscape}label") or "",
         )
         if not lid_str:
-            lid_str = re.sub("[^0-9]", "", g.get("id") or "")
+            lid_str = re.sub("[^0-9]", "", g.values.get("id") or "")
         if lid_str:
             lid = int(lid_str)
             if lid == 0:
@@ -285,18 +312,14 @@ def read_multilayer_svg(
 
         vector_data.add(
             _convert_flattened_paths(
-                doc.paths_from_group(g, g),
-                quantization,
-                scale_x,
-                scale_y,
-                offset_x,
-                offset_y,
-                simplify,
+                _extract_paths(g, recursive=True), quantization, simplify, parallel
             ),
             lid,
         )
 
     if return_size:
+        width = svg.viewbox.viewbox_width
+        height = svg.viewbox.viewbox_height
         if width is None or height is None:
             _, _, width, height = vector_data.bounds() or 0, 0, 0, 0
         return vector_data, width, height

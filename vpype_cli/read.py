@@ -35,10 +35,17 @@ from .cli import cli
 )
 @click.option(
     "-s",
-    "--no-simplify",
+    "--simplify",
     is_flag=True,
     default=False,
-    help="Do not run the implicit simplify on imported geometries.",
+    help="Apply simplification algorithm to curved elements.",
+)
+@click.option(
+    "-p",
+    "--parallel",
+    is_flag=True,
+    default=False,
+    help="Enable multiprocessing for SVG conversion",
 )
 @global_processor
 def read(
@@ -47,7 +54,8 @@ def read(
     single_layer: bool,
     layer: Optional[int],
     quantization: float,
-    no_simplify: bool,
+    simplify: bool,
+    parallel: bool,
 ) -> VectorData:
     """Extract geometries from a SVG file.
 
@@ -78,8 +86,14 @@ layer is used default and can be specified with the `--layer` option.
     All curved primitives (e.g. bezier path, ellipses, etc.) are linearized and approximated by
     polylines. The quantization length controls the maximum length of individual segments.
 
-    By default, an implicit line simplification with tolerance set to quantization is executed
-    (see `linesimplify` command). This behaviour can be disabled with the `--no-simplify` flag.
+    Optionally, a line simplification with tolerance set to quantization can be applied on the
+    SVG's curved element (e.g. circles, ellipses, arcs, bezier curves, etc.). This is enabled
+    with the `--simplify` flag. This process reduces significantly the number of segments used
+    to approximate the curve while still guaranteeing an accurate conversion, but may increase
+    the execution time of this command.
+
+    The `--parallel` option enables multiprocessing for the SVG conversion. This is recommended
+    ONLY when using `--simplify` on large SVG files with many curved elements.
 
     Examples:
 
@@ -95,16 +109,18 @@ layer is used default and can be specified with the `--layer` option.
 
             vpype read --single-layer --layer 3 input_file.svg [...]
 
-        Multi-layer import with specified quantization and line simplification disabled:
+        Multi-layer import with specified quantization and line simplification enabled:
 
-            vpype read --quantization 0.01mm --no-simplify input_file.svg [...]
+            vpype read --quantization 0.01mm --simplify input_file.svg [...]
     """
 
     if single_layer:
         vector_data.add(
             cast(
                 LineCollection,
-                read_svg(file, quantization=quantization, simplify=not no_simplify),
+                read_svg(
+                    file, quantization=quantization, simplify=simplify, parallel=parallel
+                ),
             ),
             single_to_layer_id(layer, vector_data),
         )
@@ -114,7 +130,9 @@ layer is used default and can be specified with the `--layer` option.
         vector_data.extend(
             cast(
                 VectorData,
-                read_multilayer_svg(file, quantization=quantization, simplify=not no_simplify),
+                read_multilayer_svg(
+                    file, quantization=quantization, simplify=simplify, parallel=parallel
+                ),
             ),
         )
 
