@@ -22,12 +22,14 @@ TEST_FILES = [
 
 @pytest.mark.parametrize("path", TEST_FILES)
 def test_read_must_succeed(runner, path):
-    runner.invoke(cli, ["read", path])
+    result = runner.invoke(cli, ["read", path])
+    assert result.exit_code == 0
 
 
 @pytest.mark.parametrize("path", TEST_FILES)
 def test_read_single_layer_must_succeed(runner, path):
-    runner.invoke(cli, ["read", "-m", path])
+    result = runner.invoke(cli, ["read", "-m", path])
+    assert result.exit_code == 0
 
 
 @pytest.mark.parametrize("path", TEST_FILES)
