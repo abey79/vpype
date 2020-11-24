@@ -13,7 +13,7 @@ import click
 import numpy as np
 import svgelements
 import svgwrite
-from multiprocess.pool import Pool
+from multiprocess import Pool
 from shapely.geometry import LineString
 from svgwrite.extensions import Inkscape
 
@@ -285,8 +285,7 @@ def read_multilayer_svg(
     top_level_paths = _extract_paths(svg, recursive=False)
     if top_level_paths:
         vector_data.add(
-            _convert_flattened_paths(top_level_paths, quantization, simplify, parallel),
-            1,
+            _convert_flattened_paths(top_level_paths, quantization, simplify, parallel), 1
         )
 
     def _find_groups(group: svgelements.Group) -> Iterator[svgelements.Group]:
