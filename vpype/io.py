@@ -42,6 +42,9 @@ _COLORS = [
     "black",
 ]
 
+_DEFAULT_WIDTH = 1000
+_DEFAULT_HEIGHT = 1000
+
 
 class _ComplexStack:
     """Complex number stack implemented with a numpy array"""
@@ -202,9 +205,12 @@ def _extract_paths(group: svgelements.Group, recursive) -> _PathListType:
 def read_svg(
     filename: str,
     quantization: float,
+    crop: bool = True,
     simplify: bool = False,
     parallel: bool = False,
     return_size: bool = False,
+    default_width: float = _DEFAULT_WIDTH,
+    default_height: float = _DEFAULT_HEIGHT,
 ) -> Union["LineCollection", Tuple["LineCollection", float, float]]:
     """Read a SVG file an return its content as a :class:`LineCollection` instance.
 
@@ -215,26 +221,32 @@ def read_svg(
     Args:
         filename: path of the SVG file
         quantization: maximum size of segment used to approximate curved geometries
+        crop: crop the geometries to the SVG boundaries
         simplify: run Shapely's simplify on loaded geometry
         parallel: enable multiprocessing (only recommended for ``simplify=True`` and SVG with
             many curves)
         return_size: if True, return a size 3 Tuple containing the geometries and the SVG
             width and height
+        default_width: default width if not provided by SVG or if a percent width is provided
+        default_height: default height if not provided by SVG or if a percent height is
+            provided
 
     Returns:
         imported geometries, and optionally width and height of the SVG
     """
 
     # default width is for SVG with % width/height
-    svg = svgelements.SVG.parse(filename, width=1000, height=1000)
+    svg = svgelements.SVG.parse(filename, width=default_width, height=default_height)
     paths = _extract_paths(svg, recursive=True)
     lc = _convert_flattened_paths(paths, quantization, simplify, parallel)
 
+    width = svg.viewbox.element_width or default_width
+    height = svg.viewbox.element_height or default_height
+
+    if crop:
+        lc.crop(0, 0, width, height)
+
     if return_size:
-        width = svg.viewbox.viewbox_width
-        height = svg.viewbox.viewbox_height
-        if width is None or height is None:
-            _, _, width, height = lc.bounds() or 0, 0, 0, 0
         return lc, width, height
     else:
         return lc
@@ -243,9 +255,12 @@ def read_svg(
 def read_multilayer_svg(
     filename: str,
     quantization: float,
+    crop: bool = True,
     simplify: bool = False,
     parallel: bool = False,
     return_size: bool = False,
+    default_width: float = _DEFAULT_WIDTH,
+    default_height: float = _DEFAULT_HEIGHT,
 ) -> Union["VectorData", Tuple["VectorData", float, float]]:
     """Read a multilayer SVG file and return its content as a :class:`VectorData` instance
     retaining the SVG's layer structure.
@@ -265,17 +280,21 @@ def read_multilayer_svg(
     Args:
         filename: path of the SVG file
         quantization: maximum size of segment used to approximate curved geometries
+        crop: crop the geometries to the SVG boundaries
         simplify: run Shapely's simplify on loaded geometry
         parallel: enable multiprocessing (only recommended for ``simplify=True`` and SVG with
             many curves)
         return_size: if True, return a size 3 Tuple containing the geometries and the SVG
             width and height
+        default_width: default width if not provided by SVG or if a percent width is provided
+        default_height: default height if not provided by SVG or if a percent height is
+            provided
 
     Returns:
          imported geometries, and optionally width and height of the SVG
     """
 
-    svg = svgelements.SVG.parse(filename, width=1000, height=1000)
+    svg = svgelements.SVG.parse(filename, width=default_width, height=default_height)
 
     vector_data = VectorData()
 
@@ -313,11 +332,13 @@ def read_multilayer_svg(
         if not lc.is_empty():
             vector_data.add(lc, lid)
 
+    width = svg.viewbox.element_width or default_width
+    height = svg.viewbox.element_height or default_height
+
+    if crop:
+        vector_data.crop(0, 0, width, height)
+
     if return_size:
-        width = svg.viewbox.viewbox_width
-        height = svg.viewbox.viewbox_height
-        if width is None or height is None:
-            _, _, width, height = vector_data.bounds() or 0, 0, 0, 0
         return vector_data, width, height
     else:
         return vector_data

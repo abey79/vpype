@@ -45,7 +45,14 @@ from .cli import cli
     "--parallel",
     is_flag=True,
     default=False,
-    help="Enable multiprocessing for SVG conversion",
+    help="Enable multiprocessing for SVG conversion.",
+)
+@click.option(
+    "-c",
+    "--no-crop",
+    is_flag=True,
+    default=False,
+    help="Do not crop the geometries to the SVG boundaries.",
 )
 @global_processor
 def read(
@@ -56,6 +63,7 @@ def read(
     quantization: float,
     simplify: bool,
     parallel: bool,
+    no_crop: bool,
 ) -> VectorData:
     """Extract geometries from a SVG file.
 
@@ -95,6 +103,9 @@ layer is used default and can be specified with the `--layer` option.
     The `--parallel` option enables multiprocessing for the SVG conversion. This is recommended
     ONLY when using `--simplify` on large SVG files with many curved elements.
 
+    By default, the geometries are cropped to the SVG boundaries defined by its width and
+    length attributes. The crop operation can be disabled with the `--no-crop` option.
+
     Examples:
 
         Multi-layer import:
@@ -112,6 +123,10 @@ layer is used default and can be specified with the `--layer` option.
         Multi-layer import with specified quantization and line simplification enabled:
 
             vpype read --quantization 0.01mm --simplify input_file.svg [...]
+
+        Multi-layer import with cropping disabled:
+
+            vpype read --no-crop input_file.svg [...]
     """
 
     if single_layer:
@@ -119,7 +134,11 @@ layer is used default and can be specified with the `--layer` option.
             cast(
                 LineCollection,
                 read_svg(
-                    file, quantization=quantization, simplify=simplify, parallel=parallel
+                    file,
+                    quantization=quantization,
+                    crop=not no_crop,
+                    simplify=simplify,
+                    parallel=parallel,
                 ),
             ),
             single_to_layer_id(layer, vector_data),
@@ -131,7 +150,11 @@ layer is used default and can be specified with the `--layer` option.
             cast(
                 VectorData,
                 read_multilayer_svg(
-                    file, quantization=quantization, simplify=simplify, parallel=parallel
+                    file,
+                    quantization=quantization,
+                    crop=not no_crop,
+                    simplify=simplify,
+                    parallel=parallel,
                 ),
             ),
         )
