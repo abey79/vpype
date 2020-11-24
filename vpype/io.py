@@ -1,11 +1,9 @@
 """File import/export functions.
 """
-import contextlib
 import copy
 import datetime
 import math
 import re
-import time
 from typing import Iterator, List, Optional, TextIO, Tuple, Union
 from xml.etree import ElementTree
 
@@ -20,6 +18,15 @@ from svgwrite.extensions import Inkscape
 from .config import CONFIG_MANAGER, PaperConfig, PlotterConfig
 from .model import LineCollection, VectorData
 from .utils import UNITS
+
+
+# monkey patch Point to make Point compatible with numpy
+# noinspection PyUnusedLocal
+def _point_len(self):
+    return 2
+
+
+svgelements.Point.__len__ = _point_len
 
 __all__ = ["read_svg", "read_multilayer_svg", "write_svg", "write_hpgl"]
 
@@ -133,7 +140,7 @@ def _convert_flattened_paths(
                     point_stack.extend(line)
             else:
                 # This is a curved element that we approximate with small segments
-                step = int(math.ceil(seg.length() / quantization))
+                step = max(2, int(math.ceil(seg.length() / quantization)))
                 line = seg.npoint(np.linspace(0, 1, step))
 
                 if simplify:
@@ -162,14 +169,6 @@ def _convert_flattened_paths(
     for res in results:
         lc.extend(res)
     return lc
-
-
-@contextlib.contextmanager
-def timer(s):
-    start = time.perf_counter()
-    yield
-    stop = time.perf_counter()
-    print(f"Timer task '{s}': {stop - start}s")
 
 
 def _extract_paths(group: svgelements.Group, recursive) -> _PathListType:
@@ -226,16 +225,10 @@ def read_svg(
         imported geometries, and optionally width and height of the SVG
     """
 
-    # TODO: default width/height should be provided in the rare case we get % value in there
-    # TODO: remove timers
-    with timer("SVG.parse"):
-        svg = svgelements.SVG.parse(filename)
-
-    with timer("svg.elements() extraction"):
-        paths = _extract_paths(svg, recursive=True)
-
-    with timer("path conversion"):
-        lc = _convert_flattened_paths(paths, quantization, simplify, parallel)
+    # default width is for SVG with % width/height
+    svg = svgelements.SVG.parse(filename, width=1000, height=1000)
+    paths = _extract_paths(svg, recursive=True)
+    lc = _convert_flattened_paths(paths, quantization, simplify, parallel)
 
     if return_size:
         width = svg.viewbox.viewbox_width
@@ -282,16 +275,16 @@ def read_multilayer_svg(
          imported geometries, and optionally width and height of the SVG
     """
 
-    svg = svgelements.SVG.parse(filename)
+    svg = svgelements.SVG.parse(filename, width=1000, height=1000)
 
     vector_data = VectorData()
 
     # non-group top level elements are loaded in layer 1
-    top_level_paths = _extract_paths(svg, recursive=False)
-    if top_level_paths:
-        vector_data.add(
-            _convert_flattened_paths(top_level_paths, quantization, simplify, parallel), 1
-        )
+    lc = _convert_flattened_paths(
+        _extract_paths(svg, recursive=False), quantization, simplify, parallel
+    )
+    if not lc.is_empty():
+        vector_data.add(lc, 1)
 
     def _find_groups(group: svgelements.Group) -> Iterator[svgelements.Group]:
         for elem in group:
@@ -314,12 +307,11 @@ def read_multilayer_svg(
         else:
             lid = i + 1
 
-        vector_data.add(
-            _convert_flattened_paths(
-                _extract_paths(g, recursive=True), quantization, simplify, parallel
-            ),
-            lid,
+        lc = _convert_flattened_paths(
+            _extract_paths(g, recursive=True), quantization, simplify, parallel
         )
+        if not lc.is_empty():
+            vector_data.add(lc, lid)
 
     if return_size:
         width = svg.viewbox.viewbox_width
