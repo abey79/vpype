@@ -161,11 +161,11 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
 name = "importlib-metadata"
-version = "2.1.0"
+version = "3.1.0"
 description = "Read metadata from Python packages"
 category = "main"
 optional = false
-python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
+python-versions = ">=3.6"
 
 [package.dependencies]
 zipp = ">=0.5"
@@ -593,12 +593,23 @@ lint = ["flake8", "mypy", "docutils-stubs"]
 test = ["pytest"]
 
 [[package]]
-name = "svgelements"
-version = "1.3.0"
-description = "Svg Elements Parsing"
+name = "svgpathtools"
+version = "1.4"
+description = ""
 category = "main"
 optional = false
 python-versions = "*"
+develop = false
+
+[package.dependencies]
+numpy = "*"
+svgwrite = "*"
+
+[package.source]
+type = "git"
+url = "https://github.com/abey79/svgpathtools"
+reference = "vpype"
+resolved_reference = "e4ec7085506a187b92a333e652a3680a5703c737"
 
 [[package]]
 name = "svgwrite"
@@ -663,7 +674,7 @@ docs = ["Sphinx", "sphinx-click", "sphinx-autodoc-typehints", "sphinx-rtd-theme"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.6, <3.9"
-content-hash = "6276caa508bfd2ce0c571c679c84515a1b05ef5da98610cf3fd126686d17a72b"
+content-hash = "d6b4f4e7a00a0477aa98b6e30b6de3af810d865d509f6e61a6922453c1eef87d"
 
 [metadata.files]
 alabaster = [
@@ -730,8 +741,8 @@ imagesize = [
     {file = "imagesize-1.2.0.tar.gz", hash = "sha256:b1f6b5a4eab1f73479a50fb79fcf729514a900c341d8503d62a62dbc4127a2b1"},
 ]
 importlib-metadata = [
-    {file = "importlib_metadata-2.1.0-py2.py3-none-any.whl", hash = "sha256:030f3b1bdb823ecbe4a9659e14cc861ce5af403fe99863bae173ec5fe00ab132"},
-    {file = "importlib_metadata-2.1.0.tar.gz", hash = "sha256:caeee3603f5dcf567864d1be9b839b0bcfdf1383e3e7be33ce2dead8144ff19c"},
+    {file = "importlib_metadata-2.0.0-py2.py3-none-any.whl", hash = "sha256:cefa1a2f919b866c5beb7c9f7b0ebb4061f30a8a9bf16d609b000e2dfaceb9c3"},
+    {file = "importlib_metadata-2.0.0.tar.gz", hash = "sha256:77a540690e24b0305878c37ffd421785a6f7e53c8b5720d211b211de8d0e95da"},
 ]
 iniconfig = [
     {file = "iniconfig-1.1.1-py2.py3-none-any.whl", hash = "sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3"},
@@ -1090,10 +1101,7 @@ sphinxcontrib-serializinghtml = [
     {file = "sphinxcontrib-serializinghtml-1.1.4.tar.gz", hash = "sha256:eaa0eccc86e982a9b939b2b82d12cc5d013385ba5eadcc7e4fed23f4405f77bc"},
     {file = "sphinxcontrib_serializinghtml-1.1.4-py2.py3-none-any.whl", hash = "sha256:f242a81d423f59617a8e5cf16f5d4d74e28ee9a66f9e5b637a18082991db5a9a"},
 ]
-svgelements = [
-    {file = "svgelements-1.3.0-py2.py3-none-any.whl", hash = "sha256:bb6ada965f2b523e5fc9c5e4a035e9accdab0c472b5b98ec3ab11e1b89b71379"},
-    {file = "svgelements-1.3.0.tar.gz", hash = "sha256:dfaa6e19fa8874d332c919c2bdbbd9bf0320c684cff7c581dda1f11414362ffe"},
-]
+svgpathtools = []
 svgwrite = [
     {file = "svgwrite-1.4-py3-none-any.whl", hash = "sha256:fa842fb3129a9399d19b5e9602a022fcc7f2f3f24713550e765c488ffafd743d"},
     {file = "svgwrite-1.4.zip", hash = "sha256:b38ac03b67f81c728d81a33e4711aaf3ab136a57156d721bb17f88525d9909bb"},
