@@ -107,6 +107,10 @@ def _convert_flattened_paths(
         result = []
         point_stack = _ComplexStack()
         for seg in path:
+            # handle cases of zero radius Arc
+            if isinstance(seg, svgelements.Arc) and (seg.rx == 0 or seg.ry == 0):
+                seg = svgelements.Line(start=seg.start, end=seg.end)
+
             if isinstance(seg, svgelements.Move):
                 if len(point_stack) > 0:
                     result.append(point_stack.get())
@@ -118,7 +122,8 @@ def _convert_flattened_paths(
                 end = complex(seg.end)
                 if not point_stack.ends_with(start):
                     point_stack.append(start)
-                point_stack.append(end)
+                if end != start:
+                    point_stack.append(end)
             elif isinstance(seg, (svgelements.Polygon, svgelements.Polyline)):
                 line = np.array(seg.points, dtype=float)
                 line = line.view(dtype=complex).reshape(len(line))
