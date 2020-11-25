@@ -23,10 +23,6 @@ This command will :ref:`cmd_read` a multilayered SVG file, flatten it by convert
 
   $ vpype read --single-layer input.svg write output.svg
 
-This command will :ref:`cmd_read` an SVG file, convert all paths to a single compound path, and then :ref:`cmd_write` it to a new SVG with the boundaries fitted tightly around the design::
-
-  $ vpype read input.svg write --single-path output.svg
-
 This command will :ref:`cmd_read` an SVG file, :ref:`cmd_scale` it down to a 80% of its original size, and then :ref:`cmd_write` it to a new A5-sized SVG, centred on the page::
 
   $ vpype read input.svg scale 0.8 0.8 write output.svg
@@ -55,7 +51,7 @@ Likewise, pen-up trajectories can be included in the SVG to inspect the result o
 
   $ vpype read input.svg linesort write --pen-up output.svg
 
-Note that :option:`write --single-path` should only be used for previsualization purposes as the pen-up trajectories may end-up being plotted otherwise. The Axidraw software will ignore the layer in which the pen-up trajectories are written, so it is safe to keep them in this particular case.
+Note that :option:`write --pen-up` should only be used for previsualization purposes as the pen-up trajectories may end-up being plotted otherwise. The Axidraw software will ignore the layer in which the pen-up trajectories are written, so it is safe to keep them in this particular case.
 
 
 Optimizing a SVG for plotting

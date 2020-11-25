@@ -4,21 +4,23 @@ import copy
 import datetime
 import math
 import re
-from typing import List, Optional, TextIO, Tuple, Union
+from typing import Iterator, List, Optional, TextIO, Tuple, Union
 from xml.etree import ElementTree
-from xml.etree.ElementTree import Element
 
 import click
 import numpy as np
-import svgpathtools as svg
+import svgelements
 import svgwrite
+from multiprocess import Pool
+from shapely.geometry import LineString
 from svgwrite.extensions import Inkscape
 
 from .config import CONFIG_MANAGER, PaperConfig, PlotterConfig
-from .model import LineCollection, VectorData, as_vector
-from .utils import UNITS, convert_length
+from .model import LineCollection, VectorData
+from .utils import UNITS
 
 __all__ = ["read_svg", "read_multilayer_svg", "write_svg", "write_hpgl"]
+
 
 _COLORS = [
     "#00f",
@@ -31,110 +33,175 @@ _COLORS = [
     "black",
 ]
 
+_DEFAULT_WIDTH = 1000
+_DEFAULT_HEIGHT = 1000
 
-def _calculate_page_size(
-    root: Element,
-) -> Tuple[Optional[float], Optional[float], float, float, float, float]:
-    """Interpret the viewBox, width and height attribs and compute proper scaling coefficients.
 
-    Args:
-        root: SVG's root element
+class _ComplexStack:
+    """Complex number stack implemented with a numpy array"""
 
-    Returns:
-        tuple of width, height, scale X, scale Y, offset X, offset Y
-    """
-    width = height = None
-    if "viewBox" in root.attrib:
-        # A view box is defined so we must correctly scale from user coordinates
-        # https://css-tricks.com/scale-svg/
-        # TODO: we should honor the `preserveAspectRatio` attribute
+    def __init__(self):
+        self._alloc = 100
+        self._stack = np.empty(shape=self._alloc, dtype=complex)
+        self._len = 0
 
-        viewbox_min_x, viewbox_min_y, viewbox_width, viewbox_height = [
-            float(s) for s in root.attrib["viewBox"].split()
-        ]
+    def __len__(self) -> int:
+        return self._len
 
-        width = convert_length(root.attrib.get("width", viewbox_width))
-        height = convert_length(root.attrib.get("height", viewbox_height))
+    def _realloc(self, min_free: int = 1) -> None:
+        self._alloc = max(self._alloc * 2, self._len + min_free)
+        # noinspection PyTypeChecker
+        self._stack.resize(self._alloc, refcheck=False)
 
-        scale_x = width / viewbox_width
-        scale_y = height / viewbox_height
-        offset_x = -viewbox_min_x
-        offset_y = -viewbox_min_y
-    else:
-        scale_x = 1
-        scale_y = 1
-        offset_x = 0
-        offset_y = 0
+    def append(self, c: complex) -> None:
+        if self._len == self._alloc:
+            self._realloc()
+        self._stack[self._len] = c
+        self._len += 1
 
-    return width, height, scale_x, scale_y, offset_x, offset_y
+    def extend(self, a: np.ndarray) -> None:
+        len_a = len(a)
+        if self._len + len_a > self._alloc:
+            self._realloc(len_a)
+        self._stack[self._len : self._len + len_a] = a
+        self._len += len_a
+
+    def ends_with(self, c: complex) -> bool:
+        return self._stack[self._len - 1] == c if self._len > 0 else False
+
+    def get(self) -> np.ndarray:
+        self._alloc = self._len
+        # noinspection PyTypeChecker
+        self._stack.resize(self._alloc, refcheck=False)
+        return self._stack
+
+
+_PathListType = List[
+    Union[
+        # for actual paths and shapes transformed into paths
+        svgelements.Path,
+        # for the special case of Polygon and Polylines
+        List[Union[svgelements.PathSegment, svgelements.Polygon, svgelements.Polyline]],
+    ]
+]
 
 
 def _convert_flattened_paths(
-    paths: List,
-    quantization: float,
-    scale_x: float,
-    scale_y: float,
-    offset_x: float,
-    offset_y: float,
-    simplify: bool,
+    paths: _PathListType, quantization: float, simplify: bool, parallel: bool
 ) -> "LineCollection":
     """Convert a list of FlattenedPaths to a :class:`LineCollection`.
 
     Args:
         paths: list of FlattenedPaths
         quantization: maximum length of linear elements to approximate curve paths
-        scale_x, scale_y: scale factor to apply
-        offset_x, offset_y: offset to apply
-        simplify: should Shapely's simplify be run
+        simplify: should Shapely's simplify be run on curved elements after quantization
+        parallel: enable multiprocessing
 
     Returns:
         new :class:`LineCollection` instance containing the converted geometries
     """
 
-    lc = LineCollection()
-    for result in paths:
-        # Here we load the sub-part of the path element. If such sub-parts are connected,
-        # we merge them in a single line (e.g. line string, etc.). If there are disconnection
-        # in the path (e.g. multiple "M" commands), we create several lines
-        sub_paths: List[List[complex]] = []
-        for elem in result:
-            if isinstance(elem, svg.Line):
-                coords = [elem.start, elem.end]
+    def _process_path(path):
+        if len(path) == 0:
+            return []
+
+        result = []
+        point_stack = _ComplexStack()
+        for seg in path:
+            # handle cases of zero radius Arc
+            if isinstance(seg, svgelements.Arc) and (seg.rx == 0 or seg.ry == 0):
+                seg = svgelements.Line(start=seg.start, end=seg.end)
+
+            if isinstance(seg, svgelements.Move):
+                if len(point_stack) > 0:
+                    result.append(point_stack.get())
+                    point_stack = _ComplexStack()
+
+                point_stack.append(complex(seg.end))
+            elif isinstance(seg, (svgelements.Line, svgelements.Close)):
+                start = complex(seg.start)
+                end = complex(seg.end)
+                if not point_stack.ends_with(start):
+                    point_stack.append(start)
+                if end != start:
+                    point_stack.append(end)
+            elif isinstance(seg, (svgelements.Polygon, svgelements.Polyline)):
+                line = np.array(seg.points, dtype=float)
+                line = line.view(dtype=complex).reshape(len(line))
+                if point_stack.ends_with(line[0]):
+                    point_stack.extend(line[1:])
+                else:
+                    point_stack.extend(line)
             else:
                 # This is a curved element that we approximate with small segments
-                step = int(math.ceil(elem.length() / quantization))
-                coords = [elem.start]
-                coords.extend(elem.point((i + 1) / step) for i in range(step - 1))
-                coords.append(elem.end)
+                step = max(2, int(math.ceil(seg.length() / quantization)))
+                line = seg.npoint(np.linspace(0, 1, step))
 
-            # merge to last sub path if first coordinates match
-            if sub_paths:
-                if sub_paths[-1][-1] == coords[0]:
-                    sub_paths[-1].extend(coords[1:])
+                if simplify:
+                    line = np.array(LineString(line).simplify(tolerance=quantization))
+
+                line = line.view(dtype=complex).reshape(len(line))
+
+                if point_stack.ends_with(line[0]):
+                    point_stack.extend(line[1:])
                 else:
-                    sub_paths.append(coords)
-            else:
-                sub_paths.append(coords)
+                    point_stack.extend(line)
 
-        for sub_path in sub_paths:
-            path = np.array(sub_path)
+        if len(point_stack) > 0:
+            result.append(point_stack.get())
 
-            # transform
-            path += offset_x + 1j * offset_y
-            path.real *= scale_x
-            path.imag *= scale_y
+        return result
 
-            lc.append(path)
+    # benchmarking indicated that parallel processing only makes sense if simplify is used
+    if parallel:
+        with Pool() as p:
+            results = p.map(_process_path, paths)
+    else:
+        results = map(_process_path, paths)
 
-    if simplify:
-        mls = lc.as_mls()
-        lc = LineCollection(mls.simplify(tolerance=quantization))
-
+    lc = LineCollection()
+    for res in results:
+        lc.extend(res)
     return lc
 
 
+def _extract_paths(group: svgelements.Group, recursive) -> _PathListType:
+    """Extract everything from the provided SVG group."""
+
+    if recursive:
+        everything = group.select()
+    else:
+        everything = group
+    paths = []
+    for elem in everything:
+        if isinstance(elem, svgelements.Path):
+            if len(elem) != 0:
+                paths.append(elem)
+        elif isinstance(elem, (svgelements.Polyline, svgelements.Polygon)):
+            # Here we add a "fake" path containing just the Polyline/Polygon,
+            # to be treated specifically by _convert_flattened_paths.
+            path = [svgelements.Move(elem.points[0]), elem]
+            if isinstance(elem, svgelements.Polygon):
+                path.append(svgelements.Close(elem.points[-1], elem.points[0]))
+            paths.append(path)
+        elif isinstance(elem, svgelements.Shape):
+            e = svgelements.Path(elem)
+            e.reify()  # In some cases the shape could not have reified, the path must.
+            if len(e) != 0:
+                paths.append(e)
+
+    return paths
+
+
 def read_svg(
-    filename: str, quantization: float, simplify: bool = False, return_size: bool = False
+    filename: str,
+    quantization: float,
+    crop: bool = True,
+    simplify: bool = False,
+    parallel: bool = False,
+    return_size: bool = False,
+    default_width: float = _DEFAULT_WIDTH,
+    default_height: float = _DEFAULT_HEIGHT,
 ) -> Union["LineCollection", Tuple["LineCollection", float, float]]:
     """Read a SVG file an return its content as a :class:`LineCollection` instance.
 
@@ -145,30 +212,46 @@ def read_svg(
     Args:
         filename: path of the SVG file
         quantization: maximum size of segment used to approximate curved geometries
+        crop: crop the geometries to the SVG boundaries
         simplify: run Shapely's simplify on loaded geometry
+        parallel: enable multiprocessing (only recommended for ``simplify=True`` and SVG with
+            many curves)
         return_size: if True, return a size 3 Tuple containing the geometries and the SVG
             width and height
+        default_width: default width if not provided by SVG or if a percent width is provided
+        default_height: default height if not provided by SVG or if a percent height is
+            provided
 
     Returns:
         imported geometries, and optionally width and height of the SVG
     """
 
-    doc = svg.Document(filename)
-    width, height, scale_x, scale_y, offset_x, offset_y = _calculate_page_size(doc.root)
-    lc = _convert_flattened_paths(
-        doc.paths(), quantization, scale_x, scale_y, offset_x, offset_y, simplify,
-    )
+    # default width is for SVG with % width/height
+    svg = svgelements.SVG.parse(filename, width=default_width, height=default_height)
+    paths = _extract_paths(svg, recursive=True)
+    lc = _convert_flattened_paths(paths, quantization, simplify, parallel)
+
+    width = svg.viewbox.element_width or default_width
+    height = svg.viewbox.element_height or default_height
+
+    if crop:
+        lc.crop(0, 0, width, height)
 
     if return_size:
-        if width is None or height is None:
-            _, _, width, height = lc.bounds() or 0, 0, 0, 0
         return lc, width, height
     else:
         return lc
 
 
 def read_multilayer_svg(
-    filename: str, quantization: float, simplify: bool = False, return_size: bool = False
+    filename: str,
+    quantization: float,
+    crop: bool = True,
+    simplify: bool = False,
+    parallel: bool = False,
+    return_size: bool = False,
+    default_width: float = _DEFAULT_WIDTH,
+    default_height: float = _DEFAULT_HEIGHT,
 ) -> Union["VectorData", Tuple["VectorData", float, float]]:
     """Read a multilayer SVG file and return its content as a :class:`VectorData` instance
     retaining the SVG's layer structure.
@@ -188,43 +271,45 @@ def read_multilayer_svg(
     Args:
         filename: path of the SVG file
         quantization: maximum size of segment used to approximate curved geometries
+        crop: crop the geometries to the SVG boundaries
         simplify: run Shapely's simplify on loaded geometry
+        parallel: enable multiprocessing (only recommended for ``simplify=True`` and SVG with
+            many curves)
         return_size: if True, return a size 3 Tuple containing the geometries and the SVG
             width and height
+        default_width: default width if not provided by SVG or if a percent width is provided
+        default_height: default height if not provided by SVG or if a percent height is
+            provided
 
     Returns:
          imported geometries, and optionally width and height of the SVG
     """
 
-    doc = svg.Document(filename)
-
-    width, height, scale_x, scale_y, offset_x, offset_y = _calculate_page_size(doc.root)
+    svg = svgelements.SVG.parse(filename, width=default_width, height=default_height)
 
     vector_data = VectorData()
 
     # non-group top level elements are loaded in layer 1
-    top_level_elements = doc.paths(group_filter=lambda x: x is doc.root)
-    if top_level_elements:
-        vector_data.add(
-            _convert_flattened_paths(
-                top_level_elements,
-                quantization,
-                scale_x,
-                scale_y,
-                offset_x,
-                offset_y,
-                simplify,
-            ),
-            1,
-        )
+    lc = _convert_flattened_paths(
+        _extract_paths(svg, recursive=False), quantization, simplify, parallel
+    )
+    if not lc.is_empty():
+        vector_data.add(lc, 1)
 
-    for i, g in enumerate(doc.root.iterfind("svg:g", svg.SVG_NAMESPACE)):
+    def _find_groups(group: svgelements.Group) -> Iterator[svgelements.Group]:
+        for elem in group:
+            if isinstance(elem, svgelements.Group):
+                yield elem
+
+    for i, g in enumerate(_find_groups(svg)):
         # compute a decent layer ID
         lid_str = re.sub(
-            "[^0-9]", "", g.get("{http://www.inkscape.org/namespaces/inkscape}label") or ""
+            "[^0-9]",
+            "",
+            g.values.get("{http://www.inkscape.org/namespaces/inkscape}label") or "",
         )
         if not lid_str:
-            lid_str = re.sub("[^0-9]", "", g.get("id") or "")
+            lid_str = re.sub("[^0-9]", "", g.values.get("id") or "")
         if lid_str:
             lid = int(lid_str)
             if lid == 0:
@@ -232,54 +317,22 @@ def read_multilayer_svg(
         else:
             lid = i + 1
 
-        vector_data.add(
-            _convert_flattened_paths(
-                doc.paths_from_group(g, g),
-                quantization,
-                scale_x,
-                scale_y,
-                offset_x,
-                offset_y,
-                simplify,
-            ),
-            lid,
+        lc = _convert_flattened_paths(
+            _extract_paths(g, recursive=True), quantization, simplify, parallel
         )
+        if not lc.is_empty():
+            vector_data.add(lc, lid)
+
+    width = svg.viewbox.element_width or default_width
+    height = svg.viewbox.element_height or default_height
+
+    if crop:
+        vector_data.crop(0, 0, width, height)
 
     if return_size:
-        if width is None or height is None:
-            _, _, width, height = vector_data.bounds() or 0, 0, 0, 0
         return vector_data, width, height
     else:
         return vector_data
-
-
-def _line_to_path(dwg: svgwrite.Drawing, lines: Union[np.ndarray, LineCollection]):
-    """Convert a line into a SVG path element.
-
-    Accepts either a single line or a :py:class:`LineCollection`.
-
-    Args:
-        lines: line(s) to convert to path
-
-    Returns:
-        (svgwrite element): path element
-
-    """
-
-    if isinstance(lines, np.ndarray):
-        lines = [lines]
-
-    def single_line_to_path(line: np.ndarray) -> str:
-        if line[0] == line[-1] and len(line) > 2:
-            closed = True
-            line = line[:-1]
-        else:
-            closed = False
-        return (
-            "M" + " L".join(f"{x},{y}" for x, y in as_vector(line)) + (" Z" if closed else "")
-        )
-
-    return dwg.path(" ".join(single_line_to_path(line) for line in lines))
 
 
 def write_svg(
@@ -288,7 +341,6 @@ def write_svg(
     page_format: Tuple[float, float] = (0.0, 0.0),
     center: bool = False,
     source_string: str = "",
-    single_path: bool = False,
     layer_label_format: str = "%d",
     show_pen_up: bool = False,
     color_mode: str = "none",
@@ -306,9 +358,6 @@ def write_svg(
     Layers are named after `layer_label_format`, which may contain a C-style format specifier
     such as `%d` which will be replaced by the layer number.
 
-    If `single_path=True`, a single compound path is written per layer. Otherwise, each path
-    is exported individually.
-
     For previsualisation purposes, pen-up trajectories can be added to the SVG and path can
     be colored individually (``color_mode="path"``) or layer-by-layer (``color_mode="layer"``).
 
@@ -318,12 +367,10 @@ def write_svg(
         page_format: page (width, height) tuple in pixel, or (0, 0) for tight fit
         center: center geometries on page before export
         source_string: value of the `source` metadata
-        single_path: export geometries as a single compound path instead of multiple
-            individual paths
         layer_label_format: format string for layer label naming
         show_pen_up: add paths for the pen-up trajectories
         color_mode: "none" (no formatting), "layer" (one color per layer), "path" (one color
-            per path) (``color_mode="path"`` implies ``single_path=False``)
+            per path)
     """
 
     # compute bounds
@@ -382,7 +429,10 @@ def write_svg(
         group.attribs["id"] = "pen_up_trajectories"
 
         for layer in corrected_vector_data.layers.values():
-            group.add(_line_to_path(dwg, layer.pen_up_trajectories()))
+            for line in layer.pen_up_trajectories():
+                group.add(
+                    dwg.line((line[0].real, line[0].imag), (line[-1].real, line[-1].imag))
+                )
 
         dwg.add(group)
 
@@ -399,15 +449,21 @@ def write_svg(
         group.attribs["style"] = "display:inline"
         group.attribs["id"] = f"layer{layer_id}"
 
-        if single_path and color_mode != "path":
-            group.add(_line_to_path(dwg, layer))
-        else:
-            for line in layer:
-                path = _line_to_path(dwg, line)
-                if color_mode == "path":
-                    path.attribs["stroke"] = _COLORS[color_idx % len(_COLORS)]
-                    color_idx += 1
-                group.add(path)
+        for line in layer:
+            if len(line) <= 1:
+                continue
+
+            if len(line) == 2:
+                path = dwg.line((line[0].real, line[0].imag), (line[1].real, line[1].imag))
+            elif line[0] == line[-1]:
+                path = dwg.polygon((c.real, c.imag) for c in line[:-1])
+            else:
+                path = dwg.polyline((c.real, c.imag) for c in line)
+
+            if color_mode == "path":
+                path.attribs["stroke"] = _COLORS[color_idx % len(_COLORS)]
+                color_idx += 1
+            group.add(path)
 
         dwg.add(group)
 

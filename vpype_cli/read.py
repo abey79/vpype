@@ -1,5 +1,5 @@
 import logging
-from typing import Optional, cast
+from typing import Optional, Tuple, cast
 
 import click
 
@@ -7,6 +7,7 @@ from vpype import (
     LayerType,
     LengthType,
     LineCollection,
+    PageSizeType,
     VectorData,
     global_processor,
     read_multilayer_svg,
@@ -35,10 +36,41 @@ from .cli import cli
 )
 @click.option(
     "-s",
-    "--no-simplify",
+    "--simplify",
     is_flag=True,
     default=False,
-    help="Do not run the implicit simplify on imported geometries.",
+    help="Apply simplification algorithm to curved elements.",
+)
+@click.option(
+    "-p",
+    "--parallel",
+    is_flag=True,
+    default=False,
+    help="Enable multiprocessing for SVG conversion.",
+)
+@click.option(
+    "-c",
+    "--no-crop",
+    is_flag=True,
+    default=False,
+    help="Do not crop the geometries to the SVG boundaries.",
+)
+@click.option(
+    "-ds",
+    "--display-size",
+    type=PageSizeType(),
+    default="a4",
+    help=(
+        "Display size to use for SVG with width/height expressed as percentage or missing "
+        "altogether (see `write` command for possible format)."
+    ),
+)
+@click.option(
+    "-dl",
+    "--display-landscape",
+    is_flag=True,
+    default=False,
+    help="Use landscape orientation ofr display size.",
 )
 @global_processor
 def read(
@@ -47,7 +79,11 @@ def read(
     single_layer: bool,
     layer: Optional[int],
     quantization: float,
-    no_simplify: bool,
+    simplify: bool,
+    parallel: bool,
+    no_crop: bool,
+    display_size: Tuple[float, float],
+    display_landscape: bool,
 ) -> VectorData:
     """Extract geometries from a SVG file.
 
@@ -78,8 +114,24 @@ layer is used default and can be specified with the `--layer` option.
     All curved primitives (e.g. bezier path, ellipses, etc.) are linearized and approximated by
     polylines. The quantization length controls the maximum length of individual segments.
 
-    By default, an implicit line simplification with tolerance set to quantization is executed
-    (see `linesimplify` command). This behaviour can be disabled with the `--no-simplify` flag.
+    Optionally, a line simplification with tolerance set to quantization can be applied on the
+    SVG's curved element (e.g. circles, ellipses, arcs, bezier curves, etc.). This is enabled
+    with the `--simplify` flag. This process reduces significantly the number of segments used
+    to approximate the curve while still guaranteeing an accurate conversion, but may increase
+    the execution time of this command.
+
+    The `--parallel` option enables multiprocessing for the SVG conversion. This is recommended
+    ONLY when using `--simplify` on large SVG files with many curved elements.
+
+    By default, the geometries are cropped to the SVG boundaries defined by its width and
+    length attributes. The crop operation can be disabled with the `--no-crop` option.
+
+    In general, SVG boundaries are determined by the `width` and `height` of the top-level
+    <svg> tag. However, the some SVG may have their width and/or height specified as percent
+    value or even miss them altogether (in which case they are assumed to be set to 100%). In
+    these cases, vpype considers by default that 100% corresponds to a A4 page in portrait
+    orientation. The options `--display-size FORMAT` and `--display-landscape` can be used
+    to specify a different format.
 
     Examples:
 
@@ -95,16 +147,32 @@ layer is used default and can be specified with the `--layer` option.
 
             vpype read --single-layer --layer 3 input_file.svg [...]
 
-        Multi-layer import with specified quantization and line simplification disabled:
+        Multi-layer import with specified quantization and line simplification enabled:
 
-            vpype read --quantization 0.01mm --no-simplify input_file.svg [...]
+            vpype read --quantization 0.01mm --simplify input_file.svg [...]
+
+        Multi-layer import with cropping disabled:
+
+            vpype read --no-crop input_file.svg [...]
     """
+
+    width, height = display_size
+    if display_landscape:
+        width, height = height, width
 
     if single_layer:
         vector_data.add(
             cast(
                 LineCollection,
-                read_svg(file, quantization=quantization, simplify=not no_simplify),
+                read_svg(
+                    file,
+                    quantization=quantization,
+                    crop=not no_crop,
+                    simplify=simplify,
+                    parallel=parallel,
+                    default_width=width,
+                    default_height=height,
+                ),
             ),
             single_to_layer_id(layer, vector_data),
         )
@@ -114,7 +182,15 @@ layer is used default and can be specified with the `--layer` option.
         vector_data.extend(
             cast(
                 VectorData,
-                read_multilayer_svg(file, quantization=quantization, simplify=not no_simplify),
+                read_multilayer_svg(
+                    file,
+                    quantization=quantization,
+                    crop=not no_crop,
+                    simplify=simplify,
+                    parallel=parallel,
+                    default_width=width,
+                    default_height=height,
+                ),
             ),
         )
 
