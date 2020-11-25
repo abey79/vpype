@@ -20,14 +20,6 @@ from .model import LineCollection, VectorData
 from .utils import UNITS
 
 
-# monkey patch Point to make Point compatible with numpy
-# noinspection PyUnusedLocal
-def _point_len(self):
-    return 2
-
-
-svgelements.Point.__len__ = _point_len
-
 __all__ = ["read_svg", "read_multilayer_svg", "write_svg", "write_hpgl"]
 
 

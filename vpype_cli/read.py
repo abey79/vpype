@@ -1,5 +1,5 @@
 import logging
-from typing import Optional, cast
+from typing import Optional, Tuple, cast
 
 import click
 
@@ -7,6 +7,7 @@ from vpype import (
     LayerType,
     LengthType,
     LineCollection,
+    PageSizeType,
     VectorData,
     global_processor,
     read_multilayer_svg,
@@ -54,6 +55,23 @@ from .cli import cli
     default=False,
     help="Do not crop the geometries to the SVG boundaries.",
 )
+@click.option(
+    "-ds",
+    "--display-size",
+    type=PageSizeType(),
+    default="a4",
+    help=(
+        "Display size to use for SVG with width/height expressed as percentage or missing "
+        "altogether (see `write` command for possible format)."
+    ),
+)
+@click.option(
+    "-dl",
+    "--display-landscape",
+    is_flag=True,
+    default=False,
+    help="Use landscape orientation ofr display size.",
+)
 @global_processor
 def read(
     vector_data: VectorData,
@@ -64,6 +82,8 @@ def read(
     simplify: bool,
     parallel: bool,
     no_crop: bool,
+    display_size: Tuple[float, float],
+    display_landscape: bool,
 ) -> VectorData:
     """Extract geometries from a SVG file.
 
@@ -106,6 +126,13 @@ layer is used default and can be specified with the `--layer` option.
     By default, the geometries are cropped to the SVG boundaries defined by its width and
     length attributes. The crop operation can be disabled with the `--no-crop` option.
 
+    In general, SVG boundaries are determined by the `width` and `height` of the top-level
+    <svg> tag. However, the some SVG may have their width and/or height specified as percent
+    value or even miss them altogether (in which case they are assumed to be set to 100%). In
+    these cases, vpype considers by default that 100% corresponds to a A4 page in portrait
+    orientation. The options `--display-size FORMAT` and `--display-landscape` can be used
+    to specify a different format.
+
     Examples:
 
         Multi-layer import:
@@ -129,6 +156,10 @@ layer is used default and can be specified with the `--layer` option.
             vpype read --no-crop input_file.svg [...]
     """
 
+    width, height = display_size
+    if display_landscape:
+        width, height = height, width
+
     if single_layer:
         vector_data.add(
             cast(
@@ -139,6 +170,8 @@ layer is used default and can be specified with the `--layer` option.
                     crop=not no_crop,
                     simplify=simplify,
                     parallel=parallel,
+                    default_width=width,
+                    default_height=height,
                 ),
             ),
             single_to_layer_id(layer, vector_data),
@@ -155,6 +188,8 @@ layer is used default and can be specified with the `--layer` option.
                     crop=not no_crop,
                     simplify=simplify,
                     parallel=parallel,
+                    default_width=width,
+                    default_height=height,
                 ),
             ),
         )

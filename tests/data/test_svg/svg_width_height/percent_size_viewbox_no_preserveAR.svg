@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.0//EN'
         'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
-<svg viewBox="100 100 300 300" xmlns="http://www.w3.org/2000/svg">
+<svg width="100%" height="100%" viewBox="100 100 300 300" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
     <defs id="genericDefs"/>
     <g style="fill:none;stroke:#666">
          <circle cx="100" cy="200" r="40" />
