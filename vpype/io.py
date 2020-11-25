@@ -19,7 +19,6 @@ from .config import CONFIG_MANAGER, PaperConfig, PlotterConfig
 from .model import LineCollection, VectorData
 from .utils import UNITS
 
-
 __all__ = ["read_svg", "read_multilayer_svg", "write_svg", "write_hpgl"]
 
 
