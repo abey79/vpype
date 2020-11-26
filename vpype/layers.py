@@ -32,8 +32,7 @@ class VpypeState:
 
 
 def multiple_to_layer_ids(
-    layers: Optional[Union[int, List[int]]],
-    document: Document,
+    layers: Optional[Union[int, List[int]]], document: Document
 ) -> List[int]:
     """Convert multiple-layer CLI argument to list of layer IDs.
 

@@ -299,13 +299,7 @@ def filter_command(
 # noinspection PyShadowingNames
 @cli.command(group="Operations")
 @click.argument("size", type=vp.PageSizeType(), required=True)
-@click.option(
-    "-l",
-    "--landscape",
-    is_flag=True,
-    default=False,
-    help="Target layer(s).",
-)
+@click.option("-l", "--landscape", is_flag=True, default=False, help="Target layer(s).")
 @vp.global_processor
 def pagesize(document: vp.Document, size, landscape) -> vp.Document:
     """Change the current page size.
