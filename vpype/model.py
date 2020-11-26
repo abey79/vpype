@@ -432,16 +432,6 @@ class Document:
         """Sets the page size to a new value."""
         self._page_size = page_size
 
-    @property
-    def page_width(self) -> Optional[float]:
-        """Return the page width or None if it hasn't been set."""
-        return self._page_size[0] if self._page_size else None
-
-    @property
-    def page_height(self) -> Optional[float]:
-        """Return the page height or None if it hasn't been set."""
-        return self._page_size[1] if self._page_size else None
-
     def extend_page_size(self, page_size: Optional[Tuple[float, float]]) -> None:
         """Adjust the  page sized according to the following logic:
         - if ``page_size`` is None, the the page size is unchanged

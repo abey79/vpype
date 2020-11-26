@@ -46,8 +46,7 @@ def show(
     colorful: bool,
     unit: str,
 ):
-    """
-    Display the geometry using matplotlib.
+    """Display the geometry using matplotlib.
 
     By default, only the geometries are displayed without the axis. All geometries are
     displayed with black. When using the `--colorful` flag, each segment will have a different
@@ -59,6 +58,27 @@ def show(
     fig = plt.figure()
     color_idx = 0
     collections = {}
+
+    # draw page boundaries
+    if document.page_size:
+        w = document.page_size[0] * scale
+        h = document.page_size[1] * scale
+        dw = 10 * scale
+        plt.plot(
+            np.array([0, 1, 1, 0, 0]) * w,
+            np.array([0, 0, 1, 1, 0]) * h,
+            "-k",
+            lw=0.25,
+            label=None,
+        )
+        plt.fill(
+            np.array([w, w + dw, w + dw, dw, dw, w]),
+            np.array([dw, dw, h + dw, h + dw, h, h]),
+            "k",
+            alpha=0.3,
+            label=None,
+        )
+
     for layer_id, lc in document.layers.items():
         if colorful:
             color = COLORS[color_idx:] + COLORS[:color_idx]
@@ -106,12 +126,13 @@ def show(
     plt.margins(0, 0)
 
     if not hide_legend:
-        lgd = plt.legend()
+        lgd = plt.legend(loc="upper right")
         # we will set up a dict mapping legend line to orig line, and enable
         # picking on the legend line
         line_dict = {}
         for lgd_line, lgd_text in zip(lgd.get_lines(), lgd.get_texts()):
-            lgd_line.set_picker(5)  # 5 pts tolerance
+            lgd_line.set_picker(True)  # 5 pts tolerance
+            lgd_line.set_pickradius(5)
             layer_id = int(lgd_text.get_text())
             if layer_id in collections:
                 line_dict[lgd_line] = collections[layer_id]
