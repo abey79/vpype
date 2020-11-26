@@ -92,3 +92,22 @@ napoleon_include_init_with_doc = True
 #             'enable_eval_rst': True,
 #             }, True)
 #     app.add_transform(AutoStructify)
+
+
+# noinspection PyUnusedLocal
+def autodoc_skip_member(app, what, name, obj, skip, options):
+    exclusions = (
+        # vpype/model.py
+        "VectorData",
+        # vpype/utils.py
+        "PAGE_FORMATS",
+        "convert",
+        "convert_page_format",
+        "Length",
+    )
+    exclude = name in exclusions
+    return skip or exclude
+
+
+def setup(app):
+    app.connect("autodoc-skip-member", autodoc_skip_member)
