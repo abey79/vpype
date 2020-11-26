@@ -6,21 +6,20 @@
 
 > **Note**: a proper documentation is [under construction](https://vpype.readthedocs.io/en/latest/).
 
-_vpype_ aims to be the one-stop-shop, Swiss Army knife<sup>1</sup> for producing plotter-ready vector graphics. Here
-are, for illustration, a few examples of what it can do:
+_vpype_ aims to be the one-stop-shop, Swiss Army knife<sup>1</sup> for producing plotter-ready vector graphics. Here are, for illustration, a few examples of what it can do:
 
 - Load an SVG file, scale it to a specific size, and export it centered on an A4-sized, ready-to-plot SVG file.
     ```bash
-    $ vpype read input.svg scale --to 10cm 10cm write --page-size a4 --center output.svg
+    $ vpype read input.svg scaleto 10cm 10cm write --page-size a4 --center output.svg
+    ```
+- Optimize paths to reduce plotting time (merge connected lines and sort them to minimize pen-up distance):
+    ```bash
+    $ vpype read input.svg linemerge --tolerance 0.1mm linesort write output.svg
     ```
 - Visualize the path structure of large SVG files, showing whether lines are properly joined or
     not thanks to a colorful display.
     ```bash
     $ vpype read input.svg show --colorful
-    ```
-- Optimize paths to reduce plotting time (merge connected lines and sort them to minimize pen-up distance):
-    ```bash
-    $ vpype read input.svg linemerge --tolerance 0.1mm linesort write output.svg
     ```
 - Load several SVG files and save them as a single, multi-layer SVG file (e.g. for multicolored drawings).
     ```bash
@@ -73,9 +72,11 @@ Additionally, there are many other projects which have helped get _vpype_ where 
 
 ## Getting Started
 
+**Note**: check the [user manual](https://vpype.readthedocs.io/en/latest/) for more detailed information. 
+
 ### Installation
 
-See [installation instructions](INSTALL.md).
+See [installation section](https://vpype.readthedocs.io/en/latest/install.html) of the user manual.
 
 
 ### Running example scripts

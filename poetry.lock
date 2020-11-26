@@ -528,22 +528,15 @@ type_comments = ["typed-ast (>=1.4.0)"]
 
 [[package]]
 name = "sphinx-click"
-version = "2.3.3.dev3"
+version = "2.5.0"
 description = "Sphinx extension that automatically documents click applications"
 category = "main"
 optional = true
 python-versions = "*"
-develop = false
 
 [package.dependencies]
 pbr = ">=2.0"
 sphinx = ">=1.5,<4.0"
-
-[package.source]
-type = "git"
-url = "https://github.com/abey79/sphinx-click"
-reference = "vpype-docs"
-resolved_reference = "77df92a82fad8fe001700546c0bfa57fdbc932c6"
 
 [[package]]
 name = "sphinx-rtd-theme"
@@ -701,7 +694,7 @@ docs = ["Sphinx", "sphinx-click", "sphinx-autodoc-typehints", "sphinx-rtd-theme"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.6, <3.9"
-content-hash = "44a7960edb8ccd863ab4f2a0f77affc3a4dc729f633abc86bd26a0f501479b02"
+content-hash = "be4548bc7c95e81a2ee11fe4eed9bdbd449d2344459e8beb74acc84076d91c4b"
 
 [metadata.files]
 alabaster = [
@@ -1132,7 +1125,10 @@ sphinx-autodoc-typehints = [
     {file = "sphinx-autodoc-typehints-1.11.1.tar.gz", hash = "sha256:244ba6d3e2fdb854622f643c7763d6f95b6886eba24bec28e86edf205e4ddb20"},
     {file = "sphinx_autodoc_typehints-1.11.1-py3-none-any.whl", hash = "sha256:da049791d719f4c9813642496ee4764203e317f0697eb75446183fa2a68e3f77"},
 ]
-sphinx-click = []
+sphinx-click = [
+    {file = "sphinx-click-2.5.0.tar.gz", hash = "sha256:8ba44ca446ba4bb0585069b8aabaa81e833472d6669b36924a398405311d206f"},
+    {file = "sphinx_click-2.5.0-py2.py3-none-any.whl", hash = "sha256:6848ba2d084ef2feebae0ce3603c1c02a2ba5ded54fb6c0cf24fd01204a945f3"},
+]
 sphinx-rtd-theme = [
     {file = "sphinx_rtd_theme-0.5.0-py2.py3-none-any.whl", hash = "sha256:373413d0f82425aaa28fb288009bf0d0964711d347763af2f1b65cafcb028c82"},
     {file = "sphinx_rtd_theme-0.5.0.tar.gz", hash = "sha256:22c795ba2832a169ca301cd0a083f7a434e09c538c70beb42782c073651b707d"},
