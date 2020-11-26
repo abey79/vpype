@@ -34,7 +34,8 @@ def test_read_single_layer_must_succeed(runner, path):
 
 @pytest.mark.parametrize("path", TEST_FILES)
 def test_read_svg_should_not_generate_duplicate_points(path):
-    for line in vp.read_svg(path, quantization=1):
+    line_collection, _, _ = vp.read_svg(path, quantization=1)
+    for line in line_collection:
         assert np.all(line[1:] != line[:-1])
 
 

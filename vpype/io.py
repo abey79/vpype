@@ -199,10 +199,9 @@ def read_svg(
     crop: bool = True,
     simplify: bool = False,
     parallel: bool = False,
-    return_size: bool = False,
     default_width: float = _DEFAULT_WIDTH,
     default_height: float = _DEFAULT_HEIGHT,
-) -> Union["LineCollection", Tuple["LineCollection", float, float]]:
+) -> Tuple["LineCollection", float, float]:
     """Read a SVG file an return its content as a :class:`LineCollection` instance.
 
     All curved geometries are chopped in segments no longer than the value of *quantization*.
@@ -216,14 +215,13 @@ def read_svg(
         simplify: run Shapely's simplify on loaded geometry
         parallel: enable multiprocessing (only recommended for ``simplify=True`` and SVG with
             many curves)
-        return_size: if True, return a size 3 Tuple containing the geometries and the SVG
-            width and height
         default_width: default width if not provided by SVG or if a percent width is provided
         default_height: default height if not provided by SVG or if a percent height is
             provided
 
     Returns:
-        imported geometries, and optionally width and height of the SVG
+        tuple containing a :class:`LineCollection` with the imported geometries as well as the
+        width and height of the SVG
     """
 
     # default width is for SVG with % width/height
@@ -237,10 +235,7 @@ def read_svg(
     if crop:
         lc.crop(0, 0, width, height)
 
-    if return_size:
-        return lc, width, height
-    else:
-        return lc
+    return lc, width, height
 
 
 def read_multilayer_svg(
@@ -249,10 +244,9 @@ def read_multilayer_svg(
     crop: bool = True,
     simplify: bool = False,
     parallel: bool = False,
-    return_size: bool = False,
     default_width: float = _DEFAULT_WIDTH,
     default_height: float = _DEFAULT_HEIGHT,
-) -> Union["Document", Tuple["Document", float, float]]:
+) -> "Document":
     """Read a multilayer SVG file and return its content as a :class:`Document` instance
     retaining the SVG's layer structure and its dimension.
 
@@ -275,14 +269,13 @@ def read_multilayer_svg(
         simplify: run Shapely's simplify on loaded geometry
         parallel: enable multiprocessing (only recommended for ``simplify=True`` and SVG with
             many curves)
-        return_size: if True, return a size 3 Tuple containing the geometries and the SVG
-            width and height
         default_width: default width if not provided by SVG or if a percent width is provided
         default_height: default height if not provided by SVG or if a percent height is
             provided
 
     Returns:
-         imported geometries, and optionally width and height of the SVG
+         :class:`Document` instance with the imported geometries and its page size set the the
+         SVG dimensions
     """
 
     svg = svgelements.SVG.parse(filename, width=default_width, height=default_height)
@@ -331,10 +324,7 @@ def read_multilayer_svg(
     if crop:
         document.crop(0, 0, width, height)
 
-    if return_size:
-        return document, width, height
-    else:
-        return document
+    return document
 
 
 def write_svg(

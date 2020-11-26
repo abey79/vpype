@@ -161,18 +161,14 @@ layer is used default and can be specified with the `--layer` option.
         width, height = height, width
 
     if single_layer:
-        lc, width, height = cast(
-            Tuple[LineCollection, float, float],
-            read_svg(
-                file,
-                quantization=quantization,
-                crop=not no_crop,
-                simplify=simplify,
-                parallel=parallel,
-                default_width=width,
-                default_height=height,
-                return_size=True,
-            ),
+        lc, width, height = read_svg(
+            file,
+            quantization=quantization,
+            crop=not no_crop,
+            simplify=simplify,
+            parallel=parallel,
+            default_width=width,
+            default_height=height,
         )
 
         document.add(lc, single_to_layer_id(layer, document))
@@ -181,18 +177,15 @@ layer is used default and can be specified with the `--layer` option.
         if layer is not None:
             logging.warning("read: target layer is ignored in multi-layer mode")
         document.extend(
-            cast(
-                Document,
-                read_multilayer_svg(
-                    file,
-                    quantization=quantization,
-                    crop=not no_crop,
-                    simplify=simplify,
-                    parallel=parallel,
-                    default_width=width,
-                    default_height=height,
-                ),
-            ),
+            read_multilayer_svg(
+                file,
+                quantization=quantization,
+                crop=not no_crop,
+                simplify=simplify,
+                parallel=parallel,
+                default_width=width,
+                default_height=height,
+            )
         )
 
     return document
