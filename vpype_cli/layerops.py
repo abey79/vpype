@@ -106,9 +106,9 @@ def ldelete(document: Document, layers) -> Document:
 
     lids = set(multiple_to_layer_ids(layers, document))
 
-    new_vector_data = Document()
+    new_doc = document.empty_copy()
     for lid in document.ids():
         if lid not in lids:
-            new_vector_data[lid] = document[lid]
+            new_doc[lid] = document[lid]
 
-    return new_vector_data
+    return new_doc
