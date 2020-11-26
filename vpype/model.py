@@ -1,5 +1,6 @@
 """Implementation of vpype's data model
 """
+import logging
 import math
 from typing import Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Union
 
@@ -12,10 +13,12 @@ from .line_index import LineIndex
 # REMINDER: anything added here must be added to docs/api.rst
 __all__ = [
     "LineCollection",
-    "VectorData",
+    "Document",
     "LineLike",
     "LineCollectionLike",
     "as_vector",
+    # deprecated:
+    "VectorData",
 ]
 
 LineLike = Union[LineString, LinearRing, Iterable[complex]]
@@ -41,7 +44,7 @@ class LineCollection:
 
     An instance of :py:class:`LineCollection` is used to model a single layer in vpype's
     :ref:`pipeline <fundamentals_pipeline>`. The complete pipeline is modelled by a
-    :py:class:`VectorData` instance, which  essentially is a mapping of ``int`` (layer ID) to
+    :py:class:`Document` instance, which  essentially is a mapping of ``int`` (layer ID) to
     :py:class:`LineCollection`.
 
     Although the actual ``list`` is stored as private data member in :py:class:`LineCollection`
@@ -363,6 +366,9 @@ class LineCollection:
         Returns:
             tuple (total, mean, median) for the pen-up distances
         """
+        if len(self.lines) < 2:
+            return 0.0, 0.0, 0.0
+
         ends = np.array([line[-1] for line in self.lines[:-1]])
         starts = np.array([line[0] for line in self.lines[1:]])
         dists = np.abs(starts - ends)
@@ -378,24 +384,35 @@ class LineCollection:
         return sum(max(0, len(line) - 1) for line in self._lines)
 
 
-class VectorData:
-    """Collection of layered. :py:class:`LineCollection`
+class Document:
+    """This class is the core data model of vpype and represent the data that is passed from
+    one command to the other. At its core, a Document is a collection of layers identified
+    by non-zero positive integers and each represented by a :py:class:`LineCollection`.
 
-    A VectorData is a mapping of layer IDs to :py:class:`LineCollection`, where layer IDs are
-    strictly-positive integers. This class is the core of vpype's data model. In a nutshell,
-    an empty VectorData is created by vpype at launch and passed from commands to commands
-    until termination."""
+    In addition, the Document class maintains a :py:attr:`page_size` attribute which describe
+    the physical size of the document. This attribute is not strictly linked to the actual
+    Document's content, but can be set based on it.
+    """
 
-    def __init__(self, line_collection: LineCollection = None):
-        """Create a VectorData, optionally providing a :py:class:`LayerCollection` for layer 1.
+    def __init__(
+        self,
+        line_collection: LineCollection = None,
+        page_size: Optional[Tuple[float, float]] = None,
+    ):
+        """Create a Document, optionally providing a :py:class:`LayerCollection` for layer 1.
 
         Args:
             line_collection: if provided, used as layer 1
         """
         self._layers: Dict[int, LineCollection] = {}
+        self._page_size: Optional[Tuple[float, float]] = page_size
 
         if line_collection:
             self.add(line_collection, 1)
+
+    def empty_copy(self) -> "Document":
+        """Create an empty copy of this document with the same page size."""
+        return Document(page_size=self.page_size)
 
     @property
     def layers(self) -> Dict[int, LineCollection]:
@@ -404,6 +421,45 @@ class VectorData:
             the internal layer dictionary
         """
         return self._layers
+
+    @property
+    def page_size(self) -> Optional[Tuple[float, float]]:
+        """Returns the page size or None if it hasn't been set."""
+        return self._page_size
+
+    @page_size.setter
+    def page_size(self, page_size=Optional[Tuple[float, float]]) -> None:
+        """Sets the page size to a new value."""
+        self._page_size = page_size
+
+    @property
+    def page_width(self) -> Optional[float]:
+        """Return the page width or None if it hasn't been set."""
+        return self._page_size[0] if self._page_size else None
+
+    @property
+    def page_height(self) -> Optional[float]:
+        """Return the page height or None if it hasn't been set."""
+        return self._page_size[1] if self._page_size else None
+
+    def extend_page_size(self, page_size: Optional[Tuple[float, float]]) -> None:
+        """Adjust the  page sized according to the following logic:
+        - if ``page_size`` is None, the the page size is unchanged
+        - if ``self.page_size`` is None, it is set to ``page_size``
+        - if both page sizes are not None, the page size is set to the largest value in both
+           direction.
+
+        Args:
+            page_size: page dimension to use to update ``self.page_size``
+        """
+        if page_size:
+            if self.page_size:
+                self.page_size = (
+                    max(self.page_size[0], page_size[0]),
+                    max(self.page_size[1], page_size[1]),
+                )
+            else:
+                self.page_size = page_size
 
     def ids(self) -> Iterable[int]:
         """Returns the list of layer IDs"""
@@ -476,17 +532,22 @@ class VectorData:
         else:
             self._layers[layer_id] = lc
 
-    def extend(self, vd: "VectorData") -> None:
-        """Extend a VectorData with the content of another VectorData.
+    def extend(self, doc: "Document") -> None:
+        """Extend a Document with the content of another Document.
 
-        The layer structure of the source VectorData is maintained and geometries are either
+        The layer structure of the source Document is maintained and geometries are either
         appended to the destination's corresponding layer or new layers are created, depending
-        on if the layer existed or not in the destination VectorData.
+        on if the layer existed or not in the destination Document.
+
+        The :py:attr:`page_size` attribute is adjusted using :meth:`extend_page_size`.
 
         Args:
-            vd: source VectorData
+            doc: source Document
         """
-        for layer_id, layer in vd.layers.items():
+
+        self.extend_page_size(doc.page_size)
+
+        for layer_id, layer in doc.layers.items():
             self.add(layer, layer_id)
 
     def is_empty(self) -> bool:
@@ -500,7 +561,7 @@ class VectorData:
         return True
 
     def pop(self, layer_id: int) -> LineCollection:
-        """Removes a layer from the VectorData.
+        """Removes a layer from the Document.
 
         Args:
             layer_id: ID of the layer to be removed
@@ -542,15 +603,15 @@ class VectorData:
             layer.scale(sx, sy)
 
     def rotate(self, angle: float) -> None:
-        """Rotate the geometry.
+        """Rotate the Document's content..
 
-       The rotation is performed about the coordinates origin (0, 0). To rotate around a
-       specific location, appropriate translations must be performed before and after the
-       scaling (see :func:`LineCollection.rotate`).
+        The rotation is performed about the coordinates origin (0, 0). To rotate around a
+        specific location, appropriate translations must be performed before and after the
+        scaling (see :func:`LineCollection.rotate`).
 
-       Args:
-           angle: rotation angle (radian)
-       """
+        Args:
+            angle: rotation angle (radian)
+        """
         for layer in self._layers.values():
             layer.rotate(angle)
 
@@ -591,6 +652,17 @@ class VectorData:
         for layer in self._layers.values():
             layer.crop(x1, y1, x2, y2)
 
+    def fit_page_size_to_content(self) -> None:
+        """Set :py:attr:`page_size` to the current geometries' width and height and move
+        the geometries so that their bounds align to (0, 0).
+        """
+        bounds = self.bounds()
+        if not bounds:
+            return
+
+        self.translate(-bounds[0], -bounds[1])
+        self.page_size = (bounds[2] - bounds[0], bounds[3] - bounds[1])
+
     def length(self) -> float:
         """Return the total length of the paths.
 
@@ -616,3 +688,11 @@ class VectorData:
             the total number of segments in the geometries
         """
         return sum(layer.segment_count() for layer in self._layers.values())
+
+
+class VectorData(Document):
+    """Deprecated, use Document."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        logging.warning("!!! `vpype.VectorData` is deprecated, use `vpype.Document` instead.")

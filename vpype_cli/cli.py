@@ -130,7 +130,7 @@ def process_pipeline(processors, verbose, include, history, seed, config):
 
 def execute_processors(processors) -> VpypeState:
     """
-    Execute a sequence of processors to generate a VectorData structure. For block handling, we
+    Execute a sequence of processors to generate a Document structure. For block handling, we
     use a recursive approach. Only top-level blocks are extracted and processed by block
     processors, which, in turn, recursively call this function.
     :param processors: iterable of processors
@@ -184,7 +184,7 @@ def execute_processors(processors) -> VpypeState:
                 # noinspection PyShadowingNames
                 def build_placeholder_processor(block_vector_data):
                     def placeholder_processor(input_state):
-                        input_state.vector_data.extend(block_vector_data)
+                        input_state.document.extend(block_vector_data)
                         return input_state
 
                     return placeholder_processor

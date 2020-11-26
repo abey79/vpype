@@ -34,7 +34,7 @@ def test_reloop():
 def test_interpolate(line, step, expected):
     result = vp.interpolate(np.array(line, dtype=complex), step)
     assert len(result) == len(expected)
-    assert np.all(np.isclose(result, np.array(expected, dtype=complex),))
+    assert np.all(np.isclose(result, np.array(expected, dtype=complex)))
 
 
 def test_interpolate_crop():

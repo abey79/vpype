@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 from shapely.geometry import LinearRing, LineString, MultiLineString, Point
 
-from vpype import LineCollection, VectorData
+from vpype import Document, LineCollection
 
 from .utils import line_collection_contains
 
@@ -13,7 +13,6 @@ LINE_COLLECTION_TWO_LINES = [
     [[0, 1 + 1j], [2 + 2j, 3 + 3j, 4 + 4j]],
     ([0, 1 + 1j], [2 + 2j, 3 + 3j, 4 + 4j]),
     ((0, 1 + 1j), (2 + 2j, 3 + 3j, 4 + 4j)),
-    np.array([[0, 1 + 1j], [2 + 2j, 3 + 3j, 4 + 4j]]),
     MultiLineString([[(0, 0), (1, 1)], [(2, 2), (3, 3), (4, 4)]]),
 ]
 
@@ -136,30 +135,30 @@ def test_line_collection_pen_up_trajectories():
 
 def test_vector_data_lid_iteration():
     lc = LineCollection([(0, 1 + 1j)])
-    vd = VectorData()
-    vd.add(lc, 1)
+    doc = Document()
+    doc.add(lc, 1)
 
-    for lc in vd.layers_from_ids([1, 2, 3, 4]):
+    for lc in doc.layers_from_ids([1, 2, 3, 4]):
         lc.append([3, 3 + 3j])
 
-    assert vd.count() == 1
-    assert len(vd.layers[1]) == 2
+    assert doc.count() == 1
+    assert len(doc.layers[1]) == 2
 
 
 def test_vector_data_bounds():
-    vd = VectorData()
-    vd.add(LineCollection([(-10, 10), (0, 0)]), 1)
-    vd.add(LineCollection([(0, 0), (-10j, 10j)]), 2)
-    assert vd.bounds() == (-10, -10, 10, 10)
+    doc = Document()
+    doc.add(LineCollection([(-10, 10), (0, 0)]), 1)
+    doc.add(LineCollection([(0, 0), (-10j, 10j)]), 2)
+    assert doc.bounds() == (-10, -10, 10, 10)
 
 
 def test_vector_data_bounds_empty_layer():
-    vd = VectorData()
+    doc = Document()
 
-    vd.add(LineCollection([(0, 10 + 10j)]), 1)
-    vd.add(LineCollection())
+    doc.add(LineCollection([(0, 10 + 10j)]), 1)
+    doc.add(LineCollection())
 
-    assert vd.bounds() == (0, 0, 10, 10)
+    assert doc.bounds() == (0, 0, 10, 10)
 
 
 def _all_line_collection_ops(lc: LineCollection):
@@ -186,23 +185,23 @@ def test_ops_on_degenerate_line_collection():
     _all_line_collection_ops(lc)
 
 
-def _all_vector_data_ops(vd: VectorData):
-    vd.bounds()
-    vd.length()
-    vd.segment_count()
+def _all_vector_data_ops(doc: Document):
+    doc.bounds()
+    doc.length()
+    doc.segment_count()
     # to be completed..
 
 
 def test_ops_on_emtpy_vector_data():
-    vd = VectorData()
-    _all_vector_data_ops(vd)
+    doc = Document()
+    _all_vector_data_ops(doc)
 
 
 def test_ops_on_vector_data_with_emtpy_layer():
-    vd = VectorData()
+    doc = Document()
     lc = LineCollection()
-    vd.add(lc, 1)
-    _all_vector_data_ops(vd)
+    doc.add(lc, 1)
+    _all_vector_data_ops(doc)
 
 
 @pytest.mark.parametrize(

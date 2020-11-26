@@ -9,4 +9,4 @@ vpype begin grid --offset 1.5cm 1.5cm 13 20 \
   script alien_letter.py \
   scale --to 0.8cm 0.8cm \
 end \
-write --page-format a3 --center alien.svg
+write --page-size a3 --center alien.svg

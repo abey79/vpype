@@ -16,7 +16,7 @@ from shapely.geometry import LineString
 from svgwrite.extensions import Inkscape
 
 from .config import CONFIG_MANAGER, PaperConfig, PlotterConfig
-from .model import LineCollection, VectorData
+from .model import Document, LineCollection
 from .utils import UNITS
 
 __all__ = ["read_svg", "read_multilayer_svg", "write_svg", "write_hpgl"]
@@ -252,9 +252,9 @@ def read_multilayer_svg(
     return_size: bool = False,
     default_width: float = _DEFAULT_WIDTH,
     default_height: float = _DEFAULT_HEIGHT,
-) -> Union["VectorData", Tuple["VectorData", float, float]]:
-    """Read a multilayer SVG file and return its content as a :class:`VectorData` instance
-    retaining the SVG's layer structure.
+) -> Union["Document", Tuple["Document", float, float]]:
+    """Read a multilayer SVG file and return its content as a :class:`Document` instance
+    retaining the SVG's layer structure and its dimension.
 
     Each top-level group is considered a layer. All non-group, top-level elements are imported
     in layer 1.
@@ -287,14 +287,14 @@ def read_multilayer_svg(
 
     svg = svgelements.SVG.parse(filename, width=default_width, height=default_height)
 
-    vector_data = VectorData()
+    document = Document()
 
     # non-group top level elements are loaded in layer 1
     lc = _convert_flattened_paths(
         _extract_paths(svg, recursive=False), quantization, simplify, parallel
     )
     if not lc.is_empty():
-        vector_data.add(lc, 1)
+        document.add(lc, 1)
 
     def _find_groups(group: svgelements.Group) -> Iterator[svgelements.Group]:
         for elem in group:
@@ -321,31 +321,33 @@ def read_multilayer_svg(
             _extract_paths(g, recursive=True), quantization, simplify, parallel
         )
         if not lc.is_empty():
-            vector_data.add(lc, lid)
+            document.add(lc, lid)
 
     width = svg.viewbox.element_width or default_width
     height = svg.viewbox.element_height or default_height
 
+    document.page_size = (width, height)
+
     if crop:
-        vector_data.crop(0, 0, width, height)
+        document.crop(0, 0, width, height)
 
     if return_size:
-        return vector_data, width, height
+        return document, width, height
     else:
-        return vector_data
+        return document
 
 
 def write_svg(
     output: TextIO,
-    vector_data: VectorData,
-    page_format: Tuple[float, float] = (0.0, 0.0),
+    document: Document,
+    page_size: Optional[Tuple[float, float]] = None,
     center: bool = False,
     source_string: str = "",
     layer_label_format: str = "%d",
     show_pen_up: bool = False,
     color_mode: str = "none",
 ) -> None:
-    """Create a SVG from a :py:class:`VectorData` instance.
+    """Create a SVG from a :py:class:`Document` instance.
 
     If no page format is provided (or (0, 0) is passed), the SVG generated has bounds tightly
     fitted around the geometries. Otherwise the provided size (in pixel) is used.
@@ -363,8 +365,8 @@ def write_svg(
 
     Args:
         output: text-mode IO stream where SVG code will be written
-        vector_data: geometries to be written
-        page_format: page (width, height) tuple in pixel, or (0, 0) for tight fit
+        document: geometries to be written
+        page_size: if provided, overrides document.page_size
         center: center geometries on page before export
         source_string: value of the `source` metadata
         layer_label_format: format string for layer label naming
@@ -374,27 +376,32 @@ def write_svg(
     """
 
     # compute bounds
-    bounds = vector_data.bounds()
+    bounds = document.bounds()
     if bounds is None:
         # empty geometry, we provide fake bounds
         bounds = (0, 0, 1, 1)
-    tight = page_format == (0.0, 0.0)
-    if not tight:
-        size = page_format
+
+    if page_size:
+        size = page_size
+        tight = page_size == (0.0, 0.0)
+    elif document.page_size:
+        size = document.page_size
+        tight = False
     else:
         size = (bounds[2] - bounds[0], bounds[3] - bounds[1])
+        tight = True
 
     if center:
-        corrected_vector_data = copy.deepcopy(vector_data)
-        corrected_vector_data.translate(
+        corrected_doc = copy.deepcopy(document)
+        corrected_doc.translate(
             (size[0] - (bounds[2] - bounds[0])) / 2.0 - bounds[0],
             (size[1] - (bounds[3] - bounds[1])) / 2.0 - bounds[1],
         )
     elif tight:
-        corrected_vector_data = copy.deepcopy(vector_data)
-        corrected_vector_data.translate(-bounds[0], -bounds[1])
+        corrected_doc = copy.deepcopy(document)
+        corrected_doc.translate(-bounds[0], -bounds[1])
     else:
-        corrected_vector_data = vector_data
+        corrected_doc = document
 
     # output SVG
     size_cm = tuple(f"{round(s / UNITS['cm'], 8)}cm" for s in size)
@@ -428,7 +435,7 @@ def write_svg(
         group.attribs["style"] = "display:inline; stroke-opacity: 50%; stroke-width: 0.5"
         group.attribs["id"] = "pen_up_trajectories"
 
-        for layer in corrected_vector_data.layers.values():
+        for layer in corrected_doc.layers.values():
             for line in layer.pen_up_trajectories():
                 group.add(
                     dwg.line((line[0].real, line[0].imag), (line[-1].real, line[-1].imag))
@@ -436,8 +443,8 @@ def write_svg(
 
         dwg.add(group)
 
-    for layer_id in sorted(corrected_vector_data.layers.keys()):
-        layer = corrected_vector_data.layers[layer_id]
+    for layer_id in sorted(corrected_doc.layers.keys()):
+        layer = corrected_doc.layers[layer_id]
 
         group = inkscape.layer(label=str(layer_label_format % layer_id))
         group.attribs["fill"] = "none"
@@ -490,17 +497,17 @@ def _get_hpgl_config(
 
 def write_hpgl(
     output: TextIO,
-    vector_data: VectorData,
-    page_format: str,
+    document: Document,
+    page_size: str,
     landscape: bool,
     center: bool,
     device: Optional[str],
     velocity: Optional[float],
     quiet: bool = False,
 ) -> None:
-    """Create a HPGL file from the :class:`VectorData` instance.
+    """Create a HPGL file from the :class:`Document` instance.
 
-    The ``device``/``page_format`` combination must be defined in the built-in or user-provided
+    The ``device``/``page_size`` combination must be defined in the built-in or user-provided
     config files or an exception will be raised.
 
     By default, no translation is applied on the geometry. If `center=True`, geometries are
@@ -510,8 +517,8 @@ def write_hpgl(
 
     Args:
         output: text-mode IO stream where SVG code will be written
-        vector_data: geometries to be written
-        page_format: page format string (it must be configured for the selected device)
+        document: geometries to be written
+        page_size: page format string (it must be configured for the selected device)
         landscape: if True, the geometries are generated in landscape orientation
         center: center geometries on page before export
         device: name of the device to use (the corresponding config must exists). If not
@@ -521,10 +528,10 @@ def write_hpgl(
     """
 
     # empty HPGL is acceptable there are no geometries to plot
-    if vector_data.is_empty():
+    if document.is_empty():
         return
 
-    plotter_config, paper_config = _get_hpgl_config(device, page_format)
+    plotter_config, paper_config = _get_hpgl_config(device, page_size)
     if not quiet:
         if plotter_config.info:
             # use of echo instead of print needed for testability
@@ -542,30 +549,30 @@ def write_hpgl(
     # - optionally center on paper
     # - convert to plotter units
     # - crop to plotter limits
-    vector_data = copy.deepcopy(vector_data)
+    document = copy.deepcopy(document)
 
     if landscape != coords_landscape:
-        vector_data.rotate(-math.pi / 2)
-        vector_data.translate(0, paper_config.paper_size[1])
+        document.rotate(-math.pi / 2)
+        document.translate(0, paper_config.paper_size[1])
 
     if paper_config.rotate_180:
-        vector_data.scale(-1, -1)
-        vector_data.translate(*paper_config.paper_size)
+        document.scale(-1, -1)
+        document.translate(*paper_config.paper_size)
 
     if center:
-        bounds = vector_data.bounds()
+        bounds = document.bounds()
         if bounds is not None:
-            vector_data.translate(
+            document.translate(
                 (paper_config.paper_size[0] - (bounds[2] - bounds[0])) / 2.0 - bounds[0],
                 (paper_config.paper_size[1] - (bounds[3] - bounds[1])) / 2.0 - bounds[1],
             )
 
-    vector_data.translate(-paper_config.origin_location[0], -paper_config.origin_location[1])
+    document.translate(-paper_config.origin_location[0], -paper_config.origin_location[1])
     unit_per_pixel = 1 / plotter_config.plotter_unit_length
-    vector_data.scale(
+    document.scale(
         unit_per_pixel, -unit_per_pixel if paper_config.y_axis_up else unit_per_pixel
     )
-    vector_data.crop(
+    document.crop(
         paper_config.x_range[0],
         paper_config.y_range[0],
         paper_config.x_range[1],
@@ -582,11 +589,11 @@ def write_hpgl(
     if paper_config.set_ps is not None:
         output.write(f"PS{int(paper_config.set_ps)};")
 
-    for layer_id in sorted(vector_data.layers.keys()):
+    for layer_id in sorted(document.layers.keys()):
         pen_id = 1 + (layer_id - 1) % plotter_config.pen_count
         output.write(f"SP{pen_id};")
 
-        for line in vector_data.layers[layer_id]:
+        for line in document.layers[layer_id]:
             if len(line) < 2:
                 continue
             output.write(f"PU{complex_to_str(line[0])};")

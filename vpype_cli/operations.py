@@ -38,8 +38,8 @@ def crop(lines: vp.LineCollection, x: float, y: float, width: float, height: flo
 )
 @vp.global_processor
 def trim(
-    vector_data: vp.VectorData, margin_x: float, margin_y: float, layer: Union[int, List[int]]
-) -> vp.VectorData:
+    document: vp.Document, margin_x: float, margin_y: float, layer: Union[int, List[int]]
+) -> vp.Document:
     """Trim the geometries by some margin.
 
     This command trims the geometries by the provided X and Y margins with respect to the
@@ -50,11 +50,11 @@ def trim(
     that of the listed layers.
     """
 
-    layer_ids = vp.multiple_to_layer_ids(layer, vector_data)
-    bounds = vector_data.bounds(layer_ids)
+    layer_ids = vp.multiple_to_layer_ids(layer, document)
+    bounds = document.bounds(layer_ids)
 
     if not bounds:
-        return vector_data
+        return document
 
     min_x = bounds[0] + margin_x
     max_x = bounds[2] - margin_x
@@ -66,10 +66,10 @@ def trim(
         min_y = max_y = 0.5 * (min_y + max_y)
 
     for vid in layer_ids:
-        lc = vector_data[vid]
+        lc = document[vid]
         lc.crop(min_x, min_y, max_x, max_y)
 
-    return vector_data
+    return document
 
 
 @cli.command(group="Operations")
@@ -294,3 +294,44 @@ def filter_command(
         logging.warning("filter: no criterion was provided, all geometries are preserved")
 
     return lines
+
+
+# noinspection PyShadowingNames
+@cli.command(group="Operations")
+@click.argument("size", type=vp.PageSizeType(), required=True)
+@click.option(
+    "-l",
+    "--landscape",
+    is_flag=True,
+    default=False,
+    help="Target layer(s).",
+)
+@vp.global_processor
+def pagesize(document: vp.Document, size, landscape) -> vp.Document:
+    """Change the current page size.
+
+    The page size is set (or modified) by the `read` command and used by the `write` command by
+    default. This command can be used to set it to an arbitrary value. See the `write` command
+    help section for more information on valid size value (`vpype write --help`).
+
+    Note: this command only changes the current page size and has no effect on the geometries.
+    Use the `translate` and `scale` commands to change the position and/or the scale of the
+    geometries.
+
+    Examples:
+
+        Set the page size to A4:
+
+            vpype [...] pagesize a4 [...]
+
+        Set the page size to landscape A4:
+
+            vpype [...] pagesize --landscape a4 [...]
+
+        Set the page size to 11x15in:
+
+            vpype [...] pagesize 11inx15in [...]
+    """
+
+    document.page_size = size[::-1] if landscape else size
+    return document

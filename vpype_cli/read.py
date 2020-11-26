@@ -4,11 +4,11 @@ from typing import Optional, Tuple, cast
 import click
 
 from vpype import (
+    Document,
     LayerType,
     LengthType,
     LineCollection,
     PageSizeType,
-    VectorData,
     global_processor,
     read_multilayer_svg,
     read_svg,
@@ -74,7 +74,7 @@ from .cli import cli
 )
 @global_processor
 def read(
-    vector_data: VectorData,
+    document: Document,
     file,
     single_layer: bool,
     layer: Optional[int],
@@ -84,7 +84,7 @@ def read(
     no_crop: bool,
     display_size: Tuple[float, float],
     display_landscape: bool,
-) -> VectorData:
+) -> Document:
     """Extract geometries from a SVG file.
 
     By default, the `read` command attempts to preserve the layer structure of the SVG. In this
@@ -161,27 +161,28 @@ layer is used default and can be specified with the `--layer` option.
         width, height = height, width
 
     if single_layer:
-        vector_data.add(
-            cast(
-                LineCollection,
-                read_svg(
-                    file,
-                    quantization=quantization,
-                    crop=not no_crop,
-                    simplify=simplify,
-                    parallel=parallel,
-                    default_width=width,
-                    default_height=height,
-                ),
+        lc, width, height = cast(
+            Tuple[LineCollection, float, float],
+            read_svg(
+                file,
+                quantization=quantization,
+                crop=not no_crop,
+                simplify=simplify,
+                parallel=parallel,
+                default_width=width,
+                default_height=height,
+                return_size=True,
             ),
-            single_to_layer_id(layer, vector_data),
         )
+
+        document.add(lc, single_to_layer_id(layer, document))
+        document.extend_page_size((width, height))
     else:
         if layer is not None:
             logging.warning("read: target layer is ignored in multi-layer mode")
-        vector_data.extend(
+        document.extend(
             cast(
-                VectorData,
+                Document,
                 read_multilayer_svg(
                     file,
                     quantization=quantization,
@@ -194,4 +195,4 @@ layer is used default and can be specified with the `--layer` option.
             ),
         )
 
-    return vector_data
+    return document

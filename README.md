@@ -11,7 +11,7 @@ are, for illustration, a few examples of what it can do:
 
 - Load an SVG file, scale it to a specific size, and export it centered on an A4-sized, ready-to-plot SVG file.
     ```bash
-    $ vpype read input.svg scale --to 10cm 10cm write --page-format a4 --center output.svg
+    $ vpype read input.svg scale --to 10cm 10cm write --page-size a4 --center output.svg
     ```
 - Visualize the path structure of large SVG files, showing whether lines are properly joined or
     not thanks to a colorful display.
@@ -32,7 +32,7 @@ are, for illustration, a few examples of what it can do:
     ```
 - Export to HPGL for vintage plotters.
     ```bash
-    $ vpype read input.svg write --device hp7475a --page-format a4 --landscape --center output.hpgl
+    $ vpype read input.svg write --device hp7475a --page-size a4 --landscape --center output.hpgl
     ```
 
 At its core, _vpype_ allows the user to build pipelines of _commands_, each of which receives a
@@ -43,7 +43,7 @@ to a [plug-in](PLUGINS.md) architecture.
 Let's take a closer look at an example:
 
 ```bash
-$ vpype random --count 100 --area 10cm 10cm rotate 45 write --page-format a4 --center output.svg
+$ vpype random --count 100 --area 10cm 10cm rotate 45 write --page-size a4 --center output.svg
 ```
 
 This pipelines uses 3 commands (`random`, `rotate` and `write`) to generate 100 random lines in a 10x10cm square,
@@ -195,8 +195,8 @@ unit used by the SVG format. Most commands understand other standard units thoug
 `pc`. Thus, these two commands will generate the same output (100 random lines in a 1x1in square in the middle of an A4 page):
 
 ```bash
-$ vpype random --count 100 --area 96 96 write --page-format a4 --center output.svg
-$ vpype random --count 100 --area 1in 1in write --page-format a4 --center output.svg
+$ vpype random --count 100 --area 96 96 write --page-size a4 --center output.svg
+$ vpype random --count 100 --area 1in 1in write --page-size a4 --center output.svg
 ```
 
 
@@ -265,7 +265,7 @@ vpype begin \
   script alien_letter.py \
   scale --to 0.8cm 0.8cm \
 end \
-write --page-format a3 --center alien.svg
+write --page-size a3 --center alien.svg
 ```
 
 The pipeline above mainly consists of a block with the `grid` block processor. On each intersection of a 13 by 20 grid, with

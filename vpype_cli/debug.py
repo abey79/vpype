@@ -6,7 +6,7 @@ from typing import Any, Dict, Iterable, List, Sequence
 
 import numpy as np
 
-from vpype import LineCollection, VectorData, as_vector, global_processor
+from vpype import Document, LineCollection, as_vector, global_processor
 
 from .cli import cli
 
@@ -15,37 +15,37 @@ debug_data: List[Dict[str, Any]] = []
 
 @cli.command(hidden=True)
 @global_processor
-def dbsample(vector_data: VectorData):
+def dbsample(document: Document):
     """
     Show statistics on the current geometries in JSON format.
     """
     global debug_data
 
     data: Dict[str, Any] = {}
-    if vector_data.is_empty():
+    if document.is_empty():
         data["count"] = 0
     else:
-        data["count"] = sum(len(lc) for lc in vector_data.layers.values())
-        data["layer_count"] = len(vector_data.layers)
-        data["length"] = vector_data.length()
-        data["pen_up_length"] = vector_data.pen_up_length()
-        data["bounds"] = vector_data.bounds()
+        data["count"] = sum(len(lc) for lc in document.layers.values())
+        data["layer_count"] = len(document.layers)
+        data["length"] = document.length()
+        data["pen_up_length"] = document.pen_up_length()
+        data["bounds"] = document.bounds()
         data["layers"] = {
             layer_id: [as_vector(line).tolist() for line in layer]
-            for layer_id, layer in vector_data.layers.items()
+            for layer_id, layer in document.layers.items()
         }
 
     debug_data.append(data)
-    return vector_data
+    return document
 
 
 @cli.command(hidden=True)
 @global_processor
-def dbdump(vector_data: VectorData):
+def dbdump(document: Document):
     global debug_data
     print(json.dumps(debug_data))
     debug_data = []
-    return vector_data
+    return document
 
 
 class DebugData:
@@ -69,9 +69,9 @@ class DebugData:
         self.bounds = data.get("bounds", [0, 0, 0, 0])
         self.layers = data.get("layers", {})
 
-        self.vector_data = VectorData()
+        self.document = Document()
         for vid, lines in self.layers.items():
-            self.vector_data[int(vid)] = LineCollection(
+            self.document[int(vid)] = LineCollection(
                 [np.array([x + 1j * y for x, y in line]) for line in lines]
             )
 
@@ -124,19 +124,17 @@ class DebugData:
         return self.has_layers(lids) and len(self.layers.keys()) == len(lids)
 
 
-@cli.command(hidden=True)
+@cli.command()
 @global_processor
-def stat(vector_data: VectorData):
-    """
-    Print human-readable statistics on the current geometries.
-    """
-    global debug_data
+def stat(document: Document):
+    """Print human-readable statistics on the current geometries."""
 
     print("========= Stats ========= ")
+    print(f"Current page size: {document.page_size}")
     length_tot = 0.0
     pen_up_length_tot = 0.0
-    for layer_id in sorted(vector_data.layers.keys()):
-        layer = vector_data.layers[layer_id]
+    for layer_id in sorted(document.layers.keys()):
+        layer = document.layers[layer_id]
         length = layer.length()
         pen_up_length, pen_up_mean, pen_up_median = layer.pen_up_length()
         length_tot += length
@@ -149,17 +147,24 @@ def stat(vector_data: VectorData):
         print(f"  Median pen-up length: {pen_up_median}")
         print(f"  Path count: {len(layer)}")
         print(f"  Segment count: {layer.segment_count()}")
-        print(f"  Mean segment length: {length / layer.segment_count()}")
+        print(
+            f"  Mean segment length:",
+            str(length / layer.segment_count() if layer.segment_count() else "n/a"),
+        )
         print(f"  Bounds: {layer.bounds()}")
     print(f"Totals")
-    print(f"  Layer count: {len(vector_data.layers)}")
+    print(f"  Layer count: {len(document.layers)}")
     print(f"  Length: {length_tot}")
     print(f"  Pen-up length: {pen_up_length_tot}")
     print(f"  Total length: {length_tot + pen_up_length_tot}")
-    print(f"  Path count: {sum(len(layer) for layer in vector_data.layers.values())}")
-    print(f"  Segment count: {vector_data.segment_count()}")
-    print(f"  Mean segment length: {length_tot / vector_data.segment_count()}")
-    print(f"  Bounds: {vector_data.bounds()}")
+    print(f"  Path count: {sum(len(layer) for layer in document.layers.values())}")
+    print(f"  Segment count: {document.segment_count()}")
+
+    print(
+        f"  Mean segment length:",
+        str(length_tot / document.segment_count() if document.segment_count() else "n/a"),
+    )
+    print(f"  Bounds: {document.bounds()}")
     print("========================= ")
 
-    return vector_data
+    return document

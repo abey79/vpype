@@ -15,7 +15,7 @@ from vpype_cli.debug import DebugData
         ("line -l 2 0 0 1 1 line -l 3 2 2 3 3 line 4 4 5 5", [2, 3]),
         ("line -l new 0 0 1 1 line -l new 2 2 3 3 line 4 4 5 5", [1, 2]),
         ("line -l 3 0 0 1 1 line -l new 2 2 3 3 line 4 4 5 5", [1, 3]),
-        ("line -l new 0 0 1 1 line -l new 2 2 3 3 line -l new 4 4 5 5", [1, 2, 3],),
+        ("line -l new 0 0 1 1 line -l new 2 2 3 3 line -l new 4 4 5 5", [1, 2, 3]),
         ("line 0 0 1 1 ldelete 1", []),
         ("line 0 0 1 1 lcopy all new", [1, 2]),
         ("line 0 0 1 1 lcopy all new ldelete 1", [2]),
@@ -52,7 +52,7 @@ def test_layer_processors(runner, command, bounds_offset):
 
     assert result.exit_code == 0
     for i in range(3):
-        assert data.vector_data[i + 1].bounds() == (
+        assert data.document[i + 1].bounds() == (
             bounds_offset[i],
             bounds_offset[i],
             bounds_offset[i] + 1,

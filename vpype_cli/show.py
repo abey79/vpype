@@ -3,7 +3,7 @@ import matplotlib.collections
 import matplotlib.pyplot as plt
 import numpy as np
 
-from vpype import VectorData, as_vector, convert, global_processor
+from vpype import Document, as_vector, convert_length, global_processor
 
 from .cli import cli
 
@@ -37,7 +37,7 @@ COLORS = [
 )
 @global_processor
 def show(
-    vector_data: VectorData,
+    document: Document,
     show_axes: bool,
     show_grid: bool,
     show_pen_up: bool,
@@ -54,12 +54,12 @@ def show(
     color (default matplotlib behaviour). This can be useful for debugging purposes.
     """
 
-    scale = 1 / convert(unit)
+    scale = 1 / convert_length(unit)
 
     fig = plt.figure()
     color_idx = 0
     collections = {}
-    for layer_id, lc in vector_data.layers.items():
+    for layer_id, lc in document.layers.items():
         if colorful:
             color = COLORS[color_idx:] + COLORS[:color_idx]
             marker_color = "k"
@@ -140,4 +140,4 @@ def show(
         plt.grid("on")
     plt.show()
 
-    return vector_data
+    return document

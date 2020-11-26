@@ -28,4 +28,4 @@ vpype begin grid -o 8cm 9.5cm 2 3 \
   end \
 end \
 show \
-write --page-format a4 --center alien2.svg
+write --page-size a4 --center alien2.svg
