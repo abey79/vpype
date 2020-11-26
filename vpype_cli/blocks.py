@@ -2,7 +2,7 @@ from typing import Tuple
 
 import click
 
-from vpype import LengthType, VectorData, block_processor
+from vpype import Document, LengthType, block_processor
 
 from .cli import BlockProcessor, cli, execute_processors
 
@@ -31,15 +31,15 @@ class GridBlockProcessor(BlockProcessor):
         self.offset = offset
 
     def process(self, processors):
-        vector_data = VectorData()
+        document = Document()
 
         for i in range(self.number[0]):
             for j in range(self.number[1]):
                 state = execute_processors(processors)
-                state.vector_data.translate(self.offset[0] * i, self.offset[1] * j)
-                vector_data.extend(state.vector_data)
+                state.document.translate(self.offset[0] * i, self.offset[1] * j)
+                document.extend(state.document)
 
-        return vector_data
+        return document
 
 
 @cli.command("repeat", group="Block processors")
@@ -55,10 +55,10 @@ class RepeatBlockProcessor(BlockProcessor):
         self.number = number
 
     def process(self, processors):
-        vector_data = VectorData()
+        document = Document()
 
         for _ in range(self.number):
             state = execute_processors(processors)
-            vector_data.extend(state.vector_data)
+            document.extend(state.document)
 
-        return vector_data
+        return document

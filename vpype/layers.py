@@ -3,7 +3,7 @@ from typing import List, Optional, Union
 
 import click
 
-from .model import VectorData
+from .model import Document
 
 # REMINDER: anything added here must be added to docs/api.rst
 __all__ = ["VpypeState", "multiple_to_layer_ids", "single_to_layer_id", "LayerType"]
@@ -12,11 +12,11 @@ __all__ = ["VpypeState", "multiple_to_layer_ids", "single_to_layer_id", "LayerTy
 class VpypeState:
     current_state: Union["VpypeState", None] = None
 
-    def __init__(self, vd: Union[VectorData, None] = None):
-        if vd is not None:
-            self.vector_data = vd
+    def __init__(self, doc: Union[Document, None] = None):
+        if doc is not None:
+            self.document = doc
         else:
-            self.vector_data = VectorData()
+            self.document = Document()
 
         self.target_layer: Optional[int] = None
 
@@ -32,32 +32,32 @@ class VpypeState:
 
 
 def multiple_to_layer_ids(
-    layers: Optional[Union[int, List[int]]], vector_data: VectorData,
+    layers: Optional[Union[int, List[int]]], document: Document
 ) -> List[int]:
     """Convert multiple-layer CLI argument to list of layer IDs.
 
     Args:
         layers: value from a :class:`LayerType` argument with accept_multiple=True
-        vector_data: target :class:`VectorData` instance
+        document: target :class:`Document` instance
 
     Returns:
         List of layer IDs
     """
     if layers is None or layers is LayerType.ALL:
-        return sorted(vector_data.ids())
+        return sorted(document.ids())
     elif isinstance(layers, list):
-        return sorted(vid for vid in layers if vector_data.exists(vid))
+        return sorted(vid for vid in layers if document.exists(vid))
     else:
         return []
 
 
-def single_to_layer_id(layer: Optional[int], vector_data: VectorData) -> int:
+def single_to_layer_id(layer: Optional[int], document: Document) -> int:
     """Convert single-layer CLI argument to layer ID, accounting for the existence of a current
     a current target layer and dealing with default behavior.
 
     Arg:
         layer: value from a :class:`LayerType` argument
-        vector_data: target :class:`VectorData` instance (for new layer ID)
+        document: target :class:`Document` instance (for new layer ID)
 
     Returns:
         Target layer ID
@@ -65,7 +65,7 @@ def single_to_layer_id(layer: Optional[int], vector_data: VectorData) -> int:
     current_target_layer = VpypeState.get_current().target_layer
 
     if layer is LayerType.NEW or (layer is None and current_target_layer is None):
-        lid = vector_data.free_id()
+        lid = document.free_id()
     elif layer is None:
         lid = VpypeState.get_current().target_layer
     else:

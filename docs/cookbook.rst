@@ -13,11 +13,11 @@ Laying out a SVG for plotting
 
 This command will :ref:`cmd_read` an SVG file, and then :ref:`cmd_write` it to a new SVG file sized to A4 portrait::
 
-  $ vpype read input.svg write --page-format a4 output.svg
+  $ vpype read input.svg write --page-size a4 output.svg
 
 This command will :ref:`cmd_read` an SVG file, and then :ref:`cmd_write` it to a new SVG file sized to 13x9in, rotated to landscape, with the design centred on the page::
 
-  $ vpype read input.svg write --page-format 13x9in --landscape --center output.svg
+  $ vpype read input.svg write --page-size 13x9in --landscape --center output.svg
 
 This command will :ref:`cmd_read` a multilayered SVG file, flatten it by converting all layers to a single layer, and then :ref:`cmd_write` it to a new SVG with the boundaries fitted tightly around the design::
 
@@ -29,7 +29,7 @@ This command will :ref:`cmd_read` an SVG file, :ref:`cmd_scale` it down to a 80%
 
 This command will :ref:`cmd_read` an SVG file, scale it down to a 5x5cm square (using the :ref:`cmd_scaleto` command), and then :ref:`cmd_write` it to a new A5-sized SVG, centred on the page::
 
-  $ vpype read input.svg scaleto 5cm 5cm write --page-format a5 --center output.svg
+  $ vpype read input.svg scaleto 5cm 5cm write --page-size a5 --center output.svg
 
 This command will :ref:`cmd_read` an SVG file, :ref:`cmd_crop` it to a 10x10cm square positioned 57mm from the top and left corners of the design, and then :ref:`cmd_write` it to a new SVG::
 
@@ -123,7 +123,7 @@ is automatically selected if the output path file extension is ``.hpgl``. Since 
 plotter to plotter and even for different physical paper format, the plotter model and the paper format must be provided
 to the :ref:`cmd_write` command::
 
-  $ vpype read input.svg write --device hp7475a --page-format a4 --landscape --center output.hpgl
+  $ vpype read input.svg write --device hp7475a --page-size a4 --landscape --center output.hpgl
 
 The plotter type/paper format combination must exist in the built-in or user-provided configuration file. See
 :ref:`faq_custom_hpgl_config` for information on how to create one.
@@ -131,7 +131,7 @@ The plotter type/paper format combination must exist in the built-in or user-pro
 It is typically useful to optimize the input SVG during the conversion. The following example is typical of real-world
 use::
 
-  $ vpype read input.svg linesimplify reloop linemerge linesort write --device hp7475a --page-format a4 output.hpgl
+  $ vpype read input.svg linesimplify reloop linemerge linesort write --device hp7475a --page-size a4 output.hpgl
 
 
 Defining a default HPGL plotter device
@@ -156,7 +156,7 @@ The configuration for a number of HPGL plotter is bundled with vpype (run ``vpyp
 plotter is not included, it is possible to define your own plotter configuration either in `~/.vpype.toml` or any other
 file. In the latter case, you must instruct vpype to load the configuration using the ``--config`` option::
 
-  $ vpype --config my_config_file.toml read input.svg [...] write --device my_plotter --page-format a4 output.hpgl
+  $ vpype --config my_config_file.toml read input.svg [...] write --device my_plotter --page-size a4 output.hpgl
 
 The configuration file must first include a plotter section with the following format:
 

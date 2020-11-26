@@ -5,10 +5,10 @@ from typing import List, Optional, Tuple, Union, cast
 import click
 
 from vpype import (
+    Document,
     LayerType,
     LengthType,
     LineCollection,
-    VectorData,
     global_processor,
     layer_processor,
     multiple_to_layer_ids,
@@ -18,12 +18,12 @@ from .cli import cli
 
 
 def _compute_origin(
-    vector_data: VectorData,
+    document: Document,
     layer: Optional[Union[int, List[int]]],
     origin_coords: Union[Tuple[()], Tuple[float, float]],
 ) -> Tuple[Tuple[float, float], List[int], Tuple[float, float, float, float]]:
-    layer_ids = multiple_to_layer_ids(layer, vector_data)
-    bounds = vector_data.bounds(layer_ids)
+    layer_ids = multiple_to_layer_ids(layer, document)
+    bounds = document.bounds(layer_ids)
 
     if not bounds:
         logging.warning("no geometry available, cannot compute origin")
@@ -72,7 +72,7 @@ def translate(lc: LineCollection, offset: Tuple[float, float]):
 )
 @global_processor
 def scale_relative(
-    vector_data: VectorData,
+    document: Document,
     scale: Tuple[float, float],
     layer: Union[int, List[int]],
     origin_coords: Union[Tuple[()], Tuple[float, float]],
@@ -94,17 +94,17 @@ def scale_relative(
     """
 
     try:
-        origin, layer_ids, _ = _compute_origin(vector_data, layer, origin_coords)
+        origin, layer_ids, _ = _compute_origin(document, layer, origin_coords)
     except ValueError:
-        return vector_data
+        return document
 
     for vid in layer_ids:
-        lc = vector_data[vid]
+        lc = document[vid]
         lc.translate(-origin[0], -origin[1])
         lc.scale(scale[0], scale[1])
         lc.translate(origin[0], origin[1])
 
-    return vector_data
+    return document
 
 
 # noinspection PyShadowingNames
@@ -133,7 +133,7 @@ def scale_relative(
 )
 @global_processor
 def scaleto(
-    vector_data: VectorData,
+    document: Document,
     dim: Tuple[float, float],
     layer: Union[int, List[int]],
     fit_dimensions: bool,
@@ -161,21 +161,21 @@ def scaleto(
     """
 
     try:
-        origin, layer_ids, bounds = _compute_origin(vector_data, layer, origin_coords)
+        origin, layer_ids, bounds = _compute_origin(document, layer, origin_coords)
     except ValueError:
-        return vector_data
+        return document
 
     factors = (dim[0] / (bounds[2] - bounds[0]), dim[1] / (bounds[3] - bounds[1]))
     if not fit_dimensions:
         factors = (min(factors), min(factors))
 
     for vid in layer_ids:
-        lc = vector_data[vid]
+        lc = document[vid]
         lc.translate(-origin[0], -origin[1])
         lc.scale(factors[0], factors[1])
         lc.translate(origin[0], origin[1])
 
-    return vector_data
+    return document
 
 
 # noinspection DuplicatedCode
@@ -199,7 +199,7 @@ def scaleto(
 )
 @global_processor
 def rotate(
-    vector_data: VectorData,
+    document: Document,
     angle: float,
     layer: Union[int, List[int]],
     radian: bool,
@@ -218,17 +218,17 @@ def rotate(
         angle *= math.pi / 180.0
 
     try:
-        origin, layer_ids, _ = _compute_origin(vector_data, layer, origin_coords)
+        origin, layer_ids, _ = _compute_origin(document, layer, origin_coords)
     except ValueError:
-        return vector_data
+        return document
 
     for vid in layer_ids:
-        lc = vector_data[vid]
+        lc = document[vid]
         lc.translate(-origin[0], -origin[1])
         lc.rotate(angle)
         lc.translate(origin[0], origin[1])
 
-    return vector_data
+    return document
 
 
 # noinspection DuplicatedCode
@@ -252,7 +252,7 @@ def rotate(
 )
 @global_processor
 def skew(
-    vector_data: VectorData,
+    document: Document,
     layer: Union[int, List[int]],
     angles: Tuple[float, float],
     radian: bool,
@@ -270,14 +270,14 @@ def skew(
         angles = tuple(a * math.pi / 180.0 for a in angles)  # type: ignore
 
     try:
-        origin, layer_ids, _ = _compute_origin(vector_data, layer, origin_coords)
+        origin, layer_ids, _ = _compute_origin(document, layer, origin_coords)
     except ValueError:
-        return vector_data
+        return document
 
     for vid in layer_ids:
-        lc = vector_data[vid]
+        lc = document[vid]
         lc.translate(-origin[0], -origin[1])
         lc.skew(angles[0], angles[1])
         lc.translate(origin[0], origin[1])
 
-    return vector_data
+    return document

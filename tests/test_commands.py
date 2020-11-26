@@ -3,6 +3,7 @@ import itertools
 import numpy as np
 import pytest
 
+import vpype as vp
 from vpype_cli import cli
 from vpype_cli.debug import DebugData
 
@@ -37,6 +38,8 @@ MINIMAL_COMMANDS = [
     "trim 1mm 1mm",
     "splitall",
     "filter --min-length 1mm",
+    "pagesize 10inx15in",
+    "stat",
 ]
 
 
@@ -50,6 +53,28 @@ def test_commands_empty_geometry(runner, root_directory, args):
 def test_commands_random_input(runner, root_directory, args):
     result = runner.invoke(cli, "random -n 100 " + args.replace("__ROOT__", root_directory))
     assert result.exit_code == 0
+
+
+@pytest.mark.parametrize("args", MINIMAL_COMMANDS)
+def test_commands_keeps_page_size(runner, root_directory, args):
+    """No command shall "forget" the current page size, unless its `pagesize` of course."""
+    if args.split()[0] == "pagesize":
+        return
+
+    page_size = None
+
+    @cli.command()
+    @vp.global_processor
+    def getpagesize(doc: vp.Document) -> vp.Document:
+        nonlocal page_size
+        page_size = doc.page_size
+        return doc
+
+    result = runner.invoke(
+        cli, "pagesize 5432x4321 " + args.replace("__ROOT__", root_directory) + " getpagesize"
+    )
+    assert result.exit_code == 0
+    assert page_size == (5432, 4321)
 
 
 def test_frame(runner):
@@ -278,7 +303,7 @@ def test_linemerge(runner, linemerge_args, expected):
     ],
 )
 def test_linesort(runner, lines):
-    res = runner.invoke(cli, f"{lines} linesort dbsample dbdump",)
+    res = runner.invoke(cli, f"{lines} linesort dbsample dbdump")
     data = DebugData.load(res.output)[0]
     assert res.exit_code == 0
     assert data.pen_up_length == 0

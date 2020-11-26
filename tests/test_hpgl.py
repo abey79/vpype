@@ -174,5 +174,5 @@ def test_hpgl_info_quiet(runner, simple_printer_config):
 )
 def test_hpgl_paper_config_from_format(simple_printer_config, paper_format, expected_name):
     vp.CONFIG_MANAGER.load_config_file(simple_printer_config)
-    pc = vp.CONFIG_MANAGER.get_plotter_config("simple").paper_config_from_format(paper_format)
+    pc = vp.CONFIG_MANAGER.get_plotter_config("simple").paper_config_from_size(paper_format)
     assert pc.name == expected_name

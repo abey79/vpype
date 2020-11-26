@@ -1,9 +1,9 @@
 import click
 
 from vpype import (
+    Document,
     LayerType,
     LineCollection,
-    VectorData,
     global_processor,
     multiple_to_layer_ids,
     single_to_layer_id,
@@ -16,7 +16,7 @@ from .cli import cli
 @click.argument("sources", type=LayerType(accept_multiple=True))
 @click.argument("dest", type=LayerType(accept_new=True))
 @global_processor
-def lcopy(vector_data, sources, dest):
+def lcopy(document, sources, dest):
     """Copy the content of one or more layer(s) to another layer.
 
     SOURCES can be a single layer ID, the string 'all' (to copy all non-empty layers,
@@ -43,25 +43,25 @@ content is not duplicated:
             vpype [...] lcopy all 1 [...]
     """
 
-    src_lids = multiple_to_layer_ids(sources, vector_data)
-    dest_lid = single_to_layer_id(dest, vector_data)
+    src_lids = multiple_to_layer_ids(sources, document)
+    dest_lid = single_to_layer_id(dest, document)
 
     if dest_lid in src_lids:
         src_lids.remove(dest_lid)
 
     lc = LineCollection()
     for lid in src_lids:
-        lc.extend(vector_data[lid])
-    vector_data.add(lc, dest_lid)
+        lc.extend(document[lid])
+    document.add(lc, dest_lid)
 
-    return vector_data
+    return document
 
 
 @cli.command(group="Layers")
 @click.argument("sources", type=LayerType(accept_multiple=True))
 @click.argument("dest", type=LayerType(accept_new=True))
 @global_processor
-def lmove(vector_data, sources, dest):
+def lmove(document, sources, dest):
     """Move the content of one or more layer(s) to another layer.
 
     SOURCES can be a single layer ID, the string 'all' (to copy all non-empty layers,
@@ -82,33 +82,33 @@ def lmove(vector_data, sources, dest):
             vpype [...] lmove 1,2 1 [...]  # merge layer 1 and 2 to layer 1
     """
 
-    src_lids = multiple_to_layer_ids(sources, vector_data)
-    dest_lid = single_to_layer_id(dest, vector_data)
+    src_lids = multiple_to_layer_ids(sources, document)
+    dest_lid = single_to_layer_id(dest, document)
 
     if dest_lid in src_lids:
         src_lids.remove(dest_lid)
 
     for lid in src_lids:
-        vector_data.add(vector_data.pop(lid), dest_lid)
+        document.add(document.pop(lid), dest_lid)
 
-    return vector_data
+    return document
 
 
 @cli.command(group="Layers")
 @click.argument("layers", type=LayerType(accept_multiple=True))
 @global_processor
-def ldelete(vector_data: VectorData, layers) -> VectorData:
+def ldelete(document: Document, layers) -> Document:
     """Delete one or more layers.
 
     LAYERS can be a single layer ID, the string 'all' (to delete all layers), or a
     coma-separated, whitespace-free list of layer IDs.
     """
 
-    lids = set(multiple_to_layer_ids(layers, vector_data))
+    lids = set(multiple_to_layer_ids(layers, document))
 
-    new_vector_data = VectorData()
-    for lid in vector_data.ids():
+    new_doc = document.empty_copy()
+    for lid in document.ids():
         if lid not in lids:
-            new_vector_data[lid] = vector_data[lid]
+            new_doc[lid] = document[lid]
 
-    return new_vector_data
+    return new_doc

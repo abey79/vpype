@@ -1,14 +1,14 @@
 import logging
 import os
-from typing import Optional
+from typing import Optional, Tuple
 
 import click
 
 from vpype import (
     CONFIG_MANAGER,
-    PAGE_FORMATS,
-    VectorData,
-    convert_page_format,
+    PAGE_SIZES,
+    Document,
+    convert_page_size,
     global_processor,
     write_hpgl,
     write_svg,
@@ -19,31 +19,35 @@ from .cli import cli
 WRITE_HELP = f"""Save geometries to a file.
 
 The `write` command support two format: SVG and HPGL. The format is determined based on the
-file extension used for `OUTPUT` or the `--file-format` option. This is particular useful when
+file extension used for `OUTPUT` or the `--file-format` option. The latter is useful when
 `OUTPUT` is a single dash (`-`), in which case the output is printed to stdout instead of a
 file.
 
-When writing to SVG, the file has bounds tightly fitted around the geometries by default.
-Optionally, a page format can be provided with the `--page-format FORMAT` option. `FORMAT` may
+When writing to SVG, the current page size is used if available. The current page size is
+implicitly set by the `read` command and can also be manually changed using the `pagesize`
+command. The page size can be overridden using the `--page-size SIZE` option. `SIZE` may
 be one of:
 
-    {', '.join(PAGE_FORMATS.keys())}
+    {', '.join(PAGE_SIZES.keys())}
 
-Alternatively, a custom format can be specified in the form of `WIDTHxHEIGHT`. `WIDTH` and
+Alternatively, a custom size can be specified in the form of `WIDTHxHEIGHT`. `WIDTH` and
 `HEIGHT` may include units. If only one has an unit, the other is assumed to have the
 same unit. If none have units, both are assumed to be pixels by default. Here are some
 examples:
 
 \b
-    --page-format 11x14in     # 11in by 14in
-    --page-format 1024x768    # 1024px by 768px
-    --page-format 13.5inx4cm  # 13.5in by 4cm
+    --page-size 11x14in     # 11in by 14in
+    --page-size 1024x768    # 1024px by 768px
+    --page-size 13.5inx4cm  # 13.5in by 4cm
 
-When a page format is provided, it will be rotated if the `--landscape` option is used.
+When a page size is provided, it will be rotated if the `--landscape` option is used.
 
-By default, when a page format is provided, the geometries are not scaled or translated
-even if they lie outside of the page bounds. The `--center` option translates the geometries
-to the center of the page.
+If the current page set has not been set (e.g. because the `read` command has not been used)
+and the `--page-size` is not provided, the SVG will have its bounds tightly fit to the
+geometries.
+
+By default, the geometries are not scaled or translated even if they lie outside of the page
+boundaries. The `--center` option translates the geometries to the center of the page.
 
 Layers are labelled with their numbers by default. If an alternative naming is required, a
 template pattern can be provided using the `--layer-label` option. The provided pattern must
@@ -63,10 +67,10 @@ corresponding device must be configured in the built-in or a user-provided confi
 
     {', '.join(CONFIG_MANAGER.get_plotter_list())}
 
-In HPGL mode, because the coordinate system depends on the configuration, the `--page-format`
+In HPGL mode, because the coordinate system depends on the configuration, the `--page-size`
 option is mandatory, and is restricted to the paper formats defined in the corresponding
 device's configuration. The plotter may as well need to be specifically configured for the
-desired paper format (e.g. for A4 or A3, the HP 7475a's corresponding DIP switch must be set to
+desired paper size (e.g. for A4 or A3, the HP 7475a's corresponding DIP switch must be set to
 metric mode).
 
 The `--landscape` and `--center` options are accepted and honored in HPGL.
@@ -76,21 +80,21 @@ emitted with the provided value.
 
 Examples:
 
-    Write to a tightly fitted SVG:
+    Write to a SVG using the current page size as set by the `read` command:
 
-        vpype [...] write output.svg
+        vpype read input.svg [...] write output.svg
 
     Write to a portrait A4 page:
 
-        vpype [...] write --page-format a4 output.svg
+        vpype [...] write --page-size a4 output.svg
 
     Write to a 13x9 inch page and center the geometries:
 
-        vpype [...] write --page-format 13x9in --landscape --center output.svg
+        vpype [...] write --page-size 13x9in --landscape --center output.svg
 
     Use custom layer labels:
 
-        vpype [...] write --page-format a4 --layer-label "Pen %d" output.svg
+        vpype [...] write --page-size a4 --layer-label "Pen %d" output.svg
 
     Write a previsualization SVG:
 
@@ -102,7 +106,7 @@ Examples:
 
     Write a A4 page with portrait orientation HPGL file:
 
-        vpype [...] write --device hp7475a --page-format a4 --center
+        vpype [...] write --device hp7475a --page-size a4 --center
 """
 
 
@@ -117,12 +121,12 @@ Examples:
 )
 @click.option(
     "-p",
-    "--page-format",
+    "--page-size",
     type=str,
-    default="tight",
     help=(
-        "Set the bounds of the SVG to a specific page format. If omitted, the SVG size it set "
-        "to the geometry bounding box. May not be omitted for HPGL."
+        "Set the bounds of the SVG to a specific page size. If omitted, the SVG size is set "
+        "to the current page size (see `read` and `pagesize` commands. May not be omitted for "
+        "HPGL."
     ),
 )
 @click.option(
@@ -162,11 +166,11 @@ Examples:
 @click.pass_obj  # to obtain the command string
 @global_processor
 def write(
-    vector_data: VectorData,
+    document: Document,
     cmd_string: Optional[str],
     output,
     file_format: str,
-    page_format: str,
+    page_size: str,
     landscape: bool,
     center: bool,
     layer_label: str,
@@ -178,9 +182,9 @@ def write(
 ):
     """Write command."""
 
-    if vector_data.is_empty():
+    if document.is_empty():
         logging.warning("no geometry to save, no file created")
-        return vector_data
+        return document
 
     if file_format is None:
         # infer format
@@ -188,15 +192,16 @@ def write(
         file_format = ext.lstrip(".").lower()
 
     if file_format == "svg":
-        page_format_px = convert_page_format(page_format)
-
-        if landscape:
-            page_format_px = page_format_px[::-1]
+        page_size_px = None
+        if page_size:
+            page_size_px = convert_page_size(page_size)
+            if landscape:
+                page_size_px = page_size_px[::-1]
 
         write_svg(
             output=output,
-            vector_data=vector_data,
-            page_format=page_format_px,
+            document=document,
+            page_size=page_size_px,
             center=center,
             source_string=cmd_string if cmd_string is not None else "",
             layer_label_format=layer_label,
@@ -204,20 +209,26 @@ def write(
             color_mode=color_mode,
         )
     elif file_format == "hpgl":
-        write_hpgl(
-            output=output,
-            vector_data=vector_data,
-            landscape=landscape,
-            center=center,
-            device=device,
-            page_format=page_format,
-            velocity=velocity,
-            quiet=quiet,
-        )
+        if page_size:
+            write_hpgl(
+                output=output,
+                document=document,
+                landscape=landscape,
+                center=center,
+                device=device,
+                page_size=page_size,
+                velocity=velocity,
+                quiet=quiet,
+            )
+        else:
+            logging.error(
+                "write: page size is mandatory for HPGL, please use the `--page-size SIZE` "
+                "option"
+            )
     else:
         logging.warning(
             f"write: format could not be inferred or format unknown '{file_format}', "
             "no file created"
         )
 
-    return vector_data
+    return document

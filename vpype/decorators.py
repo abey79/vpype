@@ -74,7 +74,7 @@ def layer_processor(f):
 
         # noinspection PyShadowingNames
         def layer_processor(state: VpypeState) -> VpypeState:
-            for lid in multiple_to_layer_ids(layers, state.vector_data):
+            for lid in multiple_to_layer_ids(layers, state.document):
                 logging.info(
                     f"executing layer processor `{f.__name__}` on layer {lid} "
                     f"(kwargs: {kwargs})"
@@ -82,7 +82,7 @@ def layer_processor(f):
 
                 start = datetime.datetime.now()
                 with state.current():
-                    state.vector_data[lid] = f(state.vector_data[lid], *args, **kwargs)
+                    state.document[lid] = f(state.document[lid], *args, **kwargs)
                 stop = datetime.datetime.now()
 
                 logging.info(
@@ -110,7 +110,7 @@ def global_processor(f):
     add a ``--layer`` option (with type :py:class:`LayerType`) and use the
     :func:`multiple_to_layer_ids` companion function (see example below)
 
-    A global processor receives a :py:class:`VectorData` as input and must return one.
+    A global processor receives a :py:class:`Document` as input and must return one.
 
     Example:
 
@@ -126,15 +126,15 @@ def global_processor(f):
         )
         @vpype.global_processor
         def my_global_processor(
-            vector_data: vpype.VectorData, layer: Union[int, List[int]]
-        ) -> vpype.VectorData:
+            document: vpype.Document, layer: Union[int, List[int]]
+        ) -> vpype.Document:
             '''Example global processor'''
 
-            layer_ids = multiple_to_layer_ids(layer, vector_data)
-            for lines in vector_data.layers_from_ids(layer_ids):
+            layer_ids = multiple_to_layer_ids(layer, document)
+            for lines in document.layers_from_ids(layer_ids):
                 # [apply some modification to lines]
 
-            return vector_data
+            return document
 
 
         my_global_processor.help_group = "My Plugins"
@@ -147,7 +147,7 @@ def global_processor(f):
 
             start = datetime.datetime.now()
             with state.current():
-                state.vector_data = f(state.vector_data, *args, **kwargs)
+                state.document = f(state.document, *args, **kwargs)
             stop = datetime.datetime.now()
 
             logging.info(
@@ -183,7 +183,7 @@ def generator(f):
         # noinspection PyShadowingNames
         def generator(state: VpypeState) -> VpypeState:
             with state.current():
-                target_layer = single_to_layer_id(layer, state.vector_data)
+                target_layer = single_to_layer_id(layer, state.document)
 
                 logging.info(
                     f"executing generator `{f.__name__}` to layer {target_layer} "
@@ -191,7 +191,7 @@ def generator(f):
                 )
 
                 start = datetime.datetime.now()
-                state.vector_data.add(f(*args, **kwargs), target_layer)
+                state.document.add(f(*args, **kwargs), target_layer)
                 stop = datetime.datetime.now()
 
             state.target_layer = target_layer
@@ -209,8 +209,7 @@ def generator(f):
 
 
 def block_processor(c):
-    """Create an instance of the block processor class
-    """
+    """Create an instance of the block processor class."""
 
     def new_func(*args, **kwargs):
         return c(*args, **kwargs)
@@ -219,8 +218,7 @@ def block_processor(c):
 
 
 def pass_state(f):
-    """Marks a command as wanting to receive the current state.
-    """
+    """Marks a command as wanting to receive the current state."""
 
     def new_func(*args, **kwargs):
         return f(VpypeState.get_current(), *args, **kwargs)

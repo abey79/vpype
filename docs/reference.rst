@@ -79,6 +79,10 @@ CLI reference
 .. click:: vpype_cli:multipass
    :prog: multipass
 
+.. _cmd_pagesize:
+.. click:: vpype_cli:pagesize
+   :prog: pagesize
+
 .. _cmd_random:
 .. click:: vpype_cli:random
    :prog: random
@@ -126,6 +130,10 @@ CLI reference
 .. _cmd_splitall:
 .. click:: vpype_cli:splitall
    :prog: splitall
+
+.. _cmd_stat:
+.. click:: vpype_cli:stat
+   :prog: stat
 
 .. _cmd_translate:
 .. click:: vpype_cli:translate
