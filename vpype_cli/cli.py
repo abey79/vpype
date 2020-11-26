@@ -174,7 +174,7 @@ def execute_processors(processors) -> VpypeState:
 
             if nested_count == 0:
                 # we're closing a top level block, let's process it
-                block_vector_data = block.process(top_level_processors)  # type: ignore
+                block_document = block.process(top_level_processors)  # type: ignore
 
                 # Create a placeholder layer_processor that will add the block's result to the
                 # current frame. The placeholder_processor is a closure, so we need to make
@@ -182,14 +182,14 @@ def execute_processors(processors) -> VpypeState:
                 # to the block_vd variable above, which might be overwritten by a subsequent
                 # top-level block
                 # noinspection PyShadowingNames
-                def build_placeholder_processor(block_vector_data):
+                def build_placeholder_processor(block_document):
                     def placeholder_processor(input_state):
-                        input_state.document.extend(block_vector_data)
+                        input_state.document.extend(block_document)
                         return input_state
 
                     return placeholder_processor
 
-                outer_processors.append(build_placeholder_processor(block_vector_data))
+                outer_processors.append(build_placeholder_processor(block_document))
 
                 # reset the top level layer_processor list
                 top_level_processors = list()

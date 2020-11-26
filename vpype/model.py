@@ -434,10 +434,11 @@ class Document:
 
     def extend_page_size(self, page_size: Optional[Tuple[float, float]]) -> None:
         """Adjust the  page sized according to the following logic:
-        - if ``page_size`` is None, the the page size is unchanged
-        - if ``self.page_size`` is None, it is set to ``page_size``
-        - if both page sizes are not None, the page size is set to the largest value in both
-           direction.
+
+            - if ``page_size`` is None, the the page size is unchanged
+            - if ``self.page_size`` is None, it is set to ``page_size``
+            - if both page sizes are not None, the page size is set to the largest value in
+              both direction
 
         Args:
             page_size: page dimension to use to update ``self.page_size``
@@ -608,9 +609,13 @@ class Document:
     def bounds(
         self, layer_ids: Union[None, Iterable[int]] = None
     ) -> Optional[Tuple[float, float, float, float]]:
-        """Compute bounds of the vector data.
+        """Compute bounds of the document.
 
         If layer_ids is provided, bounds are computed only for the corresponding IDs.
+
+        Note: the bounds are computed based on the actual geometries contained in this
+        :class:`Document` instance. The document's page size, if any, is not taken into account
+        by this calculation.
 
         Args:
             layer_ids: layers to consider in the bound calculation

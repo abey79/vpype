@@ -349,7 +349,7 @@ def write_svg(
 ) -> None:
     """Create a SVG from a :py:class:`Document` instance.
 
-    If no page format is provided (or (0, 0) is passed), the SVG generated has bounds tightly
+    If no page size is provided (or (0, 0) is passed), the SVG generated has bounds tightly
     fitted around the geometries. Otherwise the provided size (in pixel) is used.
 
     By default, no translation is applied on the geometry. If `center=True`, geometries are
@@ -478,17 +478,17 @@ def write_svg(
 
 
 def _get_hpgl_config(
-    device: Optional[str], page_format: str
+    device: Optional[str], page_size: str
 ) -> Tuple[PlotterConfig, PaperConfig]:
     if device is None:
         device = CONFIG_MANAGER.get_command_config("write").get("default_hpgl_device", None)
     plotter_config = CONFIG_MANAGER.get_plotter_config(str(device))
     if plotter_config is None:
         raise ValueError(f"no configuration available for plotter '{device}'")
-    paper_config = plotter_config.paper_config(page_format)
+    paper_config = plotter_config.paper_config(page_size)
     if paper_config is None:
         raise ValueError(
-            f"no configuration available for paper size '{page_format}' with plotter "
+            f"no configuration available for paper size '{page_size}' with plotter "
             f"'{device}'"
         )
 
@@ -518,7 +518,7 @@ def write_hpgl(
     Args:
         output: text-mode IO stream where SVG code will be written
         document: geometries to be written
-        page_size: page format string (it must be configured for the selected device)
+        page_size: page size string (it must be configured for the selected device)
         landscape: if True, the geometries are generated in landscape orientation
         center: center geometries on page before export
         device: name of the device to use (the corresponding config must exists). If not
@@ -543,7 +543,7 @@ def write_hpgl(
     # are plotter coordinate placed in landscape or portrait orientation?
     coords_landscape = paper_config.paper_size[0] > paper_config.paper_size[1]
 
-    # vector data preprocessing:
+    # document preprocessing:
     # - make a copy
     # - deal with orientation mismatch
     # - optionally center on paper

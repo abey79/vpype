@@ -133,7 +133,7 @@ def test_line_collection_pen_up_trajectories():
     assert line_collection_contains(pen_up, [25j, 3 + 3j])
 
 
-def test_vector_data_lid_iteration():
+def test_document_lid_iteration():
     lc = LineCollection([(0, 1 + 1j)])
     doc = Document()
     doc.add(lc, 1)
@@ -145,14 +145,14 @@ def test_vector_data_lid_iteration():
     assert len(doc.layers[1]) == 2
 
 
-def test_vector_data_bounds():
+def test_document_bounds():
     doc = Document()
     doc.add(LineCollection([(-10, 10), (0, 0)]), 1)
     doc.add(LineCollection([(0, 0), (-10j, 10j)]), 2)
     assert doc.bounds() == (-10, -10, 10, 10)
 
 
-def test_vector_data_bounds_empty_layer():
+def test_document_bounds_empty_layer():
     doc = Document()
 
     doc.add(LineCollection([(0, 10 + 10j)]), 1)
@@ -185,23 +185,23 @@ def test_ops_on_degenerate_line_collection():
     _all_line_collection_ops(lc)
 
 
-def _all_vector_data_ops(doc: Document):
+def _all_document_ops(doc: Document):
     doc.bounds()
     doc.length()
     doc.segment_count()
     # to be completed..
 
 
-def test_ops_on_emtpy_vector_data():
+def test_ops_on_emtpy_document():
     doc = Document()
-    _all_vector_data_ops(doc)
+    _all_document_ops(doc)
 
 
-def test_ops_on_vector_data_with_emtpy_layer():
+def test_ops_on_document_with_emtpy_layer():
     doc = Document()
     lc = LineCollection()
     doc.add(lc, 1)
-    _all_vector_data_ops(doc)
+    _all_document_ops(doc)
 
 
 @pytest.mark.parametrize(

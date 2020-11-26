@@ -36,7 +36,7 @@ UNITS = {
     "pt": 96.0 / 72.0,
 }
 
-# page formats in pixel
+# page sizes in pixel
 PAGE_SIZES = {
     "tight": _mm_to_px(0, 0),
     "a6": _mm_to_px(105.0, 148.0),
@@ -74,34 +74,34 @@ def convert(value: Union[str, float]) -> float:
 
 
 def convert_page_size(value: str) -> Tuple[float, float]:
-    """Converts a string with page format to dimension in pixels.
+    """Converts a string with page size to dimension in pixels.
 
-    The input can be either a known page format (see ``vpype write --help`` for a list) or
-    a page format descriptor in the form of "WxH" where both W and H can have units.
+    The input can be either a known page size (see ``vpype write --help`` for a list) or
+    a page size descriptor in the form of "WxH" where both W and H can have units.
 
     Examples:
 
-        Using know page format::
+        Using a know page size::
 
             >>> import vpype
             >>> vpype.convert_page_size("a3")
             (1122.5196850393702, 1587.4015748031497)
 
-        Using page format descriptor (no units, pixels are assumed)::
+        Using page size descriptor (no units, pixels are assumed)::
 
             >>> vpype.convert_page_size("100x200")
             (100.0, 200.0)
 
-        Using page format descriptor (explicit units)::
+        Using page size descriptor (explicit units)::
 
             >>> vpype.convert_page_size("1inx2in")
             (96.0, 192.0)
 
     Args:
-        value: page format descriptor
+        value: page size descriptor
 
     Returns:
-        the page format in CSS pixels
+        the page size in CSS pixels
     """
     if value in PAGE_SIZES:
         return PAGE_SIZES[value]
@@ -111,7 +111,7 @@ def convert_page_size(value: str) -> Tuple[float, float]:
     )
 
     if not match:
-        raise ValueError(f"page format '{value}' unknown")
+        raise ValueError(f"page size '{value}' unknown")
 
     x, x_unit, y, y_unit = match.groups()
 
@@ -168,9 +168,9 @@ class Length(LengthType):
 
 
 class PageSizeType(click.ParamType):
-    """:class:`click.ParamType` sub-class to automatically converts a user-provided page format
+    """:class:`click.ParamType` sub-class to automatically converts a user-provided page size
     string into a tuple of float in CSS pixel units. See :func:`convert_page_size` for
-    information on the page format descriptor syntax.
+    information on the page size descriptor syntax.
 
     Example::
 
@@ -190,7 +190,7 @@ class PageSizeType(click.ParamType):
         try:
             return convert_page_size(value)
         except ValueError:
-            self.fail(f"parameter {value} is not a valid page format")
+            self.fail(f"parameter {value} is not a valid page size")
 
 
 def union(line: np.ndarray, keys: List[Callable[[np.ndarray], bool]]) -> bool:

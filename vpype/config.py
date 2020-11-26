@@ -112,13 +112,11 @@ class PlotterConfig:
                 return pc
         return None
 
-    def paper_config_from_format(
-        self, page_format: Tuple[float, float]
-    ) -> Optional[PaperConfig]:
+    def paper_config_from_size(self, page_size: Tuple[float, float]) -> Optional[PaperConfig]:
         """Look for a paper configuration matching ``paper_format`` and return it if found.
 
         Args:
-            page_format: desired page format
+            page_size: desired page size
 
         Returns:
             the :class:`PaperConfig` instance corresponding to ``paper_format`` or None if not
@@ -129,8 +127,8 @@ class PlotterConfig:
             return all(math.isclose(aa, bb) for aa, bb in zip(a, b))
 
         for pc in self.paper_configs:
-            if _isclose_tuple(pc.paper_size, page_format) or _isclose_tuple(
-                pc.paper_size, tuple(reversed(page_format))
+            if _isclose_tuple(pc.paper_size, page_size) or _isclose_tuple(
+                pc.paper_size, tuple(reversed(page_size))
             ):
                 return pc
         return None
