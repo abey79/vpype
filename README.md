@@ -16,7 +16,7 @@ TODO: TOC here!!!!
 
 ## What _vpype_ is?
 
-_vpype_ is the Swiss-Army-knife command-line tool for processing or producing plotter-ready vector graphics.
+_vpype_ is the Swiss-Army-knife command-line tool for plotter vector graphics.
 Its typical uses includes:
  - laying out existing vector files with precise control on position, scale and page format;
  - optimizing existing SVG files for faster and cleaner plots;
@@ -51,47 +51,50 @@ list of commands, each with their optional parameters and their arguments:
 
 ![command line](docs/images/command_line.svg)
 
-This pipeline uses five commands (in bold). `read` loads geometries from a SVG file, `linemerge` merges paths whose
-extremities are close to each other (within the provided tolerance), `linesort` reorder paths such as to minimise the
-pen-up travel, `crop`, well, crops, and `write` export the resulting geometries to a SVG file.
+This pipeline uses five commands (in bold):
+- `read` loads geometries from a SVG file.
+- `linemerge` merges paths whose extremities are close to each other (within the provided tolerance).
+- `linesort` reorder paths such as to minimise the pen-up travel.
+- `crop`, well, crops.
+- `write` export the resulting geometries to a SVG file.
 
 Some commands have arguments, which are always required (in italic). For example, a file path must be provided to the
-`read` command and dimensions must be provided to the `crop` commands. Commands may also have options which are, well,
+`read` command and dimensions must be provided to the `crop` commands. A command may also have options which are, well,
 optional. In this example, `--page-size a4` means that the `write` command will generate a A4-sized SVG (otherwise it
-would have the same size as `in.svg`). Likewise, because `--center` is used, the `write` command will center geometries
-on the page before saving the SVG (otherwise the geometries would have been left at their original location on page).
+would have the same size as _in.svg_). Likewise, because `--center` is used, the `write` command will center geometries
+on the page before saving the SVG (otherwise the geometries would have been left at their original location).
 
 
 ## Examples
 
 Load an SVG file, scale it to a specific size, and export it centered on an A4-sized, ready-to-plot SVG file:
-```bash
+```
 vpype read input.svg scaleto 10cm 10cm write --page-size a4 --center output.svg
 ```
 
 Optimize paths to reduce plotting time (merge connected lines and sort them to minimize pen-up distance):
-```bash
+```
 vpype read input.svg linemerge --tolerance 0.1mm linesort write output.svg
 ```
 
 Visualize the path structure of large SVG files, showing whether lines are properly joined or not thanks to a colorful
 display:
-```bash
+```
 vpype read input.svg show --colorful
 ```
 
 Load several SVG files and save them as a single, multi-layer SVG file (e.g. for multicolored drawings):
-```bash
+```
 vpype read -l 1 input1.svg read -l 2 input2.svg write output.svg
 ```
 
 Create arbitrarily-sized, grid-like designs like this page's top banner:
-```bash
+```
 vpype begin grid -o 1cm 1cm 10 13 script alien_letter.py scaleto 0.5cm 0.5cm end show
 ```
 
 Export to HPGL for vintage plotters:
-```bash
+```
 vpype read input.svg write --device hp7475a --page-size a4 --landscape --center output.hpgl
 ```
   
@@ -111,7 +114,7 @@ In a nutshell:
 pip install vpype
 ```
 
-Check [the documentation](https://vpype.readthedocs.io/en/latest/install.html) for more details.
+Check [the documentation](https://vpype.readthedocs.io/en/latest/install.html) for detailed instructions.
 
 ## Documentation
 
