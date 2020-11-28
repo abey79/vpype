@@ -1,8 +1,70 @@
 <img src="https://i.imgur.com/LM2Qrc0.png" alt="banner" width=1200>
 
 
-# _vpype_ ![Test](https://github.com/abey79/vpype/workflows/Test/badge.svg?branch=master) [![Documentation Status](https://readthedocs.org/projects/vpype/badge/?version=latest)](https://vpype.readthedocs.io/en/latest/?badge=latest)
+# _vpype_
 
+[![PyPI](https://img.shields.io/pypi/v/vpype?label=PyPI&logo=pypi)](https://pypi.org/project/vpype/)
+![python](https://img.shields.io/github/languages/top/abey79/vpype)
+[![license](https://img.shields.io/github/license/abey79/vpype)](https://vpype.readthedocs.io/en/latest/license.html)
+![Test](https://img.shields.io/github/workflow/status/abey79/vpype/Lint%20and%20Tests?label=Tests&logo=github)
+[![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=abey79_vpype&metric=alert_status)](https://sonarcloud.io/dashboard?id=abey79_vpype)
+[![Documentation Status](https://img.shields.io/readthedocs/vpype?label=Read%20the%20Docs&logo=read-the-docs)](https://vpype.readthedocs.io/en/latest/?badge=latest)
+
+
+## Feature overview
+
+#### General
+
+- Easy to use **CLI** interface with integrated help (`vpype --help`and `vpype COMMANDNAME --help`) and support for arbitrary units (e.g. `vpype read input.svg translate 3cm 2in`).
+- First-class **multi-layer support** with global or per-layer processing (e.g. `vpype COMMANDNAME --layer 1,3`) and layer edition commands (`lmove`, `lcopy`, `ldelete).
+- Powerful **display** command with adjustable units, optional per-line coloring, optional pen-up trajectories display and per-layer visibility control (`show`).
+- Geometry **statistics** extraction (`stat`).
+- Support for  **command history** recording (`vpype -H [...]`)
+- Support for **RNG seed** configuration for generative plug-ins (`vpype -s 37 [...]`).
+
+
+#### Input/Output
+
+- Single- and multi-layer **SVG input** with adjustable precision, parallel processing for large SVGs, and supports percent or missing width/height (`read`).
+- Support for **SVG output** with fine layout control (page size and orientation, centering), layer support with custom layer names, optional display of pen-up trajectories, various option for coloring (`write`).
+- Support for **HPGL output** config-based generation of HPGL code with fine layout control (page size and orientation, centering).
+
+
+#### Layout and transforms
+
+- Powerful **transform** commands for scaling, translating, skewing and rotating geometries (`scale`, `translate`, `skew`, `rotate`).
+- Support for **scaling** and **cropping** to arbitrary dimensions (`scaleto`, `crop`).
+- Support for **trimming** geometries by an arbitrary amount (`trim`).
+- Arbitrary **page size** definition (`pagesize`). 
+
+
+#### Plotting optimization
+
+- **Line merging** with optional path reversal and configurable merging threshold (`linemerge`).
+- **Line sorting** with optional path reversal (`linesort`).
+- **Line simplification** with adjustable accuracy (`linesimplify`).
+- Support for **splitting** all lines to their constituent segments (`splitall`.
+- Closed paths' **seam location randomization**, to reduce the visibility of pen-up/pen-down artifacts (`reloop`).
+- Support for generating **multiple passes** on each line (`multipass`).
+- Support for **filtering** by line lengths or closed-ness (`filter`).
+ 
+ #### Generation
+ 
+ - Generation of arbitrary **primitives** including lines, rectangles, circles, ellipses and arcs (`line`, `rect`, `circle`, `ellipse`, `arc`).
+ - Generation of grid-like layouts (`grid`).
+ - Generation of a **frame** around the geometries (`frame`).
+ - Generation of random lines for debug/learning purposes (`random`)
+
+#### Extensibility and API
+
+ - First-class support for **plug-in** extensions (e.g [vpype-text](https://github.com/abey79/vpype-text), [hatched](https://github.com/abey79/hatched), [occult](https://github.com/LoicGoulefert/occult)).
+ - Support for **script-based** generation (`script`).
+ - Powerful and [well-documented](https://vpype.readthedocs.io/en/latest/api/vpype.html#module-vpype) **API** for plug-ins and other plotter generative art projects.
+
+
+
+
+# OLD
 
 > **Note**: a proper documentation is [under construction](https://vpype.readthedocs.io/en/latest/).
 
@@ -62,7 +124,7 @@ _vpype_ is written in Python and relies on
 [Shapely](https://shapely.readthedocs.io),
 [rtree](http://toblerity.org/rtree/),
 [svgwrite](https://svgwrite.readthedocs.io),
-[svgpathtools](https://github.com/mathandy/svgpathtools),
+[svgelements](https://github.com/meerk40t/svgelements),
 [matplotlib](https://matplotlib.org),
 and [NumPy](https://numpy.org).
 Additionally, there are many other projects which have helped get _vpype_ where it is today.
