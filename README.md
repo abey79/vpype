@@ -49,7 +49,7 @@ geometries in the pipeline for display purposes (`show`) or output to file (`wri
 Pipeline are defined using the _vpype_'s CLI (command-line interface) in a terminal by typing `vpype` followed by the
 list of commands, each with their optional parameters and their arguments:
 
-![command line](docs/images/command_line.png)
+![command line](docs/images/command_line.svg)
 
 This pipeline uses five commands (in bold). `read` loads geometries from a SVG file, `linemerge` merges paths whose
 extremities are close to each other (within the provided tolerance), `linesort` reorder paths such as to minimise the
