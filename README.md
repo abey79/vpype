@@ -25,7 +25,7 @@
 
 #### Input/Output
 
-- Single- and multi-layer **SVG input** with adjustable precision, parallel processing for large SVGs, and supports percent or missing width/height (`read`).
+- Single- and multi-layer **SVG input** with adjustable precision, parallel processing for large SVGs, and supports percent or missing width/height ([`read`](https://vpype.readthedocs.io/en/latest/reference.html#read)).
 - Support for **SVG output** with fine layout control (page size and orientation, centering), layer support with custom layer names, optional display of pen-up trajectories, various option for coloring (`write`).
 - Support for **HPGL output** config-based generation of HPGL code with fine layout control (page size and orientation, centering).
 
@@ -43,7 +43,7 @@
 - **Line merging** with optional path reversal and configurable merging threshold (`linemerge`).
 - **Line sorting** with optional path reversal (`linesort`).
 - **Line simplification** with adjustable accuracy (`linesimplify`).
-- Support for **splitting** all lines to their constituent segments (`splitall`.
+- Support for **splitting** all lines to their constituent segments (`splitall`).
 - Closed paths' **seam location randomization**, to reduce the visibility of pen-up/pen-down artifacts (`reloop`).
 - Support for generating **multiple passes** on each line (`multipass`).
 - Support for **filtering** by line lengths or closed-ness (`filter`).
