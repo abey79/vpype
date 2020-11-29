@@ -11,7 +11,23 @@
 [![Documentation Status](https://img.shields.io/readthedocs/vpype?label=Read%20the%20Docs&logo=read-the-docs)](https://vpype.readthedocs.io/en/latest/?badge=latest)
 
 
-TODO: TOC here!!!!
+## Contents
+
+* [What _vpype_ is?](#what-vpype-is)
+* [How does it work?](#how-does-it-work)
+* [Examples](#examples)
+* [What _vpype_ isn't?](#what-vpype-isnt)
+* [Installation](#installation)
+* [Documentation](#documentation)
+* [Feature overview](#feature-overview)
+    * [General](#general)
+    * [Input/Output](#inputoutput)
+    * [Layout and transforms](#layout-and-transforms)
+    * [Plotting optimization](#plotting-optimization)
+    * [Generation](#generation)
+    * [Extensibility and API](#extensibility-and-api)
+* [Contributing](#contributing)
+* [License](#license)
 
 
 ## What _vpype_ is?
@@ -21,8 +37,8 @@ Its typical uses includes:
  - laying out existing vector files with precise control on position, scale and page format;
  - optimizing existing SVG files for faster and cleaner plots;
  - creating HPGL output for vintage plotter;
- - creating generative artwork through built-in commands or plug-in extensions;
- - create, modify and process multi-layer vector files for multi-colour plots;
+ - creating generative artwork through built-in commands or plug-ins;
+ - creating, modifying and processing multi-layer vector files for multi-colour plots;
  - and much more...
  
 _vpype_ is highly extensible through [plug-ins](https://vpype.readthedocs.io/en/latest/api/vpype.html#module-vpype) that
@@ -39,12 +55,13 @@ Check the [documentation](https://vpype.readthedocs.io/en/latest/) for a more th
 
 ## How does it work?
 
-_vpype_ works by building so-called _pipelines_ of _commands_, where each command's output is fed to the next command's
-input.
-Some commands load geometries into the pipeline (e.g.
-the `read` command which loads geometries from a SVG file). Other commands modify these geometries, e.g. by cropping
-them (`crop`) or reordering them to minimize pen-up travels (`linesort`). Finally, some other commands just read the
-geometries in the pipeline for display purposes (`show`) or output to file (`write`).
+_vpype_ works by building so-called _pipelines_ of _commands_, where each command's output is fed to the next command's input.
+Some commands load geometries into the pipeline (e.g. the [`read`](https://vpype.readthedocs.io/en/latest/reference.html#read)
+command which loads geometries from a SVG file). Other commands modify these geometries, e.g. by cropping
+them ([`crop`](https://vpype.readthedocs.io/en/latest/reference.html#crop)) or reordering them to minimize pen-up
+travels ([`linesort`](https://vpype.readthedocs.io/en/latest/reference.html#linesort)). Finally, some other commands
+just read the geometries in the pipeline for display purposes ([`show`](https://vpype.readthedocs.io/en/latest/reference.html#show))
+or output to file ([`write`](https://vpype.readthedocs.io/en/latest/reference.html#write)).
 
 Pipeline are defined using the _vpype_'s CLI (command-line interface) in a terminal by typing `vpype` followed by the
 list of commands, each with their optional parameters and their arguments:
@@ -52,16 +69,16 @@ list of commands, each with their optional parameters and their arguments:
 ![command line](docs/images/command_line.svg)
 
 This pipeline uses five commands (in bold):
-- `read` loads geometries from a SVG file.
-- `linemerge` merges paths whose extremities are close to each other (within the provided tolerance).
-- `linesort` reorder paths such as to minimise the pen-up travel.
-- `crop`, well, crops.
-- `write` export the resulting geometries to a SVG file.
+- [`read`](https://vpype.readthedocs.io/en/latest/reference.html#read) loads geometries from a SVG file.
+- [`linemerge`](https://vpype.readthedocs.io/en/latest/reference.html#linemerge) merges paths whose extremities are close to each other (within the provided tolerance).
+- [`linesort`](https://vpype.readthedocs.io/en/latest/reference.html#linesort) reorder paths such as to minimise the pen-up travel.
+- [`crop`](https://vpype.readthedocs.io/en/latest/reference.html#crop), well, crops.
+- [`write`](https://vpype.readthedocs.io/en/latest/reference.html#write) export the resulting geometries to a SVG file.
 
 Some commands have arguments, which are always required (in italic). For example, a file path must be provided to the
-`read` command and dimensions must be provided to the `crop` commands. A command may also have options which are, well,
-optional. In this example, `--page-size a4` means that the `write` command will generate a A4-sized SVG (otherwise it
-would have the same size as _in.svg_). Likewise, because `--center` is used, the `write` command will center geometries
+[`read`](https://vpype.readthedocs.io/en/latest/reference.html#read) command and dimensions must be provided to the [`crop`](https://vpype.readthedocs.io/en/latest/reference.html#crop) commands. A command may also have options which are, well,
+optional. In this example, `--page-size a4` means that the [`write`](https://vpype.readthedocs.io/en/latest/reference.html#write) command will generate a A4-sized SVG (otherwise it
+would have the same size as _in.svg_). Likewise, because `--center` is used, the [`write`](https://vpype.readthedocs.io/en/latest/reference.html#write) command will center geometries
 on the page before saving the SVG (otherwise the geometries would have been left at their original location).
 
 
@@ -191,45 +208,3 @@ information.
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-
-
-# TO MERGE TO THE DOC
-
-
-### Layers
-
-_vpype_ supports multiple layers and can produce multi-layer SVGs, which can be useful for multicolored drawings.
-Most commands have a `-l, --layer` option which affects how layers are created and/or modified.
-Layers are always referred to by a non-zero, positive integer (which aligns nicely with how official
-[AxiDraw](https://axidraw.com) tools deal with layers).
-
-Generators such as `line`, `script`, etc. which create new geometries use `--layer` to specify which layer receives
-these new geometries. By default, the last target layer is used:
-```
-$ vpype line --layer 3 0 0 1cm 1cm circle 0.5cm 0.5cm 0.5cm show
-```
-Here, both the line and the circle will be in layer 3. If no generator specifies a target layer, then layer 1 is used
-by default.
-
-The `read` command honors the input SVG file's layer structure and will create _vpype_ layers for each layer in the SVG file (i.e. for each top-level SVG group, see the CLI help
-for further details). Alternatively, `read` can be run in single-layer mode by adding the `--single-layer` argument. In this case, all geometries are
-loaded in one layer, regardless of the SVG file's structure.
-
-Filters such as `translate`, `rotate`, `crop`, `linemerge`,  etc. which modify existing geometries use `--layer` to
-control if one, several or all layers will be affected:
-```
-$ vpype [...] rotate --layer 1 [...]
-$ vpype [...] rotate --layer 1,2,4 [...]
-$ vpype [...] rotate --layer all [...]
-```
-All these commands do exactly what you think they should do. If the `--layer` option is omitted, then `all` is assumed.
-Note that if you provide a list of layers, they must be comma separated and _without_ any whitespace, as the list must be
-a single CLI argument.
-
-Some commands do not have a `--layer` option, but do understand the layer data. For example, `show` will display each layer
-in a different color by default. Last but not least, `write` will generate multi-layer SVG files which will work as expected
-in InkScape without further modification.
-
-Finally, layers' content can be moved or copied to other layers with the `lmove` and `lcopy` commands, and
-deleted with the `ldelete` command. See these commands' help for details.
