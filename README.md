@@ -1,4 +1,4 @@
-<img src="https://i.imgur.com/LM2Qrc0.png" alt="banner" width=1200>
+![banner](docs/images/banner.png)
 
 
 # _vpype_
