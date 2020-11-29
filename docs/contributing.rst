@@ -7,11 +7,12 @@ Contributing
 How can you help?
 =================
 
-This project is young and actively developed. There are many ways in which you can contribute regardless of your fluency with software development:
+Contributions are most welcome and there  are many ways you can help regardless of your fluency with software development:
 
 * First and foremost, do provide feedback on what you do with *vpype* and how you do it, either on the `DrawingBots Discord server`_ or by filling an `issue`_. This knowledge is critically important to improve *vpype*.
 * Write an `issue`_ for any problem or friction point you encounter during the installation or use of *vpype* or for any feature you feel is missing.
-* Suggest improvements to this documentation (fix typos, improve text clarity, add recipes to the cookbook, etc.) with an `issue`_ or, better yet, implement them in a `pull request`_.
+* Make the present documentation better by fixing typos and improve the quality of the text (English is *not* the main author's native language).
+* Write cookbook recipes for new workflows.
 * Improving the test coverage and contributing to CI/CD aspects is welcome — and a good way to become familiar with the code.
 * Improve existing features or contribute entirely new ones with a `pull request`_. If you plan on creating new commands, consider making a :ref:`plugin <plugins>` first — it will be easy to integrate it into *vpype*'s codebase later on if it makes sense.
 
