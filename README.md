@@ -1,4 +1,4 @@
-![banner](docs/images/banner.png)
+![banner](https://github.com/abey79/vpype/blob/master/docs/images/banner.png)
 
 
 # _vpype_
@@ -66,7 +66,7 @@ or output to file ([`write`](https://vpype.readthedocs.io/en/latest/reference.ht
 Pipeline are defined using the _vpype_'s CLI (command-line interface) in a terminal by typing `vpype` followed by the
 list of commands, each with their optional parameters and their arguments:
 
-![command line](docs/images/command_line.svg)
+![command line](https://github.com/abey79/vpype/blob/master/docs/images/command_line.svg)
 
 This pipeline uses five commands (in bold):
 - [`read`](https://vpype.readthedocs.io/en/latest/reference.html#read) loads geometries from a SVG file.
