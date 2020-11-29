@@ -11,7 +11,7 @@
 [![Documentation Status](https://img.shields.io/readthedocs/vpype?label=Read%20the%20Docs&logo=read-the-docs)](https://vpype.readthedocs.io/en/latest/?badge=latest)
 
 
-## Contents
+#### Contents
 
 * [What _vpype_ is?](#what-vpype-is)
 * [How does it work?](#how-does-it-work)
