@@ -48,7 +48,8 @@ jobs:
       - name: pypi-publish
         uses: pypa/gh-action-pypi-publish@v1.4.1
         with:
-          password: ${{ secrets.TEST_PYPI_TOKEN }}
-          repository_url: https://test.pypi.org/legacy/
-          skip_existing: true
+          # password: ${{ secrets.TEST_PYPI_TOKEN }}
+          # repository_url: https://test.pypi.org/legacy/
+          password: ${{ secrets.PYPI_TOKEN }}
+          # skip_existing: true
           verbose: true
