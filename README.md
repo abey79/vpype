@@ -10,6 +10,7 @@
 [![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=abey79_vpype&metric=alert_status)](https://sonarcloud.io/dashboard?id=abey79_vpype)
 [![Documentation Status](https://img.shields.io/readthedocs/vpype?label=Read%20the%20Docs&logo=read-the-docs)](https://vpype.readthedocs.io/en/latest/?badge=latest)
 
+_vpype_ is the Swiss-Army-knife command-line tool for plotter vector graphics.
 
 #### Contents
 
@@ -32,22 +33,21 @@
 
 ## What _vpype_ is?
 
-_vpype_ is the Swiss-Army-knife command-line tool for plotter vector graphics.
-Its typical uses includes:
- - laying out existing vector files with precise control on position, scale and page format;
- - optimizing existing SVG files for faster and cleaner plots;
- - creating HPGL output for vintage plotter;
- - creating generative artwork through built-in commands or plug-ins;
- - creating, modifying and processing multi-layer vector files for multi-colour plots;
+_vpype_ is the Swiss-Army-knife command-line tool for plotter vector graphics. Here is what it can do:
+ - **laying out** existing vector files with precise control on position, scale and page format;
+ - **optimizing** existing SVG files for faster and cleaner plots;
+ - creating **HPGL output** for vintage plotter;
+ - creating **generative artwork** through built-in commands or plug-ins;
+ - creating, modifying and processing **multi-layer vector files** for multi-colour plots;
  - and much more...
  
-_vpype_ is highly extensible through [plug-ins](https://vpype.readthedocs.io/en/latest/api/vpype.html#module-vpype) that
+_vpype_ is highly **extensible** through [plug-ins](https://vpype.readthedocs.io/en/latest/api/vpype.html#module-vpype) that
 can greatly extend its capabilities. For example, plug-ins already exists for plotting
 [pixel art](https://github.com/abey79/vpype-pixelart), [half-toning with hatches](https://github.com/abey79/hatched),
 [plotting text](https://github.com/abey79/vpype-text) with Hershey fonts,
 applying [hidden line removal](https://github.com/LoicGoulefert/occult), and much more.  
 
-_vpype_ is also a [well documented](https://vpype.readthedocs.io/en/latest/api/vpype.html#module-vpype) Python library
+_vpype_ is also a [well documented](https://vpype.readthedocs.io/en/latest/api/vpype.html#module-vpype) **Python library**
 useful to create generative art and tools for plotters. For example, the plotter generative art environment
 [vsketch](https://github.com/abey79/vsketch) is built upon _vpype_.
 
@@ -84,35 +84,37 @@ on the page before saving the SVG (otherwise the geometries would have been left
 
 ## Examples
 
+**Note**: although it is not required, commands are separated by multiple spaces for clarity in the following examples.
+
 Load an SVG file, scale it to a specific size, and export it centered on an A4-sized, ready-to-plot SVG file:
 ```
-vpype read input.svg scaleto 10cm 10cm write --page-size a4 --center output.svg
+vpype  read input.svg  scaleto 10cm 10cm  write --page-size a4 --center output.svg
 ```
 
 Optimize paths to reduce plotting time (merge connected lines and sort them to minimize pen-up distance):
 ```
-vpype read input.svg linemerge --tolerance 0.1mm linesort write output.svg
+vpype  read input.svg  linemerge --tolerance 0.1mm  linesort  write output.svg
 ```
 
 Visualize the path structure of large SVG files, showing whether lines are properly joined or not thanks to a colorful
 display:
 ```
-vpype read input.svg show --colorful
+vpype  read input.svg  show --colorful
 ```
 
 Load several SVG files and save them as a single, multi-layer SVG file (e.g. for multicolored drawings):
 ```
-vpype read -l 1 input1.svg read -l 2 input2.svg write output.svg
+vpype  read -l 1 input1.svg  read -l 2 input2.svg  write output.svg
 ```
 
 Create arbitrarily-sized, grid-like designs like this page's top banner:
 ```
-vpype begin grid -o 1cm 1cm 10 13 script alien_letter.py scaleto 0.5cm 0.5cm end show
+vpype  begin  grid -o 1cm 1cm 10 13  script alien_letter.py  scaleto 0.5cm 0.5cm  end  show
 ```
 
 Export to HPGL for vintage plotters:
 ```
-vpype read input.svg write --device hp7475a --page-size a4 --landscape --center output.hpgl
+vpype  read input.svg  write --device hp7475a --page-size a4 --landscape --center output.hpgl
 ```
   
 ## What _vpype_ isn't?
