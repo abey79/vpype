@@ -124,7 +124,7 @@ class DebugData:
         return self.has_layers(lids) and len(self.layers.keys()) == len(lids)
 
 
-@cli.command()
+@cli.command(group="Output")
 @global_processor
 def stat(document: Document):
     """Print human-readable statistics on the current geometries."""
