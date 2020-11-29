@@ -16,7 +16,7 @@ While macOS ships with a version of Python, this has been deprecated by Apple an
 
 Use the following commands for Homebrew::
 
-  $ brew install python
+  $ brew install python@3.8
 
 And for MacPorts::
 
@@ -27,7 +27,7 @@ Then, the preferred way to install *vpype* is in a dedicated `virtual environmen
   $ python3 -m venv vpype_venv      # create a new virtual environment
   $ source vpype_venv/bin/activate  # activate the newly created virtual environment
   $ pip install --upgrade pip
-  $ pip install git+https://github.com/abey79/vpype.git#egg=vpype
+  $ pip install vpype
 
 You should now be able to run *vpype*::
 
@@ -96,7 +96,7 @@ Install Shapely using the file you downloaded earlier::
 
 Finally, install *vpype*::
 
-  > pip install git+https://github.com/abey79/vpype.git#egg=vpype
+  > pip install vpype
 
 You should now be able to use *vpype*. Type this for a list of command::
 
@@ -123,7 +123,7 @@ The preferred way to install *vpype* is in a dedicated `virtual environment <htt
   $ python3 -m venv vpype_venv      # create a new virtual environment
   $ source vpype_venv/bin/activate  # activate the newly created virtual environment
   $ pip install --upgrade pip
-  $ pip install git+https://github.com/abey79/vpype.git#egg=vpype
+  $ pip install vpype
 
 You should now be able to run *vpype*::
 
