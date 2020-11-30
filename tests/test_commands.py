@@ -62,12 +62,6 @@ def test_commands_random_input(runner, args):
 
 
 @pytest.mark.parametrize("args", MINIMAL_COMMANDS)
-def test_commands_vpype_cli(args):
-    res = os.system("vpype " + args)
-    assert res == 0
-
-
-@pytest.mark.parametrize("args", MINIMAL_COMMANDS)
 def test_commands_execute(args):
     execute(args)
 
