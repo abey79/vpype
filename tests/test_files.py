@@ -58,3 +58,47 @@ def test_write_is_idempotent(runner, path, tmp_path):
         for line in difflib.unified_diff(txt1.split("\n"), txt2.split("\n"), lineterm=""):
             print(line)
         assert False
+
+
+@pytest.mark.parametrize(
+    ("svg_content", "line_count"),
+    [
+        ('<circle cx="500" cy="500" r="40"/>', 1),
+        ('<circle cx="500" cy="500" r="40" style="visibility:collapse"/>', 0),
+        ('<circle cx="500" cy="500" r="40" style="visibility:hidden"/>', 0),
+        ('<circle cx="500" cy="500" r="40" style="display:none"/>', 0),
+        ('<g style="visibility: hidden"><circle cx="500" cy="500" r="40"/></g>', 0),
+        ('<g style="visibility: collapse"><circle cx="500" cy="500" r="40"/></g>', 0),
+        (
+            """<g style="visibility: collapse">
+            <circle cx="500" cy="500" r="40" style="visibility:visible" />
+            </g>""",
+            1,
+        ),
+        (
+            """<g style="visibility: hidden">
+            <circle cx="500" cy="500" r="40" style="visibility:visible" />
+            </g>""",
+            1,
+        ),
+        (
+            """<g style="display: none">
+            <circle cx="500" cy="500" r="40" style="visibility:visible" />
+            </g>""",
+            0,
+        ),
+    ],
+)
+def test_read_svg_visibility(svg_content, line_count, tmp_path):
+    svg = f"""<?xml version="1.0"?>
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"
+    width="1000" height="1000">
+        {svg_content}
+</svg>
+"""
+    path = str(tmp_path / "file.svg")
+    with open(path, "w") as fp:
+        fp.write(svg)
+
+    lc, _, _ = vp.read_svg(path, 1.0)
+    assert len(lc) == line_count
