@@ -624,7 +624,7 @@ test = ["pytest"]
 
 [[package]]
 name = "svgelements"
-version = "1.3.2"
+version = "1.3.4"
 description = "Svg Elements Parsing"
 category = "main"
 optional = false
@@ -1106,6 +1106,8 @@ shapely = [
     {file = "Shapely-1.7.1-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:90a3e2ae0d6d7d50ff2370ba168fbd416a53e7d8448410758c5d6a5920646c1d"},
     {file = "Shapely-1.7.1-cp38-cp38-win32.whl", hash = "sha256:a3774516c8a83abfd1ddffb8b6ec1b0935d7fe6ea0ff5c31a18bfdae567b4eba"},
     {file = "Shapely-1.7.1-cp38-cp38-win_amd64.whl", hash = "sha256:6593026cd3f5daaea12bcc51ae5c979318070fefee210e7990cb8ac2364e79a1"},
+    {file = "Shapely-1.7.1-cp39-cp39-win32.whl", hash = "sha256:2df5260d0f2983309776cb41bfa85c464ec07018d88c0ecfca23d40bfadae2f1"},
+    {file = "Shapely-1.7.1-cp39-cp39-win_amd64.whl", hash = "sha256:a5c3a50d823c192f32615a2a6920e8c046b09e07a58eba220407335a9cd2e8ea"},
     {file = "Shapely-1.7.1.tar.gz", hash = "sha256:1641724c1055459a7e2b8bbe47ba25bdc89554582e62aec23cb3f3ca25f9b129"},
 ]
 six = [
@@ -1157,8 +1159,8 @@ sphinxcontrib-serializinghtml = [
     {file = "sphinxcontrib_serializinghtml-1.1.4-py2.py3-none-any.whl", hash = "sha256:f242a81d423f59617a8e5cf16f5d4d74e28ee9a66f9e5b637a18082991db5a9a"},
 ]
 svgelements = [
-    {file = "svgelements-1.3.2-py2.py3-none-any.whl", hash = "sha256:17362697df4ae209a456f0f0c5a758ea2b820f6416293965594e2bd346339a4d"},
-    {file = "svgelements-1.3.2.tar.gz", hash = "sha256:84c311e427305386118726bc2ccf140da799551aa43994ffb89fdd383aa575e1"},
+    {file = "svgelements-1.3.4-py2.py3-none-any.whl", hash = "sha256:c72a2c73c21167c81a5ce08633164f91d7e7690aa2f8e96597710b3c231225de"},
+    {file = "svgelements-1.3.4.tar.gz", hash = "sha256:76c4e6856f284999d97c131cbad55b24d6572466f7d06694e2f394c566dad389"},
 ]
 svgwrite = [
     {file = "svgwrite-1.4-py3-none-any.whl", hash = "sha256:fa842fb3129a9399d19b5e9602a022fcc7f2f3f24713550e765c488ffafd743d"},
