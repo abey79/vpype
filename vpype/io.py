@@ -340,7 +340,8 @@ def write_svg(
     """Create a SVG from a :py:class:`Document` instance.
 
     If no page size is provided (or (0, 0) is passed), the SVG generated has bounds tightly
-    fitted around the geometries. Otherwise the provided size (in pixel) is used.
+    fitted around the geometries. Otherwise the provided size (in pixel) is used. The width
+    and height is capped to a minimum of 1 pixel.
 
     By default, no translation is applied on the geometry. If `center=True`, geometries are
     moved to the center of the page.
@@ -393,13 +394,14 @@ def write_svg(
     else:
         corrected_doc = document
 
-    # output SVG
-    size_cm = tuple(f"{round(s / UNITS['cm'], 8)}cm" for s in size)
+    # output SVG, width/height are capped to 1px
+    capped_size = tuple(max(1, s) for s in size)
+    size_cm = tuple(f"{round(s / UNITS['cm'], 8)}cm" for s in capped_size)
     dwg = svgwrite.Drawing(size=size_cm, profile="tiny", debug=False)
     inkscape = Inkscape(dwg)
     dwg.attribs.update(
         {
-            "viewBox": f"0 0 {size[0]} {size[1]}",
+            "viewBox": f"0 0 {capped_size[0]} {capped_size[1]}",
             "xmlns:dc": "http://purl.org/dc/elements/1.1/",
             "xmlns:cc": "http://creativecommons.org/ns#",
             "xmlns:rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
