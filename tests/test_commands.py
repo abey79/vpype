@@ -5,10 +5,13 @@ import numpy as np
 import pytest
 
 import vpype as vp
-from vpype_cli import cli
-from vpype_cli.debug import DebugData
+from vpype_cli import DebugData, cli, execute
+
+from .utils import TESTS_DIRECTORY
 
 CM = 96 / 2.54
+
+EXAMPLE_SVG = TESTS_DIRECTORY / "data" / "test_svg" / "svg_width_height" / "percent_size.svg"
 
 MINIMAL_COMMANDS = [
     "begin grid 2 2 line 0 0 10 10 end",
@@ -20,8 +23,8 @@ MINIMAL_COMMANDS = [
     "arc 0 0 1 1 0 90",
     "circle 0 0 1",
     "ellipse 0 0 2 4",
-    "read '__ROOT__/examples/bc_template.svg'",
-    "read -m '__ROOT__/examples/bc_template.svg'",
+    f"read '{EXAMPLE_SVG}'",
+    f"read -m '{EXAMPLE_SVG}'",
     "write -f svg -",
     "write -f hpgl -d hp7475a -p a4 -",
     "rotate 0",
@@ -47,25 +50,30 @@ MINIMAL_COMMANDS = [
 
 
 @pytest.mark.parametrize("args", MINIMAL_COMMANDS)
-def test_commands_empty_geometry(runner, root_directory, args):
-    result = runner.invoke(cli, args.replace("__ROOT__", root_directory))
+def test_commands_empty_geometry(runner, args):
+    result = runner.invoke(cli, args)
     assert result.exit_code == 0
 
 
 @pytest.mark.parametrize("args", MINIMAL_COMMANDS)
-def test_commands_random_input(runner, root_directory, args):
-    result = runner.invoke(cli, "random -n 100 " + args.replace("__ROOT__", root_directory))
+def test_commands_random_input(runner, args):
+    result = runner.invoke(cli, "random -n 100 " + args)
     assert result.exit_code == 0
 
 
 @pytest.mark.parametrize("args", MINIMAL_COMMANDS)
-def test_commands_vpype_cli(root_directory, args):
-    res = os.system("vpype " + args.replace("__ROOT__", root_directory))
+def test_commands_vpype_cli(args):
+    res = os.system("vpype " + args)
     assert res == 0
 
 
 @pytest.mark.parametrize("args", MINIMAL_COMMANDS)
-def test_commands_keeps_page_size(runner, root_directory, args):
+def test_commands_execute(args):
+    execute(args)
+
+
+@pytest.mark.parametrize("args", MINIMAL_COMMANDS)
+def test_commands_keeps_page_size(runner, args):
     """No command shall "forget" the current page size, unless its `pagesize` of course."""
     if args.split()[0] == "pagesize":
         return
@@ -79,9 +87,7 @@ def test_commands_keeps_page_size(runner, root_directory, args):
         page_size = doc.page_size
         return doc
 
-    result = runner.invoke(
-        cli, "pagesize 5432x4321 " + args.replace("__ROOT__", root_directory) + " getpagesize"
-    )
+    result = runner.invoke(cli, "pagesize 5432x4321 " + args + " getpagesize")
     assert result.exit_code == 0
     assert page_size == (5432, 4321)
 

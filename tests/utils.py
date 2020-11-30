@@ -1,8 +1,11 @@
+import pathlib
 from typing import Sequence
 
 import numpy as np
 
 import vpype as vp
+
+TESTS_DIRECTORY = pathlib.Path(__file__).parent
 
 
 def line_collection_contains(lc: vp.LineCollection, line: Sequence[complex]) -> bool:
