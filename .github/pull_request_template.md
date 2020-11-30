@@ -9,4 +9,5 @@ _to be completed_
 - [ ] `mypy vpype vpype_cli tests` returns no error
 - [ ] tests added/updated and `pytest` succeeds
 - [ ] CHANGELOG.md updated
+- [ ] README.md updated (Feature Overview)
 - [ ] documentation added/updated and building with no error (`make clean && make html` in `docs/`)
