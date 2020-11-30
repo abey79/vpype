@@ -6,6 +6,8 @@ from vpype import LineCollection, generator
 
 from .cli import cli
 
+__all__ = ("script",)
+
 
 @cli.command(group="Input")
 @click.argument("file", type=click.Path(exists=True, dir_okay=False))

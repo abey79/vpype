@@ -7,6 +7,8 @@ from vpype import LengthType, LineCollection, generator
 
 from .cli import cli
 
+__all__ = ("random",)
+
 
 @cli.command(group="Generators")
 @click.option("-n", "--count", "n", type=int, default=10, help="Number of lines to generate.")

@@ -11,6 +11,8 @@ from vpype import (
 
 from .cli import cli
 
+__all__ = ("lcopy", "lmove", "ldelete")
+
 
 @cli.command(group="Layers")
 @click.argument("sources", type=LayerType(accept_multiple=True))

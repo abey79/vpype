@@ -6,6 +6,8 @@ from vpype import Document, LengthType, block_processor
 
 from .cli import BlockProcessor, cli, execute_processors
 
+__all__ = ("GridBlockProcessor", "RepeatBlockProcessor")
+
 
 @cli.command("grid", group="Block processors")
 @click.argument("number", nargs=2, default=(2, 2), type=int)

@@ -7,6 +7,8 @@ from vpype import Document, as_vector, convert_length, global_processor
 
 from .cli import cli
 
+__all__ = ("show",)
+
 COLORS = [
     (0, 0, 1),
     (0, 0.5, 0),

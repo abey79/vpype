@@ -16,6 +16,8 @@ from vpype import (
 
 from .cli import cli
 
+__all__ = ("rotate", "scale_relative", "scaleto", "skew", "translate")
+
 
 def _compute_origin(
     document: Document,

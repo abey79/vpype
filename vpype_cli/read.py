@@ -17,6 +17,8 @@ from vpype import (
 
 from .cli import cli
 
+__all__ = ("read",)
+
 
 @cli.command(group="Input")
 @click.argument("file", type=click.Path(exists=True, dir_okay=False))

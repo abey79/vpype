@@ -104,6 +104,8 @@ def autodoc_skip_member(app, what, name, obj, skip, options):
         "convert",
         "convert_page_format",
         "Length",
+        # vpype_cli/debug.py
+        "DebugData",
     )
     exclude = name in exclusions
     return skip or exclude

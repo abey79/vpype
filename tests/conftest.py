@@ -16,11 +16,6 @@ def runner():
     return CliRunner(mix_stderr=False)
 
 
-@pytest.fixture(scope="session")
-def root_directory(request):
-    return str(request.config.rootdir)
-
-
 @pytest.fixture
 def config_manager():
     return vp.ConfigManager()

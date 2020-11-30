@@ -16,6 +16,8 @@ from vpype import (
 
 from .cli import cli
 
+__all__ = ("write",)
+
 WRITE_HELP = f"""Save geometries to a file.
 
 The `write` command support two format: SVG and HPGL. The format is determined based on the
