@@ -1,4 +1,4 @@
-"""vpype core API."""
+"""This module contains vpype core and its API."""
 
 from .config import *
 from .decorators import *

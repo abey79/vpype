@@ -10,3 +10,4 @@ API reference
    :template: module.rst
 
    vpype
+   vpype_cli

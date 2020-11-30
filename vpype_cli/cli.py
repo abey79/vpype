@@ -14,7 +14,7 @@ from shapely.geometry import MultiLineString
 
 import vpype as vp
 
-__all__ = ("cli", "execute")
+__all__ = ("cli", "execute", "begin", "end")
 
 
 class GroupedGroup(click.Group):
@@ -320,17 +320,18 @@ def execute(pipeline: str, document: Optional[vp.Document] = None) -> vp.Documen
     Python script (as opposed to the ``vpype`` CLI which must be used from a console or via
     :func:`os.system`.
 
-    If a :class:`Document` instance is provided, it will be preloaded in the pipeline before
-    the first command executes. The pipeline's content after the last command is returned as
-    a :class:`Document` instance.
+    If a :class:`vpype.Document` instance is provided, it will be preloaded in the pipeline
+    before the first command executes. The pipeline's content after the last command is
+    returned as a :class:`vpype.Document` instance.
 
     Examples:
 
-        Read a SVG file, optimize it and return the result as a :class:`Document` instance::
+        Read a SVG file, optimize it and return the result as a :class:`vpype.Document`
+        instance::
 
             >>> doc = execute("read input.svg linemerge linesimplify linesort")
 
-        Optimize and save a :class:`Document` instance::
+        Optimize and save a :class:`vpype.Document` instance::
 
             >>> doc = vp.Document()
             >>> # populate `doc` with some graphics
