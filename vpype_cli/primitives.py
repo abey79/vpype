@@ -6,6 +6,8 @@ import vpype as vp
 
 from .cli import cli
 
+__all__ = ("arc", "circle", "ellipse", "line", "rect")
+
 
 @cli.command(group="Primitives")
 @click.argument("x0", type=vp.LengthType())

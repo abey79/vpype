@@ -1,4 +1,5 @@
 import itertools
+import os
 
 import numpy as np
 import pytest
@@ -10,6 +11,8 @@ from vpype_cli.debug import DebugData
 CM = 96 / 2.54
 
 MINIMAL_COMMANDS = [
+    "begin grid 2 2 line 0 0 10 10 end",
+    "begin repeat 2 line 0 0 10 10 end",
     "frame",
     "random",
     "line 0 0 1 1",
@@ -53,6 +56,12 @@ def test_commands_empty_geometry(runner, root_directory, args):
 def test_commands_random_input(runner, root_directory, args):
     result = runner.invoke(cli, "random -n 100 " + args.replace("__ROOT__", root_directory))
     assert result.exit_code == 0
+
+
+@pytest.mark.parametrize("args", MINIMAL_COMMANDS)
+def test_commands_vpype_cli(root_directory, args):
+    res = os.system("vpype " + args.replace("__ROOT__", root_directory))
+    assert res == 0
 
 
 @pytest.mark.parametrize("args", MINIMAL_COMMANDS)

@@ -8,6 +8,19 @@ import vpype as vp
 
 from .cli import cli
 
+__all__ = (
+    "crop",
+    "filter_command",
+    "linemerge",
+    "linesimplify",
+    "linesort",
+    "multipass",
+    "pagesize",
+    "reloop",
+    "splitall",
+    "trim",
+)
+
 
 @cli.command(group="Operations")
 @click.argument("x", type=vp.LengthType(), required=True)

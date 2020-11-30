@@ -2,7 +2,7 @@ import logging
 import os
 import random
 import shlex
-from typing import Any, List, TextIO, Union
+from typing import Any, List, Optional, TextIO, Union
 
 import click
 import importlib_metadata
@@ -12,7 +12,9 @@ from click_plugins import with_plugins
 from pkg_resources import iter_entry_points
 from shapely.geometry import MultiLineString
 
-from vpype import CONFIG_MANAGER, VpypeState
+import vpype as vp
+
+__all__ = ("cli", "execute")
 
 
 class GroupedGroup(click.Group):
@@ -73,7 +75,7 @@ class GroupedGroup(click.Group):
         return super().main(args=preprocess_argument_list(args), **extra)
 
 
-# noinspection PyUnusedLocal
+# noinspection PyUnusedLocal,PyUnresolvedReferences
 @with_plugins(iter_entry_points("vpype.plugins"))
 @click.group(cls=GroupedGroup, chain=True)
 @click.version_option(
@@ -94,6 +96,7 @@ class GroupedGroup(click.Group):
 @click.pass_context
 def cli(ctx, verbose, include, history, seed, config):
     """Execute the vector processing pipeline passed as argument."""
+
     logging.basicConfig()
     if verbose == 0:
         logging.getLogger().setLevel(logging.WARNING)
@@ -119,7 +122,7 @@ def cli(ctx, verbose, include, history, seed, config):
     random.seed(seed)
 
     if config is not None:
-        CONFIG_MANAGER.load_config_file(config)
+        vp.CONFIG_MANAGER.load_config_file(config)
 
 
 # noinspection PyShadowingNames,PyUnusedLocal
@@ -128,7 +131,7 @@ def process_pipeline(processors, verbose, include, history, seed, config):
     execute_processors(processors)
 
 
-def execute_processors(processors) -> VpypeState:
+def execute_processors(processors) -> vp.VpypeState:
     """
     Execute a sequence of processors to generate a Document structure. For block handling, we
     use a recursive approach. Only top-level blocks are extracted and processed by block
@@ -207,7 +210,7 @@ def execute_processors(processors) -> VpypeState:
         raise click.ClickException("An 'end' command is missing")
 
     # the (only) frame's processors should now be flat and can be chain-called
-    state = VpypeState()
+    state = vp.VpypeState()
     for proc in outer_processors:
         state = proc(state)
     return state
@@ -308,3 +311,55 @@ def preprocess_argument_list(args: List[str], cwd: Union[str, None] = None) -> L
             result.append(arg)
 
     return result
+
+
+def execute(pipeline: str, document: Optional[vp.Document] = None) -> vp.Document:
+    """Execute a vpype pipeline.
+
+    This function serves as a Python API to vpype's pipeline. It can be used from a regular
+    Python script (as opposed to the ``vpype`` CLI which must be used from a console or via
+    :func:`os.system`.
+
+    If a :class:`Document` instance is provided, it will be preloaded in the pipeline before
+    the first command executes. The pipeline's content after the last command is returned as
+    a :class:`Document` instance.
+
+    Examples:
+
+        Read a SVG file, optimize it and return the result as a :class:`Document` instance::
+
+            >>> doc = execute("read input.svg linemerge linesimplify linesort")
+
+        Optimize and save a :class:`Document` instance::
+
+            >>> doc = vp.Document()
+            >>> # populate `doc` with some graphics
+            >>> execute("linemerge linesimplify linesort write output.svg", doc)
+
+    Args:
+        pipeline: vpype pipeline as would be used with ``vpype`` CLI
+        document: if provided, is perloaded in the pipeline before the first command executes
+
+    Returns:
+        pipeline's content after the last command executes
+    """
+
+    if document:
+
+        @cli.command()
+        @vp.global_processor
+        def vsketchinput(doc):
+            doc.extend(document)
+            return doc
+
+    out_doc = vp.Document()
+
+    @cli.command()
+    @vp.global_processor
+    def vsketchoutput(doc):
+        out_doc.extend(doc)
+        return doc
+
+    args = ("vsketchinput " if document else "") + pipeline + " vsketchoutput"
+    cli.main(prog_name="vpype", args=shlex.split(args), standalone_mode=False)
+    return out_doc
