@@ -75,6 +75,8 @@ This pipeline uses five commands (in bold):
 - [`crop`](https://vpype.readthedocs.io/en/latest/reference.html#crop), well, crops.
 - [`write`](https://vpype.readthedocs.io/en/latest/reference.html#write) export the resulting geometries to a SVG file.
 
+There are many more commands available in *vpype*, see the [overview](#feature-overview) below.
+
 Some commands have arguments, which are always required (in italic). For example, a file path must be provided to the
 [`read`](https://vpype.readthedocs.io/en/latest/reference.html#read) command and dimensions must be provided to the [`crop`](https://vpype.readthedocs.io/en/latest/reference.html#crop) commands. A command may also have options which are, well,
 optional. In this example, `--page-size a4` means that the [`write`](https://vpype.readthedocs.io/en/latest/reference.html#write) command will generate a A4-sized SVG (otherwise it
