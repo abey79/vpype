@@ -17,6 +17,7 @@ __all__ = (
     "multipass",
     "pagesize",
     "reloop",
+    "snap",
     "splitall",
     "trim",
 )
@@ -342,3 +343,26 @@ def pagesize(document: vp.Document, size, landscape) -> vp.Document:
 
     document.page_size = size[::-1] if landscape else size
     return document
+
+
+@cli.command(group="Operations")
+@click.argument("pitch", type=vp.LengthType(), required=True)
+@vp.layer_processor
+def snap(line_collection: vp.LineCollection, pitch: float) -> vp.LineCollection:
+    """
+    Snap doc
+
+    """
+
+    line_collection.scale(1 / pitch)
+
+    new_lines = vp.LineCollection()
+    for line in line_collection:
+        new_line = np.round(line)
+        idx = np.ones(len(new_line), dtype=bool)
+        idx[1:] = new_line[1:] != new_line[:-1]
+        if idx.sum() > 1:
+            new_lines.append(np.round(new_line[idx]))
+
+    new_lines.scale(pitch)
+    return new_lines
