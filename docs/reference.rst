@@ -127,6 +127,10 @@ CLI reference
 .. click:: vpype_cli:skew
    :prog: skew
 
+.. _cmd_snap:
+.. click:: vpype_cli:snap
+   :prog: snap
+
 .. _cmd_splitall:
 .. click:: vpype_cli:splitall
    :prog: splitall

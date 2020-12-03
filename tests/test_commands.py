@@ -7,7 +7,7 @@ import pytest
 import vpype as vp
 from vpype_cli import DebugData, cli, execute
 
-from .utils import TESTS_DIRECTORY
+from .utils import TESTS_DIRECTORY, execute_single_line
 
 CM = 96 / 2.54
 
@@ -46,6 +46,7 @@ MINIMAL_COMMANDS = [
     "filter --min-length 1mm",
     "pagesize 10inx15in",
     "stat",
+    "snap 1",
 ]
 
 
@@ -330,3 +331,24 @@ def test_linesort_no_flip(runner):
     data = DebugData.load(res.output)[0]
     assert res.exit_code == 0
     assert 24.13 < data.pen_up_length < 24.15
+
+
+def test_snap():
+    line = np.array([0.2, 0.8 + 1.1j, 0.5 + 2.5j])
+    lc = execute_single_line("snap 1", line)
+
+    assert len(lc) == 1
+    assert np.all(lc[0] == np.array([0, 1 + 1j, 2j]))
+
+
+@pytest.mark.parametrize("pitch", [0.1, 1, 5, 10, 20, 50, 100, 200, 500])
+def test_snap_no_duplicate(pitch: float):
+    """Snap should return no duplicated points and reject lines that degenerate into a single
+    point."""
+    lc = execute_single_line(f"snap {pitch}", vp.circle(0, 0, 100, quantization=1))
+
+    if len(lc) == 1:
+        assert len(lc[0]) > 1
+        assert np.all(lc[0][:-1] != lc[0][1:])
+    else:
+        assert len(lc) == 0
