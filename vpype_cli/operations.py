@@ -349,9 +349,17 @@ def pagesize(document: vp.Document, size, landscape) -> vp.Document:
 @click.argument("pitch", type=vp.LengthType(), required=True)
 @vp.layer_processor
 def snap(line_collection: vp.LineCollection, pitch: float) -> vp.LineCollection:
-    """
-    Snap doc
+    """Snap all points to a grid with with a spacing of PITCH.
 
+    This command moves every point of every paths to the nearest grid point. If sequential
+    points of a segment end up on the same grid point, they are deduplicated. If the resulting
+    path contains less than 2 points, it is discarded.
+
+    Example:
+
+        Snap all points to a grid of 3x3mm:
+
+            vpype [...] snap 3mm [...]
     """
 
     line_collection.scale(1 / pitch)
