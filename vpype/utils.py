@@ -1,6 +1,7 @@
 import logging
+import math
 import re
-from typing import Callable, List, Tuple, Union
+from typing import Callable, Dict, List, Tuple, Union
 
 import click
 import numpy as np
@@ -8,11 +9,13 @@ import numpy as np
 # REMINDER: anything added here must be added to docs/api.rst
 __all__ = [
     "UNITS",
+    "ANGLE_UNITS",
     "PAGE_SIZES",
-    "Length",
     "LengthType",
+    "AngleType",
     "PageSizeType",
     "convert_length",
+    "convert_angle",
     "convert_page_size",
     "union",
     # deprecated:
@@ -36,6 +39,13 @@ UNITS = {
     "pt": 96.0 / 72.0,
 }
 
+ANGLE_UNITS = {
+    "deg": 1.0,
+    "grad": 9.0 / 10.0,  # note: must be before "rad"!
+    "rad": 180.0 / math.pi,
+    "turn": 360.0,
+}
+
 # page sizes in pixel
 PAGE_SIZES = {
     "tight": _mm_to_px(0, 0),
@@ -53,16 +63,31 @@ PAGE_SIZES = {
 PAGE_FORMATS = PAGE_SIZES
 
 
-def convert_length(value: Union[str, float]) -> float:
-    """Convert a string with unit to px value. May raise exception for bad input."""
+def _convert_unit(value: Union[str, float], units: Dict[str, float]) -> float:
+    """Converts a string with unit to a value"""
     if isinstance(value, str):
         value = value.strip().lower()
-        for unit, factor in UNITS.items():
+        for unit, factor in units.items():
             if value.endswith(unit):
                 num = value.strip(unit)
                 return (float(num) if len(num) > 0 else 1.0) * factor
 
     return float(value)
+
+
+def convert_length(value: Union[str, float]) -> float:
+    """Convert a length optionally expressed as a string with unit to px value.
+
+    Args:
+        value: value to convert
+
+    Returns:
+        converted value
+
+    Raises:
+        :class:`ValueError`
+    """
+    return _convert_unit(value, UNITS)
 
 
 def convert(value: Union[str, float]) -> float:
@@ -71,6 +96,21 @@ def convert(value: Union[str, float]) -> float:
         "!!! `vpype.convert()` is deprecated, use `vpype.convert_length()` instead."
     )
     return convert_length(value)
+
+
+def convert_angle(value: Union[str, float]) -> float:
+    """Convert an angle optionally expressed as a string with unit to degrees.
+
+    Args:
+        value: angle to convert
+
+    Returns:
+        converted angle in degree
+
+    Raises:
+        :class:`ValueError`
+    """
+    return _convert_unit(value, ANGLE_UNITS)
 
 
 def convert_page_size(value: str) -> Tuple[float, float]:
@@ -165,6 +205,32 @@ class Length(LengthType):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         logging.warning("!!! `vpype.Length` is deprecated, use `vpype.LengthType` instead.")
+
+
+class AngleType(click.ParamType):
+    """:class:`click.ParamType` sub-class to automatically converts a user-provided angle
+    string (which may contain units) into a value in degrees. This class uses
+    :func:`convert_angle` internally.
+
+    Example::
+
+        >>> import click
+        >>> import vpype_cli
+        >>> import vpype
+        >>> @vpype_cli.cli.command(group="my commands")
+        ... @click.argument("angle", type=vpype.AngleType())
+        ... @vpype.generator
+        ... def my_command(angle: float):
+        ...     pass
+    """
+
+    name = "angle"
+
+    def convert(self, value, param, ctx):
+        try:
+            return convert_angle(value)
+        except ValueError:
+            self.fail(f"parameter {value} is an incorrect angle")
 
 
 class PageSizeType(click.ParamType):
