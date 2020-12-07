@@ -216,11 +216,46 @@ class LineCollection:
             line.imag *= sy
 
     def rotate(self, angle: float) -> None:
+        """Rotates the geometry by ``angle`` amount.
+
+        The angle is expressed in radian. Positive value rotate clockwise.
+
+        The rotation is performed about the coordinates origin (0, 0). To rotate around a
+        specific location, appropriate translations must be performed before and after the
+        scaling::
+
+            >>> import vpype
+            >>> lc = vpype.LineCollection([(-1+1j, 1+1j)])
+            >>> lc.translate(0, -1)
+            >>> lc.rotate(1.2)
+            >>> lc.translate(0, 1)
+
+        Args:
+            angle: rotation angle in rad
+        """
         c = complex(math.cos(angle), math.sin(angle))
         for line in self._lines:
             line *= c
 
     def skew(self, ax: float, ay: float) -> None:
+        """Skew the geometry by some angular amounts along X and Y axes.
+
+        The angle is expressed in radians.
+
+        The skew is performed about the coordinates origin (0, 0). To rotate around a
+        specific location, appropriate translations must be performed before and after the
+        scaling::
+
+            >>> import vpype
+            >>> lc = vpype.LineCollection([(-1+1j, 1+1j)])
+            >>> lc.translate(0, -1)
+            >>> lc.skew(0., 1.2)
+            >>> lc.translate(0, 1)
+
+        Args:
+            ax: skew angle in rad along X axis
+            ay: skew angle in rad along Y axis
+        """
         tx, ty = math.tan(ax), math.tan(ay)
         for line in self._lines:
             line += tx * line.imag + 1j * ty * line.real

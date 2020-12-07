@@ -4,15 +4,7 @@ from typing import List, Optional, Tuple, Union, cast
 
 import click
 
-from vpype import (
-    Document,
-    LayerType,
-    LengthType,
-    LineCollection,
-    global_processor,
-    layer_processor,
-    multiple_to_layer_ids,
-)
+import vpype as vp
 
 from .cli import cli
 
@@ -20,11 +12,11 @@ __all__ = ("rotate", "scale_relative", "scaleto", "skew", "translate")
 
 
 def _compute_origin(
-    document: Document,
+    document: vp.Document,
     layer: Optional[Union[int, List[int]]],
     origin_coords: Union[Tuple[()], Tuple[float, float]],
 ) -> Tuple[Tuple[float, float], List[int], Tuple[float, float, float, float]]:
-    layer_ids = multiple_to_layer_ids(layer, document)
+    layer_ids = vp.multiple_to_layer_ids(layer, document)
     bounds = document.bounds(layer_ids)
 
     if not bounds:
@@ -43,9 +35,9 @@ def _compute_origin(
 
 
 @cli.command(group="Transforms")
-@click.argument("offset", nargs=2, type=LengthType(), required=True)
-@layer_processor
-def translate(lc: LineCollection, offset: Tuple[float, float]):
+@click.argument("offset", nargs=2, type=vp.LengthType(), required=True)
+@vp.layer_processor
+def translate(lc: vp.LineCollection, offset: Tuple[float, float]):
     """
     Translate the geometries. X and Y offsets must be provided. These arguments understand
     supported units.
@@ -56,11 +48,11 @@ def translate(lc: LineCollection, offset: Tuple[float, float]):
 
 # noinspection PyShadowingNames
 @cli.command(name="scale", group="Transforms")
-@click.argument("scale", nargs=2, type=LengthType())
+@click.argument("scale", nargs=2, type=vp.LengthType())
 @click.option(
     "-l",
     "--layer",
-    type=LayerType(accept_multiple=True),
+    type=vp.LayerType(accept_multiple=True),
     default="all",
     help="Target layer(s).",
 )
@@ -69,12 +61,12 @@ def translate(lc: LineCollection, offset: Tuple[float, float]):
     "--origin",
     "origin_coords",
     nargs=2,
-    type=LengthType(),
+    type=vp.LengthType(),
     help="Use a specific origin.",
 )
-@global_processor
+@vp.global_processor
 def scale_relative(
-    document: Document,
+    document: vp.Document,
     scale: Tuple[float, float],
     layer: Union[int, List[int]],
     origin_coords: Union[Tuple[()], Tuple[float, float]],
@@ -111,11 +103,11 @@ def scale_relative(
 
 # noinspection PyShadowingNames
 @cli.command(group="Transforms")
-@click.argument("dim", nargs=2, type=LengthType())
+@click.argument("dim", nargs=2, type=vp.LengthType())
 @click.option(
     "-l",
     "--layer",
-    type=LayerType(accept_multiple=True),
+    type=vp.LayerType(accept_multiple=True),
     default="all",
     help="Target layer(s).",
 )
@@ -130,12 +122,12 @@ def scale_relative(
     "--origin",
     "origin_coords",
     nargs=2,
-    type=LengthType(),
+    type=vp.LengthType(),
     help="Use a specific origin.",
 )
-@global_processor
+@vp.global_processor
 def scaleto(
-    document: Document,
+    document: vp.Document,
     dim: Tuple[float, float],
     layer: Union[int, List[int]],
     fit_dimensions: bool,
@@ -182,42 +174,39 @@ def scaleto(
 
 # noinspection DuplicatedCode
 @cli.command(group="Transforms")
-@click.argument("angle", required=True, type=float)
+@click.argument("angle", required=True, type=vp.AngleType())
 @click.option(
     "-l",
     "--layer",
-    type=LayerType(accept_multiple=True),
+    type=vp.LayerType(accept_multiple=True),
     default="all",
     help="Target layer(s).",
 )
-@click.option("-r", "--radian", is_flag=True, help="Angle is in radians.")
 @click.option(
     "-o",
     "--origin",
     "origin_coords",
     nargs=2,
-    type=LengthType(),
+    type=vp.LengthType(),
     help="Use a specific origin.",
 )
-@global_processor
+@vp.global_processor
 def rotate(
-    document: Document,
+    document: vp.Document,
     angle: float,
     layer: Union[int, List[int]],
-    radian: bool,
     origin_coords: Union[Tuple[()], Tuple[float, float]],
 ):
     """Rotate the geometries (clockwise positive).
 
     The origin used is the bounding box center, unless the `--origin` option is used.
 
+    ANGLE is in degrees by default, but alternative CSS unit may be provided.
+
     By default, act on all layers. If one or more layer IDs are provided with the `--layer`
     option, only these layers will be affected. In this case, the bounding box is that of the
     listed layers.
     """
-
-    if not radian:
-        angle *= math.pi / 180.0
 
     try:
         origin, layer_ids, _ = _compute_origin(document, layer, origin_coords)
@@ -227,7 +216,7 @@ def rotate(
     for vid in layer_ids:
         lc = document[vid]
         lc.translate(-origin[0], -origin[1])
-        lc.rotate(angle)
+        lc.rotate(angle * math.pi / 180.0)
         lc.translate(origin[0], origin[1])
 
     return document
@@ -239,37 +228,34 @@ def rotate(
 @click.option(
     "-l",
     "--layer",
-    type=LayerType(accept_multiple=True),
+    type=vp.LayerType(accept_multiple=True),
     default="all",
     help="Target layer(s).",
 )
-@click.option("-r", "--radian", is_flag=True, help="Angle is in radians.")
 @click.option(
     "-o",
     "--origin",
     "origin_coords",
     nargs=2,
-    type=LengthType(),
+    type=vp.LengthType(),
     help="Use a specific origin.",
 )
-@global_processor
+@vp.global_processor
 def skew(
-    document: Document,
+    document: vp.Document,
     layer: Union[int, List[int]],
     angles: Tuple[float, float],
-    radian: bool,
     origin_coords: Union[Tuple[()], Tuple[float, float]],
 ):
     """Skew the geometries.
 
     The geometries are sheared by the provided angles along X and Y dimensions.
 
+    ANGLE is in degrees by default, but alternative CSS unit may be provided.
+
     The origin used in the bounding box center, unless the `--centroid` or `--origin` options
     are used.
     """
-
-    if not radian:
-        angles = tuple(a * math.pi / 180.0 for a in angles)  # type: ignore
 
     try:
         origin, layer_ids, _ = _compute_origin(document, layer, origin_coords)
@@ -279,7 +265,7 @@ def skew(
     for vid in layer_ids:
         lc = document[vid]
         lc.translate(-origin[0], -origin[1])
-        lc.skew(angles[0], angles[1])
+        lc.skew(angles[0] * math.pi / 180.0, angles[1] * math.pi / 180.0)
         lc.translate(origin[0], origin[1])
 
     return document

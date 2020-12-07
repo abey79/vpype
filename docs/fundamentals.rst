@@ -146,7 +146,14 @@ Because the pixel is not the best unit to use with physical media, most commands
 
 Note that there must be no whitespace between the number and the unit, otherwise they would be considered as different command-line arguments.
 
-Internally, units other than CSS pixels are converted as soon as possible and pixels are used everywhere in the code (see :class:`Length`).
+Internally, units other than CSS pixels are converted as soon as possible and pixels are used everywhere in the code (see :class:`LengthType`).
+
+Likewise, angles are interpreted as degrees by default but alternative units may be specified, including ``deg``, ``rad``, ``grad`` and ``turn``. The following examples all rotate a rectangle by 45 degrees::
+
+  $ vpype rect 0 0 50 100 rotate 45
+  $ vpype rect 0 0 50 100 rotate 50grad
+  $ vpype rect 0 0 50 100 rotate 0.125turn
+  $ vpype rect 0 0 50 100 rotate 0.785398rad
 
 
 .. _fundamentals_blocks:
