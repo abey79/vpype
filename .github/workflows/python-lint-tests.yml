@@ -89,7 +89,13 @@ jobs:
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
     - name: Pytest
       run: |
-        poetry run pytest
+        poetry run pytest --cov=./ --cov-report=xml
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./coverage.xml
+      if: matrix.python-version == '3.8' && matix.os == 'ubuntu-latest'
 
   #################
   # TESTS WINDOWS #
