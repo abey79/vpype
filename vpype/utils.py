@@ -90,7 +90,7 @@ def convert_length(value: Union[str, float]) -> float:
     return _convert_unit(value, UNITS)
 
 
-def convert(value: Union[str, float]) -> float:
+def convert(value: Union[str, float]) -> float:  # pragma: no cover
     """Deprecated, use convert_length."""
     logging.warning(
         "!!! `vpype.convert()` is deprecated, use `vpype.convert_length()` instead."
@@ -163,7 +163,7 @@ def convert_page_size(value: str) -> Tuple[float, float]:
     return float(x) * convert_length(x_unit), float(y) * convert_length(y_unit)
 
 
-def convert_page_format(value: str) -> Tuple[float, float]:
+def convert_page_format(value: str) -> Tuple[float, float]:  # pragma: no cover
     """Deprecated, use convert_page_size."""
     logging.warning(
         "!!! `vpype.convert_page_format()` is deprecated, use `vpype.convert_page_size()` "
@@ -199,7 +199,7 @@ class LengthType(click.ParamType):
             self.fail(f"parameter {value} is an incorrect length")
 
 
-class Length(LengthType):
+class Length(LengthType):  # pragma: no cover
     """Deprecated, use LengthType."""
 
     def __init__(self, *args, **kwargs):
