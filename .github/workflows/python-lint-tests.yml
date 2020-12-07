@@ -95,7 +95,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         file: ./coverage.xml
-      if: matrix.python-version == '3.8' && matix.os == 'ubuntu-latest'
+      if: matrix.python-version == '3.8' && matrix.os == 'ubuntu-latest'
 
   #################
   # TESTS WINDOWS #
