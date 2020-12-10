@@ -1,4 +1,16 @@
-#### 1.1 (UNRELEASED)
+#### 1.2 (UNRELEASED)
+
+New features and improvements:
+* ...
+
+Bug fixes:
+* ...
+
+API changes:
+* ...
+
+
+#### 1.1 (2020-12-10)
 
 New features and improvements:
 * Added `snap` command (#110)
