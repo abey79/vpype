@@ -47,20 +47,20 @@ Windows
 
 .. highlight:: bat
 
-Python 3.8 is recommended for *vpype*, although it is also compatible with Python 3.6 and 3.7. At this stage, using Python 3.9 is discouraged because several of *vpype*'s dependencies a still lacking a binary distribution for this version. The official Python distribution for Windows can be downloaded `here <https://www.python.org/downloads/>`_
+Python 3.8 is recommended for *vpype*, although it is also compatible with Python 3.6 and 3.7. At this stage, using Python 3.9 is discouraged because several of *vpype*'s dependencies are still lacking a binary distribution for this version. The official Python distribution for Windows can be downloaded `here <https://www.python.org/downloads/>`_
 
-After install Python, launch a command windows (by typing ``cmd`` in the Start menu) and enter the following command to install *vpype*::
+After installing Python, launch a terminal (by typing ``cmd`` in the Start menu) and enter the following command to install *vpype*::
 
   > pip install vpype
 
-You should then be able to run *vpype* in the command window::
+You should then be able to run *vpype*::
 
   > vpype --help
 
 Installing in a virtual environment
 -----------------------------------
 
-`Virtual environment <https://docs.python.org/3/tutorial/venv.html>`_ are used to isolate the dependencies of one project from the others'. Unless your Python installation is mostly dedicated to *vpype*, installing it in a virtual environment rather than in the global scope is preferable to avoid interferences.
+`Virtual environment <https://docs.python.org/3/tutorial/venv.html>`_ are used to isolate the dependencies of one project from the the rest of your Python installation. Unless your Python installation is essentially dedicated to *vpype*, installing it in a virtual environment rather than in the global scope is preferable to avoid interferences.
 
 To create a virtual environment for your *vpype* installation, launch the ``cmd`` terminal and enter the following commands::
 
