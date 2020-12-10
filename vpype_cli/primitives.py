@@ -78,8 +78,8 @@ def rect(
 @click.argument("y", type=vp.LengthType())
 @click.argument("rw", type=vp.LengthType())
 @click.argument("rh", type=vp.LengthType())
-@click.argument("start", type=vp.LengthType())
-@click.argument("stop", type=vp.LengthType())
+@click.argument("start", type=vp.AngleType())
+@click.argument("stop", type=vp.AngleType())
 @click.option(
     "-q",
     "--quantization",
@@ -94,8 +94,11 @@ def arc(
     """Generate lines approximating a circular arc.
 
     The arc is centered on (X, Y) and has a radius of R and spans counter-clockwise from START
-    to STOP angles (in degrees). Angular values of zero refer to east of unit circle and
-    positive values extend counter-clockwise.
+    to STOP angles. Angular values of zero refer to east of unit circle and positive values
+    extend counter-clockwise.
+
+    Angles are in degree by default, but alternative CSS units such as "rad" or "grad" may be
+    provided.
     """
     return vp.LineCollection([vp.arc(x, y, rw, rh, start, stop, quantization)])
 

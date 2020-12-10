@@ -12,7 +12,7 @@ macOS
 
 .. highlight:: bash
 
-While macOS ships with a version of Python, this has been deprecated by Apple and may change in future version. Instead, you should install Python (preferably 3.8, minimum 3.6), either from `MacPorts <https://www.macports.org>`_ or from `Homebrew <https://brew.sh>`_.
+While macOS ships with a version of Python, this has been deprecated by Apple and may change in future version. Instead, you should install Python (3.8 recommended, 3.6 minimum, avoid using Python 3.9), either from `MacPorts <https://www.macports.org>`_ or from `Homebrew <https://brew.sh>`_.
 
 Use the following commands for Homebrew::
 
@@ -47,31 +47,22 @@ Windows
 
 .. highlight:: bat
 
-*vpype* being a young, actively developed project, an installer is not yet available, which means that a few steps are required for the installation.
+Python 3.8 is recommended for *vpype*, although it is also compatible with Python 3.6 and 3.7. At this stage, using Python 3.9 is discouraged because several of *vpype*'s dependencies are still lacking a binary distribution for this version. The official Python distribution for Windows can be downloaded `here <https://www.python.org/downloads/>`_
 
-Installing Python and git
--------------------------
+After installing Python, launch a terminal (by typing ``cmd`` in the Start menu) and enter the following command to install *vpype*::
 
-*vpype* uses `Python <https://www.python.org/>`_ and its source accessible with `git <https://git-scm.com/>`_, so both of these software must be installed:
+  > pip install vpype
 
-* `Official Python installer <https://www.python.org/downloads/windows/>`_ (version 3.8 recommended, 3.6 minimum)
-* `Official git installer <https://git-scm.com/download/win>`_
+You should then be able to run *vpype*::
 
+  > vpype --help
 
-Downloading Shapely
--------------------
+Installing in a virtual environment
+-----------------------------------
 
-*vpype* relies on a library named `Shapely <https://shapely.readthedocs.io>`_ which needs to be manually downloaded. You can
-find it `here <https://www.lfd.uci.edu/~gohlke/pythonlibs/#shapely>`_ (courtesy of the
-`Unofficial Windows Binaries for Python Extension Packages <https://www.lfd.uci.edu/~gohlke/pythonlibs/>`_ archive).
-Download the version that corresponds to your Python installation and architecture (32bit vs. 64bit). In most case, it
-should be ``*‑cp38‑cp38‑win_amd64.whl`` for Python 3.8 and a non-ancient computer.
+`Virtual environment <https://docs.python.org/3/tutorial/venv.html>`_ are used to isolate the dependencies of one project from the the rest of your Python installation. Unless your Python installation is essentially dedicated to *vpype*, installing it in a virtual environment rather than in the global scope is preferable to avoid interferences.
 
-
-Create a virtual environment
-----------------------------
-
-`Virtual environment <https://docs.python.org/3/tutorial/venv.html>`_ are used to isolate the dependencies of one project from the others'. It is considered best practice to always use them as opposed to install Python libraries and tools in the global scope. To create a virtual environment for your *vpype* installation, launch the ``cmd`` terminal and enter the following commands::
+To create a virtual environment for your *vpype* installation, launch the ``cmd`` terminal and enter the following commands::
 
   > python -m venv vpype_venv
 
@@ -79,22 +70,7 @@ This will create a ``vpype_venv`` directory which will contain everything needed
 
   > vpype_venv\Scripts\activate.bat
 
-You will need to activate your virtual environment each time you launch a new  terminal.
-
-Install everything and run *vpype*
-----------------------------------
-
-With your virtual environment activated, follow these steps to install everything.
-
-If you are using an older version of Python (3.6 or 3.7, upgrade your version of ``pip``)::
-
-  > pip install --upgrade pip
-
-Install Shapely using the file you downloaded earlier::
-
-  > pip install Shapely-1.7.0-cp38-cp38-win_amd64.whl
-
-Finally, install *vpype*::
+You will need to activate your virtual environment each time you launch a new  terminal. With your virtual environment activated, type the following command to install *vpype*::
 
   > pip install vpype
 
