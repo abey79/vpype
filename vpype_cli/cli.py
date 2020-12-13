@@ -77,9 +77,7 @@ class GroupedGroup(click.Group):
 # noinspection PyUnusedLocal,PyUnresolvedReferences
 @with_plugins(iter_entry_points("vpype.plugins"))
 @click.group(cls=GroupedGroup, chain=True)
-@click.version_option(
-    version=vp.__version__, message="%(prog)s %(version)s"
-)
+@click.version_option(version=vp.__version__, message="%(prog)s %(version)s")
 @click.option("-v", "--verbose", count=True)
 @click.option("-I", "--include", type=click.Path(), help="Load commands from a command file.")
 @click.option(
