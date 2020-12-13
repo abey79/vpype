@@ -38,7 +38,7 @@ jobs:
     - name: Create NSIS installer
       uses: joncloud/makensis-action@v3.3
       with:
-        script-file: scripts\installer_windows.nsi
+        script-file: scripts\installer_win.nsi
         arguments: "/V4 /DVERSION=$VERSION"
     - uses: actions/upload-artifact@v2
       with:
