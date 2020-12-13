@@ -31,7 +31,8 @@ jobs:
     - name: Build installer
       run: |
         VERSION=`poetry version -s`
-        poetry run scripts\build.bat $VERSION
+        source venv/bin/activate
+        scripts\build.bat $VERSION
     - uses: actions/upload-artifact@v2
       with:
         path: dist/vpype-$VERSION-setup.exe
