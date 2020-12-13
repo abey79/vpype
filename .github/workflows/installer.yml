@@ -1,0 +1,37 @@
+name: Windows Installer
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  windows-installer:
+    defaults:
+      run:
+        shell: bash
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Install and configure Poetry
+      uses: snok/install-poetry@v1.1.1
+      with:
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+    - name: Install dependencies
+      run: poetry install
+    - name: Build installer
+      run: |
+        VERSION=`poetry version -s`
+        poetry run scripts/build.bat $VERSION
+    - uses: actions/upload-artifact@v2
+      with:
+        path: dist/vpype-$VERSION-setup.exe
