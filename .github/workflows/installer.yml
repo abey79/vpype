@@ -28,11 +28,18 @@ jobs:
         virtualenvs-in-project: true
     - name: Install dependencies
       run: poetry install
-    - name: Build installer
+    - name: Run PyInstaller
       run: |
-        VERSION=`poetry version -s`
-        source venv/bin/activate
-        scripts\build.bat $VERSION
+        poetry run pyinstaller --noconfirm --onedir \
+          --name vpype --icon="scripts/vpype.ico" \
+          --add-data="vpype/hpgl_devices.toml;vpype" \
+          --additional-hooks-dir=scripts/hooks \
+          scripts/run_vpype.py
+    - name: Create NSIS installer
+      uses: joncloud/makensis-action@v3.3
+      with:
+        script-file: scripts\installer_windows.nsi
+        arguments: "/V4 /DVERSION=$VERSION"
     - uses: actions/upload-artifact@v2
       with:
         path: dist/vpype-$VERSION-setup.exe
