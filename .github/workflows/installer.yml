@@ -26,10 +26,12 @@ jobs:
       with:
         virtualenvs-create: true
         virtualenvs-in-project: true
-    - name: Install dependencies
-      run: poetry install
-    - name: Run PyInstaller
-      run: |
+    - name: Install vpype and run PyInstaller
+      id: vpype
+      run: | 
+        poetry install
+        VERSION=`poetry version --short`
+        echo ::set-output name=version::${VERSION}
         poetry run pyinstaller --noconfirm --onedir \
           --name vpype --icon="scripts/vpype.ico" \
           --add-data="vpype/hpgl_devices.toml;vpype" \
@@ -39,7 +41,8 @@ jobs:
       uses: joncloud/makensis-action@v3.3
       with:
         script-file: scripts\installer_win.nsi
-        arguments: "/V4 /DVERSION=$VERSION"
+        arguments: /V4 /DVERSION=${{ steps.vpype.outputs.version }}
     - uses: actions/upload-artifact@v2
       with:
-        path: dist/vpype-$VERSION-setup.exe
+        name: vpype-${{ steps.vpype.outputs.version }}-setup.exe
+        path: dist/vpype-${{ steps.vpype.outputs.version }}-setup.exe
