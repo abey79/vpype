@@ -47,7 +47,9 @@ Windows
 
 .. highlight:: bat
 
-Python 3.8 is recommended for *vpype*, although it is also compatible with Python 3.6 and 3.7. At this stage, using Python 3.9 is discouraged because several of *vpype*'s dependencies are still lacking a binary distribution for this version. The official Python distribution for Windows can be downloaded `here <https://www.python.org/downloads/>`_
+A Windows installer is available `here <https://github.com/abey79/vpype/releases>`__. Although this installation method is easier, it does not allow plug-ins to be installed. If plug-ins are required, an installation from  the `Python Package Index <https://pypi.org>` is recommended.
+
+Python 3.8 is recommended for *vpype*, although it is also compatible with Python 3.6 and 3.7. At this stage, using Python 3.9 is discouraged because several of *vpype*'s dependencies are still lacking a binary distribution for this version. The official Python distribution for Windows can be downloaded `here <https://www.python.org/downloads/>`__.
 
 After installing Python, launch a terminal (by typing ``cmd`` in the Start menu) and enter the following command to install *vpype*::
 
