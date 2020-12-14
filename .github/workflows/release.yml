@@ -39,6 +39,7 @@ jobs:
   # BUILD WINDOWS INSTALLER #
   ###########################
   job_win_installer:
+    name: Windows Installer
     defaults:
       run:
         shell: bash
@@ -83,6 +84,7 @@ jobs:
   # UPLOAD TO PYPI #
   ##################
   job_pypi:
+    name: Upload to PyPI
     runs-on: ubuntu-latest
     # do not run if windows installer failed
     needs: [job_release, job_win_installer]
