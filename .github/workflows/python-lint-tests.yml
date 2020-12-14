@@ -138,7 +138,7 @@ jobs:
   # INSTALLER WINDOWS #
   #####################
   windows-installer:
-    needs: tests-windows
+    needs: linting
     defaults:
       run:
         shell: bash
