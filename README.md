@@ -5,7 +5,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/vpype?label=PyPI&logo=pypi)](https://pypi.org/project/vpype/)
 ![python](https://img.shields.io/github/languages/top/abey79/vpype)
-[![license](https://img.shields.io/github/license/abey79/vpype)](https://vpype.readthedocs.io/en/latest/license.html)
+[![license](https://img.shields.io/github/license/abey79/vpype)](https://vpype.readthedocs.io/en/stable/license.html)
 ![Test](https://img.shields.io/github/workflow/status/abey79/vpype/Lint%20and%20Tests?label=Tests&logo=github)
 [![codecov](https://codecov.io/gh/abey79/vpype/branch/master/graph/badge.svg?token=CE7FD9D6XO)](https://codecov.io/gh/abey79/vpype)
 [![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=abey79_vpype&metric=alert_status)](https://sonarcloud.io/dashboard?id=abey79_vpype)
@@ -42,27 +42,27 @@ _vpype_ is the Swiss-Army-knife command-line tool for plotter vector graphics. H
  - creating, modifying and processing **multi-layer vector files** for multi-colour plots;
  - and much more...
  
-_vpype_ is highly **extensible** through [plug-ins](https://vpype.readthedocs.io/en/latest/api/vpype.html#module-vpype) that
+_vpype_ is highly **extensible** through [plug-ins](https://vpype.readthedocs.io/en/stable/api/vpype.html#module-vpype) that
 can greatly extend its capabilities. For example, plug-ins already exists for plotting
 [pixel art](https://github.com/abey79/vpype-pixelart), [half-toning with hatches](https://github.com/abey79/hatched),
 [plotting text](https://github.com/abey79/vpype-text) with Hershey fonts,
 applying [hidden line removal](https://github.com/LoicGoulefert/occult), and much more.  
 
-_vpype_ is also a [well documented](https://vpype.readthedocs.io/en/latest/api/vpype.html#module-vpype) **Python library**
+_vpype_ is also a [well documented](https://vpype.readthedocs.io/en/stable/api/vpype.html#module-vpype) **Python library**
 useful to create generative art and tools for plotters. For example, the plotter generative art environment
 [vsketch](https://github.com/abey79/vsketch) is built upon _vpype_.
 
-Check the [documentation](https://vpype.readthedocs.io/en/latest/) for a more thorough introduction to _vpype_.
+Check the [documentation](https://vpype.readthedocs.io/en/stable/) for a more thorough introduction to _vpype_.
 
 ## How does it work?
 
 _vpype_ works by building so-called _pipelines_ of _commands_, where each command's output is fed to the next command's input.
-Some commands load geometries into the pipeline (e.g. the [`read`](https://vpype.readthedocs.io/en/latest/reference.html#read)
+Some commands load geometries into the pipeline (e.g. the [`read`](https://vpype.readthedocs.io/en/stable/reference.html#read)
 command which loads geometries from a SVG file). Other commands modify these geometries, e.g. by cropping
-them ([`crop`](https://vpype.readthedocs.io/en/latest/reference.html#crop)) or reordering them to minimize pen-up
-travels ([`linesort`](https://vpype.readthedocs.io/en/latest/reference.html#linesort)). Finally, some other commands
-just read the geometries in the pipeline for display purposes ([`show`](https://vpype.readthedocs.io/en/latest/reference.html#show))
-or output to file ([`write`](https://vpype.readthedocs.io/en/latest/reference.html#write)).
+them ([`crop`](https://vpype.readthedocs.io/en/stable/reference.html#crop)) or reordering them to minimize pen-up
+travels ([`linesort`](https://vpype.readthedocs.io/en/stable/reference.html#linesort)). Finally, some other commands
+just read the geometries in the pipeline for display purposes ([`show`](https://vpype.readthedocs.io/en/stable/reference.html#show))
+or output to file ([`write`](https://vpype.readthedocs.io/en/stable/reference.html#write)).
 
 Pipeline are defined using the _vpype_'s CLI (command-line interface) in a terminal by typing `vpype` followed by the
 list of commands, each with their optional parameters and their arguments:
@@ -70,18 +70,18 @@ list of commands, each with their optional parameters and their arguments:
 ![command line](https://github.com/abey79/vpype/raw/master/docs/images/command_line.svg)
 
 This pipeline uses five commands (in bold):
-- [`read`](https://vpype.readthedocs.io/en/latest/reference.html#read) loads geometries from a SVG file.
-- [`linemerge`](https://vpype.readthedocs.io/en/latest/reference.html#linemerge) merges paths whose extremities are close to each other (within the provided tolerance).
-- [`linesort`](https://vpype.readthedocs.io/en/latest/reference.html#linesort) reorder paths such as to minimise the pen-up travel.
-- [`crop`](https://vpype.readthedocs.io/en/latest/reference.html#crop), well, crops.
-- [`write`](https://vpype.readthedocs.io/en/latest/reference.html#write) export the resulting geometries to a SVG file.
+- [`read`](https://vpype.readthedocs.io/en/stable/reference.html#read) loads geometries from a SVG file.
+- [`linemerge`](https://vpype.readthedocs.io/en/stable/reference.html#linemerge) merges paths whose extremities are close to each other (within the provided tolerance).
+- [`linesort`](https://vpype.readthedocs.io/en/stable/reference.html#linesort) reorder paths such as to minimise the pen-up travel.
+- [`crop`](https://vpype.readthedocs.io/en/stable/reference.html#crop), well, crops.
+- [`write`](https://vpype.readthedocs.io/en/stable/reference.html#write) export the resulting geometries to a SVG file.
 
 There are many more commands available in *vpype*, see the [overview](#feature-overview) below.
 
 Some commands have arguments, which are always required (in italic). For example, a file path must be provided to the
-[`read`](https://vpype.readthedocs.io/en/latest/reference.html#read) command and dimensions must be provided to the [`crop`](https://vpype.readthedocs.io/en/latest/reference.html#crop) commands. A command may also have options which are, well,
-optional. In this example, `--page-size a4` means that the [`write`](https://vpype.readthedocs.io/en/latest/reference.html#write) command will generate a A4-sized SVG (otherwise it
-would have the same size as _in.svg_). Likewise, because `--center` is used, the [`write`](https://vpype.readthedocs.io/en/latest/reference.html#write) command will center geometries
+[`read`](https://vpype.readthedocs.io/en/stable/reference.html#read) command and dimensions must be provided to the [`crop`](https://vpype.readthedocs.io/en/stable/reference.html#crop) commands. A command may also have options which are, well,
+optional. In this example, `--page-size a4` means that the [`write`](https://vpype.readthedocs.io/en/stable/reference.html#write) command will generate a A4-sized SVG (otherwise it
+would have the same size as _in.svg_). Likewise, because `--center` is used, the [`write`](https://vpype.readthedocs.io/en/stable/reference.html#write) command will center geometries
 on the page before saving the SVG (otherwise the geometries would have been left at their original location).
 
 
@@ -147,7 +147,8 @@ For Linux, install Python with your OS's default package manager. For macOS, Pyt
 [MacPorts](https://www.macports.org) or [Homebrew](https://brew.sh). For Windows, use the
 [official installer](https://www.python.org/downloads/).
 
-Check [the documentation](https://vpype.readthedocs.io/en/latest/install.html) for more details, in particular on how to use a virtual environment (recommended).
+Check [the documentation](https://vpype.readthedocs.io/en/stable/install.html) for more details, in particular on how to use a virtual environment (recommended).
+
 
 ## Documentation
 
@@ -158,7 +159,7 @@ vpype --help          # general help and command list
 vpype COMMAND --help  # help for a specific command
 ``` 
 
-In addition, the [online documentation](https://vpype.readthedocs.io/en/latest/) provides extensive background
+In addition, the [online documentation](https://vpype.readthedocs.io/en/stable/) provides extensive background
 information on the fundamentals behind _vpype_, a cookbook covering most common tasks, the _vpype_ API documentation,
 and much more.
 
@@ -168,56 +169,56 @@ and much more.
 #### General
 
 - Easy to use **CLI** interface with integrated help (`vpype --help`and `vpype COMMAND --help`) and support for arbitrary units (e.g. `vpype read input.svg translate 3cm 2in`).
-- First-class **multi-layer support** with global or per-layer processing (e.g. `vpype COMMANDNAME --layer 1,3`) and layer edition commands ([`lmove`](https://vpype.readthedocs.io/en/latest/reference.html#lmove), [`lcopy`](https://vpype.readthedocs.io/en/latest/reference.html#lcopy), [`ldelete`](https://vpype.readthedocs.io/en/latest/reference.html#ldelete)).
-- Powerful **display** command with adjustable units, optional per-line coloring, optional pen-up trajectories display and per-layer visibility control ([`show`](https://vpype.readthedocs.io/en/latest/reference.html#show)).
-- Geometry **statistics** extraction ([`stat`](https://vpype.readthedocs.io/en/latest/reference.html#stat)).
+- First-class **multi-layer support** with global or per-layer processing (e.g. `vpype COMMANDNAME --layer 1,3`) and layer edition commands ([`lmove`](https://vpype.readthedocs.io/en/stable/reference.html#lmove), [`lcopy`](https://vpype.readthedocs.io/en/stable/reference.html#lcopy), [`ldelete`](https://vpype.readthedocs.io/en/stable/reference.html#ldelete)).
+- Powerful **display** command with adjustable units, optional per-line coloring, optional pen-up trajectories display and per-layer visibility control ([`show`](https://vpype.readthedocs.io/en/stable/reference.html#show)).
+- Geometry **statistics** extraction ([`stat`](https://vpype.readthedocs.io/en/stable/reference.html#stat)).
 - Support for  **command history** recording (`vpype -H [...]`)
 - Support for **RNG seed** configuration for generative plug-ins (`vpype -s 37 [...]`).
 
 
 #### Input/Output
 
-- Single- and multi-layer **SVG input** with adjustable precision, parallel processing for large SVGs, and supports percent or missing width/height ([`read`](https://vpype.readthedocs.io/en/latest/reference.html#read)).
-- Support for **SVG output** with fine layout control (page size and orientation, centering), layer support with custom layer names, optional display of pen-up trajectories, various option for coloring ([`write`](https://vpype.readthedocs.io/en/latest/reference.html#write)).
+- Single- and multi-layer **SVG input** with adjustable precision, parallel processing for large SVGs, and supports percent or missing width/height ([`read`](https://vpype.readthedocs.io/en/stable/reference.html#read)).
+- Support for **SVG output** with fine layout control (page size and orientation, centering), layer support with custom layer names, optional display of pen-up trajectories, various option for coloring ([`write`](https://vpype.readthedocs.io/en/stable/reference.html#write)).
 - Support for **HPGL output** config-based generation of HPGL code with fine layout control (page size and orientation, centering).
 
 
 #### Layout and transforms
 
-- Powerful **transform** commands for scaling, translating, skewing and rotating geometries ([`scale`](https://vpype.readthedocs.io/en/latest/reference.html#scale), [`translate`](https://vpype.readthedocs.io/en/latest/reference.html#translate), [`skew`](https://vpype.readthedocs.io/en/latest/reference.html#skew), [`rotate`](https://vpype.readthedocs.io/en/latest/reference.html#rotate)).
-- Support for **scaling** and **cropping** to arbitrary dimensions ([`scaleto`](https://vpype.readthedocs.io/en/latest/reference.html#scaleto), [`crop`](https://vpype.readthedocs.io/en/latest/reference.html#crop)).
-- Support for **trimming** geometries by an arbitrary amount ([`trim`](https://vpype.readthedocs.io/en/latest/reference.html#trim)).
-- Arbitrary **page size** definition ([`pagesize`](https://vpype.readthedocs.io/en/latest/reference.html#pagesize)). 
+- Powerful **transform** commands for scaling, translating, skewing and rotating geometries ([`scale`](https://vpype.readthedocs.io/en/stable/reference.html#scale), [`translate`](https://vpype.readthedocs.io/en/stable/reference.html#translate), [`skew`](https://vpype.readthedocs.io/en/stable/reference.html#skew), [`rotate`](https://vpype.readthedocs.io/en/stable/reference.html#rotate)).
+- Support for **scaling** and **cropping** to arbitrary dimensions ([`scaleto`](https://vpype.readthedocs.io/en/stable/reference.html#scaleto), [`crop`](https://vpype.readthedocs.io/en/stable/reference.html#crop)).
+- Support for **trimming** geometries by an arbitrary amount ([`trim`](https://vpype.readthedocs.io/en/stable/reference.html#trim)).
+- Arbitrary **page size** definition ([`pagesize`](https://vpype.readthedocs.io/en/stable/reference.html#pagesize)). 
 
 
 #### Plotting optimization
 
-- **Line merging** with optional path reversal and configurable merging threshold ([`linemerge`](https://vpype.readthedocs.io/en/latest/reference.html#linemerge)).
-- **Line sorting** with optional path reversal ([`linesort`](https://vpype.readthedocs.io/en/latest/reference.html#linesort)).
-- **Line simplification** with adjustable accuracy ([`linesimplify`](https://vpype.readthedocs.io/en/latest/reference.html#linesimplify)).
-- Support for **splitting** all lines to their constituent segments ([`splitall`](https://vpype.readthedocs.io/en/latest/reference.html#splitall)).
-- Closed paths' **seam location randomization**, to reduce the visibility of pen-up/pen-down artifacts ([`reloop`](https://vpype.readthedocs.io/en/latest/reference.html#reloop)).
-- Support for generating **multiple passes** on each line ([`multipass`](https://vpype.readthedocs.io/en/latest/reference.html#multipass)).
-- Support for **filtering** by line lengths or closed-ness ([`filter`](https://vpype.readthedocs.io/en/latest/reference.html#filter)).
+- **Line merging** with optional path reversal and configurable merging threshold ([`linemerge`](https://vpype.readthedocs.io/en/stable/reference.html#linemerge)).
+- **Line sorting** with optional path reversal ([`linesort`](https://vpype.readthedocs.io/en/stable/reference.html#linesort)).
+- **Line simplification** with adjustable accuracy ([`linesimplify`](https://vpype.readthedocs.io/en/stable/reference.html#linesimplify)).
+- Support for **splitting** all lines to their constituent segments ([`splitall`](https://vpype.readthedocs.io/en/stable/reference.html#splitall)).
+- Closed paths' **seam location randomization**, to reduce the visibility of pen-up/pen-down artifacts ([`reloop`](https://vpype.readthedocs.io/en/stable/reference.html#reloop)).
+- Support for generating **multiple passes** on each line ([`multipass`](https://vpype.readthedocs.io/en/stable/reference.html#multipass)).
+- Support for **filtering** by line lengths or closed-ness ([`filter`](https://vpype.readthedocs.io/en/stable/reference.html#filter)).
  
  #### Generation
  
- - Generation of arbitrary **primitives** including lines, rectangles, circles, ellipses and arcs ([`line`](https://vpype.readthedocs.io/en/latest/reference.html#line), [`rect`](https://vpype.readthedocs.io/en/latest/reference.html#rect), [`circle`](https://vpype.readthedocs.io/en/latest/reference.html#circle), [`ellipse`](https://vpype.readthedocs.io/en/latest/reference.html#ellipse), [`arc`](https://vpype.readthedocs.io/en/latest/reference.html#arc)).
- - Generation of grid-like layouts ([`grid`](https://vpype.readthedocs.io/en/latest/reference.html#grid)).
- - Generation of a **frame** around the geometries ([`frame`](https://vpype.readthedocs.io/en/latest/reference.html#frame)).
- - Generation of random lines for debug/learning purposes ([`random`](https://vpype.readthedocs.io/en/latest/reference.html#random))
+ - Generation of arbitrary **primitives** including lines, rectangles, circles, ellipses and arcs ([`line`](https://vpype.readthedocs.io/en/stable/reference.html#line), [`rect`](https://vpype.readthedocs.io/en/stable/reference.html#rect), [`circle`](https://vpype.readthedocs.io/en/stable/reference.html#circle), [`ellipse`](https://vpype.readthedocs.io/en/stable/reference.html#ellipse), [`arc`](https://vpype.readthedocs.io/en/stable/reference.html#arc)).
+ - Generation of grid-like layouts ([`grid`](https://vpype.readthedocs.io/en/stable/reference.html#grid)).
+ - Generation of a **frame** around the geometries ([`frame`](https://vpype.readthedocs.io/en/stable/reference.html#frame)).
+ - Generation of random lines for debug/learning purposes ([`random`](https://vpype.readthedocs.io/en/stable/reference.html#random))
 
 #### Extensibility and API
 
  - First-class support for **plug-in** extensions (e.g [vpype-text](https://github.com/abey79/vpype-text), [hatched](https://github.com/abey79/hatched), [occult](https://github.com/LoicGoulefert/occult)).
- - Support for **script-based** generation ([`script`](https://vpype.readthedocs.io/en/latest/reference.html#script)).
- - Powerful and [well-documented](https://vpype.readthedocs.io/en/latest/api/vpype.html#module-vpype) **API** for plug-ins and other plotter generative art projects.
+ - Support for **script-based** generation ([`script`](https://vpype.readthedocs.io/en/stable/reference.html#script)).
+ - Powerful and [well-documented](https://vpype.readthedocs.io/en/stable/api/vpype.html#module-vpype) **API** for plug-ins and other plotter generative art projects.
  
  
  ## Contributing
 
 Contributions to this project are welcome and do not necessarily require software development skills! Check the
-[Contributing section](https://vpype.readthedocs.io/en/latest/contributing.html) of the documentation for more
+[Contributing section](https://vpype.readthedocs.io/en/stable/contributing.html) of the documentation for more
 information.  
 
 
