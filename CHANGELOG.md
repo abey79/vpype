@@ -6,10 +6,7 @@ New features and improvements:
 * A Windows installer is now available (#120)
 
 Bug fixes:
-* ...
-
-API changes:
-* ...
+* Fixed crash for SVG with <desc> element (#127)
 
 
 #### 1.1 (2020-12-10)
