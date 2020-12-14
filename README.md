@@ -131,19 +131,24 @@ set, but makes its use for, e.g., printed media limited.
  
 ## Installation
 
-Python 3.8 is recommended to use *vpype*, although it is also compatible with Python 3.6 and 3.7. Python 3.9 should be avoided for the time being due to the lack of binary distribution for several dependencies.
+For Windows, an installer is available [here](https://github.com/abey79/vpype/releases) (note: plug-ins cannot be installed
+when using this installation method).
 
-For Linux, install Python with your OS's default package manager. For macOS, Python is best installed from either
-[MacPorts](https://www.macports.org) or [Homebrew](https://brew.sh). For Windows, use the
-[official installer](https://www.python.org/downloads/).
-
-Once Python is installed, *vpype* can be installed with the following command:
+For other platforms, and when plug-ins are required, *vpype* can be installed from the [Python Package Index](https://pypi.org)
+using the following command:
 
 ```bash
 pip install vpype
 ```
 
+Python must previously be installed. Python version 3.8 is recommended to use *vpype*, although it is also compatible with Python 3.6 and 3.7. Python 3.9 should be avoided for the time being due to the lack of binary distribution for several dependencies.
+
+For Linux, install Python with your OS's default package manager. For macOS, Python is best installed from either
+[MacPorts](https://www.macports.org) or [Homebrew](https://brew.sh). For Windows, use the
+[official installer](https://www.python.org/downloads/).
+
 Check [the documentation](https://vpype.readthedocs.io/en/stable/install.html) for more details, in particular on how to use a virtual environment (recommended).
+
 
 ## Documentation
 

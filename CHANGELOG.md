@@ -1,7 +1,9 @@
+# Change log
+
 #### 1.2 (UNRELEASED)
 
 New features and improvements:
-* ...
+* A Windows installer is now available (#120)
 
 Bug fixes:
 * ...
