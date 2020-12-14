@@ -159,7 +159,7 @@ jobs:
       id: vpype
       run: | 
         poetry install
-        VERSION=`poetry version --short`
+        VERSION="`poetry version --short`-${GITHUB_SHA}"
         echo ::set-output name=version::${VERSION}
         source $VENV
         scripts/build.bat
