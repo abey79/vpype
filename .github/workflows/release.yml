@@ -102,14 +102,16 @@ jobs:
         run: |
           poetry build
           echo ::set-output name=version::`poetry version --short`
+          cd dist
+          echo ::set-output name=filename::`ls vpype*.tar.gz`
       - name: Upload File Assets
         uses: actions/upload-release-asset@v1.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.job_release.outputs.upload_url }}
-          asset_path: dist/vpype-${{ steps.build.outputs.version }}.tar.gz
-          asset_name: vpype-${{ steps.build.outputs.version }}.tar.gz
+          asset_path: dist/${{ steps.build.outputs.filename }}
+          asset_name: ${{ steps.build.outputs.filename }}
           asset_content_type: application/gzip
       - name: pypi-publish
         uses: pypa/gh-action-pypi-publish@v1.4.1
