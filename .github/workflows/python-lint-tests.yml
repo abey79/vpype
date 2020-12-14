@@ -162,7 +162,7 @@ jobs:
         VERSION=`poetry version --short`
         echo ::set-output name=version::${VERSION}
         source $VENV
-        scripts\build.bat
+        scripts/build.bat
     - name: Create NSIS installer
       uses: joncloud/makensis-action@v3.3
       with:
