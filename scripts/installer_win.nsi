@@ -64,6 +64,16 @@ Var StartMenuFolder
 
 !insertmacro MUI_LANGUAGE "English"
 
+
+;--------------------------------
+;Macros
+
+!macro CreateInternetShortcut FILEPATH URL ICONPATH
+WriteINIStr "${FILEPATH}" "InternetShortcut" "URL" "${URL}"
+WriteINIStr "${FILEPATH}" "InternetShortcut" "IconFile" "${ICONPATH}"
+WriteINIStr "${FILEPATH}" "InternetShortcut" "IconIndex" "0"
+!macroend
+
 ;--------------------------------
 ;Installer Sections
 
@@ -73,6 +83,7 @@ Section "vpype Software" SecVpype
 
     SetOutPath $INSTDIR
     File "vpype.ico"
+    File "doc.ico"
     File "uninstaller.ico"
 
     ;Create vpype shell path script
@@ -86,14 +97,21 @@ Section "vpype Software" SecVpype
 
     !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
 
-    ;Create shortcuts
-    CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
-    CreateShortcut "$SMPROGRAMS\$StartMenuFolder\Uninstall vpype.lnk" "$INSTDIR\Uninstall.exe"
+        ;Create shortcuts
+        CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
 
-    ;Create vpype shell with path
-    ReadEnvStr $0 COMSPEC
-    SetOutPath $PROFILE
-    CreateShortcut "$SMPROGRAMS\$StartMenuFolder\vpype Shell.lnk" "$0" '/k "$INSTDIR\vpype_shell.bat"' "$INSTDIR\vpype.ico"
+        ;No uninstaller shortcut, this is bad practice
+
+        ;Create vpype shell with path
+        ReadEnvStr $0 COMSPEC
+        SetOutPath $PROFILE
+        CreateShortcut "$SMPROGRAMS\$StartMenuFolder\vpype Shell.lnk" \
+            "$0" '/k "$INSTDIR\vpype_shell.bat"' "$INSTDIR\vpype.ico"
+
+        ;Create vpype doc shortcut
+        !insertmacro CreateInternetShortcut "$SMPROGRAMS\$StartMenuFolder\vpype Documentation.URL" \
+            "https://vpype.readthedocs.io/" \
+            "$INSTDIR\doc.ico"
 
     !insertmacro MUI_STARTMENU_WRITE_END
 
@@ -138,8 +156,7 @@ SectionEnd
 
 Section "Uninstall"
   RMDir /r $INSTDIR\vpype
-  Delete $INSTDIR\vpype.ico
-  Delete $INSTDIR\uninstaller.ico
+  Delete $INSTDIR\*.ico
   Delete "$INSTDIR\vpype_shell.bat"
   Delete "$INSTDIR\Uninstall.exe"
   RMDir "$INSTDIR"
@@ -147,8 +164,7 @@ Section "Uninstall"
   !insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuFolder
 
   Delete "$DESKTOP\vpype Shell.lnk"
-  Delete "$SMPROGRAMS\$StartMenuFolder\vpype Shell.lnk"
-  Delete "$SMPROGRAMS\$StartMenuFolder\Uninstall vpype.lnk"
+  Delete "$SMPROGRAMS\$StartMenuFolder\*"
   RMDir "$SMPROGRAMS\$StartMenuFolder"
 
 
