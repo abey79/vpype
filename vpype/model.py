@@ -158,6 +158,10 @@ class LineCollection:
         """
         return len(self) == 0
 
+    def reverse(self) -> None:
+        """Reverse order of the lines."""
+        self._lines = list(reversed(self._lines))
+
     def __iter__(self):
         return self._lines.__iter__()
 
