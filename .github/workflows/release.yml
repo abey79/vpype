@@ -7,13 +7,88 @@ on:
       - '*.*.*'
 
 jobs:
-  build:
+  
+  ########################
+  # RELEASE CREATION JOB #
+  ########################
+  job_release:
+    name: Create Release
     runs-on: ubuntu-latest
+    outputs: 
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      tag: ${{ steps.tag.outputs.tag }}
     steps:
-      - name: Get tag
-        id: tag
-        run: |
-          echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
+    - name: Get tag
+      id: tag
+      run: |
+        echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
+    - uses: actions/checkout@v2
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.tag.outputs.tag }}
+        release_name: vpype ${{ steps.tag.outputs.tag }}
+        draft: true
+        prerelease: false
+
+
+  ###########################
+  # BUILD WINDOWS INSTALLER #
+  ###########################
+  job_win_installer:
+    name: Windows Installer
+    defaults:
+      run:
+        shell: bash
+    runs-on: windows-latest
+    needs: job_release
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Install and configure Poetry
+      uses: snok/install-poetry@v1.1.1
+      with:
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+    - name: Build and run PyInstaller
+      id: build
+      run: | 
+        poetry install
+        echo ::set-output name=version::`poetry version --short`
+        source $VENV
+        scripts/build.bat
+    - name: Create NSIS installer
+      uses: joncloud/makensis-action@v3.3
+      with:
+        script-file: scripts\installer_win.nsi
+        arguments: /V4 /DVERSION=${{ steps.build.outputs.version }}
+    - name: Upload Windows installer
+      uses: actions/upload-release-asset@v1.0.2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.job_release.outputs.upload_url }}
+        asset_path: dist/vpype-${{ steps.build.outputs.version }}-setup.exe
+        asset_name: vpype-${{ steps.build.outputs.version }}-setup.exe
+        asset_content_type: application/octet-stream
+
+
+  ##################
+  # UPLOAD TO PYPI #
+  ##################
+  job_pypi:
+    name: Upload to PyPI
+    runs-on: ubuntu-latest
+    # do not run if windows installer failed
+    needs: [job_release, job_win_installer]
+    steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.8
         uses: actions/setup-python@v2
@@ -25,30 +100,24 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
       - name: Build
-        run: poetry build
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.tag.outputs.tag }}
-          release_name: vpype ${{ steps.tag.outputs.tag }}
-          draft: true
-          prerelease: false
+        id: build
+        run: |
+          poetry build
+          source $VENV
+          pip install packaging
+          echo ::set-output name=version::`poetry version -s | python -c "import packaging.version,sys;print(packaging.version.parse(sys.stdin.read()))"`
       - name: Upload File Assets
         uses: actions/upload-release-asset@v1.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/vpype-${{ steps.tag.outputs.tag }}.tar.gz
-          asset_name: vpype-${{ steps.tag.outputs.tag }}.tar.gz
+          upload_url: ${{ needs.job_release.outputs.upload_url }}
+          asset_path: dist/vpype-${{ steps.build.outputs.version }}.tar.gz
+          asset_name: vpype-${{ steps.build.outputs.version }}.tar.gz
           asset_content_type: application/gzip
       - name: pypi-publish
         uses: pypa/gh-action-pypi-publish@v1.4.1
         with:
-          # password: ${{ secrets.TEST_PYPI_TOKEN }}
           # repository_url: https://test.pypi.org/legacy/
           password: ${{ secrets.PYPI_TOKEN }}
           # skip_existing: true

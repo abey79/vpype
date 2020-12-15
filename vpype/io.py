@@ -174,7 +174,10 @@ def _extract_paths(group: svgelements.Group, recursive) -> _PathListType:
         everything = group
     paths = []
     for elem in everything:
-        if elem.values.get("visibility", "") in ("hidden", "collapse"):
+        if hasattr(elem, "values") and elem.values.get("visibility", "") in (
+            "hidden",
+            "collapse",
+        ):
             continue
 
         if isinstance(elem, svgelements.Path):

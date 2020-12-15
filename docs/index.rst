@@ -18,12 +18,25 @@ In a nutshell, *vpype* is an extensible CLI pipeline utility which aims to be th
 - Swiss Army knife: *vpype* is flexible, contains many tools and its author is Swiss.
 
 
+Download and install
+--------------------
+
+.. highlight:: bash
+
+For Windows, an installer is available `here <https://github.com/abey79/vpype/releases>`_ (note: plug-ins cannot be installed
+when using this installation method).
+
+For other platforms, and when plug-ins are required, *vpype* can be installed from the `Python Package Index <https://pypi.org>`_
+using the following command (Python 3.8 recommended)::
+
+  pip install vpype
+
+Check the :ref:`installation instructions <install>` for more details, in particular on how to use a virtual environment (recommended).
+
 Using this documentation
 ------------------------
 
-Start with :ref:`installation instructions <install>` to get up and running with your installation of *vpype*.
-
-For the straight-to-action type, the list of available commands is available in the :ref:`reference <reference>` section. You may also jump to the :ref:`cookbook <cookbook>` section to find a recipe that matches your need.
+If you are of the straight-to-action type, the list of available commands is available in the :ref:`reference <reference>` section. You may also jump to the :ref:`cookbook <cookbook>` section to find a recipe that matches your need.
 
 For a deep understanding of *vpype*, take a dive in the section on :ref:`fundamentals <fundamentals>`.
 
@@ -58,4 +71,5 @@ Miscellaneous Pages
 .. toctree::
    :maxdepth: 2
 
+   CHANGELOG
    license
