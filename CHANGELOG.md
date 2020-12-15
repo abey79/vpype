@@ -4,6 +4,7 @@
 
 New features and improvements:
 * A Windows installer is now available (#120)
+* Added `reverse` command (#129)
 
 Bug fixes:
 * Fixed crash for SVG with <desc> element (#127)

@@ -200,6 +200,7 @@ and much more.
 - Closed paths' **seam location randomization**, to reduce the visibility of pen-up/pen-down artifacts ([`reloop`](https://vpype.readthedocs.io/en/stable/reference.html#reloop)).
 - Support for generating **multiple passes** on each line ([`multipass`](https://vpype.readthedocs.io/en/stable/reference.html#multipass)).
 - Support for **filtering** by line lengths or closed-ness ([`filter`](https://vpype.readthedocs.io/en/stable/reference.html#filter)).
+- Support for **reversing** order of paths within their layers ([`reverse`](https://vpype.readthedocs.io/en/stable/reference.html#reverse)).
  
  #### Generation
  

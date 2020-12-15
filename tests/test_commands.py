@@ -1,5 +1,4 @@
 import itertools
-import os
 
 import numpy as np
 import pytest
@@ -47,6 +46,7 @@ MINIMAL_COMMANDS = [
     "pagesize 10inx15in",
     "stat",
     "snap 1",
+    "reverse",
 ]
 
 
