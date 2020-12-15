@@ -103,6 +103,7 @@ jobs:
         id: build
         run: |
           poetry build
+          poetry run pip install packaging
           echo ::set-output name=version::`poetry version -s | python -c "import packaging.version,sys;print(packaging.version.parse(sys.stdin.read()))"`
       - name: Upload File Assets
         uses: actions/upload-release-asset@v1.0.2
