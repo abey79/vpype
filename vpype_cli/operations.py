@@ -374,3 +374,12 @@ def snap(line_collection: vp.LineCollection, pitch: float) -> vp.LineCollection:
 
     new_lines.scale(pitch)
     return new_lines
+
+
+@cli.command(group="Operations")
+@vp.layer_processor
+def reverse(line_collection: vp.LineCollection) -> vp.LineCollection:
+    """Reverse order of lines."""
+
+    line_collection.reverse()
+    return line_collection
