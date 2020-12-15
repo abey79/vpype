@@ -1,18 +1,10 @@
 import logging
 import os
-from typing import Optional, Tuple
+from typing import Optional
 
 import click
 
-from vpype import (
-    CONFIG_MANAGER,
-    PAGE_SIZES,
-    Document,
-    convert_page_size,
-    global_processor,
-    write_hpgl,
-    write_svg,
-)
+import vpype as vp
 
 from .cli import cli
 
@@ -30,7 +22,7 @@ implicitly set by the `read` command and can also be manually changed using the 
 command. The page size can be overridden using the `--page-size SIZE` option. `SIZE` may
 be one of:
 
-    {', '.join(PAGE_SIZES.keys())}
+    {', '.join(vp.PAGE_SIZES.keys())}
 
 Alternatively, a custom size can be specified in the form of `WIDTHxHEIGHT`. `WIDTH` and
 `HEIGHT` may include units. If only one has an unit, the other is assumed to have the
@@ -67,7 +59,7 @@ When writing to HPGL, a device name must be provided with the `--device` option.
 corresponding device must be configured in the built-in or a user-provided configuration file
 (see the documentation for more details). The following devices are currently available:
 
-    {', '.join(CONFIG_MANAGER.get_plotter_list())}
+    {', '.join(vp.CONFIG_MANAGER.get_plotter_list())}
 
 In HPGL mode, because the coordinate system depends on the configuration, the `--page-size`
 option is mandatory, and is restricted to the paper formats defined in the corresponding
@@ -166,9 +158,9 @@ Examples:
     help="[HPGL only] Do not display the plotter configuration or paper loading information.",
 )
 @click.pass_obj  # to obtain the command string
-@global_processor
+@vp.global_processor
 def write(
-    document: Document,
+    document: vp.Document,
     cmd_string: Optional[str],
     output,
     file_format: str,
@@ -196,11 +188,11 @@ def write(
     if file_format == "svg":
         page_size_px = None
         if page_size:
-            page_size_px = convert_page_size(page_size)
+            page_size_px = vp.convert_page_size(page_size)
             if landscape:
                 page_size_px = page_size_px[::-1]
 
-        write_svg(
+        vp.write_svg(
             output=output,
             document=document,
             page_size=page_size_px,
@@ -211,22 +203,27 @@ def write(
             color_mode=color_mode,
         )
     elif file_format == "hpgl":
-        if page_size:
-            write_hpgl(
-                output=output,
-                document=document,
-                landscape=landscape,
-                center=center,
-                device=device,
-                page_size=page_size,
-                velocity=velocity,
-                quiet=quiet,
-            )
-        else:
-            logging.error(
-                "write: page size is mandatory for HPGL, please use the `--page-size SIZE` "
-                "option"
-            )
+        if not page_size:
+            config = vp.CONFIG_MANAGER.get_plotter_config(device)
+            paper_config = config.paper_config_from_size(document.page_size)
+            if paper_config:
+                paper_size = paper_config.name
+            else:
+                logging.error(
+                    "write: the plotter page size could not be inferred from the current page "
+                    "size - please use the `--page-size SIZE` option"
+                )
+
+        vp.write_hpgl(
+            output=output,
+            document=document,
+            landscape=landscape,
+            center=center,
+            device=device,
+            page_size=page_size,
+            velocity=velocity,
+            quiet=quiet,
+        )
     else:
         logging.warning(
             f"write: format could not be inferred or format unknown '{file_format}', "
