@@ -112,16 +112,22 @@ class PlotterConfig:
                 return pc
         return None
 
-    def paper_config_from_size(self, page_size: Tuple[float, float]) -> Optional[PaperConfig]:
+    def paper_config_from_size(
+        self, page_size: Optional[Tuple[float, float]]
+    ) -> Optional[PaperConfig]:
         """Look for a paper configuration matching ``paper_format`` and return it if found.
 
         Args:
-            page_size: desired page size
+            page_size: tuple of desired page size (may be ``None``, in which case ``None`` is
+                returned
 
         Returns:
             the :class:`PaperConfig` instance corresponding to ``paper_format`` or None if not
             found
         """
+
+        if page_size is None:
+            return None
 
         def _isclose_tuple(a, b):
             return all(math.isclose(aa, bb) for aa, bb in zip(a, b))
@@ -187,11 +193,11 @@ class ConfigManager:
         """
         return list(self.config.get("device", {}).keys())
 
-    def get_plotter_config(self, name: str) -> Optional[PlotterConfig]:
+    def get_plotter_config(self, name: Optional[str]) -> Optional[PlotterConfig]:
         """Returns a :class:`PlotterConfig` instance for plotter ``name``.
 
         Args:
-            name: name of desired plotter
+            name: name of desired plotter (may be ``None``, in which case ``None`` is returned)
 
         Returns:
             :class:`PlotterConfig` instance or None if not found

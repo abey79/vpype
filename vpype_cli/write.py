@@ -205,8 +205,12 @@ def write(
     elif file_format == "hpgl":
         if not page_size:
             config = vp.CONFIG_MANAGER.get_plotter_config(device)
-            paper_config = config.paper_config_from_size(document.page_size)
-            if paper_config:
+            if config is not None:
+                paper_config = config.paper_config_from_size(document.page_size)
+            else:
+                paper_config = None
+
+            if paper_config and document.page_size is not None:
                 page_size = paper_config.name
                 landscape = document.page_size[0] > document.page_size[1]
             else:
