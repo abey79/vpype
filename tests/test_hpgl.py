@@ -189,12 +189,22 @@ def test_hpgl_info_quiet(runner, simple_printer_config):
         [(15, 10), "simple"],
         [(20, 30), "simple_big"],
         [(30, 20), "simple_big"],
+        [None, None],
     ],
 )
-def test_hpgl_paper_config_from_format(simple_printer_config, paper_format, expected_name):
+def test_hpgl_paper_config_from_size(simple_printer_config, paper_format, expected_name):
     vp.CONFIG_MANAGER.load_config_file(simple_printer_config)
     pc = vp.CONFIG_MANAGER.get_plotter_config("simple").paper_config_from_size(paper_format)
-    assert pc.name == expected_name
+    if expected_name is None:
+        assert pc is None
+    else:
+        assert pc.name == expected_name
+
+
+def test_hpgl_paper_config(simple_printer_config):
+    vp.CONFIG_MANAGER.load_config_file(simple_printer_config)
+    assert vp.CONFIG_MANAGER.get_plotter_config("simple").paper_config("simple") is not None
+    assert vp.CONFIG_MANAGER.get_plotter_config("simple").paper_config("DOESNTEXIST") is None
 
 
 def test_hpgl_paper_size_inference(runner):
