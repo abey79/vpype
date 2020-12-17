@@ -1,5 +1,11 @@
 # Change log
 
+#### 1.3 (UNRELEASED)
+
+New features and improvements:
+* ...
+
+
 #### 1.2 (2020-12-17)
 
 New features and improvements:
