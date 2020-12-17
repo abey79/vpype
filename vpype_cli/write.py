@@ -207,12 +207,14 @@ def write(
             config = vp.CONFIG_MANAGER.get_plotter_config(device)
             paper_config = config.paper_config_from_size(document.page_size)
             if paper_config:
-                paper_size = paper_config.name
+                page_size = paper_config.name
+                landscape = document.page_size[0] > document.page_size[1]
             else:
                 logging.error(
                     "write: the plotter page size could not be inferred from the current page "
-                    "size - please use the `--page-size SIZE` option"
+                    "size (use the `--page-size SIZE` option)"
                 )
+                return document
 
         vp.write_hpgl(
             output=output,
@@ -227,7 +229,7 @@ def write(
     else:
         logging.warning(
             f"write: format could not be inferred or format unknown '{file_format}', "
-            "no file created"
+            "no file created (use the `--format` option)"
         )
 
     return document
