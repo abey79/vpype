@@ -90,8 +90,8 @@ file::
 
   $ vpype read --single-layer --layer 1 input1.svg read --single-layer --layer 2 input2.svg write output.svg
 
-Note the use of ``--single-layer``. It is necessary to make sure that the input SVG is merged into a single layer and is
-necessary to enable the ``--layer`` option.
+Note the use of :option:`--single-layer <read --single-layer>`. It is necessary to make sure that the input SVG is
+merged into a single layer and is necessary to enable the :option:`--layer <read --layer>` option.
 
 This command will :ref:`cmd_read` two SVG files onto two different layers, rotate one layer 180 degrees, then
 :ref:`cmd_write` both layers into a single SVG file::
@@ -120,13 +120,20 @@ Converting a SVG to HPGL
 
 For vintage plotters, the :ref:`cmd_write` command is capable of generating HPGL code instead of SVG. HPGL output format
 is automatically selected if the output path file extension is ``.hpgl``. Since HPGL coordinate systems vary widely from
-plotter to plotter and even for different physical paper format, the plotter model and the paper format must be provided
+plotter to plotter and even for different physical paper format, the plotter model must be provided
 to the :ref:`cmd_write` command::
 
-  $ vpype read input.svg write --device hp7475a --page-size a4 --landscape --center output.hpgl
+  $ vpype read input.svg write --device hp7475a output.hpgl
 
+The plotter paper size will be inferred from the current page size (which is set by the input SVG in this case).
 The plotter type/paper format combination must exist in the built-in or user-provided configuration file. See
-:ref:`faq_custom_hpgl_config` for information on how to create one.
+:ref:`faq_custom_hpgl_config` for information on how to create one. If a matching plotter paper size cannot be found,
+an error will be generated. In this case, the paper size must manually specified with the :option:`--page-size <write --page-size>` option::
+
+  $ vpype read input.svg write --device hp7475a --page-size a4 --landscape output.hpgl
+
+Here the :option:`--landscape <write --landscape>` is also used to indicate that landscape orientation is desired. As
+for SVG output, the :option:`--center <write --center>` is often use to center the geometries in the middle of the page.
 
 It is typically useful to optimize the input SVG during the conversion. The following example is typical of real-world
 use::
@@ -137,9 +144,9 @@ use::
 Defining a default HPGL plotter device
 ======================================
 
-If you are using the same type of plotter regularly, it may be cumbersome to systematically add the ``--device`` option
-to the :ref:`cmd_write` command. The default device can be set in the ``~/.vpype.toml`` configuration file by adding the
-following section:
+If you are using the same type of plotter regularly, it may be cumbersome to systematically add the :option:`--device
+<write --device>` option to the :ref:`cmd_write` command. The default device can be set in the ``~/.vpype.toml``
+configuration file by adding the following section:
 
   .. code-block:: toml
 
@@ -154,7 +161,8 @@ Creating a custom configuration file for a HPGL plotter
 
 The configuration for a number of HPGL plotter is bundled with vpype (run ``vpype write --help`` for a list). If your
 plotter is not included, it is possible to define your own plotter configuration either in `~/.vpype.toml` or any other
-file. In the latter case, you must instruct vpype to load the configuration using the ``--config`` option::
+file. In the latter case, you must instruct vpype to load the configuration using the :option:`--config <vpype
+--config>` global option::
 
   $ vpype --config my_config_file.toml read input.svg [...] write --device my_plotter --page-size a4 output.hpgl
 

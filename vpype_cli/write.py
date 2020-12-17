@@ -61,11 +61,15 @@ corresponding device must be configured in the built-in or a user-provided confi
 
     {', '.join(vp.CONFIG_MANAGER.get_plotter_list())}
 
-In HPGL mode, because the coordinate system depends on the configuration, the `--page-size`
-option is mandatory, and is restricted to the paper formats defined in the corresponding
-device's configuration. The plotter may as well need to be specifically configured for the
-desired paper size (e.g. for A4 or A3, the HP 7475a's corresponding DIP switch must be set to
-metric mode).
+In HPGL mode, this command will try to infer the paper size to use based on the current page
+size (the current page size is set by the `read` command based on the input file and can be
+manually set or changed with the `pagesize` command). An error will be displayed if no
+corresponding paper size if found. Use the `--page-size` option with a format defined in the
+device's configuration to manually specify with paper size to use.
+
+The plotter may need to be specifically configured for the desired paper size (e.g. for A4 or
+A3, the HP 7475a's corresponding DIP switch must be set to metric mode). A note will be
+displayed as a reminder and can be hidden using the `--quiet` option.
 
 The `--landscape` and `--center` options are accepted and honored in HPGL.
 
