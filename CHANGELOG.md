@@ -4,10 +4,12 @@
 
 New features and improvements:
 * A Windows installer is now available (#120)
+* HPGL output: `--page-size` is no longer mandatory and `write` will try to infer which paper to use based on the current page size (#132)  
 * Added `reverse` command (#129)
 
 Bug fixes:
 * Fixed crash for SVG with <desc> element (#127)
+* Fixed an issue where output HPGL file could be empty (#132)
 
 
 #### 1.1 (2020-12-10)

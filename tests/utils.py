@@ -20,7 +20,7 @@ def line_collection_contains(lc: vp.LineCollection, line: Sequence[complex]) -> 
     return False
 
 
-def execute_single_line(pipeline: str, line: np.ndarray) -> vp.LineCollection:
+def execute_single_line(pipeline: str, line: vp.LineLike) -> vp.LineCollection:
     """Execute a pipeline on a single line. The pipeline is expected to remain single layer.
 
     Returns:

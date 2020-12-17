@@ -604,3 +604,4 @@ def write_hpgl(
         )
 
     output.write("SP0;IN;\n")
+    output.flush()
