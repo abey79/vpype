@@ -494,6 +494,21 @@ pytest = ">=4.6"
 testing = ["fields", "hunter", "process-tests (==2.0.2)", "six", "pytest-xdist", "virtualenv"]
 
 [[package]]
+name = "pytest-mpl"
+version = "0.12"
+description = "pytest plugin to help with testing figures output from Matplotlib"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+matplotlib = "*"
+pytest = "*"
+
+[package.extras]
+test = ["pytest-cov"]
+
+[[package]]
 name = "python-dateutil"
 version = "2.8.1"
 description = "Extensions to the standard Python datetime module"
@@ -816,7 +831,7 @@ docs = ["Sphinx", "sphinx-click", "sphinx-autodoc-typehints", "sphinx-rtd-theme"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.6, <3.9"
-content-hash = "45f45a2d5d940e0df1c520d8c2aa2823bfd085d55dc59a0ae6230da87520418d"
+content-hash = "a1915cf8b6709b969941b9c0ce10dc2a8409e57816c8f105042db9e793dca541"
 
 [metadata.files]
 alabaster = [
@@ -1193,6 +1208,10 @@ pytest = [
 pytest-cov = [
     {file = "pytest-cov-2.10.1.tar.gz", hash = "sha256:47bd0ce14056fdd79f93e1713f88fad7bdcc583dcd7783da86ef2f085a0bb88e"},
     {file = "pytest_cov-2.10.1-py2.py3-none-any.whl", hash = "sha256:45ec2d5182f89a81fc3eb29e3d1ed3113b9e9a873bcddb2a71faaab066110191"},
+]
+pytest-mpl = [
+    {file = "pytest-mpl-0.12.tar.gz", hash = "sha256:4a223909e5148c99bd18891848c7871457729322c752c9c470bd8dd6bdf9f940"},
+    {file = "pytest_mpl-0.12-py3-none-any.whl", hash = "sha256:e286ec2e57fcfbab6200de04e0a1fe42d6b1ab4fc06e7c8b318fd5044f480acf"},
 ]
 python-dateutil = [
     {file = "python-dateutil-2.8.1.tar.gz", hash = "sha256:73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c"},
