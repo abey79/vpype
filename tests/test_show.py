@@ -13,6 +13,7 @@ old_show = plt.show
         "rect 1cm 1cm 10cm 15cm",
         "-s 0 random -a 10cm 10cm -n 100",
         "begin grid -o 3cm 3cm 5 5 circle 0 0 5cm end",
+        "circle 15cm 10cm 10cm pagesize -l a4",
     ],
 )
 @pytest.mark.parametrize(
