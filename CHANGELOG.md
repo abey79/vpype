@@ -3,7 +3,7 @@
 #### 1.3 (UNRELEASED)
 
 New features and improvements:
-* ...
+* Minor loading time improvement (#133)
 
 
 #### 1.2 (2020-12-17)
