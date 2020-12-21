@@ -604,7 +604,7 @@ python-versions = "*"
 
 [[package]]
 name = "sphinx"
-version = "3.3.1"
+version = "3.4.0"
 description = "Python documentation generator"
 category = "main"
 optional = true
@@ -630,8 +630,8 @@ sphinxcontrib-serializinghtml = "*"
 
 [package.extras]
 docs = ["sphinxcontrib-websupport"]
-lint = ["flake8 (>=3.5.0)", "flake8-import-order", "mypy (>=0.790)", "docutils-stubs"]
-test = ["pytest", "pytest-cov", "html5lib", "typed-ast", "cython"]
+lint = ["flake8 (>=3.5.0)", "isort", "mypy (>=0.790)", "docutils-stubs"]
+test = ["pytest", "pytest-cov", "html5lib", "cython", "typed-ast"]
 
 [[package]]
 name = "sphinx-autodoc-typehints"
@@ -1317,8 +1317,8 @@ snowballstemmer = [
     {file = "snowballstemmer-2.0.0.tar.gz", hash = "sha256:df3bac3df4c2c01363f3dd2cfa78cce2840a79b9f1c2d2de9ce8d31683992f52"},
 ]
 sphinx = [
-    {file = "Sphinx-3.3.1-py3-none-any.whl", hash = "sha256:d4e59ad4ea55efbb3c05cde3bfc83bfc14f0c95aa95c3d75346fcce186a47960"},
-    {file = "Sphinx-3.3.1.tar.gz", hash = "sha256:1e8d592225447104d1172be415bc2972bd1357e3e12fdc76edf2261105db4300"},
+    {file = "Sphinx-3.4.0-py3-none-any.whl", hash = "sha256:77c801947eb86457822e01eadd5c2e2de020db0201f1f9fc98b0927980b6d212"},
+    {file = "Sphinx-3.4.0.tar.gz", hash = "sha256:4dcde313801f23ea4789ac31e5405e240cb758b5d375804807f2f3cc3c396bfa"},
 ]
 sphinx-autodoc-typehints = [
     {file = "sphinx-autodoc-typehints-1.11.1.tar.gz", hash = "sha256:244ba6d3e2fdb854622f643c7763d6f95b6886eba24bec28e86edf205e4ddb20"},
