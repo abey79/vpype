@@ -6,6 +6,12 @@ New features and improvements:
 * Minor loading time improvement (#133)
 
 
+#### 1.2.1 (2020-12-26)
+
+Hot fix:
+* Fixed systematic crash with `read` command due to bad dependency version (#140)
+
+
 #### 1.2 (2020-12-17)
 
 New features and improvements:
