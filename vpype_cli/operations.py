@@ -249,7 +249,9 @@ def splitall(lines: vp.LineCollection) -> vp.LineCollection:
 
     new_lines = vp.LineCollection()
     for line in lines:
-        new_lines.extend([line[i : i + 2] for i in range(len(line) - 1)])
+        new_lines.extend(
+            [line[i : i + 2] for i in range(len(line) - 1) if line[i] != line[i + 1]]
+        )
     return new_lines
 
 
