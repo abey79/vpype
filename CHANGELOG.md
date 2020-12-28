@@ -6,6 +6,9 @@ New features and improvements:
 * Minor loading time improvement (#133)
 * Added large format paper sizes (A2, A1, A0) (#144)
 
+Bug fixes:
+* `splitall` filter out segments where both points are identical (#70)
+
 
 #### 1.2.1 (2020-12-26)
 
