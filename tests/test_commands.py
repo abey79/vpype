@@ -365,3 +365,16 @@ def test_snap_no_duplicate(pitch: float):
         assert np.all(lc[0][:-1] != lc[0][1:])
     else:
         assert len(lc) == 0
+
+
+@pytest.mark.parametrize(
+    ("line", "expected"),
+    [
+        ([0, 1 + 2j, 2], [[0, 1 + 2j], [1 + 2j, 2]]),
+        ([0, 1 + 2j, 1 + 2j, 2], [[0, 1 + 2j], [1 + 2j, 2]]),
+    ],
+)
+def test_splitall_filter_duplicates(line, expected):
+    lc = execute_single_line("splitall", line)
+
+    assert np.all(l == el for l, el in zip(lc, expected))
