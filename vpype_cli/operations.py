@@ -241,7 +241,8 @@ def splitall(lines: vp.LineCollection) -> vp.LineCollection:
     Split all paths into their constituent segments.
 
     This command may be used together with `linemerge` for cases such as densely-connected
-    meshes where the latter cannot optimize well enough by itself.
+    meshes where the latter cannot optimize well enough by itself. Using this command will
+    filter out segments where both points are identical.
 
     Note that since some paths (especially curved ones) can be made of a large number of
     segments, this command may significantly increase the processing time of the pipeline.
