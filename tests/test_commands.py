@@ -1,5 +1,4 @@
 import itertools
-import os
 
 import numpy as np
 import pytest
@@ -47,6 +46,7 @@ MINIMAL_COMMANDS = [
     "pagesize 10inx15in",
     "stat",
     "snap 1",
+    "reverse",
 ]
 
 
@@ -341,6 +341,19 @@ def test_snap():
     assert np.all(lc[0] == np.array([0, 1 + 1j, 2j]))
 
 
+def test_filter():
+    assert len(execute_single_line("filter --min-length 10", [0, 15])) == 1
+    assert len(execute_single_line("filter --min-length 10", [0, 10])) == 1
+    assert len(execute_single_line("filter --min-length 10", [0, 5])) == 0
+    assert len(execute_single_line("filter --max-length 10", [0, 15])) == 0
+    assert len(execute_single_line("filter --max-length 10", [0, 10])) == 1
+    assert len(execute_single_line("filter --max-length 10", [0, 5])) == 1
+    assert len(execute_single_line("filter --closed", [0, 5, 5j, 0])) == 1
+    assert len(execute_single_line("filter --closed", [0, 5, 5j])) == 0
+    assert len(execute_single_line("filter --not-closed", [0, 5, 5j, 0])) == 0
+    assert len(execute_single_line("filter --not-closed", [0, 5, 5j])) == 1
+
+
 @pytest.mark.parametrize("pitch", [0.1, 1, 5, 10, 20, 50, 100, 200, 500])
 def test_snap_no_duplicate(pitch: float):
     """Snap should return no duplicated points and reject lines that degenerate into a single
@@ -352,3 +365,16 @@ def test_snap_no_duplicate(pitch: float):
         assert np.all(lc[0][:-1] != lc[0][1:])
     else:
         assert len(lc) == 0
+
+
+@pytest.mark.parametrize(
+    ("line", "expected"),
+    [
+        ([0, 1 + 2j, 2], [[0, 1 + 2j], [1 + 2j, 2]]),
+        ([0, 1 + 2j, 1 + 2j, 2], [[0, 1 + 2j], [1 + 2j, 2]]),
+    ],
+)
+def test_splitall_filter_duplicates(line, expected):
+    lc = execute_single_line("splitall", line)
+
+    assert np.all(l == el for l, el in zip(lc, expected))

@@ -1,12 +1,29 @@
 # Change log
 
-#### 1.2 (UNRELEASED)
+#### 1.3 (UNRELEASED)
+
+New features and improvements:
+* Minor loading time improvement (#133)
+* Added large format paper sizes (A2, A1, A0) (#144)
+* The `splitall` command will now filter out segments with identical end-points (#146)
+
+
+#### 1.2.1 (2020-12-26)
+
+Hot fix:
+* Fixed systematic crash with `read` command due to bad dependency version (#140)
+
+
+#### 1.2 (2020-12-17)
 
 New features and improvements:
 * A Windows installer is now available (#120)
+* HPGL output: `--page-size` is no longer mandatory and `write` will try to infer which paper to use based on the current page size (#132)  
+* Added `reverse` command (#129)
 
 Bug fixes:
 * Fixed crash for SVG with <desc> element (#127)
+* Fixed an issue where output HPGL file could be empty (#132)
 
 
 #### 1.1 (2020-12-10)

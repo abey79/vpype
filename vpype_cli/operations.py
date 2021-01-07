@@ -241,7 +241,8 @@ def splitall(lines: vp.LineCollection) -> vp.LineCollection:
     Split all paths into their constituent segments.
 
     This command may be used together with `linemerge` for cases such as densely-connected
-    meshes where the latter cannot optimize well enough by itself.
+    meshes where the latter cannot optimize well enough by itself. This command will
+    filter out segments with identical end-points.
 
     Note that since some paths (especially curved ones) can be made of a large number of
     segments, this command may significantly increase the processing time of the pipeline.
@@ -249,7 +250,9 @@ def splitall(lines: vp.LineCollection) -> vp.LineCollection:
 
     new_lines = vp.LineCollection()
     for line in lines:
-        new_lines.extend([line[i : i + 2] for i in range(len(line) - 1)])
+        new_lines.extend(
+            [line[i : i + 2] for i in range(len(line) - 1) if line[i] != line[i + 1]]
+        )
     return new_lines
 
 
@@ -374,3 +377,17 @@ def snap(line_collection: vp.LineCollection, pitch: float) -> vp.LineCollection:
 
     new_lines.scale(pitch)
     return new_lines
+
+
+@cli.command(group="Operations")
+@vp.layer_processor
+def reverse(line_collection: vp.LineCollection) -> vp.LineCollection:
+    """Reverse order of lines.
+
+    Reverse the order of lines within their respective layers. Individual lines are not
+    modified (in particular, their trajectory is not inverted). Only the order in which they
+    are drawn is reversed.
+    """
+
+    line_collection.reverse()
+    return line_collection

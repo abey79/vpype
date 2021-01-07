@@ -133,6 +133,14 @@ def test_line_collection_pen_up_trajectories():
     assert line_collection_contains(pen_up, [25j, 3 + 3j])
 
 
+def test_line_collection_reverse():
+    line_arr = [(0, 100j, 1000, 10), (5j, 3, 25j), (3 + 3j, 100, 10j)]
+    lc = LineCollection(line_arr)
+    lc.reverse()
+    for i, line in enumerate(reversed(line_arr)):
+        assert np.all(lc[i] == np.array(line))
+
+
 def test_document_lid_iteration():
     lc = LineCollection([(0, 1 + 1j)])
     doc = Document()

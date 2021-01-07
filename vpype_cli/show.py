@@ -1,6 +1,4 @@
 import click
-import matplotlib.collections
-import matplotlib.pyplot as plt
 import numpy as np
 
 from vpype import Document, as_vector, convert_length, global_processor
@@ -54,6 +52,10 @@ def show(
     displayed with black. When using the `--colorful` flag, each segment will have a different
     color (default matplotlib behaviour). This can be useful for debugging purposes.
     """
+
+    # deferred import to optimise startup time
+    import matplotlib.collections
+    import matplotlib.pyplot as plt
 
     scale = 1 / convert_length(unit)
 
