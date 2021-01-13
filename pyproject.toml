@@ -32,7 +32,7 @@ python = ">=3.6, <3.9"
 attrs = "~20.3.0"
 click = "~7.1.2"
 click-plugins = "~1.1.1"
-numpy = "~1.19.5"
+numpy = "1.19.5"
 matplotlib = "~3.3.2"
 scipy = "~1.5.4"
 Shapely = {extras = ["vectorized"], version = "~1.7.1"}
