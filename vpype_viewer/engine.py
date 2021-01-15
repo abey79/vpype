@@ -12,6 +12,7 @@ import vpype as vp
 
 from .math import orthogonal_projection_matrix
 from .painters import (
+    LineCollectionFastColorfulPainter,
     LineCollectionFastPainter,
     LineCollectionPenUpPainter,
     LineCollectionPointsPainter,
@@ -147,7 +148,7 @@ class Engine:
         w = x2 - x1
         h = y2 - y1
 
-        self._scale = 0.9 * min(self._viewport_width / w, self._viewport_height / h)
+        self._scale = 0.95 * min(self._viewport_width / w, self._viewport_height / h)
         self._origin = [
             x1 - (self._viewport_width / self._scale - w) / 2,
             y1 - (self._viewport_height / self._scale - h) / 2,
@@ -220,6 +221,12 @@ class Engine:
                     self._layer_painters[layer_id].append(
                         LineCollectionFastPainter(self._ctx, lc=lc, color=layer_color)
                     )
+                elif self.view_mode == ViewMode.FAST_COLORFUL:
+                    self._layer_painters[layer_id].append(
+                        LineCollectionFastColorfulPainter(
+                            self._ctx, lc=lc, show_points=self._show_points
+                        )
+                    )
                 elif self.view_mode == ViewMode.PREVIEW:
                     self._layer_painters[layer_id].append(
                         LineCollectionPreviewPainter(
@@ -231,11 +238,10 @@ class Engine:
                     self._layer_painters[layer_id].append(
                         LineCollectionPenUpPainter(self._ctx, lc=lc)
                     )
-                if self.show_points:
+                if self.show_points and self.view_mode != ViewMode.FAST_COLORFUL:
                     self._layer_painters[layer_id].append(
                         LineCollectionPointsPainter(self._ctx, lc=lc, color=layer_color)
                     )
-                    pass
 
                 color_index += 1
 

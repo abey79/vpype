@@ -113,6 +113,58 @@ class LineCollectionFastPainter(Painter):
         return np.block(block), np.concatenate(ranges)
 
 
+class LineCollectionFastColorfulPainter(Painter):
+    COLORS = [
+        np.array((0.0, 0.0, 1.0, 1.0)),
+        np.array((0.0, 0.5, 0.0, 1.0)),
+        np.array((1.0, 0.0, 0.0, 1.0)),
+        np.array((0.0, 0.75, 0.75, 1.0)),
+        np.array((0.0, 1.0, 0.0, 1.0)),
+        np.array((0.75, 0, 0.75, 1.0)),
+        np.array((0.75, 0.75, 0.0, 1.0)),
+    ]
+
+    def __init__(self, ctx: mgl.Context, lc: vp.LineCollection, show_points: bool = False):
+        super().__init__(ctx)
+
+        self._show_points = show_points
+        self._prog = load_program("fast_line", ctx)
+
+        vertices, indices = self._build_buffers(lc)
+        vbo = ctx.buffer(vertices.astype("f4").tobytes())
+        ibo = ctx.buffer(indices.astype("i4").tobytes())
+        self._vao = ctx.simple_vertex_array(
+            self._prog, vbo, "in_vert", "in_color", index_buffer=ibo
+        )
+
+    def render(self, projection: np.ndarray, scale: float) -> None:
+        self._prog["projection"].write(projection)
+        self._vao.render(mgl.LINE_STRIP)
+        if self._show_points:
+            self._vao.render(mgl.POINTS)
+
+    @classmethod
+    def _build_buffers(cls, lc: vp.LineCollection) -> Tuple[np.ndarray, np.ndarray]:
+        # build index array
+        ranges = []
+        block = []
+        cur_index = 0
+        restart_mark = [-1]
+        for i, line in enumerate(lc):
+            n = len(line)
+            ranges.append(range(cur_index, cur_index + n))
+            ranges.append(restart_mark)
+            cur_index += n
+
+            color = cls.COLORS[i % len(cls.COLORS)]
+            colors = np.tile(color, (n, 1))
+            colors[::2, 0:3] *= 0.6
+
+            block.append([vp.as_vector(line), colors])
+
+        return np.block(block), np.concatenate(ranges)
+
+
 class LineCollectionPointsPainter(Painter):
     def __init__(
         self, ctx: mgl.Context, lc: vp.LineCollection, color: ColorType = (0, 0, 0, 0.25)
@@ -176,7 +228,7 @@ class LineCollectionPointsPainter(Painter):
 
 class LineCollectionPenUpPainter(Painter):
     def __init__(
-        self, ctx: mgl.Context, lc: vp.LineCollection, color: ColorType = (0, 0, 0, 0.25)
+        self, ctx: mgl.Context, lc: vp.LineCollection, color: ColorType = (0, 0, 0, 0.5)
     ):
         super().__init__(ctx)
 
