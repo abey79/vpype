@@ -70,6 +70,7 @@ class Engine:
         self._ctx = ctx
         self._ctx.enable(mgl.BLEND | mgl.PROGRAM_POINT_SIZE)
         self.resize(width, height)
+        self._rebuild()
 
     # =========================================================================================
     # Properties
@@ -81,6 +82,7 @@ class Engine:
     @document.setter
     def document(self, document: vp.Document) -> None:
         self._document = document
+        self._layer_visibility.clear()
         self._rebuild()
 
     @property
@@ -118,6 +120,13 @@ class Engine:
     def show_points(self, show_points: bool):
         self._show_points = show_points
         self._rebuild()
+
+    def layer_visible(self, layer_id: int) -> bool:
+        return self._layer_visibility[layer_id]
+
+    def toggle_layer_visibility(self, layer_id: int) -> None:
+        self._layer_visibility[layer_id] = not self._layer_visibility[layer_id]
+        self._render_cb()
 
     # =========================================================================================
     # Geometry
@@ -196,7 +205,6 @@ class Engine:
 
     def _rebuild(self):
         self._layer_painters.clear()
-        self._layer_visibility.clear()
         self._paper_bounds_painter = None
 
         if self._ctx is None:

@@ -7,7 +7,15 @@ from typing import Optional
 import moderngl as mgl
 from PySide2.QtCore import QEvent, QSize, Qt
 from PySide2.QtOpenGL import QGLFormat, QGLWidget
-from PySide2.QtWidgets import QAction, QActionGroup, QToolBar, QVBoxLayout, QWidget
+from PySide2.QtWidgets import (
+    QAction,
+    QActionGroup,
+    QMenu,
+    QToolBar,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 import vpype as vp
 
@@ -38,6 +46,10 @@ class QtViewerWidget(QGLWidget):
 
     def document(self) -> Optional[vp.Document]:
         return self._document
+
+    def set_document(self, document: vp.Document) -> None:
+        self._document = document
+        self.engine.document = document
 
     def initializeGL(self):
         self._ctx = mgl.create_context()
@@ -97,7 +109,7 @@ class QtViewer(QWidget):
 
         self.setWindowTitle("vpype viewer")
 
-        self._viewer_widget = QtViewerWidget(document=document, parent=self)
+        self._viewer_widget = QtViewerWidget(parent=self)
 
         # setup toolbar
         self._toolbar = QToolBar()
@@ -145,6 +157,15 @@ class QtViewer(QWidget):
         fit_act = self._toolbar.addAction("Fit")
         fit_act.triggered.connect(self._viewer_widget.engine.fit_to_viewport)
 
+        self._toolbar.addSeparator()
+
+        self._layer_visibility_btn = QToolButton()
+        self._layer_visibility_btn.setText("Layer")
+        self._layer_visibility_btn.setMenu(QMenu(self._layer_visibility_btn))
+        self._layer_visibility_btn.setPopupMode(QToolButton.MenuButtonPopup)
+        self._layer_visibility_btn.pressed.connect(self._layer_visibility_btn.showMenu)
+        self._toolbar.addWidget(self._layer_visibility_btn)
+
         # setup layout
         layout = QVBoxLayout()
         layout.setSpacing(0)
@@ -152,6 +173,25 @@ class QtViewer(QWidget):
         layout.addWidget(self._toolbar)
         layout.addWidget(self._viewer_widget)
         self.setLayout(layout)
+
+        if document is not None:
+            self.set_document(document)
+
+    def set_document(self, document: vp.Document) -> None:
+        self._viewer_widget.set_document(document)
+        self._update_layer_menu()
+
+    def _update_layer_menu(self):
+        layer_menu = QMenu(self._layer_visibility_btn)
+        for layer_id in sorted(self._viewer_widget.document().layers):
+            action = layer_menu.addAction(f"Layer {layer_id}")
+            action.setCheckable(True)
+            action.setChecked(True)
+            # TODO: set color icon
+            action.triggered.connect(
+                functools.partial(self._viewer_widget.engine.toggle_layer_visibility, layer_id)
+            )
+        self._layer_visibility_btn.setMenu(layer_menu)
 
     def set_view_mode(self, mode: ViewMode) -> None:
         self._viewer_widget.engine.view_mode = mode
