@@ -3,7 +3,7 @@ Generic viewer
 """
 import enum
 from collections import defaultdict
-from typing import Callable, Dict, List, Optional
+from typing import Callable, Dict, List, Optional, Tuple
 
 import moderngl as mgl
 import numpy as np
@@ -155,6 +155,10 @@ class Engine:
         ]
 
         self._render_cb()
+
+    def viewport_to_model(self, x: float, y: float) -> Tuple[float, float]:
+        """Converts viewport coordinates to model coordinates."""
+        return x / self._scale + self._origin[0], y / self._scale + self._origin[1]
 
     def resize(self, width: int, height: int) -> None:
         self._viewport_width = width

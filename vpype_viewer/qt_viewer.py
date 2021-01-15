@@ -5,12 +5,14 @@ import functools
 from typing import Optional
 
 import moderngl as mgl
-from PySide2.QtCore import QEvent, QSize, Qt
+from PySide2.QtCore import QEvent, QSize, Qt, Signal
 from PySide2.QtOpenGL import QGLFormat, QGLWidget
 from PySide2.QtWidgets import (
     QAction,
     QActionGroup,
+    QLabel,
     QMenu,
+    QSizePolicy,
     QToolBar,
     QToolButton,
     QVBoxLayout,
@@ -22,13 +24,18 @@ import vpype as vp
 from .engine import Engine, ViewMode
 
 
+# noinspection PyUnresolvedReferences
 class QtViewerWidget(QGLWidget):
+    mouse_coords = Signal(str)
+
     def __init__(self, document: Optional[vp.Document] = None, parent=None):
         fmt = QGLFormat()
         fmt.setVersion(3, 3)
         fmt.setProfile(QGLFormat.CoreProfile)
         fmt.setSampleBuffers(True)
         super().__init__(fmt, parent=parent)
+
+        self.setMouseTracking(True)
 
         self._document = document
 
@@ -76,8 +83,9 @@ class QtViewerWidget(QGLWidget):
         self._mouse_drag = True
 
     def mouseMoveEvent(self, evt):
+        factor = self.window().devicePixelRatio()
+
         if self._mouse_drag:
-            factor = self.window().devicePixelRatio()
             self.engine.pan(
                 factor * (evt.x() - self._last_mouse_x),
                 factor * (evt.y() - self._last_mouse_y),
@@ -86,8 +94,14 @@ class QtViewerWidget(QGLWidget):
             self._last_mouse_x = evt.x()
             self._last_mouse_y = evt.y()
 
+        x, y = self.engine.viewport_to_model(factor * evt.x(), factor * evt.y())
+        self.mouse_coords.emit(f"{x:.5f}, {y:.5f}")
+
     def mouseReleaseEvent(self, evt):
         self._mouse_drag = False
+
+    def leaveEvent(self, event: QEvent) -> None:
+        self.mouse_coords.emit("")
 
     def event(self, event: QEvent) -> bool:
         # handle pinch zoom on mac
@@ -165,6 +179,18 @@ class QtViewer(QWidget):
         self._layer_visibility_btn.setPopupMode(QToolButton.MenuButtonPopup)
         self._layer_visibility_btn.pressed.connect(self._layer_visibility_btn.showMenu)
         self._toolbar.addWidget(self._layer_visibility_btn)
+
+        spacer = QWidget()
+        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self._toolbar.addWidget(spacer)
+
+        mouse_coord_lbl = QLabel("")
+        font = mouse_coord_lbl.font()
+        font.setPointSize(11)
+        mouse_coord_lbl.setFont(font)
+        self._toolbar.addWidget(mouse_coord_lbl)
+        # noinspection PyUnresolvedReferences
+        self._viewer_widget.mouse_coords.connect(mouse_coord_lbl.setText)
 
         # setup layout
         layout = QVBoxLayout()
