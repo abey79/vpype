@@ -7,6 +7,7 @@ from typing import Any, Dict, Iterable, List, Sequence
 import numpy as np
 
 from vpype import Document, LineCollection, as_vector, global_processor
+from vpype.utils import UNITS, convert
 
 from .cli import cli
 
@@ -14,6 +15,31 @@ debug_data: List[Dict[str, Any]] = []
 
 __all__ = ("dbsample", "dbdump", "stat", "DebugData")
 
+
+def _px_to_mm(px: float) -> float:
+    return px * 25.4 / 96.0
+
+def _decide_unit(mm: float) -> (string, float):
+    """
+    Return an appropriate unit for humans, along with a factor that can be used
+    to convert mm to that unit later on.
+    """
+    if mm < 0:
+        raise ValueError("mm must be a non-negative number")
+        
+    if length_mm < 100.0: # 10cm
+        unit = "mm"
+        factor = 1.0
+    elif length_mm < 1000.0: # 1m
+        unit = "cm"
+        factor = 100.0
+    elif length_mm < 1000000.0: # 1km
+        unit = "m"
+        factor = 1000.0
+    else:
+        unit = "km"
+        factor = 1000000.0
+    return unit,factor
 
 @cli.command(hidden=True)
 @global_processor
@@ -138,28 +164,41 @@ def stat(document: Document):
     for layer_id in sorted(document.layers.keys()):
         layer = document.layers[layer_id]
         length = layer.length()
+        length_mm = _px_to_mm(length)
+        unit, factor = _decide_unit(length_mm)
+        
         pen_up_length, pen_up_mean, pen_up_median = layer.pen_up_length()
         length_tot += length
         pen_up_length_tot += pen_up_length
+        pen_up_length_mm = _px_to_mm(pen_up_length)
+        pen_up_meah_mm = _px_to_mm(pen_up_meah)
+        pen_up_median_mm = _px_to_mm(pen_up_median)
+        
         print(f"Layer {layer_id}")
-        print(f"  Length: {length}")
-        print(f"  Pen-up length: {pen_up_length}")
-        print(f"  Total length: {length + pen_up_length}")
-        print(f"  Mean pen-up length: {pen_up_mean}")
-        print(f"  Median pen-up length: {pen_up_median}")
-        print(f"  Path count: {len(layer)}")
+        print(f"  Length:               {length_mm*factor:.2f}{unit}")
+        print(f"  Pen-up length:        {pen_up_length_mm*factor:.2f}{unit}")
+        print(f"  Total length:         {(length_mm + pen_up_length_mm)*factor:.2f}{unit}}")
+        print(f"  Mean pen-up length:   {pen_up_mean_mm*factor:.2f}{unit}}")
+        print(f"  Median pen-up length: {pen_up_median_mm*factor:.2f}{unit}}")
+        print(f"  Path count:           {len(layer)}")
         print(f"  Segment count: {layer.segment_count()}")
         print(
             f"  Mean segment length:",
             str(length / layer.segment_count() if layer.segment_count() else "n/a"),
         )
         print(f"  Bounds: {layer.bounds()}")
+    
+    
+    length_tot_mm = _px_to_mm(length_tot)
+    pen_up_length_tot_mm = _px_to_mm(pen_up_length_tot)
+    unit, factor = _decide_unit(length_tot_mm)
+    
     print(f"Totals")
-    print(f"  Layer count: {len(document.layers)}")
-    print(f"  Length: {length_tot}")
-    print(f"  Pen-up length: {pen_up_length_tot}")
-    print(f"  Total length: {length_tot + pen_up_length_tot}")
-    print(f"  Path count: {sum(len(layer) for layer in document.layers.values())}")
+    print(f"  Layer count:   {len(document.layers)}")
+    print(f"  Length:        {length_tot_mm*factor:.2f}{unit}}")
+    print(f"  Pen-up length: {pen_up_length_tot_mm*factor:.2f}{unit}}")
+    print(f"  Total length:  {(length_tot_mm + pen_up_length_tot_mm)*factor:.2f}{unit}}")
+    print(f"  Path count:    {sum(len(layer) for layer in document.layers.values())}")
     print(f"  Segment count: {document.segment_count()}")
 
     print(
