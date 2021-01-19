@@ -8,6 +8,7 @@ from typing import Optional, Union
 
 import moderngl as mgl
 from PySide2.QtCore import QEvent, QSize, Qt, Signal
+from PySide2.QtGui import QWheelEvent
 from PySide2.QtOpenGL import QGLFormat, QGLWidget
 from PySide2.QtWidgets import (
     QAction,
@@ -97,7 +98,6 @@ class QtViewerWidget(QGLWidget):
                 factor * (evt.x() - self._last_mouse_x),
                 factor * (evt.y() - self._last_mouse_y),
             )
-            self.update()
             self._last_mouse_x = evt.x()
             self._last_mouse_y = evt.y()
 
@@ -112,16 +112,30 @@ class QtViewerWidget(QGLWidget):
         # noinspection PyUnresolvedReferences
         self.mouse_coords.emit("")
 
+    def wheelEvent(self, event: QWheelEvent) -> None:
+        factor = self.window().devicePixelRatio()
+        if event.source() == Qt.MouseEventSource.MouseEventSynthesizedBySystem:
+            # track pad
+            delta = event.pixelDelta()
+            self.engine.pan(factor * delta.x(), factor * delta.y())
+        else:
+            # mouse wheel
+            delta = event.angleDelta().y()
+            self.engine.zoom(delta / 500.0, factor * event.x(), factor * event.y())
+
     def event(self, event: QEvent) -> bool:
         # handle pinch zoom on mac
-        if event.type() == QEvent.Type.NativeGesture:
-            if event.gestureType() == Qt.NativeGestureType.ZoomNativeGesture:
-                factor = self.window().devicePixelRatio()
-                self.engine.zoom(
-                    event.value(), event.localPos().x() * factor, event.localPos().y() * factor
-                )
-                self.update()
-                return True
+        if (
+            event.type() == QEvent.Type.NativeGesture
+            and event.gestureType() == Qt.NativeGestureType.ZoomNativeGesture
+        ):
+            factor = self.window().devicePixelRatio()
+            self.engine.zoom(
+                2.0 * event.value(),
+                event.localPos().x() * factor,
+                event.localPos().y() * factor,
+            )
+            return True
 
         return super().event(event)
 

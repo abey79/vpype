@@ -214,15 +214,18 @@ class Engine:
     def pan(self, dx: float, dy: float) -> None:
         self._origin[0] -= dx / self._scale
         self._origin[1] -= dy / self._scale
+        self._render_cb()
 
     def zoom(self, delta_zoom: float, mouse_x: float, mouse_y: float) -> None:
-        new_scale = self._scale * (1 + 2 * delta_zoom)  # FIXME: magic number
+        new_scale = self._scale * (1 + delta_zoom)
         new_scale = max(min(new_scale, 100000), 0.05)  # clamp to reasonable values
 
         dz = 1 / self._scale - 1 / new_scale
         self._origin[0] += mouse_x * dz
         self._origin[1] += mouse_y * dz
         self._scale = new_scale
+
+        self._render_cb()
 
     # =========================================================================================
     # Painters
