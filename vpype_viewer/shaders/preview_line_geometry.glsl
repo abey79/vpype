@@ -25,28 +25,6 @@ uniform float linewidth;
 out float v_length;
 out vec2 v_texcoord;
 
-float compute_u(vec2 p0, vec2 p1, vec2 p)
-{
-    // Projection p' of p such that p' = p0 + u*(p1-p0)
-    // Then  u *= length(p1-p0)
-    vec2 v = p1 - p0;
-    float l = length(v);
-
-    return ((p.x-p0.x)*v.x + (p.y-p0.y)*v.y) / l;
-}
-
-float line_distance(vec2 p0, vec2 p1, vec2 p)
-{
-    // Projection p' of p such that p' = p0 + u*(p1-p0)
-    vec2 v = p1 - p0;
-    float l2 = v.x*v.x + v.y*v.y;
-    float u = ((p.x-p0.x)*v.x + (p.y-p0.y)*v.y) / l2;
-
-    // h is the projection of p on (p0,p1)
-    vec2 h = p0 + u*v;
-
-    return length(p-h);
-}
 
 void main(void)
 {

@@ -40,29 +40,6 @@ vec4 stroke(float distance, float linewidth, float antialias, vec4 color)
     return frag_color;
 }
 
-vec4 cap(int type, float dx, float dy, float linewidth, float antialias, vec4 color)
-{
-    float d = 0.0;
-    dx = abs(dx);
-    dy = abs(dy);
-    float t = linewidth/2.0 - antialias;
-
-    if (type == 0)  // None
-        discard;
-    else if (type == 1) // Round
-        d = sqrt(dx*dx+dy*dy);
-    else if (type == 3) // Triangle in
-        d = (dx+abs(dy));
-    else if (type == 2) // Triangle out
-        d = max(abs(dy), (t+dx-abs(dy)));
-    else if (type == 4) // Square
-        d = max(dx, dy);
-    else if (type == 5) // Butt
-        d = max(dx+t, dy);
-
-    return stroke(d, linewidth, antialias, color);
-}
-
 uniform vec4  color;
 uniform float antialias;
 uniform float linewidth;

@@ -22,9 +22,9 @@ QToolButton:pressed {
 
 
 doc = vp.Document()
-doc.page_size = 600, 400
+doc.page_size = 600, 600
 
-tt = np.linspace(0, np.pi, 20)
+tt = np.linspace(-np.pi, np.pi, 32)
 doc.add(
     vp.LineCollection(
         [
