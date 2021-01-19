@@ -45,7 +45,7 @@ uniform float antialias;
 uniform float linewidth;
 
 uniform bool kill_frag_shader;
-uniform bool debug_v_caps;
+uniform bool debug_view;
 
 in float v_length;
 in vec2  v_texcoord;
@@ -56,7 +56,7 @@ void main()
 {
     float distance = v_texcoord.y;
 
-    if (debug_v_caps)
+    if (debug_view)
     {
         if (v_texcoord.x < 0.0) {
             distance = length(v_texcoord);
@@ -65,8 +65,10 @@ void main()
         }
 
         //fragColor.rgb = vec3(10. * v_caps.y / 255., 0., 0.);
-        float val = distance / (antialias + linewidth/2.);
-        fragColor.rgb = vec3(val, 0, -val);
+        float w = antialias + linewidth/2.;
+        float val = distance / w;
+        float y_val = (v_texcoord.x + w) / (v_length + 2*w);
+        fragColor.rgb = vec3(abs(val), 0, y_val);
         fragColor.a = 1.0;
         return;
     }

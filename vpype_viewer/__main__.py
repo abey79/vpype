@@ -24,12 +24,19 @@ QToolButton:pressed {
 doc = vp.Document()
 doc.page_size = 600, 600
 
-tt = np.linspace(-np.pi, np.pi, 32)
+tt = np.linspace(-np.pi + 0.1, np.pi - 0.1, 15)
 doc.add(
     vp.LineCollection(
         [
             i * 15j
-            + np.array([50 + 50j, 100 + 50j, 100 + 50j + 10 * complex(np.cos(t), np.sin(t))])
+            + np.array(
+                [
+                    50 + 50j,
+                    100 + 50j,
+                    100 + 50j + 10 * complex(np.cos(t), np.sin(t)),
+                    110 + 50j + 10 * complex(np.cos(t), np.sin(t)),
+                ]
+            )
             for i, t in enumerate(tt)
         ]
     )
@@ -71,6 +78,7 @@ doc.add(
 #         ]
 #     )
 # )
+
 
 # doc = vp.read_multilayer_svg("/Users/hhip/Downloads/meow3.svg", 0.1)
 # doc = vp.read_multilayer_svg("/Users/hhip/Downloads/spirograph-grids/spirograph-grid.svg", 0.1)

@@ -275,22 +275,19 @@ class LineCollectionPreviewPainter(Painter):
 
         if debug:
             self._prog["kill_frag_shader"].value = False
-            self._prog["debug_v_caps"].value = True
+            self._prog["debug_view"].value = True
             self._prog["color"].value = self._color[0:3] + (0.3,)
-
-            # self._ctx.cull_face = "back"
-            # self._ctx.wireframe = True
             self._vao.render(mgl.LINE_STRIP_ADJACENCY)
 
             self._prog["kill_frag_shader"].value = True
-            self._prog["debug_v_caps"].value = False
+            self._prog["debug_view"].value = False
             self._prog["color"].value = (0, 1, 0, 1)
             self._ctx.wireframe = True
             self._vao.render(mgl.LINE_STRIP_ADJACENCY)
             self._ctx.wireframe = False
         else:
             self._prog["kill_frag_shader"].value = False
-            self._prog["debug_v_caps"].value = False
+            self._prog["debug_view"].value = False
             self._vao.render(mgl.LINE_STRIP_ADJACENCY)
 
     # self._ctx.wireframe = False

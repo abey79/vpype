@@ -245,7 +245,7 @@ class Engine:
                 elif self.view_mode == ViewMode.PREVIEW:
                     self._layer_painters[layer_id].append(
                         LineCollectionPreviewPainter(
-                            self._ctx, lc=lc, line_width=3.0, color=layer_color
+                            self._ctx, lc=lc, line_width=1.0, color=layer_color
                         )
                     )
 
