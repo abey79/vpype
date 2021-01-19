@@ -20,8 +20,9 @@ from .painters import (
     Painter,
     PaperBoundsPainter,
 )
+from .utils import ColorType
 
-_COLORS = [
+_COLORS: List[ColorType] = [
     (0, 0, 1, 1),
     (0, 0.5, 0, 1),
     (1, 0, 0, 1),
@@ -46,6 +47,8 @@ class Engine:
         view_mode: ViewMode = ViewMode.FAST,
         show_pen_up: bool = False,
         show_points: bool = False,
+        pen_width: float = 1.1,  # 0.3mm
+        pen_opacity: float = 0.8,
         render_cb: Optional[Callable[[], None]] = lambda: None,
     ):
         # params
@@ -53,6 +56,8 @@ class Engine:
         self._view_mode = view_mode
         self._show_pen_up = show_pen_up
         self._show_points = show_points
+        self._pen_width = pen_width
+        self._pen_opacity = pen_opacity
         self._render_cb = render_cb
 
         # state
@@ -122,6 +127,24 @@ class Engine:
     @show_points.setter
     def show_points(self, show_points: bool):
         self._show_points = show_points
+        self._rebuild()
+
+    @property
+    def pen_width(self) -> float:
+        return self._pen_width
+
+    @pen_width.setter
+    def pen_width(self, pen_width: float):
+        self._pen_width = pen_width
+        self._rebuild()
+
+    @property
+    def pen_opacity(self) -> float:
+        return self._pen_opacity
+
+    @pen_opacity.setter
+    def pen_opacity(self, pen_opacity: float):
+        self._pen_opacity = pen_opacity
         self._rebuild()
 
     @property
@@ -229,7 +252,7 @@ class Engine:
         if self._document is not None:
             color_index = 0
             for layer_id in sorted(self._document.layers):
-                layer_color = _COLORS[color_index % len(_COLORS)]
+                layer_color: ColorType = _COLORS[color_index % len(_COLORS)]
                 lc = self._document.layers[layer_id]
 
                 if self.view_mode == ViewMode.FAST:
@@ -245,7 +268,15 @@ class Engine:
                 elif self.view_mode == ViewMode.PREVIEW:
                     self._layer_painters[layer_id].append(
                         LineCollectionPreviewPainter(
-                            self._ctx, lc=lc, line_width=1.0, color=layer_color
+                            self._ctx,
+                            lc=lc,
+                            line_width=self._pen_width,
+                            color=(
+                                layer_color[0],
+                                layer_color[1],
+                                layer_color[2],
+                                self._pen_opacity,
+                            ),
                         )
                     )
 
@@ -265,3 +296,5 @@ class Engine:
                 self._paper_bounds_painter = PaperBoundsPainter(
                     self._ctx, self._document.page_size
                 )
+
+        self._render_cb()

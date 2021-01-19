@@ -1,25 +1,10 @@
 import sys
 
 import numpy as np
-from PySide2 import QtWidgets
-from PySide2.QtCore import Qt
 
 import vpype as vp
 
-from .qt_viewer import QtViewer
-
-app = QtWidgets.QApplication(sys.argv)
-app.setAttribute(Qt.AA_UseHighDpiPixmaps)
-
-# TODO this should probably be moved somewhere else
-app.setStyleSheet(
-    """
-QToolButton:pressed {
-    background-color: rgba(0, 0, 0, 0.2);
-}
-"""
-)
-
+from .qt_viewer import show
 
 doc = vp.Document()
 doc.page_size = 600, 600
@@ -82,9 +67,8 @@ doc.add(
 
 # doc = vp.read_multilayer_svg("/Users/hhip/Downloads/meow3.svg", 0.1)
 # doc = vp.read_multilayer_svg("/Users/hhip/Downloads/spirograph-grids/spirograph-grid.svg", 0.1)
-# doc = vp.read_multilayer_svg("/Users/hhip/src/vsketch/mywork/bezier_column_saved.svg", 0.1)
+doc2 = vp.read_multilayer_svg("/Users/hhip/src/vsketch/mywork/bezier_column_saved.svg", 0.1)
 
-widget = QtViewer(doc)
-widget.resize(1024, 768)
-widget.show()
-sys.exit(app.exec_())
+show(doc)
+
+show(doc2)
