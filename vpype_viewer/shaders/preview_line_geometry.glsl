@@ -84,19 +84,21 @@ void main(void)
     // Angle between current and next segment (sign only)
     float d1 = -sign(v1.x*v2.y - v1.y*v2.x);
 
+    // model to texcoord transformation matrix to convert
+    // points to texcoords
+    mat2 texcoord_matrix = mat2(v1.x, n1.x, v1.y, n1.y);
+
     // Generate the triangle strip
     // First vertex
     // ------------------------------------------------------------------------
     // Cap at start
     if (p0 == p1) {
         p = p1 - w*v1 + w*n1;
-        v_texcoord = vec2(-w, +w);
-        // Regular join
     } else {
         p = p1 + length_a * miter_a;
-        v_texcoord = vec2(compute_u(p1, p2, p), +w);
     }
 
+    v_texcoord = texcoord_matrix * (p - p1);
     gl_Position = projection * vec4(p, 0.0, 1.0);
     EmitVertex();
 
@@ -105,12 +107,11 @@ void main(void)
     // Cap at start
     if (p0 == p1) {
         p = p1 - w*v1 - w*n1;
-        v_texcoord = vec2(-w, -w);
-        // Regular join
     } else {
         p = p1 - length_a * miter_a;
-        v_texcoord = vec2(compute_u(p1, p2, p), -w);
     }
+
+    v_texcoord = texcoord_matrix * (p - p1);
     gl_Position = projection * vec4(p, 0.0, 1.0);
     EmitVertex();
 
@@ -119,13 +120,12 @@ void main(void)
     // Cap at end
     if (p2 == p3) {
         p = p2 + w*v1 + w*n1;
-        v_texcoord = vec2(v_length+w, +w);
         // Regular join
     } else {
         p = p2 + length_b * miter_b;
-        v_texcoord = vec2(compute_u(p1, p2, p), +w);
     }
 
+    v_texcoord = texcoord_matrix * (p - p1);
     gl_Position = projection * vec4(p, 0.0, 1.0);
     EmitVertex();
 
@@ -134,12 +134,11 @@ void main(void)
     // Cap at end
     if (p2 == p3) {
         p = p2 + w*v1 - w*n1;
-        v_texcoord = vec2(v_length+w, -w);
     } else {
         p = p2 - length_b * miter_b;
-        v_texcoord = vec2(compute_u(p1, p2, p), -w);
     }
 
+    v_texcoord = texcoord_matrix * (p - p1);
     gl_Position = projection * vec4(p, 0.0, 1.0);
     EmitVertex();
 
