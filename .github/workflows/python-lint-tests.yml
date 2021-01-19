@@ -36,7 +36,7 @@ jobs:
     - name: Python Code Quality and Lint
       uses: abey79/python-lint@master
       with:
-        python-root-list: "vpype vpype_cli tests"
+        python-root-list: "vpype vpype_cli vpype_viewer tests"
         use-pylint: false
         use-pycodestyle: false
         use-flake8: false
