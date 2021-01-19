@@ -1,11 +1,12 @@
 import click
 import numpy as np
 
-from vpype import Document, as_vector, convert_length, global_processor
+import vpype as vp
+import vpype_viewer
 
 from .cli import cli
 
-__all__ = ("show",)
+__all__ = ("show", "showmpl")
 
 COLORS = [
     (0, 0, 1),
@@ -17,6 +18,19 @@ COLORS = [
     (0.75, 0.75, 0),
     (0, 0, 0),
 ]
+
+
+@cli.command(group="Output")
+@vp.global_processor
+def show(document: vp.Document):
+    """Display the geometry using matplotlib.
+
+    By default, only the geometries are displayed without the axis. All geometries are
+    displayed with black. When using the `--colorful` flag, each segment will have a different
+    color (default matplotlib behaviour). This can be useful for debugging purposes.
+    """
+
+    vpype_viewer.show(document)
 
 
 @cli.command(group="Output")
@@ -35,9 +49,9 @@ COLORS = [
     default="px",
     help="Units of the plot (when --show-grid is active)",
 )
-@global_processor
-def show(
-    document: Document,
+@vp.global_processor
+def showmpl(
+    document: vp.Document,
     show_axes: bool,
     show_grid: bool,
     show_pen_up: bool,
@@ -57,7 +71,7 @@ def show(
     import matplotlib.collections
     import matplotlib.pyplot as plt
 
-    scale = 1 / convert_length(unit)
+    scale = 1 / vp.convert_length(unit)
 
     fig = plt.figure()
     color_idx = 0
@@ -96,7 +110,7 @@ def show(
             color_idx = color_idx % len(COLORS)
 
         layer_lines = matplotlib.collections.LineCollection(
-            (as_vector(line) * scale for line in lc),
+            (vp.as_vector(line) * scale for line in lc),
             color=color,
             lw=1,
             alpha=0.5,
@@ -115,7 +129,7 @@ def show(
         if show_pen_up:
             pen_up_lines = matplotlib.collections.LineCollection(
                 (
-                    (as_vector(lc[i])[-1] * scale, as_vector(lc[i + 1])[0] * scale)
+                    (vp.as_vector(lc[i])[-1] * scale, vp.as_vector(lc[i + 1])[0] * scale)
                     for i in range(len(lc) - 1)
                 ),
                 color=(0, 0, 0),

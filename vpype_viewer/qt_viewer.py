@@ -27,6 +27,8 @@ import vpype as vp
 from .engine import Engine, ViewMode
 from .utils import PenOpacityActionGroup, PenWidthActionGroup, load_icon
 
+__all__ = ["QtViewerWidget", "QtViewer", "show"]
+
 _DEBUG_ENABLED = "VPYPE_VIEWER_DEBUG" in os.environ
 
 

@@ -39,7 +39,7 @@ def test_show(runner, monkeypatch, commands, params):
 
     monkeypatch.setattr(plt, "show", new_show)
 
-    res = runner.invoke(cli, f"{commands} show {params}")
+    res = runner.invoke(cli, f"{commands} showmpl {params}")
 
     assert res.exit_code == 0
     return fig

@@ -67,8 +67,6 @@ doc.add(
 
 # doc = vp.read_multilayer_svg("/Users/hhip/Downloads/meow3.svg", 0.1)
 # doc = vp.read_multilayer_svg("/Users/hhip/Downloads/spirograph-grids/spirograph-grid.svg", 0.1)
-doc2 = vp.read_multilayer_svg("/Users/hhip/src/vsketch/mywork/bezier_column_saved.svg", 0.1)
+# doc2 = vp.read_multilayer_svg("/Users/hhip/src/vsketch/mywork/bezier_column_saved.svg", 0.1)
 
 show(doc)
-
-show(doc2)

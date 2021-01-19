@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import List, Sequence, Tuple
 
 import moderngl as mgl
 import numpy as np
@@ -99,7 +99,7 @@ class LineCollectionFastPainter(Painter):
         lc: vp.LineCollection, color: ColorType = (0.0, 0.0, 0.0, 1.0)
     ) -> Tuple[np.ndarray, np.ndarray]:
         # build index array
-        ranges = []
+        ranges: List[Sequence[int]] = []
         block = []
         cur_index = 0
         restart_mark = [-1]
