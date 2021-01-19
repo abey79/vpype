@@ -66,15 +66,12 @@ vec4 cap(int type, float dx, float dy, float linewidth, float antialias, vec4 co
 uniform vec4  color;
 uniform float antialias;
 uniform float linewidth;
-uniform float miter_limit;
 
 uniform bool kill_frag_shader;
 uniform bool debug_v_caps;
 
 in float v_length;
-in vec2  v_caps;
 in vec2  v_texcoord;
-in vec2  v_bevel_distance;
 
 out vec4 fragColor;
 
@@ -84,13 +81,12 @@ void main()
 
     if (debug_v_caps)
     {
-        if (miter_limit < 0) {
-            if (v_texcoord.x < 0.0) {
-                distance = length(v_texcoord);
-            } else if (v_texcoord.x > v_length) {
-                distance = length(v_texcoord - vec2(v_length, 0.0));
-            }
+        if (v_texcoord.x < 0.0) {
+            distance = length(v_texcoord);
+        } else if (v_texcoord.x > v_length) {
+            distance = length(v_texcoord - vec2(v_length, 0.0));
         }
+
         //fragColor.rgb = vec3(10. * v_caps.y / 255., 0., 0.);
         float val = distance / (antialias + linewidth/2.);
         fragColor.rgb = vec3(val, 0, -val);
@@ -104,33 +100,10 @@ void main()
         return;
     }
 
-    if (v_caps.x < 0.0) {
-        fragColor = cap(1, v_texcoord.x, v_texcoord.y, linewidth, antialias, color);
-        //fragColor.r = 1.0;
-        return;
-    }
-
-    if (v_caps.y > v_length) {
-        fragColor = cap(1, v_texcoord.x-v_length, v_texcoord.y, linewidth, antialias, color);
-        //fragColor.g = 1.0;
-        return;
-    }
-    // Round join (instead of miter)
-    if (miter_limit < 0) {
-        if (v_texcoord.x < 0.0) {
-            distance = length(v_texcoord);
-        } else if (v_texcoord.x > v_length) {
-            distance = length(v_texcoord - vec2(v_length, 0.0));
-        }
-    } else {
-        // Miter limit
-        float t = (miter_limit-1.0)*(linewidth/2.0) + antialias;
-
-        if ((v_texcoord.x < 0.0) && (v_bevel_distance.x > (abs(distance) + t))) {
-            distance = v_bevel_distance.x - t;
-        } else if ((v_texcoord.x > v_length) && (v_bevel_distance.y > (abs(distance) + t))) {
-            distance = v_bevel_distance.y - t;
-        }
+    if (v_texcoord.x < 0.0) {
+        distance = length(v_texcoord);
+    } else if (v_texcoord.x > v_length) {
+        distance = length(v_texcoord - vec2(v_length, 0.0));
     }
 
     fragColor = stroke(distance, linewidth, antialias, color);

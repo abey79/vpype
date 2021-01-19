@@ -267,7 +267,7 @@ class LineCollectionPreviewPainter(Painter):
         self._vao = ctx.simple_vertex_array(self._prog, vbo, "position", index_buffer=ibo)
 
     def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
-        self._prog["miter_limit"].value = -1
+        # self._prog["miter_limit"].value = -1
         self._prog["color"].value = self._color
         self._prog["linewidth"].value = self._line_width
         self._prog["antialias"].value = 1.5 / scale
@@ -284,6 +284,7 @@ class LineCollectionPreviewPainter(Painter):
 
             self._prog["kill_frag_shader"].value = True
             self._prog["debug_v_caps"].value = False
+            self._prog["color"].value = (0, 1, 0, 1)
             self._ctx.wireframe = True
             self._vao.render(mgl.LINE_STRIP_ADJACENCY)
             self._ctx.wireframe = False

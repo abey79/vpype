@@ -21,12 +21,9 @@ layout(triangle_strip, max_vertices = 4) out;// Outputs a triangle strip with 4 
 uniform mat4 projection;
 uniform float antialias;
 uniform float linewidth;
-uniform float miter_limit;
 
-out vec2 v_caps;
 out float v_length;
 out vec2 v_texcoord;
-out vec2 v_bevel_distance;
 
 float compute_u(vec2 p0, vec2 p1, vec2 p)
 {
@@ -94,22 +91,13 @@ void main(void)
     if (p0 == p1) {
         p = p1 - w*v1 + w*n1;
         v_texcoord = vec2(-w, +w);
-        v_caps.x = v_texcoord.x;
         // Regular join
     } else {
         p = p1 + length_a * miter_a;
         v_texcoord = vec2(compute_u(p1, p2, p), +w);
-        v_caps.x = v_length; //1.0;
-        //v_caps.x = 1.0;
     }
-    if (p2 == p3)
-        v_caps.y = v_texcoord.x;
-    else
-        v_caps.y = v_length; //1.0;
-        //v_caps.y = 1.0;
+
     gl_Position = projection * vec4(p, 0.0, 1.0);
-    v_bevel_distance.x = +d0*line_distance(p1+d0*n0*w, p1+d0*n1*w, p);
-    v_bevel_distance.y =    -line_distance(p2+d1*n1*w, p2+d1*n2*w, p);
     EmitVertex();
 
     // Second vertex
@@ -118,22 +106,12 @@ void main(void)
     if (p0 == p1) {
         p = p1 - w*v1 - w*n1;
         v_texcoord = vec2(-w, -w);
-        v_caps.x = v_texcoord.x;
         // Regular join
     } else {
         p = p1 - length_a * miter_a;
         v_texcoord = vec2(compute_u(p1, p2, p), -w);
-        v_caps.x = v_length; //1.0;
-        //v_caps.x = 1.0;
     }
-    if (p2 == p3)
-        v_caps.y = v_texcoord.x;
-    else
-        v_caps.y = v_length; //1.0;
-        //v_caps.y = 1.0;
     gl_Position = projection * vec4(p, 0.0, 1.0);
-    v_bevel_distance.x = -d0*line_distance(p1+d0*n0*w, p1+d0*n1*w, p);
-    v_bevel_distance.y =    -line_distance(p2+d1*n1*w, p2+d1*n2*w, p);
     EmitVertex();
 
     // Third vertex
@@ -142,22 +120,13 @@ void main(void)
     if (p2 == p3) {
         p = p2 + w*v1 + w*n1;
         v_texcoord = vec2(v_length+w, +w);
-        v_caps.y = v_texcoord.x;
         // Regular join
     } else {
         p = p2 + length_b * miter_b;
         v_texcoord = vec2(compute_u(p1, p2, p), +w);
-        v_caps.y = 1.0;
     }
-    if (p0 == p1)
-        v_caps.x = v_texcoord.x;
-    else
-        v_caps.x = v_length;//1.0;
-
 
     gl_Position = projection * vec4(p, 0.0, 1.0);
-    v_bevel_distance.x = -line_distance(p1+d0*n0*w, p1+d0*n1*w, p);
-    v_bevel_distance.y = +d1*line_distance(p2+d1*n1*w, p2+d1*n2*w, p);
     EmitVertex();
 
     // Fourth vertex
@@ -166,24 +135,12 @@ void main(void)
     if (p2 == p3) {
         p = p2 + w*v1 - w*n1;
         v_texcoord = vec2(v_length+w, -w);
-        v_caps.y = v_texcoord.x;
-        // Regular join
     } else {
         p = p2 - length_b * miter_b;
         v_texcoord = vec2(compute_u(p1, p2, p), -w);
-        v_caps.y = v_length;//1.0;
-        //v_caps.y = 1.0;
     }
 
-    if (p0 == p1)
-        v_caps.x = v_texcoord.x;
-    else
-        v_caps.x = v_length;//1.0;
-    //v_caps.x = 1.0;
-
     gl_Position = projection * vec4(p, 0.0, 1.0);
-    v_bevel_distance.x =    -line_distance(p1+d0*n0*w, p1+d0*n1*w, p);
-    v_bevel_distance.y = -d1*line_distance(p2+d1*n1*w, p2+d1*n2*w, p);
     EmitVertex();
 
     EndPrimitive();
