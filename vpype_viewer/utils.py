@@ -10,7 +10,10 @@ from PySide2.QtWidgets import QAction, QActionGroup
 ColorType = Tuple[float, float, float, float]
 
 
-@cachetools.cached(cache={}, key=lambda name, ctx: cachetools.keys.hashkey((name, id(ctx))))
+@cachetools.cached(
+    cache={},  # type: ignore
+    key=lambda name, ctx: cachetools.keys.hashkey((name, id(ctx))),
+)
 def load_program(name: str, ctx: mgl.Context) -> mgl.Program:
     """Create a program based on a shader name prefix.
 
@@ -77,7 +80,9 @@ class PenWidthActionGroup(QActionGroup):
         if current not in self.widths:
             self.widths.append(current)
         for w in sorted(self.widths):
-            act = self.addAction(QAction(f"{w} mm", checkable=True, checked=(w == current)))
+            act = self.addAction(QAction(f"{w} mm"))
+            act.setCheckable(True)
+            act.setChecked(w == current)
             act.setData(w)
 
 
@@ -98,7 +103,7 @@ class PenOpacityActionGroup(QActionGroup):
         if current not in self.opacities:
             self.opacities.append(current)
         for w in sorted(self.opacities):
-            act = self.addAction(
-                QAction(f"{int(w*100)}%", checkable=True, checked=(w == current))
-            )
+            act = self.addAction(QAction(f"{int(w*100)}%"))
+            act.setCheckable(True)
+            act.setChecked(w == current)
             act.setData(w)

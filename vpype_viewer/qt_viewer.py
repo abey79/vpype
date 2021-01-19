@@ -110,18 +110,18 @@ class QtViewerWidget(QGLWidget):
 
     def leaveEvent(self, event: QEvent) -> None:
         # noinspection PyUnresolvedReferences
-        self.mouse_coords.emit("")
+        self.mouse_coords.emit("")  # type: ignore
 
     def wheelEvent(self, event: QWheelEvent) -> None:
         factor = self.window().devicePixelRatio()
         if event.source() == Qt.MouseEventSource.MouseEventSynthesizedBySystem:
             # track pad
-            delta = event.pixelDelta()
-            self.engine.pan(factor * delta.x(), factor * delta.y())
+            scroll_delta = event.pixelDelta()
+            self.engine.pan(factor * scroll_delta.x(), factor * scroll_delta.y())
         else:
             # mouse wheel
-            delta = event.angleDelta().y()
-            self.engine.zoom(delta / 500.0, factor * event.x(), factor * event.y())
+            zoom_delta = event.angleDelta().y()
+            self.engine.zoom(zoom_delta / 500.0, factor * event.x(), factor * event.y())
 
     def event(self, event: QEvent) -> bool:
         # handle pinch zoom on mac
@@ -145,6 +145,13 @@ class QtViewer(QWidget):
         super().__init__(parent)
 
         self.setWindowTitle("vpype viewer")
+        self.setStyleSheet(
+            """
+        QToolButton:pressed {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+        """
+        )
 
         self._viewer_widget = QtViewerWidget(parent=self)
 
@@ -155,35 +162,18 @@ class QtViewer(QWidget):
 
         view_mode_grp = QActionGroup(self._toolbar)
         if _DEBUG_ENABLED:
-            view_mode_grp.addAction(
-                QAction(
-                    "None",
-                    checkable=True,
-                    triggered=functools.partial(self.set_view_mode, ViewMode.NONE),
-                )
-            )
-        view_mode_grp.addAction(
-            QAction(
-                "Outline Mode",
-                checkable=True,
-                triggered=functools.partial(self.set_view_mode, ViewMode.FAST),
-            )
-        )
-        view_mode_grp.addAction(
-            QAction(
-                "Outline Mode (Colorful)",
-                checkable=True,
-                triggered=functools.partial(self.set_view_mode, ViewMode.FAST_COLORFUL),
-            )
-        )
-        view_mode_grp.addAction(
-            QAction(
-                "Preview Mode",
-                checkable=True,
-                checked=True,
-                triggered=functools.partial(self.set_view_mode, ViewMode.PREVIEW),
-            )
-        )
+            act = view_mode_grp.addAction("None")
+            act.setCheckable(True)
+            act.triggered.connect(functools.partial(self.set_view_mode, ViewMode.NONE))
+        act = view_mode_grp.addAction("Outline Mode")
+        act.setCheckable(True)
+        act.triggered.connect(functools.partial(self.set_view_mode, ViewMode.FAST))
+        act = view_mode_grp.addAction("Outline Mode (Colorful)")
+        act.setCheckable(True)
+        act.triggered.connect(functools.partial(self.set_view_mode, ViewMode.FAST_COLORFUL))
+        act = view_mode_grp.addAction("Preview Mode")
+        act.setCheckable(True)
+        act.triggered.connect(functools.partial(self.set_view_mode, ViewMode.PREVIEW))
         self.set_view_mode(ViewMode.PREVIEW)
 
         # VIEW MODE
@@ -257,7 +247,7 @@ class QtViewer(QWidget):
         mouse_coord_lbl.setFont(font)
         self._toolbar.addWidget(mouse_coord_lbl)
         # noinspection PyUnresolvedReferences
-        self._viewer_widget.mouse_coords.connect(mouse_coord_lbl.setText)
+        self._viewer_widget.mouse_coords.connect(mouse_coord_lbl.setText)  # type: ignore
 
         # setup layout
         layout = QVBoxLayout()
@@ -310,29 +300,30 @@ class QtViewer(QWidget):
 
 
 def show(document: vp.Document, argv=None) -> int:
+    """Show a viewer for the provided :class:`vpype.Document` instance.
+
+    This function returns when the user close the window.
+
+    Args:
+        document: the document to display
+        argv: argument passed to Qt
+
+    Returns:
+        exit status returned by Qt
+    """
     if argv is None and len(sys.argv) > 0:
         argv = [sys.argv[0]]
 
     if not QApplication.instance():
-        app = QApplication(sys.argv)
+        app = QApplication(argv)
     else:
         app = QApplication.instance()
-
     app.setAttribute(Qt.AA_UseHighDpiPixmaps)
-
-    # TODO this should probably be moved somewhere else
-    app.setStyleSheet(
-        """
-    QToolButton:pressed {
-        background-color: rgba(0, 0, 0, 0.2);
-    }
-    """
-    )
 
     widget = QtViewer(document)
     sz = app.primaryScreen().availableSize()
-    widget.move(sz.width() * 0.05, sz.height() * 0.1)
-    widget.resize(sz.width() * 0.9, sz.height() * 0.8)
+    widget.move(int(sz.width() * 0.05), int(sz.height() * 0.1))
+    widget.resize(int(sz.width() * 0.9), int(sz.height() * 0.8))
 
     widget.show()
     return app.exec_()

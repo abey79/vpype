@@ -146,7 +146,7 @@ class LineCollectionFastColorfulPainter(Painter):
     @classmethod
     def _build_buffers(cls, lc: vp.LineCollection) -> Tuple[np.ndarray, np.ndarray]:
         # build index array
-        ranges = []
+        ranges: List[Sequence[int]] = []
         block = []
         cur_index = 0
         restart_mark = [-1]
@@ -212,7 +212,7 @@ class LineCollectionPointsPainter(Painter):
     @staticmethod
     def _build_buffers(lc: vp.LineCollection) -> Tuple[np.ndarray, np.ndarray]:
         # build index array
-        ranges = []
+        ranges: List[Sequence[int]] = []
         block = []
         cur_index = 0
         restart_mark = [-1]
@@ -236,7 +236,7 @@ class LineCollectionPenUpPainter(Painter):
         self._prog = load_program("fast_line_mono", ctx)
 
         # build vertices
-        vertices = []
+        vertices: List[Tuple[float, float]] = []
         for i in range(len(lc) - 1):
             vertices.extend(
                 ((lc[i][-1].real, lc[i][-1].imag), (lc[i + 1][0].real, lc[i + 1][0].imag))

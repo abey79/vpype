@@ -49,7 +49,7 @@ class Engine:
         show_points: bool = False,
         pen_width: float = 1.1,  # 0.3mm
         pen_opacity: float = 0.8,
-        render_cb: Optional[Callable[[], None]] = lambda: None,
+        render_cb: Callable[[], None] = lambda: None,
     ):
         # params
         self._debug = False
@@ -64,9 +64,9 @@ class Engine:
         self._ctx: Optional[mgl.Context] = None
         self._viewport_width = 100
         self._viewport_height = 100
-        self._scale = 1  # one pixel of page equal one pixel of view port
+        self._scale = 1.0  # one pixel of page equal one pixel of view port
         self._origin = [0.0, 0.0]  # top-left of page aligned with top-left of view port
-        self._document = None
+        self._document: Optional[vp.Document] = None
 
         # painters
         self._layer_visibility: Dict[int, bool] = defaultdict(lambda: True)
@@ -84,11 +84,11 @@ class Engine:
     # Properties
 
     @property
-    def document(self) -> vp.Document:
+    def document(self) -> Optional[vp.Document]:
         return self._document
 
     @document.setter
-    def document(self, document: vp.Document) -> None:
+    def document(self, document: Optional[vp.Document]) -> None:
         self._document = document
         self._layer_visibility.clear()
         self._rebuild()
