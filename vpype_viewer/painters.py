@@ -253,12 +253,12 @@ class LineCollectionPenUpPainter(Painter):
 
 class LineCollectionPreviewPainter(Painter):
     def __init__(
-        self, ctx: mgl.Context, lc: vp.LineCollection, line_width: float, color: ColorType
+        self, ctx: mgl.Context, lc: vp.LineCollection, pen_width: float, color: ColorType
     ):
         super().__init__(ctx)
 
         self._color = color
-        self._line_width = line_width
+        self._pen_width = pen_width
         self._prog = load_program("preview_line", ctx)
 
         vertices, indices = self._build_buffers(lc)
@@ -267,9 +267,8 @@ class LineCollectionPreviewPainter(Painter):
         self._vao = ctx.simple_vertex_array(self._prog, vbo, "position", index_buffer=ibo)
 
     def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
-        # self._prog["miter_limit"].value = -1
         self._prog["color"].value = self._color
-        self._prog["linewidth"].value = self._line_width
+        self._prog["pen_width"].value = self._pen_width
         self._prog["antialias"].value = 1.5 / scale
         self._prog["projection"].write(projection)
 
@@ -289,8 +288,6 @@ class LineCollectionPreviewPainter(Painter):
             self._prog["kill_frag_shader"].value = False
             self._prog["debug_view"].value = False
             self._vao.render(mgl.LINE_STRIP_ADJACENCY)
-
-    # self._ctx.wireframe = False
 
     @staticmethod
     def _build_buffers(lc: vp.LineCollection):

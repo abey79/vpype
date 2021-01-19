@@ -20,7 +20,7 @@ layout(triangle_strip, max_vertices = 6) out;// Outputs a triangle strip with 4 
 
 uniform mat4 projection;
 uniform float antialias;
-uniform float linewidth;
+uniform float pen_width;
 
 out float v_length;
 out vec2 v_texcoord;
@@ -35,7 +35,7 @@ void emit_vertex(vec2 p, vec2 p1, mat2 texcoord_matrix, mat4 projection)
 
 void main(void)
 {
-    float w = linewidth/2.0 + antialias;
+    float w = pen_width/2.0 + antialias;
 
     // Get the four vertices passed to the shader
     vec2 p0 = gl_in[0].gl_Position.xy;// start of previous segment

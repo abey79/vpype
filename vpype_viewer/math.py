@@ -10,32 +10,20 @@ def orthogonal_projection_matrix(
     tmb = top - bottom
     fmn = far - near
 
-    A = 2.0 / rml
-    B = 2.0 / tmb
-    C = -2.0 / fmn
-    Tx = -(right + left) / rml
-    Ty = -(top + bottom) / tmb
-    Tz = -(far + near) / fmn
+    a = 2.0 / rml
+    b = 2.0 / tmb
+    c = -2.0 / fmn
+    tx = -(right + left) / rml
+    ty = -(top + bottom) / tmb
+    tz = -(far + near) / fmn
 
+    # GLSL is column major, thus the transpose
     return np.array(
         (
-            (A, 0.0, 0.0, 0.0),
-            (0.0, B, 0.0, 0.0),
-            (0.0, 0.0, C, 0.0),
-            (Tx, Ty, Tz, 1.0),
-        ),
-        dtype=dtype,
-    )
-
-
-# TODO: unused
-def translation_matrix(dx: float, dy: float, dtype=None) -> np.ndarray:
-    return np.array(
-        (
-            (1.0, 0.0, 0.0, 0.0),
-            (0.0, 1.0, 0.0, 0.0),
-            (0.0, 0.0, 1.0, 0.0),
-            (dx, dy, 0.0, 1.0),
+            (a, 0.0, 0.0, 0.0),
+            (0.0, b, 0.0, 0.0),
+            (0.0, 0.0, c, 0.0),
+            (tx, ty, tz, 1.0),
         ),
         dtype=dtype,
     )

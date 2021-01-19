@@ -273,7 +273,7 @@ class Engine:
                         LineCollectionPreviewPainter(
                             self._ctx,
                             lc=lc,
-                            line_width=self._pen_width,
+                            pen_width=self._pen_width,
                             color=(
                                 layer_color[0],
                                 layer_color[1],

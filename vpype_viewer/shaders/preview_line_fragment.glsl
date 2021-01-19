@@ -14,17 +14,17 @@ Original code on which this example is based:
 https://github.com/rougier/python-opengl/blob/master/code/chapter-09/geom-path.py
 */
 
-vec4 stroke(float distance, float linewidth, float antialias, vec4 color)
+vec4 stroke(float distance, float pen_width, float antialias, vec4 color)
 {
     vec4 frag_color;
-    float t = linewidth/2.0 - antialias;
+    float t = pen_width/2.0 - antialias;
     float signed_distance = distance;
     float border_distance = abs(signed_distance) - t;
     float alpha = border_distance/antialias;
 
     alpha = exp(-alpha*alpha);
 
-    if (border_distance > (linewidth/2.0 + antialias))
+    if (border_distance > (pen_width/2.0 + antialias))
     {
         discard;
     }
@@ -42,7 +42,7 @@ vec4 stroke(float distance, float linewidth, float antialias, vec4 color)
 
 uniform vec4  color;
 uniform float antialias;
-uniform float linewidth;
+uniform float pen_width;
 
 uniform bool kill_frag_shader;
 uniform bool debug_view;
@@ -65,7 +65,7 @@ void main()
         }
 
         //fragColor.rgb = vec3(10. * v_caps.y / 255., 0., 0.);
-        float w = antialias + linewidth/2.;
+        float w = antialias + pen_width/2.;
         float val = distance / w;
         float y_val = (v_texcoord.x + w) / (v_length + 2*w);
         fragColor.rgb = vec3(abs(val), 0, y_val);
@@ -85,5 +85,5 @@ void main()
         distance = length(v_texcoord - vec2(v_length, 0.0));
     }
 
-    fragColor = stroke(distance, linewidth, antialias, color);
+    fragColor = stroke(distance, pen_width, antialias, color);
 }
