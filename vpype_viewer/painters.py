@@ -12,7 +12,7 @@ class Painter:
     def __init__(self, ctx: mgl.Context):
         self._ctx = ctx
 
-    def render(self, projection: np.ndarray, scale: float) -> None:
+    def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
         raise NotImplementedError
 
 
@@ -64,7 +64,7 @@ class PaperBoundsPainter(Painter):
             self._prog, vbo, "in_vert", index_buffer=ctx.buffer(triangle_idx.tobytes())
         )
 
-    def render(self, projection: np.ndarray, scale: float) -> None:
+    def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
         self._prog["projection"].write(projection)
 
         self._prog["color"].value = (0, 0, 0, 0.25)
@@ -90,7 +90,7 @@ class LineCollectionFastPainter(Painter):
             self._prog, vbo, "in_vert", "in_color", index_buffer=ibo
         )
 
-    def render(self, projection: np.ndarray, scale: float) -> None:
+    def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
         self._prog["projection"].write(projection)
         self._vao.render(mgl.LINE_STRIP)
 
@@ -137,7 +137,7 @@ class LineCollectionFastColorfulPainter(Painter):
             self._prog, vbo, "in_vert", "in_color", index_buffer=ibo
         )
 
-    def render(self, projection: np.ndarray, scale: float) -> None:
+    def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
         self._prog["projection"].write(projection)
         self._vao.render(mgl.LINE_STRIP)
         if self._show_points:
@@ -204,7 +204,7 @@ class LineCollectionPointsPainter(Painter):
         ibo = ctx.buffer(indices.astype("i4").tobytes())
         self._vao = ctx.simple_vertex_array(self._prog, vbo, "position", index_buffer=ibo)
 
-    def render(self, projection: np.ndarray, scale: float) -> None:
+    def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
         self._prog["projection"].write(projection)
         self._prog["color"].value = self._color
         self._vao.render(mgl.POINTS)
@@ -245,7 +245,7 @@ class LineCollectionPenUpPainter(Painter):
         vbo = ctx.buffer(np.array(vertices, dtype="f4").tobytes())
         self._vao = ctx.simple_vertex_array(self._prog, vbo, "in_vert")
 
-    def render(self, projection: np.ndarray, scale: float) -> None:
+    def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
         self._prog["color"].value = self._color
         self._prog["projection"].write(projection)
         self._vao.render(mgl.LINES)
@@ -257,20 +257,42 @@ class LineCollectionPreviewPainter(Painter):
     ):
         super().__init__(ctx)
 
+        self._color = color
+        self._line_width = line_width
         self._prog = load_program("preview_line", ctx)
-        self._prog["miter_limit"].value = -1
-        self._prog["color"].value = color
-        self._prog["linewidth"].value = line_width
 
         vertices, indices = self._build_buffers(lc)
         vbo = ctx.buffer(vertices.tobytes())
         ibo = ctx.buffer(indices.tobytes())
         self._vao = ctx.simple_vertex_array(self._prog, vbo, "position", index_buffer=ibo)
 
-    def render(self, projection: np.ndarray, scale: float) -> None:
+    def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
+        self._prog["miter_limit"].value = -1
+        self._prog["color"].value = self._color
+        self._prog["linewidth"].value = self._line_width
         self._prog["antialias"].value = 1.5 / scale
         self._prog["projection"].write(projection)
-        self._vao.render(mgl.LINE_STRIP_ADJACENCY)
+
+        if debug:
+            self._prog["kill_frag_shader"].value = False
+            self._prog["debug_v_caps"].value = True
+            self._prog["color"].value = self._color[0:3] + (0.3,)
+
+            # self._ctx.cull_face = "back"
+            # self._ctx.wireframe = True
+            self._vao.render(mgl.LINE_STRIP_ADJACENCY)
+
+            self._prog["kill_frag_shader"].value = True
+            self._prog["debug_v_caps"].value = False
+            self._ctx.wireframe = True
+            self._vao.render(mgl.LINE_STRIP_ADJACENCY)
+            self._ctx.wireframe = False
+        else:
+            self._prog["kill_frag_shader"].value = False
+            self._prog["debug_v_caps"].value = False
+            self._vao.render(mgl.LINE_STRIP_ADJACENCY)
+
+    # self._ctx.wireframe = False
 
     @staticmethod
     def _build_buffers(lc: vp.LineCollection):
@@ -280,7 +302,7 @@ class LineCollectionPreviewPainter(Painter):
         indices = []
         reset_index = [-1]
         start_index = 0
-        for line in lc:
+        for i, line in enumerate(lc):
             if line[0] == line[-1]:  # closed path
                 idx = np.arange(len(line) + 3) - 1
                 idx[0], idx[-2], idx[-1] = len(line) - 1, 0, 1

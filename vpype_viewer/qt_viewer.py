@@ -6,6 +6,7 @@ from typing import Optional
 
 import moderngl as mgl
 from PySide2.QtCore import QEvent, QSize, Qt, Signal
+from PySide2.QtGui import QIcon
 from PySide2.QtOpenGL import QGLFormat, QGLWidget
 from PySide2.QtWidgets import (
     QAction,
@@ -23,8 +24,10 @@ import vpype as vp
 
 from .engine import Engine, ViewMode
 
-
 # noinspection PyUnresolvedReferences
+from .utils import load_icon
+
+
 class QtViewerWidget(QGLWidget):
     mouse_coords = Signal(str)
 
@@ -127,7 +130,8 @@ class QtViewer(QWidget):
 
         # setup toolbar
         self._toolbar = QToolBar()
-        self._toolbar.setIconSize(QSize(32, 32))
+        self._icon_size = QSize(32, 32)
+        self._toolbar.setIconSize(self._icon_size)
 
         view_mode_grp = QActionGroup(self._toolbar)
         view_mode_grp.addAction(
@@ -161,6 +165,22 @@ class QtViewer(QWidget):
         )
 
         self._toolbar.addActions(view_mode_grp.actions())
+
+        self._toolbar.addAction(load_icon("eye-outline.svg"), "View")
+
+        fit_act = self._toolbar.addAction(load_icon("fit-to-page-outline.svg"), "Fit")
+        fit_act.triggered.connect(self._viewer_widget.engine.fit_to_viewport)
+
+        self._layer_visibility_btn = QToolButton()
+        self._layer_visibility_btn.setIcon(load_icon("layers-triple-outline.svg"))
+        self._layer_visibility_btn.setText("Layer")
+        self._layer_visibility_btn.setMenu(QMenu(self._layer_visibility_btn))
+        self._layer_visibility_btn.setPopupMode(QToolButton.MenuButtonPopup)
+        self._layer_visibility_btn.pressed.connect(self._layer_visibility_btn.showMenu)
+        self._toolbar.addWidget(self._layer_visibility_btn)
+
+        self._toolbar.addAction(load_icon("ruler-square.svg"), "Units")
+
         self._toolbar.addSeparator()
         show_pen_up_act = self._toolbar.addAction("PenUp")
         show_pen_up_act.setCheckable(True)
@@ -168,17 +188,10 @@ class QtViewer(QWidget):
         show_points_act = self._toolbar.addAction("Pts")
         show_points_act.setCheckable(True)
         show_points_act.triggered.connect(self.set_show_points)
-        fit_act = self._toolbar.addAction("Fit")
-        fit_act.triggered.connect(self._viewer_widget.engine.fit_to_viewport)
 
-        self._toolbar.addSeparator()
-
-        self._layer_visibility_btn = QToolButton()
-        self._layer_visibility_btn.setText("Layer")
-        self._layer_visibility_btn.setMenu(QMenu(self._layer_visibility_btn))
-        self._layer_visibility_btn.setPopupMode(QToolButton.MenuButtonPopup)
-        self._layer_visibility_btn.pressed.connect(self._layer_visibility_btn.showMenu)
-        self._toolbar.addWidget(self._layer_visibility_btn)
+        debug_act = self._toolbar.addAction("Dbg")
+        debug_act.setCheckable(True)
+        debug_act.triggered.connect(self.set_debug)
 
         spacer = QWidget()
         spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -230,3 +243,6 @@ class QtViewer(QWidget):
     def set_show_points(self, show_points: bool) -> None:
         self._viewer_widget.engine.show_points = show_points
         self._viewer_widget.update()
+
+    def set_debug(self, debug: bool) -> None:
+        self._viewer_widget.engine.debug = debug

@@ -49,6 +49,7 @@ class Engine:
         render_cb: Optional[Callable[[], None]] = lambda: None,
     ):
         # params
+        self._debug = False
         self._view_mode = view_mode
         self._show_pen_up = show_pen_up
         self._show_points = show_points
@@ -69,7 +70,8 @@ class Engine:
 
     def post_init(self, ctx: mgl.Context, width: int = 100, height: int = 100):
         self._ctx = ctx
-        self._ctx.enable(mgl.BLEND | mgl.PROGRAM_POINT_SIZE)
+        self._ctx.enable_only(mgl.BLEND | mgl.PROGRAM_POINT_SIZE)
+
         self.resize(width, height)
         self._rebuild()
 
@@ -121,6 +123,15 @@ class Engine:
     def show_points(self, show_points: bool):
         self._show_points = show_points
         self._rebuild()
+
+    @property
+    def debug(self) -> bool:
+        return self._debug
+
+    @debug.setter
+    def debug(self, debug: bool):
+        self._debug = debug
+        self._render_cb()
 
     def layer_visible(self, layer_id: int) -> bool:
         return self._layer_visibility[layer_id]
@@ -201,12 +212,12 @@ class Engine:
         proj = self.get_projection()
 
         if self._paper_bounds_painter:
-            self._paper_bounds_painter.render(proj, self._scale)
+            self._paper_bounds_painter.render(proj, self._scale, self._debug)
 
         for layer_id in sorted(self._layer_painters):
             if self._layer_visibility[layer_id]:
                 for painter in self._layer_painters[layer_id]:
-                    painter.render(proj, self._scale)
+                    painter.render(proj, self._scale, self._debug)
 
     def _rebuild(self):
         self._layer_painters.clear()
@@ -234,7 +245,7 @@ class Engine:
                 elif self.view_mode == ViewMode.PREVIEW:
                     self._layer_painters[layer_id].append(
                         LineCollectionPreviewPainter(
-                            self._ctx, lc=lc, line_width=0.3, color=layer_color
+                            self._ctx, lc=lc, line_width=3.0, color=layer_color
                         )
                     )
 

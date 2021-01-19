@@ -4,6 +4,7 @@ from typing import Optional, Tuple
 import cachetools
 import cachetools.keys
 import moderngl as mgl
+from PySide2.QtGui import QIcon
 
 ColorType = Tuple[float, float, float, float]
 
@@ -39,3 +40,11 @@ def load_program(name: str, ctx: mgl.Context) -> mgl.Program:
         fragment_shader=_load_shader(full_path + "_fragment.glsl"),
         geometry_shader=_load_shader(full_path + "_geometry.glsl"),
     )
+
+
+def load_icon(path: str) -> QIcon:
+    path = os.path.abspath(
+        os.path.dirname(__file__) + os.path.sep + "resources" + os.path.sep + path
+    )
+
+    return QIcon(path)
