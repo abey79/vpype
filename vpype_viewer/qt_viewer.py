@@ -2,6 +2,7 @@
 Qt Viewer
 """
 import functools
+import math
 import os
 import sys
 from typing import Optional, Union
@@ -102,8 +103,9 @@ class QtViewerWidget(QGLWidget):
             self._last_mouse_y = evt.y()
 
         x, y = self.engine.viewport_to_model(factor * evt.x(), factor * evt.y())
+        decimals = max(0, math.ceil(-math.log10(1 / self.engine.scale)))
         # noinspection PyUnresolvedReferences
-        self.mouse_coords.emit(f"{x:.5f}, {y:.5f}")
+        self.mouse_coords.emit(f"{x:.{decimals}f}, {y:.{decimals}f}")
 
     def mouseReleaseEvent(self, evt):
         self._mouse_drag = False
