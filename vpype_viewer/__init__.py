@@ -1,1 +1,2 @@
-from .qt_viewer import *
+# currently Qt is the only GUI backend so we unconditionally import from qt
+from .qtviewer import show

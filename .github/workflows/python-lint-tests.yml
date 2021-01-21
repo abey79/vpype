@@ -91,12 +91,12 @@ jobs:
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
     - name: Pytest
       run: |
-        poetry run pytest
+        poetry run pytest --mpl --mpl-baseline-path tests/data/baseline
       if: matrix.python-version != '3.8' || matrix.os != 'ubuntu-latest'
     ## CODECOV SUPPORT ##
     - name: Pytest with coverage
       run: |
-        poetry run pytest --cov=./ --cov-report=xml
+        poetry run pytest --mpl --mpl-baseline-path tests/data/baseline --cov=./ --cov-report=xml
       if: matrix.python-version == '3.8' && matrix.os == 'ubuntu-latest'
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
@@ -134,7 +134,7 @@ jobs:
       run: poetry install
     - name: Pytest
       run: |
-        poetry run pytest
+        poetry run pytest --mpl --mpl-baseline-path tests/data/baseline
 
   #####################
   # INSTALLER WINDOWS #

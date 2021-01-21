@@ -25,8 +25,8 @@ from PySide2.QtWidgets import (
 )
 
 import vpype as vp
+from vpype_viewer.engine import Engine, ViewMode
 
-from .engine import Engine, ViewMode
 from .utils import PenOpacityActionGroup, PenWidthActionGroup, load_icon
 
 __all__ = ["QtViewerWidget", "QtViewer", "show"]

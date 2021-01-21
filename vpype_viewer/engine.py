@@ -10,7 +10,6 @@ import numpy as np
 
 import vpype as vp
 
-from .math import orthogonal_projection_matrix
 from .painters import (
     LineCollectionFastColorfulPainter,
     LineCollectionFastPainter,
@@ -20,7 +19,7 @@ from .painters import (
     Painter,
     PaperBoundsPainter,
 )
-from .utils import ColorType
+from .utils import ColorType, orthogonal_projection_matrix
 
 _COLORS: List[ColorType] = [
     (0, 0, 1, 1),

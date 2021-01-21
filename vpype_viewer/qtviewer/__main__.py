@@ -4,7 +4,7 @@ import numpy as np
 
 import vpype as vp
 
-from .qt_viewer import show
+from .viewer import show
 
 doc = vp.Document()
 doc.page_size = 600, 600
