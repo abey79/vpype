@@ -72,9 +72,7 @@ def assert_image_similarity(request) -> Callable:
                 (np.asarray(ref_img).astype("float") - np.asarray(img).astype("float")) ** 2
             )
 
-            if sum_sq_diff == 0:
-                pass
-            else:
+            if sum_sq_diff != 0:
                 normalized_sum_sq_diff = sum_sq_diff / np.sqrt(sum_sq_diff)
                 if normalized_sum_sq_diff > 0.001:
                     pytest.fail("image similarity test failed")
