@@ -1,4 +1,5 @@
 import os
+import pathlib
 from typing import Callable
 
 import numpy as np
@@ -49,6 +50,23 @@ def pytest_addoption(parser):
     )
 
 
+def write_image_similarity_fail_report(
+    image: Image, reference_image: Image, test_id: str, diff: float
+) -> None:
+    report_dir = pathlib.Path.cwd() / "test_report_img_sim" / test_id
+    report_dir.mkdir(parents=True, exist_ok=True)
+    arr = np.abs(
+        np.asarray(reference_image).astype("float") - np.asarray(image).astype("float")
+    )
+    diff_img = Image.fromarray(arr.astype(np.uint8))
+
+    image.save(str(report_dir / "test_image.png"))
+    reference_image.save(str(report_dir / "reference_image.png"))
+    diff_img.save(str(report_dir / "difference_image.png"))
+    with open(str(report_dir / "report.txt"), "w") as fp:
+        fp.write(f"Test ID: {test_id}\nComputed different: {diff}")
+
+
 @pytest.fixture
 def assert_image_similarity(request) -> Callable:
     store_ref_image = request.config.getoption("--store-ref-images")
@@ -75,6 +93,9 @@ def assert_image_similarity(request) -> Callable:
             if sum_sq_diff != 0:
                 normalized_sum_sq_diff = sum_sq_diff / np.sqrt(sum_sq_diff)
                 if normalized_sum_sq_diff > 0.001:
+                    write_image_similarity_fail_report(
+                        img, ref_img, test_id, normalized_sum_sq_diff
+                    )
                     pytest.fail("image similarity test failed")
 
     return _assert_image_similarity
