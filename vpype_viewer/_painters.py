@@ -5,7 +5,7 @@ import numpy as np
 
 import vpype as vp
 
-from .utils import ColorType, load_program
+from ._utils import ColorType, load_program
 
 
 class Painter:
@@ -242,13 +242,17 @@ class LineCollectionPenUpPainter(Painter):
                 ((lc[i][-1].real, lc[i][-1].imag), (lc[i + 1][0].real, lc[i + 1][0].imag))
             )
 
-        vbo = ctx.buffer(np.array(vertices, dtype="f4").tobytes())
-        self._vao = ctx.simple_vertex_array(self._prog, vbo, "in_vert")
+        if len(vertices) > 0:
+            vbo = ctx.buffer(np.array(vertices, dtype="f4").tobytes())
+            self._vao = ctx.simple_vertex_array(self._prog, vbo, "in_vert")
+        else:
+            self._vao = None
 
     def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
-        self._prog["color"].value = self._color
-        self._prog["projection"].write(projection)
-        self._vao.render(mgl.LINES)
+        if self._vao is not None:
+            self._prog["color"].value = self._color
+            self._prog["projection"].write(projection)
+            self._vao.render(mgl.LINES)
 
 
 class LineCollectionPreviewPainter(Painter):

@@ -79,6 +79,7 @@ intersphinx_mapping = {
     "shapely": ("https://shapely.readthedocs.io/en/latest/", None),
     "click": ("https://click.palletsprojects.com/en/7.x/", None),
     "python": ("https://docs.python.org/3/", None),
+    "pillow": ("https://pillow.readthedocs.io/en/stable/", None),
 }
 
 # -- Napoleon options

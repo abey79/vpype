@@ -10,7 +10,7 @@ import numpy as np
 
 import vpype as vp
 
-from .painters import (
+from ._painters import (
     LineCollectionFastColorfulPainter,
     LineCollectionFastPainter,
     LineCollectionPenUpPainter,
@@ -19,7 +19,7 @@ from .painters import (
     Painter,
     PaperBoundsPainter,
 )
-from .utils import ColorType, orthogonal_projection_matrix
+from ._utils import ColorType, orthogonal_projection_matrix
 
 _COLORS: List[ColorType] = [
     (0, 0, 1, 1),
@@ -32,22 +32,27 @@ _COLORS: List[ColorType] = [
     (0, 0, 0, 1),
 ]
 
+__all__ = ["DEFAULT_PEN_WIDTH", "DEFAULT_PEN_OPACITY", "ViewMode", "Engine"]
+
+DEFAULT_PEN_WIDTH = 1.1  # about 0.3mm
+DEFAULT_PEN_OPACITY = 0.8
+
 
 class ViewMode(enum.Enum):
     NONE = enum.auto()  # for debug purposes
-    FAST = enum.auto()
-    FAST_COLORFUL = enum.auto()
+    OUTLINE = enum.auto()
+    OUTLINE_COLORFUL = enum.auto()
     PREVIEW = enum.auto()
 
 
 class Engine:
     def __init__(
         self,
-        view_mode: ViewMode = ViewMode.FAST,
+        view_mode: ViewMode = ViewMode.OUTLINE,
         show_pen_up: bool = False,
         show_points: bool = False,
-        pen_width: float = 1.1,  # 0.3mm
-        pen_opacity: float = 0.8,
+        pen_width: float = DEFAULT_PEN_WIDTH,
+        pen_opacity: float = DEFAULT_PEN_OPACITY,
         render_cb: Callable[[], None] = lambda: None,
     ):
         # params
@@ -64,7 +69,7 @@ class Engine:
         self._viewport_width = 100
         self._viewport_height = 100
         self._scale = 1.0  # one pixel of page equal one pixel of view port
-        self._origin = [0.0, 0.0]  # top-left of page aligned with top-left of view port
+        self._origin = (0.0, 0.0)  # top-left of page aligned with top-left of view port
         self._document: Optional[vp.Document] = None
 
         # painters
@@ -100,6 +105,14 @@ class Engine:
     def scale(self, scale: float) -> None:
         self._scale = scale
         self._render_cb()
+
+    @property
+    def origin(self) -> Tuple[float, float]:
+        return self._origin
+
+    @origin.setter
+    def origin(self, origin: Tuple[float, float]):
+        self._origin = origin
 
     @property
     def view_mode(self) -> ViewMode:
@@ -211,8 +224,7 @@ class Engine:
         return proj
 
     def pan(self, dx: float, dy: float) -> None:
-        self._origin[0] -= dx / self._scale
-        self._origin[1] -= dy / self._scale
+        self._origin = (self._origin[0] - dx / self._scale, self._origin[1] - dy / self._scale)
         self._render_cb()
 
     def zoom(self, delta_zoom: float, mouse_x: float, mouse_y: float) -> None:
@@ -220,8 +232,7 @@ class Engine:
         new_scale = max(min(new_scale, 100000), 0.05)  # clamp to reasonable values
 
         dz = 1 / self._scale - 1 / new_scale
-        self._origin[0] += mouse_x * dz
-        self._origin[1] += mouse_y * dz
+        self._origin = (self._origin[0] + mouse_x * dz, self._origin[1] + mouse_y * dz)
         self._scale = new_scale
 
         self._render_cb()
@@ -257,11 +268,11 @@ class Engine:
                 layer_color: ColorType = _COLORS[color_index % len(_COLORS)]
                 lc = self._document.layers[layer_id]
 
-                if self.view_mode == ViewMode.FAST:
+                if self.view_mode == ViewMode.OUTLINE:
                     self._layer_painters[layer_id].append(
                         LineCollectionFastPainter(self._ctx, lc=lc, color=layer_color)
                     )
-                elif self.view_mode == ViewMode.FAST_COLORFUL:
+                elif self.view_mode == ViewMode.OUTLINE_COLORFUL:
                     self._layer_painters[layer_id].append(
                         LineCollectionFastColorfulPainter(
                             self._ctx, lc=lc, show_points=self._show_points
@@ -286,7 +297,7 @@ class Engine:
                     self._layer_painters[layer_id].append(
                         LineCollectionPenUpPainter(self._ctx, lc=lc)
                     )
-                if self.show_points and self.view_mode != ViewMode.FAST_COLORFUL:
+                if self.show_points and self.view_mode != ViewMode.OUTLINE_COLORFUL:
                     self._layer_painters[layer_id].append(
                         LineCollectionPointsPainter(self._ctx, lc=lc, color=layer_color)
                     )

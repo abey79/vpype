@@ -3,6 +3,7 @@ import numpy as np
 
 import vpype as vp
 import vpype_viewer
+from vpype_viewer import ViewMode
 
 from .cli import cli
 
@@ -21,16 +22,38 @@ COLORS = [
 
 
 @cli.command(group="Output")
+@click.option("-p", "--show-pen-up", is_flag=True, help="Display pen-up trajectories.")
+@click.option("-d", "--show-points", is_flag=True, help="Display paths points with dots.")
+@click.option("-o", "--outline", is_flag=True, help="Display in outline mode.")
+@click.option(
+    "-c",
+    "--colorful",
+    is_flag=True,
+    help="Display in outline colorful mode (takes precedence over --outline).",
+)
 @vp.global_processor
-def show(document: vp.Document):
-    """Display the geometry using matplotlib.
+def show(
+    document: vp.Document,
+    show_pen_up: bool,
+    show_points: bool,
+    outline: bool,
+    colorful: bool,
+):
+    """Display the geometry in an interactive viewer.
 
-    By default, only the geometries are displayed without the axis. All geometries are
-    displayed with black. When using the `--colorful` flag, each segment will have a different
-    color (default matplotlib behaviour). This can be useful for debugging purposes.
+    All display parameters can be interactively changed in the viewer. This command's options
+    only affect the initial behavior.
     """
 
-    vpype_viewer.show(document)
+    view_mode = ViewMode.PREVIEW
+    if outline or show_points:
+        view_mode = ViewMode.OUTLINE
+    if colorful:
+        view_mode = ViewMode.OUTLINE_COLORFUL
+
+    vpype_viewer.show(
+        document, view_mode=view_mode, show_pen_up=show_pen_up, show_points=show_points
+    )
 
 
 @cli.command(group="Output")

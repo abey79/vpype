@@ -1,7 +1,6 @@
 """Run a bunch of tests on the svg collection."""
 import difflib
 import os
-import pathlib
 import re
 
 import numpy as np
@@ -10,7 +9,7 @@ import pytest
 import vpype as vp
 from vpype_cli import cli
 
-TEST_FILE_DIRECTORY = (pathlib.Path(__file__).parent / "data" / "test_svg").absolute()
+from .utils import TEST_FILE_DIRECTORY
 
 TEST_FILES = [
     os.path.join(directory, file)

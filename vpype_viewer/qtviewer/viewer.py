@@ -55,7 +55,9 @@ class QtViewerWidget(QGLWidget):
         # deferred initialization in initializeGL()
         self._ctx: Optional[mgl.Context] = None
         self._screen = None
-        self.engine = Engine(view_mode=ViewMode.FAST, show_pen_up=False, render_cb=self.update)
+        self.engine = Engine(
+            view_mode=ViewMode.OUTLINE, show_pen_up=False, render_cb=self.update
+        )
 
         # adjust default scale based on hidpi
         self.engine.scale = self.window().devicePixelRatio()
@@ -143,7 +145,14 @@ class QtViewerWidget(QGLWidget):
 
 
 class QtViewer(QWidget):
-    def __init__(self, document: Optional[vp.Document] = None, parent=None):
+    def __init__(
+        self,
+        document: Optional[vp.Document] = None,
+        view_mode: ViewMode = ViewMode.PREVIEW,
+        show_pen_up: bool = False,
+        show_points: bool = False,
+        parent=None,
+    ):
         super().__init__(parent)
 
         self.setWindowTitle("vpype viewer")
@@ -166,17 +175,21 @@ class QtViewer(QWidget):
         if _DEBUG_ENABLED:
             act = view_mode_grp.addAction("None")
             act.setCheckable(True)
+            act.setChecked(view_mode == ViewMode.NONE)
             act.triggered.connect(functools.partial(self.set_view_mode, ViewMode.NONE))
         act = view_mode_grp.addAction("Outline Mode")
         act.setCheckable(True)
-        act.triggered.connect(functools.partial(self.set_view_mode, ViewMode.FAST))
+        act.setChecked(view_mode == ViewMode.OUTLINE)
+        act.triggered.connect(functools.partial(self.set_view_mode, ViewMode.OUTLINE))
         act = view_mode_grp.addAction("Outline Mode (Colorful)")
         act.setCheckable(True)
-        act.triggered.connect(functools.partial(self.set_view_mode, ViewMode.FAST_COLORFUL))
+        act.setChecked(view_mode == ViewMode.OUTLINE_COLORFUL)
+        act.triggered.connect(functools.partial(self.set_view_mode, ViewMode.OUTLINE_COLORFUL))
         act = view_mode_grp.addAction("Preview Mode")
         act.setCheckable(True)
+        act.setChecked(view_mode == ViewMode.PREVIEW)
         act.triggered.connect(functools.partial(self.set_view_mode, ViewMode.PREVIEW))
-        self.set_view_mode(ViewMode.PREVIEW)
+        self.set_view_mode(view_mode)
 
         # VIEW MODE
         # view modes
@@ -189,11 +202,15 @@ class QtViewer(QWidget):
         # show pen up
         act = view_mode_menu.addAction("Show Pen-Up Trajectories")
         act.setCheckable(True)
+        act.setChecked(show_pen_up)
         act.toggled.connect(self.set_show_pen_up)
+        self._viewer_widget.engine.show_pen_up = show_pen_up
         # show points
         act = view_mode_menu.addAction("Show Points")
         act.setCheckable(True)
+        act.setChecked(show_points)
         act.toggled.connect(self.set_show_points)
+        self._viewer_widget.engine.show_points = show_points
         # preview mode options
         view_mode_menu.addSeparator()
         act = view_mode_menu.addAction("Preview Mode Options:")
@@ -301,13 +318,22 @@ class QtViewer(QWidget):
         self._viewer_widget.engine.debug = debug
 
 
-def show(document: vp.Document, argv=None) -> int:
+def show(
+    document: vp.Document,
+    view_mode: ViewMode = ViewMode.PREVIEW,
+    show_pen_up: bool = False,
+    show_points: bool = False,
+    argv=None,
+) -> int:
     """Show a viewer for the provided :class:`vpype.Document` instance.
 
     This function returns when the user close the window.
 
     Args:
         document: the document to display
+        view_mode: view mode
+        show_pen_up: render pen-up trajectories
+        show_points: render points
         argv: argument passed to Qt
 
     Returns:
@@ -322,10 +348,13 @@ def show(document: vp.Document, argv=None) -> int:
         app = QApplication.instance()
     app.setAttribute(Qt.AA_UseHighDpiPixmaps)
 
-    widget = QtViewer(document)
+    widget = QtViewer(
+        document, view_mode=view_mode, show_pen_up=show_pen_up, show_points=show_points
+    )
     sz = app.primaryScreen().availableSize()
     widget.move(int(sz.width() * 0.05), int(sz.height() * 0.1))
     widget.resize(int(sz.width() * 0.9), int(sz.height() * 0.8))
 
     widget.show()
+
     return app.exec_()
