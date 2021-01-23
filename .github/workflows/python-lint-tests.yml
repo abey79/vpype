@@ -41,14 +41,9 @@ jobs:
         use-pycodestyle: false
         use-flake8: false
         use-black: true
+        extra-black-options: --diff
         use-mypy: true
         use-isort: true
-        # extra-pylint-options:
-        # extra-pycodestyle-options:
-        # extra-flake8-options:
-        extra-black-options: --diff
-        # extra-mypy-options:
-        # extra-isort-options:
 
   #########
   # TESTS #
@@ -89,10 +84,18 @@ jobs:
     - name: Install dependencies
       run: poetry install
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-    - name: Headless rendering fix for Linux
+#    - name: Headless rendering fix for Linux
+#      run: |
+#        sudo ln -s /usr/lib/x86_64-linux-gnu/libGL.so.1.0.0 /usr/lib/libGL.so
+#        poetry run pip install pytest-xvfb
+#      if: runner.os == 'ubuntu-latest'
+    - name: Install OpenGL support (Linux)
+      uses: openrndr/setup-opengl@v1.1
+      if: runner.os == 'ubuntu-latest'
+    - name: Setup OpenGL (Linux)
       run: |
-        sudo ln -s /usr/lib/x86_64-linux-gnu/libGL.so.1.0.0 /usr/lib/libGL.so
         poetry run pip install pytest-xvfb
+        xvfb-run glxinfo
       if: runner.os == 'ubuntu-latest'
     - name: Pytest
       run: |
@@ -146,7 +149,7 @@ jobs:
       run: poetry install
     - name: Pytest
       run: |
-        poetry run pytest --mpl --mpl-baseline-path tests/data/baseline
+        poetry run pytest --mpl --mpl-baseline-path tests/data/baseline --skip-image-similarity
     - name: Upload test results
       if: always()
       uses: actions/upload-artifact@v2

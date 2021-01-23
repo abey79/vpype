@@ -36,6 +36,7 @@ def config_file_factory(tmpdir_factory):
 
 
 # IMAGE COMPARE SUPPORT
+# ideally, this would be cleanly factored into a pytest plug-in akin to pytest-mpl
 
 REFERENCE_IMAGES_DIR = (
     os.path.dirname(__file__) + os.path.sep + "data" + os.path.sep + "baseline"
@@ -47,6 +48,12 @@ def pytest_addoption(parser):
         "--store-ref-images",
         action="store_true",
         help="Write reference image for assert_image_similarity().",
+    )
+
+    parser.addoption(
+        "--skip-image-similarity",
+        action="store_true",
+        help="Skip tests using assert_image_similarity().",
     )
 
 
@@ -69,12 +76,17 @@ def write_image_similarity_fail_report(
 
 @pytest.fixture
 def assert_image_similarity(request) -> Callable:
+    if request.config.getoption("--skip-image-similarity"):
+        pytest.skip("image similarity test skipped (--skip-image-similarity)")
+
     store_ref_image = request.config.getoption("--store-ref-images")
     test_id = request.node.name
     test_id = test_id.replace("[", "-").replace("]", "-").replace("/", "_").rstrip("-")
     path = REFERENCE_IMAGES_DIR + os.path.sep + test_id + ".png"
 
     def _assert_image_similarity(img: Image) -> None:
+        nonlocal store_ref_image, test_id, path
+
         if store_ref_image:
             img.save(path)
         else:
