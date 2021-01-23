@@ -8,7 +8,8 @@ from vpype_viewer import Engine, ImageRenderer, ViewMode, render_image
 from .utils import TEST_FILE_DIRECTORY
 
 
-def test_viewer_engine_properties():
+# assert_image_similarity fixture added for automated exclusion on unsupported runner
+def test_viewer_engine_properties(assert_image_similarity):
     renderer = ImageRenderer((640, 480))
 
     doc = vp.Document()
@@ -105,7 +106,8 @@ def test_viewer_debug(assert_image_similarity):
     assert_image_similarity(renderer.render())
 
 
-def test_viewer_uninitialized():
+# assert_image_similarity fixture added for automated exclusion on unsupported runner
+def test_viewer_uninitialized(assert_image_similarity):
     """An uninitialized engine should not crash"""
     engine = Engine()
 
