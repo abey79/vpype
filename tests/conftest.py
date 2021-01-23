@@ -58,18 +58,22 @@ def pytest_addoption(parser):
 
 
 def write_image_similarity_fail_report(
-    image: Image, reference_image: Image, test_id: str, diff: float
+    image: Image,
+    reference_image: Image,
+    image_array: np.ndarray,
+    reference_image_array: np.ndarray,
+    test_id: str,
+    diff: float,
 ) -> None:
     report_dir = pathlib.Path.cwd() / "test_report_img_sim" / test_id
     report_dir.mkdir(parents=True, exist_ok=True)
-    arr = np.abs(
-        np.asarray(reference_image).astype("float") - np.asarray(image).astype("float")
-    )
-    diff_img = Image.fromarray(arr.astype(np.uint8))
+    diff_img = Image.fromarray(np.abs(reference_image_array - image_array).astype(np.uint8))
 
     image.save(str(report_dir / "test_image.png"))
     reference_image.save(str(report_dir / "reference_image.png"))
     diff_img.save(str(report_dir / "difference_image.png"))
+    np.save(str(report_dir / "test_image_array.npy"), image_array)
+    np.save(str(report_dir / "reference_image_array.npy"), reference_image_array)
     with open(str(report_dir / "report.txt"), "w") as fp:
         fp.write(f"Test ID: {test_id}\nComputed different: {diff}")
 
@@ -98,16 +102,18 @@ def assert_image_similarity(request) -> Callable:
 
             img = img.convert(ref_img.mode)
             img = img.resize(ref_img.size)
-            sum_sq_diff = np.sum(
-                (np.asarray(ref_img).astype("float") - np.asarray(img).astype("float")) ** 2
-            )
+            ref_img_arr = np.asarray(ref_img).astype("float")
+            img_arr = np.asarray(img).astype("float")
+            sum_sq_diff = np.mean((ref_img_arr - img_arr) ** 2)
 
             if sum_sq_diff != 0:
                 normalized_sum_sq_diff = sum_sq_diff / np.sqrt(sum_sq_diff)
-                if normalized_sum_sq_diff > 0.001:
+                if normalized_sum_sq_diff > 3.5:
                     write_image_similarity_fail_report(
-                        img, ref_img, test_id, normalized_sum_sq_diff
+                        img, ref_img, img_arr, ref_img_arr, test_id, normalized_sum_sq_diff
                     )
-                    pytest.fail("image similarity test failed")
+                    pytest.fail(
+                        f"image similarity test failed (rms: {normalized_sum_sq_diff})"
+                    )
 
     return _assert_image_similarity
