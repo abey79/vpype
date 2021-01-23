@@ -108,7 +108,7 @@ def assert_image_similarity(request) -> Callable:
 
             if sum_sq_diff != 0:
                 normalized_sum_sq_diff = sum_sq_diff / np.sqrt(sum_sq_diff)
-                if normalized_sum_sq_diff > 3.5:
+                if normalized_sum_sq_diff > 4.0:
                     write_image_similarity_fail_report(
                         img, ref_img, img_arr, ref_img_arr, test_id, normalized_sum_sq_diff
                     )
