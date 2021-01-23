@@ -97,10 +97,10 @@ jobs:
       run: poetry run pytest --mpl --mpl-baseline-path tests/data/baseline --cov=./ --cov-report=xml
       if: matrix.os == 'macos-latest' && matrix.python-version == '3.8'
     - name: Pytest (code coverage)
-      run: poetry run pytest --mpl --mpl-baseline-path tests/data/baseline --cov=./ --cov-report=xml
+      run: poetry run pytest --mpl --mpl-baseline-path tests/data/baseline
       if: matrix.os == 'macos-latest' && matrix.python-version != '3.8'
     - name: Pytest (no image similarity check)
-      run: poetry run pytest --mpl --mpl-baseline-path tests/data/baseline --skip-skip-image-similarity
+      run: poetry run pytest --mpl --mpl-baseline-path tests/data/baseline --skip-image-similarity
       if: matrix.os != 'macos-latest'
     - name: Upload test results
       if: always()
