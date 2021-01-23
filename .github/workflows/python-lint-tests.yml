@@ -51,7 +51,7 @@ jobs:
   tests:
     needs: linting
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         python-version: [3.6, 3.7, 3.8]
         os: [ubuntu-latest, macos-latest]
@@ -94,6 +94,7 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
     - name: Setup OpenGL (Linux)
       run: |
+        sudo ln -s /usr/lib/x86_64-linux-gnu/libGL.so.1.0.0 /usr/lib/libGL.so
         poetry run pip install pytest-xvfb
         xvfb-run glxinfo
       if: matrix.os == 'ubuntu-latest'
