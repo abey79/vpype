@@ -7,6 +7,36 @@ import vpype as vp
 from vpype_viewer.engine import DEFAULT_PEN_OPACITY, DEFAULT_PEN_WIDTH, Engine, ViewMode
 
 
+class ImageRenderer:
+    """Viewer engine wrapper class to render to a Pillow :class:`Image` instance.
+
+    Example:
+
+        >>> doc = vp.Document()
+        # populate doc
+        >>> renderer = ImageRenderer((640, 480))
+        >>> renderer.engine.document = doc
+        >>> renderer.engine.fit_to_viewport()
+        >>> img = renderer.render()
+    """
+
+    def __init__(self, size: Tuple[int, int]):
+        ctx = moderngl.create_standalone_context()
+        self._fbo = ctx.simple_framebuffer(size)
+        self.engine = Engine()
+        self.engine.post_init(ctx, *size)
+
+    def render(self) -> Image:
+        """Render to a Pillow :class:`Image` instance.
+
+        Returns:
+            the rendered mage
+        """
+        self._fbo.use()
+        self.engine.render()
+        return Image.frombytes("RGB", self._fbo.size, self._fbo.read(), "raw", "RGB", 0, -1)
+
+
 def render_image(
     document: vp.Document,
     size: Tuple[int, int] = (512, 512),
@@ -37,24 +67,19 @@ def render_image(
         an :class:`Image` instance
     """
 
-    ctx = moderngl.create_standalone_context()
-    fbo = ctx.simple_framebuffer(size)
-    fbo.use()
+    renderer = ImageRenderer(size)
 
-    engine = Engine(
-        view_mode=view_mode,
-        show_pen_up=show_pen_up,
-        show_points=show_points,
-        pen_width=pen_width,
-        pen_opacity=pen_opacity,
-    )
-    engine.post_init(ctx, size[0], size[1])
-    engine.document = document
-    engine.fit_to_viewport()
+    renderer.engine.document = document
+    renderer.engine.view_mode = view_mode
+    renderer.engine.show_pen_up = show_pen_up
+    renderer.engine.show_points = show_points
+    renderer.engine.pen_width = pen_width
+    renderer.engine.pen_opacity = pen_opacity
+
+    renderer.engine.fit_to_viewport()
     if scale is not None:
-        engine.scale = scale
+        renderer.engine.scale = scale
     if origin is not None:
-        engine.origin = origin
+        renderer.engine.origin = origin
 
-    engine.render()
-    return Image.frombytes("RGB", fbo.size, fbo.read(), "raw", "RGB", 0, -1)
+    return renderer.render()

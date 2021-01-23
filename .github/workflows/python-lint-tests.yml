@@ -84,19 +84,13 @@ jobs:
     - name: Install dependencies
       run: poetry install
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-#    - name: Install OpenGL support (Linux)
-#      uses: openrndr/setup-opengl@v1.1
-#      if: matrix.os == 'ubuntu-latest'
-#    - name: Setup OpenGL (Linux)
-#      run: |
-#        sudo ln -s /usr/lib/x86_64-linux-gnu/libGL.so.1.0.0 /usr/lib/libGL.so
-#        poetry run pip install pytest-xvfb
-#        xvfb-run glxinfo
-#      if: matrix.os == 'ubuntu-latest'
+    # PYTEST STRATEGY
+    # macOS is the only runner who has working ModernGL behaviour
+    # macOS + 3.8 is used for code coverage
     - name: Pytest (code coverage)
       run: poetry run pytest --mpl --mpl-baseline-path tests/data/baseline --cov=./ --cov-report=xml
       if: matrix.os == 'macos-latest' && matrix.python-version == '3.8'
-    - name: Pytest (code coverage)
+    - name: Pytest
       run: poetry run pytest --mpl --mpl-baseline-path tests/data/baseline
       if: matrix.os == 'macos-latest' && matrix.python-version != '3.8'
     - name: Pytest (no image similarity check)
