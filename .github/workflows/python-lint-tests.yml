@@ -84,30 +84,28 @@ jobs:
     - name: Install dependencies
       run: poetry install
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-#    - name: Headless rendering fix for Linux
+#    - name: Install OpenGL support (Linux)
+#      uses: openrndr/setup-opengl@v1.1
+#      if: matrix.os == 'ubuntu-latest'
+#    - name: Setup OpenGL (Linux)
 #      run: |
 #        sudo ln -s /usr/lib/x86_64-linux-gnu/libGL.so.1.0.0 /usr/lib/libGL.so
 #        poetry run pip install pytest-xvfb
+#        xvfb-run glxinfo
 #      if: matrix.os == 'ubuntu-latest'
-    - name: Install OpenGL support (Linux)
-      uses: openrndr/setup-opengl@v1.1
-      if: matrix.os == 'ubuntu-latest'
-    - name: Setup OpenGL (Linux)
-      run: |
-        sudo ln -s /usr/lib/x86_64-linux-gnu/libGL.so.1.0.0 /usr/lib/libGL.so
-        poetry run pip install pytest-xvfb
-        xvfb-run glxinfo
-      if: matrix.os == 'ubuntu-latest'
     - name: Pytest
       run: |
-        poetry run pytest --mpl --mpl-baseline-path tests/data/baseline
-      if: matrix.python-version != '3.8' || matrix.os != 'ubuntu-latest'
+        poetry run pytest --mpl --mpl-baseline-path tests/data/baseline $PYTEST_COV_PARAM $PYTEST_IMG_SIM_PARAM
+      #if: matrix.python-version != '3.8' || matrix.os != 'ubuntu-latest'
+      env:
+        PYTEST_COV_PARAM: ${{ if (matrix.os == 'macos-latest' && matrix.python-version == '3.8', "--cov=./ --cov-report=xml", "") }}
+        PYTEST_IMG_SIM_PARAM: ${{ if (matrix.os != 'macos-latest', "--skip-skip-image-similarity", "") }}
       #if: matrix.os != 'ubuntu-latest'
     ## CODECOV SUPPORT ##
-    - name: Pytest with coverage
-      run: |
-        poetry run pytest --mpl --mpl-baseline-path tests/data/baseline --cov=./ --cov-report=xml
-      if: matrix.python-version == '3.8' && matrix.os == 'ubuntu-latest'
+#    - name: Pytest with coverage
+#      run: |
+#        poetry run pytest --mpl --mpl-baseline-path tests/data/baseline --cov=./ --cov-report=xml
+#      if: matrix.python-version == '3.8' && matrix.os == 'ubuntu-latest'
     - name: Upload test results
       if: always()
       uses: actions/upload-artifact@v2
@@ -119,7 +117,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         file: ./coverage.xml
-      if: matrix.python-version == '3.8' && matrix.os == 'ubuntu-latest'
+      if: matrix.python-version == '3.8' && matrix.os == 'macos-latest'
 
   #################
   # TESTS WINDOWS #
