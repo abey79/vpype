@@ -79,21 +79,12 @@ intersphinx_mapping = {
     "shapely": ("https://shapely.readthedocs.io/en/latest/", None),
     "click": ("https://click.palletsprojects.com/en/7.x/", None),
     "python": ("https://docs.python.org/3/", None),
-    "pillow": ("https://pillow.readthedocs.io/en/stable/", None),
+    "Pillow": ("https://pillow.readthedocs.io/en/stable/", None),
 }
 
 # -- Napoleon options
 
 napoleon_include_init_with_doc = True
-
-# def setup(app):
-#     app.add_config_value('recommonmark_config', {
-#             'auto_toc_tree_section': 'Contents',
-#             'enable_auto_doc_ref': True,
-#             'enable_eval_rst': True,
-#             }, True)
-#     app.add_transform(AutoStructify)
-
 
 # noinspection PyUnusedLocal
 def autodoc_skip_member(app, what, name, obj, skip, options):
@@ -107,6 +98,11 @@ def autodoc_skip_member(app, what, name, obj, skip, options):
         "Length",
         # vpype_cli/debug.py
         "DebugData",
+        # private attribute
+        "__dict__",
+        "__doc__",
+        "__module__",
+        "__weakref__",
     )
     exclude = name in exclusions
     return skip or exclude

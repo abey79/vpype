@@ -43,7 +43,7 @@ METADATA_PATTERN = re.compile(r"<metadata>.*</metadata>", flags=re.DOTALL)
 
 @pytest.mark.skip(reason="Write is currently not idempotent for some reason")
 @pytest.mark.parametrize("path", TEST_FILES)
-def test_write_is_idempotent(runner, path, tmp_path):
+def test_write_is_idempotent(runner, path, tmp_path):  # pragma: no cover
     output1 = tmp_path / "output1.svg"
     output2 = tmp_path / "output2.svg"
     runner.invoke(cli, ["read", path, "write", str(output1)])

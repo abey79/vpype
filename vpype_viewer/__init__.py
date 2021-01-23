@@ -1,3 +1,7 @@
+"""This module implements a flexible, GPU-accelerated viewer for interactive and offscreen
+rendering of :class:`vpype.Document` instances. It includes a Qt-based interactive backend as
+well as a Pillow-based offscreen rendering backend.
+"""
 from .engine import *
 from .image import ImageRenderer, render_image
 

@@ -35,9 +35,17 @@ _DEBUG_ENABLED = "VPYPE_VIEWER_DEBUG" in os.environ
 
 
 class QtViewerWidget(QGLWidget):
+    """QGLWidget wrapper around :class:`Engine` to display a :class:`vpype.Document` in
+    Qt GUI."""
+
     mouse_coords = Signal(str)
 
     def __init__(self, document: Optional[vp.Document] = None, parent=None):
+        """Constructor.
+        Args:
+            document: the document to display
+            parent: QWidget parent
+        """
         fmt = QGLFormat()
         fmt.setVersion(3, 3)
         fmt.setProfile(QGLFormat.CoreProfile)
@@ -63,9 +71,11 @@ class QtViewerWidget(QGLWidget):
         self.engine.scale = self.window().devicePixelRatio()
 
     def document(self) -> Optional[vp.Document]:
+        """Return the :class:`vpype.Document` currently assigned to the widget."""
         return self._document
 
     def set_document(self, document: vp.Document) -> None:
+        """Assign a new :class:`vpype.Document` to the widget."""
         self._document = document
         self.engine.document = document
 
@@ -145,6 +155,9 @@ class QtViewerWidget(QGLWidget):
 
 
 class QtViewer(QWidget):
+    """Full featured, stand-alone viewer suitable for displaying a :class:`vpype.Document` to
+    a user."""
+
     def __init__(
         self,
         document: Optional[vp.Document] = None,
@@ -240,10 +253,6 @@ class QtViewer(QWidget):
         view_mode_btn.pressed.connect(view_mode_btn.showMenu)
         self._toolbar.addWidget(view_mode_btn)
 
-        # FIT TO PAGE
-        fit_act = self._toolbar.addAction(load_icon("fit-to-page-outline.svg"), "Fit")
-        fit_act.triggered.connect(self._viewer_widget.engine.fit_to_viewport)
-
         # LAYER VISIBILITY
         self._layer_visibility_btn = QToolButton()
         self._layer_visibility_btn.setIcon(load_icon("layers-triple-outline.svg"))
@@ -253,8 +262,13 @@ class QtViewer(QWidget):
         self._layer_visibility_btn.pressed.connect(self._layer_visibility_btn.showMenu)
         self._toolbar.addWidget(self._layer_visibility_btn)
 
+        # FIT TO PAGE
+        fit_act = self._toolbar.addAction(load_icon("fit-to-page-outline.svg"), "Fit")
+        fit_act.triggered.connect(self._viewer_widget.engine.fit_to_viewport)
+
         # RULER
-        self._toolbar.addAction(load_icon("ruler-square.svg"), "Units")
+        # TODO: not implemented yet
+        # self._toolbar.addAction(load_icon("ruler-square.svg"), "Units")
 
         # MOUSE COORDINATES>
         spacer = QWidget()

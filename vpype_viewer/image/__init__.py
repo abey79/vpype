@@ -8,7 +8,7 @@ from vpype_viewer.engine import DEFAULT_PEN_OPACITY, DEFAULT_PEN_WIDTH, Engine, 
 
 
 class ImageRenderer:
-    """Viewer engine wrapper class to render to a Pillow :class:`Image` instance.
+    """Viewer engine wrapper class to render to a :class:`PIL.Image.Image` instance.
 
     Example:
 
@@ -21,16 +21,21 @@ class ImageRenderer:
     """
 
     def __init__(self, size: Tuple[int, int]):
+        """Constructor.
+
+        Args:
+            size: image size
+        """
         ctx = moderngl.create_standalone_context()
         self._fbo = ctx.simple_framebuffer(size)
         self.engine = Engine()
         self.engine.post_init(ctx, *size)
 
     def render(self) -> Image:
-        """Render to a Pillow :class:`Image` instance.
+        """Render to a :class:`PIL.Image.Image` instance.
 
         Returns:
-            the rendered mage
+            :class:`PIL.Image.Image`: the rendered mage
         """
         self._fbo.use()
         self.engine.render()
@@ -48,7 +53,7 @@ def render_image(
     scale: Optional[float] = None,
     origin: Optional[Tuple[float, float]] = None,
 ) -> Image:
-    """Render a :class:`Document` instance as a Pillow :class:`Image`.
+    """Render a :class:`vpype.Document` instance as a Pillow :class:`PIL.Image.Image`.
 
     By default, the document is scaled and offset to entirely fit in the image. This behaviour
     can be overridden using the ``scale`` and ``offset`` arguments.
@@ -63,8 +68,9 @@ def render_image(
         pen_opacity: pen opacity (``ViewMode.PREVIEW`` only)
         scale: manually set scale
         origin: manually set origin
+
     Returns:
-        an :class:`Image` instance
+        :class:`PIL.Image.Image`: the rendered image
     """
 
     renderer = ImageRenderer(size)

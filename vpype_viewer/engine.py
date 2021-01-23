@@ -39,6 +39,8 @@ DEFAULT_PEN_OPACITY = 0.8
 
 
 class ViewMode(enum.Enum):
+    """View mode enum."""
+
     NONE = enum.auto()  # for debug purposes
     OUTLINE = enum.auto()
     OUTLINE_COLORFUL = enum.auto()
@@ -46,6 +48,8 @@ class ViewMode(enum.Enum):
 
 
 class Engine:
+    """OpenGL-based rendering engine for :class:`vpype.Document`."""
+
     def __init__(
         self,
         view_mode: ViewMode = ViewMode.OUTLINE,
@@ -55,6 +59,17 @@ class Engine:
         pen_opacity: float = DEFAULT_PEN_OPACITY,
         render_cb: Callable[[], None] = lambda: None,
     ):
+        """Constructor.
+
+        Args:
+            view_mode: the view mode to use
+            show_pen_up: render pen-up trajectories if True
+            show_points: render points if True
+            pen_width: pen width (preview only)
+            pen_opacity: pen opacity (preview only)
+            render_cb: callback that will be called when rendering is required
+        """
+
         # params
         self._debug = False
         self._view_mode = view_mode
@@ -78,6 +93,8 @@ class Engine:
         self._paper_bounds_painter: Optional[PaperBoundsPainter] = None
 
     def post_init(self, ctx: mgl.Context, width: int = 100, height: int = 100):
+        """Post-init configuration to provide a GL context."""
+
         self._ctx = ctx
         self._ctx.enable_only(mgl.BLEND | mgl.PROGRAM_POINT_SIZE)
 
@@ -89,6 +106,7 @@ class Engine:
 
     @property
     def document(self) -> Optional[vp.Document]:
+        """:class:`vpype.Document` being displayed."""
         return self._document
 
     @document.setter
@@ -99,6 +117,7 @@ class Engine:
 
     @property
     def scale(self) -> float:
+        """Current scale (ratio screen pixel per document pixel)"""
         return self._scale
 
     @scale.setter
@@ -108,6 +127,8 @@ class Engine:
 
     @property
     def origin(self) -> Tuple[float, float]:
+        """Current origin (document coordinates corresponding to the display window's top-left
+        corner."""
         return self._origin
 
     @origin.setter
@@ -116,6 +137,7 @@ class Engine:
 
     @property
     def view_mode(self) -> ViewMode:
+        """Current view mode."""
         return self._view_mode
 
     @view_mode.setter
@@ -125,6 +147,7 @@ class Engine:
 
     @property
     def show_pen_up(self) -> bool:
+        """True if pen-up trajectories are rendered."""
         return self._show_pen_up
 
     @show_pen_up.setter
@@ -134,6 +157,7 @@ class Engine:
 
     @property
     def show_points(self) -> bool:
+        """True if points are rendered."""
         return self._show_points
 
     @show_points.setter
@@ -143,6 +167,7 @@ class Engine:
 
     @property
     def pen_width(self) -> float:
+        """Pen width used for rendering (preview only)."""
         return self._pen_width
 
     @pen_width.setter
@@ -152,6 +177,7 @@ class Engine:
 
     @property
     def pen_opacity(self) -> float:
+        """Pen opacity used for rendering (preview only)."""
         return self._pen_opacity
 
     @pen_opacity.setter
@@ -161,6 +187,7 @@ class Engine:
 
     @property
     def debug(self) -> bool:
+        """Debug mode for display."""
         return self._debug
 
     @debug.setter
@@ -169,9 +196,19 @@ class Engine:
         self._render_cb()
 
     def layer_visible(self, layer_id: int) -> bool:
+        """True if the corresponding layer is currently visible.
+
+        Args:
+            layer_id: layer to check
+        """
         return self._layer_visibility[layer_id]
 
     def toggle_layer_visibility(self, layer_id: int) -> None:
+        """Toggles the visibility of the provided layer.
+
+        Args:
+            layer_id: layer to toggle
+        """
         self._layer_visibility[layer_id] = not self._layer_visibility[layer_id]
         self._render_cb()
 
@@ -179,6 +216,8 @@ class Engine:
     # Geometry
 
     def fit_to_viewport(self):
+        """Fit the current document in the viewport, allowing for a 2.5% margin on either
+        sides."""
         if self._document is None:
             return
 
@@ -207,10 +246,15 @@ class Engine:
         return x / self._scale + self._origin[0], y / self._scale + self._origin[1]
 
     def resize(self, width: int, height: int) -> None:
+        """Resizes the viewport.
+        Args:
+            width: new viewport width
+            height: new viewport height
+        """
         self._viewport_width = width
         self._viewport_height = height
 
-    def get_projection(self) -> np.ndarray:
+    def _get_projection(self) -> np.ndarray:
         proj = orthogonal_projection_matrix(
             self._origin[0],
             self._origin[0] + self._viewport_width / self._scale,
@@ -224,10 +268,26 @@ class Engine:
         return proj
 
     def pan(self, dx: float, dy: float) -> None:
+        """Pan the viewport.
+
+        Args:
+            dx: horizontal distance to pan
+            dy: vertical distance to pan
+        """
         self._origin = (self._origin[0] - dx / self._scale, self._origin[1] - dy / self._scale)
         self._render_cb()
 
     def zoom(self, delta_zoom: float, mouse_x: float, mouse_y: float) -> None:
+        """Zoom the viewport.
+
+        Coordinates must be provided to specify the point about which to zoom. This typically
+        should be the mouse position when used in GUI.
+
+        Args:
+            delta_zoom: zoom adjustment value (the scale is multiplied by ``(1 + delta_zoom)``
+            mouse_x: mouse X coordinate
+            mouse_y: mouse Y coordinate
+        """
         new_scale = self._scale * (1 + delta_zoom)
         new_scale = max(min(new_scale, 100000), 0.05)  # clamp to reasonable values
 
@@ -241,11 +301,12 @@ class Engine:
     # Painters
 
     def render(self):
+        """Execute a render."""
         if self._ctx is None:
             return
 
         self._ctx.clear(0.95, 0.95, 0.95, 1)
-        proj = self.get_projection()
+        proj = self._get_projection()
 
         if self._paper_bounds_painter:
             self._paper_bounds_painter.render(proj, self._scale, self._debug)

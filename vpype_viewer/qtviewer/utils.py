@@ -1,6 +1,7 @@
 import os
 
-from PySide2.QtGui import QIcon
+from PySide2.QtCore import QCoreApplication
+from PySide2.QtGui import QIcon, QPalette
 from PySide2.QtWidgets import QAction, QActionGroup
 
 
@@ -9,7 +10,14 @@ def load_icon(path: str) -> QIcon:
         os.path.dirname(__file__) + os.path.sep + "resources" + os.path.sep + path
     )
 
-    return QIcon(path)
+    # check if dark mode is enabled
+    base_color = QCoreApplication.instance().palette().color(QPalette.Base)
+    if base_color.lightnessF() < 0.5:
+        file, ext = os.path.splitext(path)
+        path = file + "-dark" + ext
+
+    icon = QIcon(path)
+    return icon
 
 
 class PenWidthActionGroup(QActionGroup):
