@@ -288,7 +288,7 @@ class QtViewer(QWidget):
         self._mouse_coord_lbl.setFont(font)
         self._toolbar.addWidget(self._mouse_coord_lbl)
         # noinspection PyUnresolvedReferences
-        self._viewer_widget.mouse_coords.connect(self.set_mouse_coords)
+        self._viewer_widget.mouse_coords.connect(self.set_mouse_coords)  # type: ignore
 
         # setup layout
         layout = QVBoxLayout()
