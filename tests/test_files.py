@@ -1,7 +1,6 @@
 """Run a bunch of tests on the svg collection."""
 import difflib
 import os
-import pathlib
 import re
 
 import numpy as np
@@ -10,7 +9,7 @@ import pytest
 import vpype as vp
 from vpype_cli import cli
 
-TEST_FILE_DIRECTORY = (pathlib.Path(__file__).parent / "data" / "test_svg").absolute()
+from .utils import TEST_FILE_DIRECTORY
 
 TEST_FILES = [
     os.path.join(directory, file)
@@ -44,7 +43,7 @@ METADATA_PATTERN = re.compile(r"<metadata>.*</metadata>", flags=re.DOTALL)
 
 @pytest.mark.skip(reason="Write is currently not idempotent for some reason")
 @pytest.mark.parametrize("path", TEST_FILES)
-def test_write_is_idempotent(runner, path, tmp_path):
+def test_write_is_idempotent(runner, path, tmp_path):  # pragma: no cover
     output1 = tmp_path / "output1.svg"
     output2 = tmp_path / "output2.svg"
     runner.invoke(cli, ["read", path, "write", str(output1)])

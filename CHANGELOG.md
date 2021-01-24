@@ -3,9 +3,22 @@
 #### 1.3 (UNRELEASED)
 
 New features and improvements:
-* Minor loading time improvement (#133)
+* (Beta) Complete rewrite of the viewer underlying the `show` command (#163)
+  * fully hardware-accelerated rendering engine
+  * smooth zooming and panning, with touchpad and mouse support
+  * preview mode with adjustable pen width and opacity
+  * outline mode with optional colorful and point display
+  * optional pen-up trajectories display
+  * per-layer visibility control
+  * interactively adjustable display settings
+    
+  **Note**: This new viewer is a beta feature and will evolve in future versions. Your feedback is welcome. The current, matplotlib-based viewer is still available using `show --classic`.
 * Added large format paper sizes (A2, A1, A0) (#144)
 * The `splitall` command will now filter out segments with identical end-points (#146)
+* Minor loading time improvement (#133)
+
+API changes:
+* The new viewer engine and Qt-based GUI has a documented API and is available for use by third-party packages (#163).
 
 
 #### 1.2.1 (2020-12-26)
