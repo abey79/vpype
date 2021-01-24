@@ -114,10 +114,15 @@ class QtViewerWidget(QGLWidget):
             self._last_mouse_x = evt.x()
             self._last_mouse_y = evt.y()
 
-        x, y = self.engine.viewport_to_model(factor * evt.x(), factor * evt.y())
-        decimals = max(0, math.ceil(-math.log10(1 / self.engine.scale)))
-        # noinspection PyUnresolvedReferences
-        self.mouse_coords.emit(f"{x:.{decimals}f}, {y:.{decimals}f}")
+        # update mouse coordinate display
+        if evt.x() < 0 or evt.x() > self.width() or evt.y() < 0 or evt.y() > self.height():
+            # noinspection PyUnresolvedReferences
+            self.mouse_coords.emit("")
+        else:
+            x, y = self.engine.viewport_to_model(factor * evt.x(), factor * evt.y())
+            decimals = max(0, math.ceil(-math.log10(1 / self.engine.scale)))
+            # noinspection PyUnresolvedReferences
+            self.mouse_coords.emit(f"{x:.{decimals}f}, {y:.{decimals}f}")
 
     def mouseReleaseEvent(self, evt):
         self._mouse_drag = False
@@ -249,8 +254,8 @@ class QtViewer(QWidget):
         view_mode_btn.setMenu(view_mode_menu)
         view_mode_btn.setIcon(load_icon("eye-outline.svg"))
         view_mode_btn.setText("View")
-        view_mode_btn.setPopupMode(QToolButton.MenuButtonPopup)
-        view_mode_btn.pressed.connect(view_mode_btn.showMenu)
+        view_mode_btn.setPopupMode(QToolButton.InstantPopup)
+        view_mode_btn.setStyleSheet("QToolButton::menu-indicator { image: none; }")
         self._toolbar.addWidget(view_mode_btn)
 
         # LAYER VISIBILITY
@@ -258,8 +263,10 @@ class QtViewer(QWidget):
         self._layer_visibility_btn.setIcon(load_icon("layers-triple-outline.svg"))
         self._layer_visibility_btn.setText("Layer")
         self._layer_visibility_btn.setMenu(QMenu(self._layer_visibility_btn))
-        self._layer_visibility_btn.setPopupMode(QToolButton.MenuButtonPopup)
-        self._layer_visibility_btn.pressed.connect(self._layer_visibility_btn.showMenu)
+        self._layer_visibility_btn.setPopupMode(QToolButton.InstantPopup)
+        self._layer_visibility_btn.setStyleSheet(
+            "QToolButton::menu-indicator { image: none; }"
+        )
         self._toolbar.addWidget(self._layer_visibility_btn)
 
         # FIT TO PAGE
@@ -271,16 +278,17 @@ class QtViewer(QWidget):
         # self._toolbar.addAction(load_icon("ruler-square.svg"), "Units")
 
         # MOUSE COORDINATES>
-        spacer = QWidget()
-        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self._toolbar.addWidget(spacer)
-        mouse_coord_lbl = QLabel("")
-        font = mouse_coord_lbl.font()
+        self._mouse_coord_lbl = QLabel("")
+        font = self._mouse_coord_lbl.font()
         font.setPointSize(11)
-        mouse_coord_lbl.setFont(font)
-        self._toolbar.addWidget(mouse_coord_lbl)
+        self._mouse_coord_lbl.setMargin(6)
+        # self._mouse_coord_lbl.setStyleSheet("QLabel { background-color : red }")
+        self._mouse_coord_lbl.setAlignment(Qt.AlignVCenter | Qt.AlignRight)
+        self._mouse_coord_lbl.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self._mouse_coord_lbl.setFont(font)
+        self._toolbar.addWidget(self._mouse_coord_lbl)
         # noinspection PyUnresolvedReferences
-        self._viewer_widget.mouse_coords.connect(mouse_coord_lbl.setText)  # type: ignore
+        self._viewer_widget.mouse_coords.connect(self.set_mouse_coords)
 
         # setup layout
         layout = QVBoxLayout()
@@ -308,6 +316,9 @@ class QtViewer(QWidget):
                 functools.partial(self._viewer_widget.engine.toggle_layer_visibility, layer_id)
             )
         self._layer_visibility_btn.setMenu(layer_menu)
+
+    def set_mouse_coords(self, txt: str) -> None:
+        self._mouse_coord_lbl.setText(txt)
 
     def set_view_mode(self, mode: ViewMode) -> None:
         self._viewer_widget.engine.view_mode = mode

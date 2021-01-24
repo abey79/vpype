@@ -3,7 +3,7 @@
 #### 1.3 (UNRELEASED)
 
 New features and improvements:
-* (Beta) Complete rewrite of the `show` command (#163)
+* (Beta) Complete rewrite of the viewer underlying the `show` command (#163)
   * fully hardware-accelerated rendering engine
   * smooth zooming and panning, with touchpad and mouse support
   * preview mode with adjustable pen width and opacity
@@ -12,7 +12,7 @@ New features and improvements:
   * per-layer visibility control
   * interactively adjustable display settings
     
-  **Note**: This new viewer is a beta feature and will evolve in future versions. Your feedback is welcome. The current, matplotlib-based viewer is still available using the `showmpl` command, but will likely be deprecated in a future version.
+  **Note**: This new viewer is a beta feature and will evolve in future versions. Your feedback is welcome. The current, matplotlib-based viewer is still available using `show --classic`.
 * Added large format paper sizes (A2, A1, A0) (#144)
 * The `splitall` command will now filter out segments with identical end-points (#146)
 * Minor loading time improvement (#133)
