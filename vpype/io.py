@@ -540,8 +540,13 @@ def write_hpgl(
 
     # handle flex paper size
     paper_size = paper_config.paper_size
-    if paper_config.paper_size is None:
-        paper_size = document.page_size
+    if paper_size is None:
+        if document.page_size is not None:
+            paper_size = document.page_size
+        else:
+            raise ValueError(
+                "paper size must be set using `read`, `pagesize`, or `layout` command"
+            )
 
     # handle origin location
     origin_x, origin_y = paper_config.origin_location
@@ -585,7 +590,7 @@ def write_hpgl(
     document.scale(
         unit_per_pixel, -unit_per_pixel if paper_config.y_axis_up else unit_per_pixel
     )
-    if None not in [paper_config.x_range, paper_config.y_range]:
+    if paper_config.x_range is not None and paper_config.y_range is not None:
         document.crop(
             paper_config.x_range[0],
             paper_config.y_range[0],

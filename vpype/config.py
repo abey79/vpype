@@ -33,13 +33,8 @@ __all__ = [
 ]
 
 
-def _convert_length_pair(
-    data: Optional[Sequence[Union[float, str]]]
-) -> Optional[Tuple[float, float]]:
-    if data is not None:
-        return convert_length(data[0]), convert_length(data[1])
-    else:
-        return None
+def _convert_length_pair(data: Sequence[Union[float, str]]) -> Tuple[float, float]:
+    return convert_length(data[0]), convert_length(data[1])
 
 
 @attr.s(auto_attribs=True, frozen=True)
@@ -73,7 +68,9 @@ class PaperConfig:
             name=data["name"],
             y_axis_up=data["y_axis_up"],
             origin_location=_convert_length_pair(data["origin_location"]),
-            paper_size=_convert_length_pair(data.get("paper_size", None)),
+            paper_size=_convert_length_pair(data["paper_size"])
+            if "paper_size" in data
+            else None,
             x_range=(data["x_range"][0], data["x_range"][1]) if "x_range" in data else None,
             y_range=(data["y_range"][0], data["y_range"][1]) if "y_range" in data else None,
             origin_location_reference=data.get("origin_location_reference", "topleft"),
