@@ -76,6 +76,7 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.coverage.run]
+branch = true
 source = ["."]
 omit = [
     "*/.tox/*",
