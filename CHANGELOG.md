@@ -3,6 +3,13 @@
 #### 1.3 (UNRELEASED)
 
 New features and improvements:
+* Added new `layout` command (#168)
+  
+  This command automates the page layout process on a specified the page size by centering the geometries (with
+  customizable horizontal and vertical alignment) and optionally fitting to specified margins. It intends to supersede
+  `write`'s layout options (i.e. `--page-size` and `--center`) in more intuitive way. In particular, since this command
+  acts on the pipeline rather than on the output file, its effect can be previewed with the `show` command.
+
 * (Beta) Complete rewrite of the viewer underlying the `show` command (#163)
   * fully hardware-accelerated rendering engine
   * smooth zooming and panning, with touchpad and mouse support
@@ -13,9 +20,13 @@ New features and improvements:
   * interactively adjustable display settings
     
   **Note**: This new viewer is a beta feature and will evolve in future versions. Your feedback is welcome. The current, matplotlib-based viewer is still available using `show --classic`.
+
 * Added large format paper sizes (A2, A1, A0) (#144)
 * The `splitall` command will now filter out segments with identical end-points (#146)
 * Minor loading time improvement (#133)
+
+Bug fixes:
+* Fixed the `linemerge` command's help string (#170, thanks to @theomega)
 
 API changes:
 * The new viewer engine and Qt-based GUI has a documented API and is available for use by third-party packages (#163).

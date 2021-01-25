@@ -47,6 +47,10 @@ CLI reference
 .. click:: vpype_cli:GridBlockProcessor
    :prog: grid
 
+.. _cmd_layout:
+.. click:: vpype_cli:layout
+   :prog: layout
+
 .. _cmd_lcopy:
 .. click:: vpype_cli:lcopy
    :prog: lcopy

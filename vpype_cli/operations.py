@@ -382,6 +382,21 @@ def layout(
     align: str,
     valign: str,
 ) -> vp.Document:
+    """Layout the geometries on the provided page size.
+
+    By default, this command centers everything on the page. The horizontal and vertical
+    alignment can be adjusted using the `--align`, resp. `--valign` options.
+
+    Optionally, this command can scale the geometries to fit specified margins with the
+    `--fit-to-margin` option.
+
+    Examples:
+
+        Fit the geometries to 3cm margins with top alignment (a generally pleasing arrangement
+        for square designs on portrait-oriented pages):
+
+            vpype read input.svg layout --fit-to-margin 3cm --valign top a4 write.svg
+    """
 
     if landscape and size[0] < size[1]:
         size = size[::-1]

@@ -159,7 +159,13 @@ def scaleto(
     except ValueError:
         return document
 
-    factors = (dim[0] / (bounds[2] - bounds[0]), dim[1] / (bounds[3] - bounds[1]))
+    width = bounds[2] - bounds[0]
+    height = bounds[3] - bounds[1]
+
+    if width == 0.0 or height == 0.0:
+        return document
+
+    factors = dim[0] / width, dim[1] / height
     if not fit_dimensions:
         factors = (min(factors), min(factors))
 

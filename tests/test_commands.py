@@ -58,6 +58,18 @@ def test_commands_empty_geometry(runner, args):
 
 
 @pytest.mark.parametrize("args", MINIMAL_COMMANDS)
+def test_commands_single_line(runner, args):
+    result = runner.invoke(cli, "line 0 0 10 10 " + args)
+    assert result.exit_code == 0
+
+
+@pytest.mark.parametrize("args", MINIMAL_COMMANDS)
+def test_commands_degenerate_line(runner, args):
+    result = runner.invoke(cli, "line 0 0 0 0 " + args)
+    assert result.exit_code == 0
+
+
+@pytest.mark.parametrize("args", MINIMAL_COMMANDS)
 def test_commands_random_input(runner, args):
     result = runner.invoke(cli, "random -n 100 " + args)
     assert result.exit_code == 0
@@ -390,6 +402,7 @@ def test_splitall_filter_duplicates(line, expected):
         ("-m 3cm -v bottom 10x20cm", (3, 13, 7, 17)),
         ("-m 3cm -h right 20x10cm", (13, 3, 17, 7)),
         ("-m 3cm -h right -l 20x10cm", (13, 3, 17, 7)),
+        ("-m 3cm -h right -l 10x20cm", (13, 3, 17, 7)),
     ],
 )
 def test_layout(runner, args, expected_bounds):
