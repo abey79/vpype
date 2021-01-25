@@ -104,7 +104,7 @@ def linemerge(lines: vp.LineCollection, tolerance: float, no_flip: bool = True):
 
     By default, `linemerge` considers both directions of a stroke. If there is no additional
     start of a stroke within the provided tolerance, it also checks for ending points of
-    strokes and uses them in reverse. You can use the `--no_flip` to disable this reversing
+    strokes and uses them in reverse. You can use the `--no-flip` to disable this reversing
     behaviour and preserve the stroke direction from the input.
 
     By default, gaps of maximum 0.05mm are considered for merging. This can be controlled with
