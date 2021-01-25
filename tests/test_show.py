@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import pytest
 
+import vpype as vp
 import vpype_viewer
 from vpype_cli import cli
 
