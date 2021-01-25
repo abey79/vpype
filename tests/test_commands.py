@@ -81,6 +81,18 @@ def test_commands_execute(args):
 
 
 @pytest.mark.parametrize("args", MINIMAL_COMMANDS)
+def test_commands_must_return_document(runner, args):
+    @cli.command()
+    @vp.global_processor
+    def assertdoc(document):
+        assert document is not None
+        assert type(document) is vp.Document
+
+    result = runner.invoke(cli, "line 0 0 10 10 " + args + " assertdoc")
+    assert result.exit_code == 0
+
+
+@pytest.mark.parametrize("args", MINIMAL_COMMANDS)
 def test_commands_keeps_page_size(runner, args):
     """No command shall "forget" the current page size, unless its `pagesize` of course."""
     if args.split()[0] in ["pagesize", "layout"]:
