@@ -48,6 +48,9 @@ class PaperConfig:
     ]  #: location on paper of the (0, 0) plotter unit coordinates
 
     paper_size: Optional[Tuple[float, float]] = None  #: X/Y axis convention of the plotter
+    paper_orientation: Optional[
+        str
+    ] = None  #: orientation of the plotter coordinate system on paper
     x_range: Optional[Tuple[int, int]] = None  #: admissible range of X coordinates
     y_range: Optional[Tuple[int, int]] = None  #: admissible range of Y coordinates
     origin_location_reference: Optional[str] = "topleft"  #: reference for ``origin_location``
@@ -71,6 +74,7 @@ class PaperConfig:
             paper_size=_convert_length_pair(data["paper_size"])
             if "paper_size" in data
             else None,
+            paper_orientation=data.get("paper_orientation", None),
             x_range=(data["x_range"][0], data["x_range"][1]) if "x_range" in data else None,
             y_range=(data["y_range"][0], data["y_range"][1]) if "y_range" in data else None,
             origin_location_reference=data.get("origin_location_reference", "topleft"),

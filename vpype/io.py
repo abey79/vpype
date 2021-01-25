@@ -538,7 +538,10 @@ def write_hpgl(
         if paper_config.info:
             click.echo(paper_config.info, err=True)
 
-    # handle flex paper size
+    # Handle flex paper size.
+    # If paper_size is not provided by the config, the paper size is then assumed to be the
+    # same a the current page size. In this case, the config should provide paper_orientation
+    # since it may not be the same as the document's page size
     paper_size = paper_config.paper_size
     if paper_size is None:
         if document.page_size is not None:
@@ -548,7 +551,14 @@ def write_hpgl(
                 "paper size must be set using `read`, `pagesize`, or `layout` command"
             )
 
-    # handle origin location
+    # Ensure paper orientation is correct.
+    if paper_config.paper_orientation is not None and (
+        (paper_config.paper_orientation == "portrait" and paper_size[0] > paper_size[1])
+        or (paper_config.paper_orientation == "landscape" and paper_size[0] < paper_size[1])
+    ):
+        paper_size = paper_size[::-1]
+
+    # Handle origin location.
     origin_x, origin_y = paper_config.origin_location
     ref = paper_config.origin_location_reference
     if ref not in ["topleft", "botleft", "topright", "botright"]:
