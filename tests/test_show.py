@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import pytest
 
+import vpype as vp
 import vpype_viewer
 from vpype_cli import cli
 
@@ -67,3 +68,19 @@ def test_show(assert_image_similarity, runner, monkeypatch, commands, params):
 
     assert res.exit_code == 0
     assert_image_similarity(image)
+
+
+def test_show_must_return_document(runner, monkeypatch):
+    @cli.command()
+    @vp.global_processor
+    def assertdoc(document):
+        assert document is not None
+        assert type(document) is vp.Document
+
+    def new_show(*args, **kwargs):
+        pass
+
+    monkeypatch.setattr(vpype_viewer, "show", new_show)
+
+    result = runner.invoke(cli, "line 0 0 10 10 show assertdoc")
+    assert result.exit_code == 0
