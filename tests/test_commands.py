@@ -47,12 +47,25 @@ MINIMAL_COMMANDS = [
     "stat",
     "snap 1",
     "reverse",
+    "layout a4",
 ]
 
 
 @pytest.mark.parametrize("args", MINIMAL_COMMANDS)
 def test_commands_empty_geometry(runner, args):
     result = runner.invoke(cli, args)
+    assert result.exit_code == 0
+
+
+@pytest.mark.parametrize("args", MINIMAL_COMMANDS)
+def test_commands_single_line(runner, args):
+    result = runner.invoke(cli, "line 0 0 10 10 " + args)
+    assert result.exit_code == 0
+
+
+@pytest.mark.parametrize("args", MINIMAL_COMMANDS)
+def test_commands_degenerate_line(runner, args):
+    result = runner.invoke(cli, "line 0 0 0 0 " + args)
     assert result.exit_code == 0
 
 
@@ -70,7 +83,7 @@ def test_commands_execute(args):
 @pytest.mark.parametrize("args", MINIMAL_COMMANDS)
 def test_commands_keeps_page_size(runner, args):
     """No command shall "forget" the current page size, unless its `pagesize` of course."""
-    if args.split()[0] == "pagesize":
+    if args.split()[0] in ["pagesize", "layout"]:
         return
 
     page_size = None
@@ -378,3 +391,32 @@ def test_splitall_filter_duplicates(line, expected):
     lc = execute_single_line("splitall", line)
 
     assert np.all(l == el for l, el in zip(lc, expected))
+
+
+@pytest.mark.parametrize(
+    ("args", "expected_bounds"),
+    [
+        ("10x10cm", (4.5, 4.5, 5.5, 5.5)),
+        ("-h left -v top a4", (0, 0, 1, 1)),
+        ("-m 3cm -h left -v top 10x20cm", (3, 3, 7, 7)),
+        ("-m 3cm -v bottom 10x20cm", (3, 13, 7, 17)),
+        ("-m 3cm -h right 20x10cm", (13, 3, 17, 7)),
+        ("-m 3cm -h right -l 20x10cm", (13, 3, 17, 7)),
+        ("-m 3cm -h right -l 10x20cm", (13, 3, 17, 7)),
+    ],
+)
+def test_layout(runner, args, expected_bounds):
+    document = vp.Document()
+
+    @cli.command()
+    @vp.global_processor
+    def sample(doc: vp.Document):
+        nonlocal document
+        document = doc
+
+    res = runner.invoke(cli, f"random -n 100 rect 0 0 1cm 1cm layout {args} sample")
+    assert res.exit_code == 0
+    bounds = document.bounds()
+    assert bounds is not None
+    for act, exp in zip(bounds, expected_bounds):
+        assert act == pytest.approx(exp * CM)

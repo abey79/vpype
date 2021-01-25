@@ -15,6 +15,8 @@
 # sys.path.insert(0, os.path.abspath('.'))
 
 # -- Project information -----------------------------------------------------
+# noinspection PyPackageRequirements
+from recommonmark.parser import CommonMarkParser
 
 project = "vpype"
 # noinspection PyShadowingBuiltins
@@ -33,7 +35,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx_click.ext",
     "sphinx_autodoc_typehints",
-    "recommonmark",
+    # "recommonmark", # NOTE: see workaround below
     # "alabaster",
     # 'autoapi.extension',
 ]
@@ -86,6 +88,7 @@ intersphinx_mapping = {
 
 napoleon_include_init_with_doc = True
 
+
 # noinspection PyUnusedLocal
 def autodoc_skip_member(app, what, name, obj, skip, options):
     exclusions = (
@@ -108,5 +111,18 @@ def autodoc_skip_member(app, what, name, obj, skip, options):
     return skip or exclude
 
 
+# RECOMMONMARK WORKAROUND
+# see https://github.com/readthedocs/recommonmark/issues/177
+
+
+class CustomCommonMarkParser(CommonMarkParser):
+    def visit_document(self, node):
+        pass
+
+
 def setup(app):
     app.connect("autodoc-skip-member", autodoc_skip_member)
+
+    # recommonmark workaround
+    app.add_source_suffix(".md", "markdown")
+    app.add_source_parser(CustomCommonMarkParser)

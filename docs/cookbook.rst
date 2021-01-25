@@ -11,31 +11,41 @@ Cookbook
 Laying out a SVG for plotting
 =============================
 
-This command will :ref:`cmd_read` an SVG file, and then :ref:`cmd_write` it to a new SVG file sized to A4 portrait::
+There are two ways to layout geometries on a page. The preferred way is to use commands such as :ref:`cmd_layout`, :ref:`cmd_scale`, :ref:`cmd_scaleto`, :ref:`cmd_translate`. In particular, :ref:`cmd_layout` handles most common cases
+by centering the geometries on page and optionally scaling them to fit specified margins. These commands act on the pipeline and their effect can be previewed using the :ref:`cmd_show` command. The following examples all use this approach.
 
-  $ vpype read input.svg write --page-size a4 output.svg
+Alternatively, the :ref:`cmd_write` commands offers option such as :option:`--page-size <write --page-size>` and
+:option:`--center <write --center>` which can also be used to layout geometries. It must be understood that these
+options *only* affect the output file and leave the pipeline untouched. Their effect cannot be previewed by the
+:ref:`cmd_show` command, even if it placed after the :ref:`cmd_write` command.
 
-This command will :ref:`cmd_read` an SVG file, and then :ref:`cmd_write` it to a new SVG file sized to 13x9in, rotated to landscape, with the design centred on the page::
 
-  $ vpype read input.svg write --page-size 13x9in --landscape --center output.svg
+This command will :ref:`cmd_read` a SVG file, and then :ref:`cmd_write` it to a new SVG file sized to A4 in landscape orientation, with the design centred on the page::
 
-This command will :ref:`cmd_read` a multilayered SVG file, flatten it by converting all layers to a single layer, and then :ref:`cmd_write` it to a new SVG with the boundaries fitted tightly around the design::
+  $ vpype read input.svg layout --landscape a4 write output.svg
 
-  $ vpype read --single-layer input.svg write output.svg
+The :ref:`cmd_layout` command implicitly centers the geometries on the page. The :ref:`cmd_pagesize` command can be used
+to choose the page size without changing the geometries::
 
-This command will :ref:`cmd_read` an SVG file, :ref:`cmd_scale` it down to a 80% of its original size, and then :ref:`cmd_write` it to a new A5-sized SVG, centred on the page::
+  $ vpype read input.svg pagesize --landscape a4 write output.svg
 
-  $ vpype read input.svg scale 0.8 0.8 write output.svg
+This command will :ref:`cmd_read` a SVG file and lay it out to 3cm margin with a top vertical alignment (a generally pleasing arrangement for square designs on the portrait-oriented page), and then :ref:`cmd_write` it to a new SVG::
 
-This command will :ref:`cmd_read` an SVG file, scale it down to a 5x5cm square (using the :ref:`cmd_scaleto` command), and then :ref:`cmd_write` it to a new A5-sized SVG, centred on the page::
+  $ vpype read input.svg layout --fit-to-margin 3cm --valign top a4 write output.svg
 
-  $ vpype read input.svg scaleto 5cm 5cm write --page-size a5 --center output.svg
+This command will :ref:`cmd_read` a SVG file, :ref:`cmd_scale` it down to a 80% of its original size, and then :ref:`cmd_write` it to a new A5-sized SVG, centred on the page::
 
-This command will :ref:`cmd_read` an SVG file, :ref:`cmd_crop` it to a 10x10cm square positioned 57mm from the top and left corners of the design, and then :ref:`cmd_write` it to a new SVG::
+  $ vpype read input.svg scale 0.8 0.8 layout a5 write output.svg
+
+This command will :ref:`cmd_read` a SVG file, scale it down to a 5x5cm square (using the :ref:`cmd_scaleto` command), and then :ref:`cmd_write` it to a new A5-sized SVG, centred on the page::
+
+  $ vpype read input.svg scaleto 5cm 5cm layout a5 write output.svg
+
+This command will :ref:`cmd_read` a SVG file, :ref:`cmd_crop` it to a 10x10cm square positioned 57mm from the top and left corners of the design, and then :ref:`cmd_write` it to a new SVG whose page size will be identical to the input SVG::
 
   $ vpype read input.svg crop 57mm 57mm 10cm 10cm write output.svg
 
-This command will :ref:`cmd_read` an SVG file, add a single-line :ref:`cmd_frame` around the design, 5cm beyond its bounding box, and then :ref:`cmd_write` it to a new SVG::
+This command will :ref:`cmd_read` a SVG file, add a single-line :ref:`cmd_frame` around the design, 5cm beyond its bounding box, and then :ref:`cmd_write` it to a new SVG::
 
   $ vpype read input.svg frame --offset 5cm write output.svg
 
@@ -57,7 +67,7 @@ Note that :option:`write --pen-up` should only be used for previsualization purp
 Optimizing a SVG for plotting
 =============================
 
-This command will :ref:`cmd_read` an SVG file, merge any lines whose endings are less than 0.5mm from each other with :ref:`cmd_linemerge`, and then :ref:`cmd_write` a new SVG file::
+This command will :ref:`cmd_read` a SVG file, merge any lines whose endings are less than 0.5mm from each other with :ref:`cmd_linemerge`, and then :ref:`cmd_write` a new SVG file::
 
   $ vpype read input.svg linemerge --tolerance 0.5mm write output.svg
 
@@ -65,19 +75,19 @@ In some cases such as densely connected meshes (e.g. a grid where made of touchi
 
   $ vpype read input.svg splitall linemerge --tolerance 0.5mm write output.svg
 
-This command will :ref:`cmd_read` an SVG file, simplify its geometry by reducing the number of segments in a line until they're a maximum of 0.1mm from each other using :ref:`cmd_linesimplify`, and then :ref:`cmd_write` a new SVG file::
+This command will :ref:`cmd_read` a SVG file, simplify its geometry by reducing the number of segments in a line until they're a maximum of 0.1mm from each other using :ref:`cmd_linesimplify`, and then :ref:`cmd_write` a new SVG file::
 
   $ vpype read input.svg linesimplify --tolerance 0.1mm write output.svg
 
-This command will :ref:`cmd_read` an SVG file, randomise the seam location for paths whose beginning and end points are a maximum of 0.03mm from each other with :ref:`cmd_reloop`, and then :ref:`cmd_write` a new SVG file::
+This command will :ref:`cmd_read` a SVG file, randomise the seam location for paths whose beginning and end points are a maximum of 0.03mm from each other with :ref:`cmd_reloop`, and then :ref:`cmd_write` a new SVG file::
 
   $ vpype read input.svg reloop --tolerance 0.03mm write output.svg
 
-This command will :ref:`cmd_read` an SVG file, extend each line with a mirrored copy of itself three times using :ref:`cmd_multipass`, and then :ref:`cmd_write` a new SVG file. This is useful for pens that need a few passes to get a good result::
+This command will :ref:`cmd_read` a SVG file, extend each line with a mirrored copy of itself three times using :ref:`cmd_multipass`, and then :ref:`cmd_write` a new SVG file. This is useful for pens that need a few passes to get a good result::
 
   $ vpype read input.svg multipass --count 3 write output.svg
 
-This command will :ref:`cmd_read` an SVG file, use :ref:`cmd_linesort` to sort the lines to minimise pen-up travel distance, and then :ref:`cmd_write` a new SVG file::
+This command will :ref:`cmd_read` a SVG file, use :ref:`cmd_linesort` to sort the lines to minimise pen-up travel distance, and then :ref:`cmd_write` a new SVG file::
 
   $ vpype read input.svg linesort write output.svg
 
@@ -125,7 +135,7 @@ to the :ref:`cmd_write` command::
 
   $ vpype read input.svg write --device hp7475a output.hpgl
 
-The plotter paper size will be inferred from the current page size (which is set by the input SVG in this case).
+The plotter paper size will be inferred from the current page size (as set by the input SVG or using either the :ref:`cmd_pagesize` or :ref:`cmd_layout` commands).
 The plotter type/paper format combination must exist in the built-in or user-provided configuration file. See
 :ref:`faq_custom_hpgl_config` for information on how to create one. If a matching plotter paper size cannot be found,
 an error will be generated. In this case, the paper size must manually specified with the :option:`--page-size <write --page-size>` option::
@@ -138,7 +148,7 @@ for SVG output, the :option:`--center <write --center>` is often use to center t
 It is typically useful to optimize the input SVG during the conversion. The following example is typical of real-world
 use::
 
-  $ vpype read input.svg linesimplify reloop linemerge linesort write --device hp7475a --page-size a4 output.hpgl
+  $ vpype read input.svg linesimplify reloop linemerge linesort layout a4 write --device hp7475a output.hpgl
 
 
 Defining a default HPGL plotter device
