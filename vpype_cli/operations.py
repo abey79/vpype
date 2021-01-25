@@ -100,11 +100,12 @@ def trim(
 @vp.layer_processor
 def linemerge(lines: vp.LineCollection, tolerance: float, no_flip: bool = True):
     """
-    Merge lines whose endings overlap or are very close.
+    Merge lines whose endings and starts overlap or are very close.
 
-    Stroke direction is preserved by default, so `linemerge` looks at joining a line's end with
-    another line's start. With the `--flip` stroke direction will be reversed as required to
-    further the merge.
+    By default, `linemerge` considers both directions of a stroke. If there is no additional
+    start of a stroke within the provided tolerance, it also checks for ending points of
+    strokes and uses them in reverse. You can use the `--no_flip` to disable this reversing
+    behaviour and preserve the stroke direction from the input.
 
     By default, gaps of maximum 0.05mm are considered for merging. This can be controlled with
     the `--tolerance` option.
