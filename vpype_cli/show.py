@@ -104,6 +104,8 @@ def show(
             document, view_mode=view_mode, show_pen_up=show_pen_up, show_points=show_points
         )
 
+    return document
+
 
 def _test_mgl() -> bool:
     """Tests availability of ModernGL."""
@@ -249,5 +251,3 @@ def _show_mpl(
     if show_grid:
         plt.grid("on")
     plt.show()
-
-    return document
