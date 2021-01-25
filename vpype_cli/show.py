@@ -106,6 +106,7 @@ def show(
 
     return document
 
+
 def _test_mgl() -> bool:
     """Tests availability of ModernGL."""
     # noinspection PyBroadException
