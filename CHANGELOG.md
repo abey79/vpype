@@ -26,7 +26,7 @@ New features and improvements:
 * Minor loading time improvement (#133)
 
 Bug fixes:
-* Fixed the `linemerge` command's help string (#170, thanks to @theomega)
+* Various documentation fixes (#170, #172, thanks to @theomega)
 
 API changes:
 * The new viewer engine and Qt-based GUI has a documented API and is available for use by third-party packages (#163).
