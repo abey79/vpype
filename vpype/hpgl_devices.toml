@@ -59,20 +59,20 @@ info = "Plotter set to Auto rotation, this will plot a drawing in portrait layou
 name = "flex"
 y_axis_up = true
 paper_orientation = "landscape"
-origin_location = ["20mm", "15mm"]
+origin_location = ["25mm", "13mm"]
 origin_location_reference = "botleft"
 final_pu_params = "0,0"
-info = "Use this for arbitrarily-sized paper loaded in portrait oriention in the Designmate. Page size must be set with `read`, `pagesize`, or `layout` commands."
+info = "Paper must be loaded in portrait orientation in the plotter and paper size must be set with `read`, `pagesize`, or `layout` commands."
 
 [[device.designmate.paper]]
 name = "flexl"
 y_axis_up = true
 paper_orientation = "landscape"
-origin_location = ["15mm", "15mm"]
+origin_location = ["13mm", "13mm"]
 origin_location_reference = "botleft"
 rotate_180 = true
 final_pu_params = "0,0"
-info = "Use this for arbitrarily-sized paper loaded in landscape oriention in the Designmate. Page size must be set with `read`, `pagesize`, or `layout` commands."
+info = "Paper must be loaded in landscape orientation in the plotter and paper size must be set with `read`, `pagesize`, or `layout` commands."
 
 [[device.designmate.paper]]
 name = "a4"
