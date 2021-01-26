@@ -21,6 +21,7 @@ New features and improvements:
     
   **Note**: This new viewer is a beta feature and will evolve in future versions. Your feedback is welcome. The current, matplotlib-based viewer is still available using `show --classic`.
 
+* Added support for arbitrary paper size to `write`'s HPGL output (configuration for the Calcomp Designmate included, check the documentation for details) (#178)
 * Added large format paper sizes (A2, A1, A0) (#144)
 * The `splitall` command will now filter out segments with identical end-points (#146)
 * Minor loading time improvement (#133)
@@ -29,7 +30,7 @@ Bug fixes:
 * Various documentation fixes (#170, #172, thanks to @theomega)
 
 API changes:
-* The new viewer engine and Qt-based GUI has a documented API and is available for use by third-party packages (#163).
+* Added the new viewer engine and Qt-based GUI (#163)
 
 
 #### 1.2.1 (2020-12-26)

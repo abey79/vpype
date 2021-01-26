@@ -315,6 +315,18 @@ def filter_command(
     return lines
 
 
+def _normalize_page_size(
+    page_size: Tuple[float, float], landscape: bool
+) -> Tuple[float, float]:
+    """Normalize page size to respect the orientation."""
+    if (landscape and page_size[0] < page_size[1]) or (
+        not landscape and page_size[0] > page_size[1]
+    ):
+        return page_size[::-1]
+    else:
+        return page_size
+
+
 @cli.command(group="Operations")
 @click.argument("size", type=vp.PageSizeType(), required=True)
 @click.option("-l", "--landscape", is_flag=True, default=False, help="Landscape orientation.")
@@ -345,7 +357,7 @@ def pagesize(document: vp.Document, size, landscape) -> vp.Document:
             vpype [...] pagesize 11inx15in [...]
     """
 
-    document.page_size = size[::-1] if landscape and size[0] < size[1] else size
+    document.page_size = _normalize_page_size(size, landscape)
     return document
 
 
@@ -399,8 +411,7 @@ def layout(
             vpype read input.svg layout --fit-to-margin 3cm --valign top a4 write.svg
     """
 
-    if landscape and size[0] < size[1]:
-        size = size[::-1]
+    size = _normalize_page_size(size, landscape)
 
     document.page_size = size
     bounds = document.bounds()

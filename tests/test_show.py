@@ -77,10 +77,17 @@ def test_show_must_return_document(runner, monkeypatch):
         assert document is not None
         assert type(document) is vp.Document
 
+    # noinspection PyUnusedLocal
     def new_show(*args, **kwargs):
+        # don't do anything, in particular, do not block
         pass
 
+    # make sure neither version of the viewer will block
     monkeypatch.setattr(vpype_viewer, "show", new_show)
+    monkeypatch.setattr(plt, "show", new_show)
 
     result = runner.invoke(cli, "line 0 0 10 10 show assertdoc")
+    assert result.exit_code == 0
+
+    result = runner.invoke(cli, "line 0 0 10 10 show --classic assertdoc")
     assert result.exit_code == 0

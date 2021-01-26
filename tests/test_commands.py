@@ -81,6 +81,18 @@ def test_commands_execute(args):
 
 
 @pytest.mark.parametrize("args", MINIMAL_COMMANDS)
+def test_commands_must_return_document(runner, args):
+    @cli.command()
+    @vp.global_processor
+    def assertdoc(document):
+        assert document is not None
+        assert type(document) is vp.Document
+
+    result = runner.invoke(cli, "line 0 0 10 10 " + args + " assertdoc")
+    assert result.exit_code == 0
+
+
+@pytest.mark.parametrize("args", MINIMAL_COMMANDS)
 def test_commands_keeps_page_size(runner, args):
     """No command shall "forget" the current page size, unless its `pagesize` of course."""
     if args.split()[0] in ["pagesize", "layout"]:
@@ -95,7 +107,7 @@ def test_commands_keeps_page_size(runner, args):
         page_size = doc.page_size
         return doc
 
-    result = runner.invoke(cli, "pagesize 5432x4321 " + args + " getpagesize")
+    result = runner.invoke(cli, "pagesize --landscape 5432x4321 " + args + " getpagesize")
     assert result.exit_code == 0
     assert page_size == (5432, 4321)
 
@@ -400,7 +412,8 @@ def test_splitall_filter_duplicates(line, expected):
         ("-h left -v top a4", (0, 0, 1, 1)),
         ("-m 3cm -h left -v top 10x20cm", (3, 3, 7, 7)),
         ("-m 3cm -v bottom 10x20cm", (3, 13, 7, 17)),
-        ("-m 3cm -h right 20x10cm", (13, 3, 17, 7)),
+        ("-m 3cm -h right 20x10cm", (3, 8, 7, 12)),
+        ("-m 3cm -h right 10x20cm", (3, 8, 7, 12)),
         ("-m 3cm -h right -l 20x10cm", (13, 3, 17, 7)),
         ("-m 3cm -h right -l 10x20cm", (13, 3, 17, 7)),
     ],

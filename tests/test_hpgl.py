@@ -1,3 +1,5 @@
+import sys
+
 import pytest
 
 import vpype as vp
@@ -26,6 +28,22 @@ HPGL_TEST_CASES = [
         "IN;DF;SP1;PU2,3;PD6,4;PU0,0;SP0;IN;",
     ),
     ("line 3 5 4 6", "-d double -p simple", "IN;DF;SP1;PU6,10;PD8,12;PU;SP0;IN;"),
+    ("line 1 1 2 4", "-d simple -p simple_botleft", "IN;DF;SP1;PU0,13;PD1,10;PU;SP0;IN;"),
+    (
+        "line 1 1 2 4 pagesize 10x15",
+        "-d simple -p simple_flex_portrait",
+        "IN;DF;SP1;PU0,13;PD1,10;PU;SP0;IN;",
+    ),
+    (
+        "line 1 1 2 4 pagesize 10x15",
+        "-d simple -p simple_flex_portrait_implicit",
+        "IN;DF;SP1;PU0,13;PD1,10;PU;SP0;IN;",
+    ),
+    (
+        "line 1 1 2 4 pagesize 10x15",
+        "-d simple -p simple_flex_landscape",
+        "IN;DF;SP1;PU0,0;PD3,1;PU;SP0;IN;",
+    ),
 ]
 
 
@@ -98,6 +116,36 @@ def simple_printer_config(config_file_factory):
         y_axis_up = false
         origin_location = [0, 0]
         
+        [[device.simple.paper]]
+        name = "simple_botleft"
+        paper_size = [10, 15]
+        x_range = [0, 8]
+        y_range = [0, 13]
+        y_axis_up = true
+        origin_location = [1, 1]
+        origin_location_reference = "botleft"
+        
+        # test flex paper size
+        [[device.simple.paper]]
+        name = "simple_flex_portrait"
+        paper_orientation = "portrait"
+        y_axis_up = true
+        origin_location = [1, 1]
+        origin_location_reference = "botleft"
+        
+        [[device.simple.paper]]
+        name = "simple_flex_landscape"
+        y_axis_up = true
+        paper_orientation = "landscape"
+        origin_location = [1, 1]
+        origin_location_reference = "botleft"
+        
+        [[device.simple.paper]]
+        name = "simple_flex_portrait_implicit"
+        y_axis_up = true
+        origin_location = [1, 1]
+        origin_location_reference = "botleft"
+        
         [device.double]
         name = "simple"
         plotter_unit_length = 0.5
@@ -126,6 +174,19 @@ def simple_printer_config(config_file_factory):
         y_range = [0, 30]
         y_axis_up = false
         origin_location = [0, 0]
+        
+        # To test failure modes
+        [device.defective]
+        name = "Defective Device"
+        info = "This is plotter information."
+        plotter_unit_length = 0.5
+        pen_count = 1
+        
+        [[device.defective.paper]]
+        name = "wrong_ref"
+        y_axis_up = false
+        origin_location = [0, 0]
+        origin_location_reference = "middle"
         """
     )
 
@@ -222,3 +283,36 @@ def test_hpgl_paper_size_inference_fail(runner):
 
     assert res.exit_code == 0  # this should probably be non-zero, see #131
     assert res.stdout.strip() == ""
+
+
+def test_hpgl_flex_no_pagesize(simple_printer_config):
+    doc = vp.Document()
+    doc.add(vp.LineCollection([(1 + 1j, 2 + 4j)]))
+    vp.CONFIG_MANAGER.load_config_file(simple_printer_config)
+    with pytest.raises(ValueError):
+        vp.write_hpgl(
+            output=sys.stdout,
+            document=doc,
+            landscape=False,
+            center=False,
+            device="simple",
+            page_size="simple_flex_portrait",
+            velocity=None,
+        )
+
+
+def test_hpgl_wrong_ref(simple_printer_config):
+    doc = vp.Document()
+    doc.add(vp.LineCollection([(1 + 1j, 2 + 4j)]))
+    doc.page_size = 10, 15
+    vp.CONFIG_MANAGER.load_config_file(simple_printer_config)
+    with pytest.raises(ValueError):
+        vp.write_hpgl(
+            output=sys.stdout,
+            document=doc,
+            landscape=False,
+            center=False,
+            device="defective",
+            page_size="wrong_ref",
+            velocity=None,
+        )

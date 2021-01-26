@@ -56,6 +56,25 @@ pen_count = 8
 info = "Plotter set to Auto rotation, this will plot a drawing in portrait layout regardless of the physical layout of the paper when loaded into the plotter."
 
 [[device.designmate.paper]]
+name = "flex"
+y_axis_up = true
+paper_orientation = "landscape"
+origin_location = ["25mm", "13mm"]
+origin_location_reference = "botleft"
+final_pu_params = "0,0"
+info = "Paper must be loaded in portrait orientation in the plotter and paper size must be set with `read`, `pagesize`, or `layout` commands."
+
+[[device.designmate.paper]]
+name = "flexl"
+y_axis_up = true
+paper_orientation = "landscape"
+origin_location = ["13mm", "13mm"]
+origin_location_reference = "botleft"
+rotate_180 = true
+final_pu_params = "0,0"
+info = "Paper must be loaded in landscape orientation in the plotter and paper size must be set with `read`, `pagesize`, or `layout` commands."
+
+[[device.designmate.paper]]
 name = "a4"
 aka_names = ["A4"]
 paper_size = ["297mm", "210mm"]
