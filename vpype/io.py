@@ -560,12 +560,12 @@ def write_hpgl(
 
     # Handle origin location.
     origin_x, origin_y = paper_config.origin_location
-    ref = paper_config.origin_location_reference
-    if ref not in ["topleft", "botleft", "topright", "botright"]:
-        raise ValueError(f"incorrect value for origin_location_reference: {ref}")
-    if ref.endswith("right"):
-        origin_x = paper_size[0] - origin_x
-    if ref.startswith("bot"):
+    if paper_config.origin_location_reference not in ["topleft", "botleft"]:
+        raise ValueError(
+            "incorrect value for origin_location_reference: "
+            f"{paper_config.origin_location_reference}"
+        )
+    if paper_config.origin_location_reference == "botleft":
         origin_y = paper_size[1] - origin_y
 
     # are plotter coordinate placed in landscape or portrait orientation?
