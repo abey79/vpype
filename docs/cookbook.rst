@@ -196,17 +196,31 @@ Then, the configuration file must include one ``paper`` section for each paper f
 
   .. code-block:: toml
 
-    [[device.my_plotter.paper]]         # note the double brackets!
+    [[device.my_plotter.paper]]
     name = "a"                          # name of the paper format
 
-    paper_size = ["11in", "8.5in"]      # physical paper size / CAUTION: order must respect
-                                        # the native X/Y axis orientation of the plotter
+    paper_size = ["11in", "8.5in"]      # (optional) physical paper size / CAUTION: order must
+                                        # respect the native X/Y axis orientation of the plotter
+                                        # unless paper_orientation is specified
+                                        # Note: may be omitted if the plotter support arbitrary
+                                        # paper size
+
+    paper_orientation = "portrait"      # (optional) "portrait" or "landscape"
+                                        # specify the orientation of the plotter  coordinate
+                                        # system on the page ("landscape" means the X axis is
+                                        # along the long edge)
 
     origin_location = [".5in", "8in"]   # physical location from the page's top-left corner of
                                         # the (0, 0) plotter unit coordinates
 
-    x_range = [0, 16640]                # admissible range in plotter units along the X axis
-    y_range = [0, 10365]                # admissible range in plotter units along the Y axis
+    origin_location_reference = "topleft"
+                                        # (optional) reference used for origin_location
+                                        # "topleft" (default) or "botleft"
+
+    x_range = [0, 16640]                # (optional) admissible range in plotter units along
+                                        # the X axis
+    y_range = [0, 10365]                # (optional) admissible range in plotter units along
+                                        # the Y axis
     y_axis_up = true                    # set to true if the plotter's Y axis points up on
                                         # the physical page
     rotate_180 = true                   # (optional) set to true to rotate the geometries by
@@ -236,7 +250,42 @@ aspects that require specific caution:
   top-left corner of the page in the orientation implied by ``paper_size``. In the example above, since the long edge
   is defined first, ``origin_location`` is defined based on the top-left corner in landscape orientation.
 * ``y_axis_up`` defines the orientation of the plotter's native Y axis. Note that a value of ``true`` does **not** imply
-  that ``origin_location`` is measured from the bottom-left corner.
+  that ``origin_location`` is measured from the bottom-left corner, unless ``origin_location_reference`` is set to
+  ``"botleft"``.
+
+
+Using arbitrary paper size with HPGL output
+===========================================
+
+Some plotters such as the Calcomp Designmate support arbitrary paper sizes. Exporting HPGL with arbitrary paper size
+requires a specific paper configuration. vpype ships with the ``flex`` and ``flexl`` configurations for the
+Designmate, which can serve as examples to create configurations for other plotters.
+
+For arbitrary paper size, the paper configuration must omit the ``paper_size`` parameter and specify a value for
+``paper_orientation``. Here is the ``flexl`` configuration for the Designmate when paper is loaded in landscape
+orientation in the plotter:
+
+  .. code-block:: toml
+
+    [[device.designmate.paper]]
+    name = "flexl"
+    y_axis_up = true
+    paper_orientation = "landscape"
+    origin_location = ["15mm", "15mm"]
+    origin_location_reference = "botleft"
+    rotate_180 = true
+    final_pu_params = "0,0"
+
+Note the missing ``paper_size``, as well as the values for ``paper_orientation`` and ``origin_location_reference``.
+
+When using arbitrary paper size, the paper size is assumed to be identical to the current page size as set by the
+:ref:`cmd_read`, :ref:`cmd_pagesize`, or :ref:`cmd_layout` commands. Here is a typical example of use::
+
+  $ vpype read input.svg layout --fit-to-margin 3cm 30x50cm write -d designmate -p flexl output.hpgl
+
+In this case, the page size is set by the :ref:`cmd_layout` command (30x50cm) and the :ref:`cmd_write` command is set to
+use the ``flexl`` paper configuration because the paper is loaded in landscape orientation in the plotter. If the input
+SVG is already sized and laid out according to the paper size, the :ref:`cmd_layout` command may be omitted.
 
 
 Batch processing many SVG with bash scripts and ``parallel``

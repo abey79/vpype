@@ -63,8 +63,8 @@ corresponding device must be configured in the built-in or a user-provided confi
 
 In HPGL mode, this command will try to infer the paper size to use based on the current page
 size (the current page size is set by the `read` command based on the input file and can be
-manually set or changed with the `pagesize` command). An error will be displayed if no
-corresponding paper size if found. Use the `--page-size` option with a format defined in the
+manually set or changed with the `pagesize` or `layout` command). An error will be displayed if
+no corresponding paper size if found. Use the `--page-size` option with a format defined in the
 device's configuration to manually specify with paper size to use.
 
 The plotter may need to be specifically configured for the desired paper size (e.g. for A4 or
