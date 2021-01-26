@@ -58,7 +58,7 @@ recommonmark = { version = ">=0.6,<0.8", optional = true }
 
 [tool.poetry.dev-dependencies]
 coverage = {extras = ["toml"], version = "^5.3.1"}
-pytest = "^6.2.1"
+pytest = "^6.2.2"
 pytest-cov = "^2.11.0"
 black = "^20.8b1"
 isort = "^5.7.0"
