@@ -1,14 +1,14 @@
 # Change log
 
-#### 1.3 (UNRELEASED)
+#### 1.3 (2021-01-27)
 
 New features and improvements:
 * Added new `layout` command (#168)
   
   This command automates the page layout process on a specified the page size by centering the geometries (with
   customizable horizontal and vertical alignment) and optionally fitting to specified margins. It intends to supersede
-  `write`'s layout options (i.e. `--page-size` and `--center`) in more intuitive way. In particular, since this command
-  acts on the pipeline rather than on the output file, its effect can be previewed with the `show` command.
+  `write`'s layout options (i.e. `--page-size` and `--center`) in more intuitive way. In particular this command
+  acts on the pipeline rather than on the output file so its effect can be previewed with the `show` command.
 
 * (Beta) Complete rewrite of the viewer underlying the `show` command (#163)
   * fully hardware-accelerated rendering engine
