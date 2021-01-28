@@ -1,5 +1,11 @@
 # Change log
 
+#### 1.4 (UNRELEASED)
+
+New features and improvements:
+* Optimized the viewer upon launch and display setting changes (#184)
+
+
 #### 1.3 (2021-01-27)
 
 New features and improvements:
