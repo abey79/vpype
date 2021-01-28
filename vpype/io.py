@@ -235,13 +235,10 @@ def read_svg(
     paths = _extract_paths(svg, recursive=True)
     lc = _convert_flattened_paths(paths, quantization, simplify, parallel)
 
-    width = svg.viewbox.element_width or default_width
-    height = svg.viewbox.element_height or default_height
-
     if crop:
-        lc.crop(0, 0, width, height)
+        lc.crop(0, 0, svg.width, svg.height)
 
-    return lc, width, height
+    return lc, svg.width, svg.height
 
 
 def read_multilayer_svg(
@@ -322,13 +319,10 @@ def read_multilayer_svg(
         if not lc.is_empty():
             document.add(lc, lid)
 
-    width = svg.viewbox.element_width or default_width
-    height = svg.viewbox.element_height or default_height
-
-    document.page_size = (width, height)
+    document.page_size = (svg.width, svg.height)
 
     if crop:
-        document.crop(0, 0, width, height)
+        document.crop(0, 0, svg.width, svg.height)
 
     return document
 
