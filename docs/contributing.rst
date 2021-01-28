@@ -17,7 +17,7 @@ Contributions are most welcome and there  are many ways you can help regardless 
 * Improve existing features or contribute entirely new ones with a `pull request`_. If you plan on creating new commands, consider making a :ref:`plugin <plugins>` first — it will be easy to integrate it into *vpype*'s codebase later on if it makes sense.
 
 
-.. _issue: https://github.com/abey79/vpype/issue
+.. _issue: https://github.com/abey79/vpype/issues
 
 .. _pull request: https://github.com/abey79/vpype/pulls
 

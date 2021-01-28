@@ -1,5 +1,5 @@
 import logging
-from typing import List, Optional, Union, cast
+from typing import List, Optional, Tuple, Union, cast
 
 import click
 import numpy as np
@@ -11,6 +11,7 @@ from .cli import cli
 __all__ = (
     "crop",
     "filter_command",
+    "layout",
     "linemerge",
     "linesimplify",
     "linesort",
@@ -100,11 +101,12 @@ def trim(
 @vp.layer_processor
 def linemerge(lines: vp.LineCollection, tolerance: float, no_flip: bool = True):
     """
-    Merge lines whose endings overlap or are very close.
+    Merge lines whose endings and starts overlap or are very close.
 
-    Stroke direction is preserved by default, so `linemerge` looks at joining a line's end with
-    another line's start. With the `--flip` stroke direction will be reversed as required to
-    further the merge.
+    By default, `linemerge` considers both directions of a stroke. If there is no additional
+    start of a stroke within the provided tolerance, it also checks for ending points of
+    strokes and uses them in reverse. You can use the `--no-flip` to disable this reversing
+    behaviour and preserve the stroke direction from the input.
 
     By default, gaps of maximum 0.05mm are considered for merging. This can be controlled with
     the `--tolerance` option.
@@ -313,10 +315,21 @@ def filter_command(
     return lines
 
 
-# noinspection PyShadowingNames
+def _normalize_page_size(
+    page_size: Tuple[float, float], landscape: bool
+) -> Tuple[float, float]:
+    """Normalize page size to respect the orientation."""
+    if (landscape and page_size[0] < page_size[1]) or (
+        not landscape and page_size[0] > page_size[1]
+    ):
+        return page_size[::-1]
+    else:
+        return page_size
+
+
 @cli.command(group="Operations")
 @click.argument("size", type=vp.PageSizeType(), required=True)
-@click.option("-l", "--landscape", is_flag=True, default=False, help="Target layer(s).")
+@click.option("-l", "--landscape", is_flag=True, default=False, help="Landscape orientation.")
 @vp.global_processor
 def pagesize(document: vp.Document, size, landscape) -> vp.Document:
     """Change the current page size.
@@ -344,7 +357,97 @@ def pagesize(document: vp.Document, size, landscape) -> vp.Document:
             vpype [...] pagesize 11inx15in [...]
     """
 
-    document.page_size = size[::-1] if landscape else size
+    document.page_size = _normalize_page_size(size, landscape)
+    return document
+
+
+# noinspection PyShadowingNames
+@cli.command(group="Operations")
+@click.argument("size", type=vp.PageSizeType(), required=True)
+@click.option("-l", "--landscape", is_flag=True, default=False, help="Landscape orientation.")
+@click.option(
+    "-m",
+    "--fit-to-margins",
+    "margin",
+    type=vp.LengthType(),
+    help="Fit the geometries to page size with the specified margin.",
+)
+@click.option(
+    "-h",
+    "--align",
+    type=click.Choice(["left", "center", "right"]),
+    default="center",
+    help="Horizontal alignment",
+)
+@click.option(
+    "-v",
+    "--valign",
+    type=click.Choice(["top", "center", "bottom"]),
+    default="center",
+    help="Vertical alignment",
+)
+@vp.global_processor
+def layout(
+    document: vp.Document,
+    size: Tuple[float, float],
+    landscape: bool,
+    margin: Optional[float],
+    align: str,
+    valign: str,
+) -> vp.Document:
+    """Layout the geometries on the provided page size.
+
+    By default, this command centers everything on the page. The horizontal and vertical
+    alignment can be adjusted using the `--align`, resp. `--valign` options.
+
+    Optionally, this command can scale the geometries to fit specified margins with the
+    `--fit-to-margin` option.
+
+    Examples:
+
+        Fit the geometries to 3cm margins with top alignment (a generally pleasing arrangement
+        for square designs on portrait-oriented pages):
+
+            vpype read input.svg layout --fit-to-margin 3cm --valign top a4 write.svg
+    """
+
+    size = _normalize_page_size(size, landscape)
+
+    document.page_size = size
+    bounds = document.bounds()
+
+    if bounds is None:
+        # nothing to layout
+        return document
+
+    min_x, min_y, max_x, max_y = bounds
+    width = max_x - min_x
+    height = max_y - min_y
+    if margin is not None:
+        document.translate(-min_x, -min_y)
+        scale = min((size[0] - 2 * margin) / width, (size[1] - 2 * margin) / height)
+        document.scale(scale)
+        min_x = min_y = 0.0
+        width *= scale
+        height *= scale
+    else:
+        margin = 0.0
+
+    if align == "left":
+        h_offset = margin - min_x
+    elif align == "right":
+        h_offset = size[0] - margin - width - min_x
+    else:
+        h_offset = margin + (size[0] - width - 2 * margin) / 2 - min_x
+
+    if valign == "top":
+        v_offset = margin - min_y
+    elif valign == "bottom":
+        v_offset = size[1] - margin - height - min_y
+    else:
+        v_offset = margin + (size[1] - height - 2 * margin) / 2 - min_y
+
+    document.translate(h_offset, v_offset)
     return document
 
 

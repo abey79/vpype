@@ -1,11 +1,15 @@
+import logging
+
 import click
 import numpy as np
 
-from vpype import Document, as_vector, convert_length, global_processor
+import vpype as vp
+import vpype_viewer
+from vpype_viewer import ViewMode
 
 from .cli import cli
 
-__all__ = ("show",)
+__all__ = ["show"]
 
 COLORS = [
     (0, 0, 1),
@@ -20,24 +24,107 @@ COLORS = [
 
 
 @cli.command(group="Output")
-@click.option("-a", "--show-axes", is_flag=True, help="Display axes.")
-@click.option("-g", "--show-grid", is_flag=True, help="Display grid (implies -a).")
+@click.option("--classic", is_flag=True, help="Use the classic viewer.")
+@click.option("--force", is_flag=True, hidden=True, help="Force modern viewer")
 @click.option("-p", "--show-pen-up", is_flag=True, help="Display pen-up trajectories.")
 @click.option("-d", "--show-points", is_flag=True, help="Display paths points with dots.")
-@click.option("-h", "--hide-legend", is_flag=True, help="Do not display the legend.")
+@click.option("-o", "--outline", is_flag=True, help="Display in outline mode (modern only).")
 @click.option(
-    "-c", "--colorful", is_flag=True, help="Display each segment in a different color."
+    "-c",
+    "--colorful",
+    is_flag=True,
+    help="Display in outline colorful mode (takes precedence over --outline).",
+)
+@click.option("-a", "--show-axes", is_flag=True, help="Display axes (classic only).")
+@click.option(
+    "-g", "--show-grid", is_flag=True, help="Display grid (implies -a, classic only)."
+)
+@click.option(
+    "-h", "--hide-legend", is_flag=True, help="Do not display the legend (classic only)."
 )
 @click.option(
     "-u",
     "--unit",
     type=str,
     default="px",
-    help="Units of the plot (when --show-grid is active)",
+    help="Units of the plot (when --show-grid is active, classic only).",
 )
-@global_processor
+@vp.global_processor
 def show(
-    document: Document,
+    document: vp.Document,
+    classic: bool,
+    force: bool,
+    show_pen_up: bool,
+    show_points: bool,
+    outline: bool,
+    colorful: bool,
+    show_axes: bool,
+    show_grid: bool,
+    hide_legend: bool,
+    unit: str,
+):
+    """Display the geometry in an graphical user interface.
+
+    By default, this command use a modern, hardware-accelerated viewer (currently in beta) with
+    a preview mode (adjustable pen width and opacity) and interactive controls to adjust
+    display options. This viewer requires OpenGL 3.3 support.
+
+    The original, Matplotlib-based viewer is still available with the `--classic` option. The
+    classic viewer does not have interactive controls for display options. Use the command-line
+    options to customize the display.
+    """
+
+    if not classic:
+        mgl_ok = _test_mgl()
+        if not mgl_ok and not force:
+            classic = True
+            logging.warning("!!! show: ModernGL not available, reverting to classic mode.")
+        elif not mgl_ok and force:
+            logging.warning("!!! show: ModernGL not available but forced to modern mode.")
+
+    if classic:
+        _show_mpl(
+            document,
+            show_axes,
+            show_grid,
+            show_pen_up,
+            show_points,
+            hide_legend,
+            colorful,
+            unit,
+        )
+    else:
+        view_mode = ViewMode.PREVIEW
+        if outline or show_points:
+            view_mode = ViewMode.OUTLINE
+        if colorful:
+            view_mode = ViewMode.OUTLINE_COLORFUL
+
+        vpype_viewer.show(
+            document, view_mode=view_mode, show_pen_up=show_pen_up, show_points=show_points
+        )
+
+    return document
+
+
+def _test_mgl() -> bool:
+    """Tests availability of ModernGL."""
+    # noinspection PyBroadException
+    try:
+        import glcontext
+
+        backend = glcontext.default_backend()
+        ctx = backend(mode="standalone", glversion=330)
+        if ctx.load("glProgramUniform1iv") == 0:
+            return False
+    except Exception:
+        return False
+
+    return True
+
+
+def _show_mpl(
+    document: vp.Document,
     show_axes: bool,
     show_grid: bool,
     show_pen_up: bool,
@@ -57,7 +144,7 @@ def show(
     import matplotlib.collections
     import matplotlib.pyplot as plt
 
-    scale = 1 / convert_length(unit)
+    scale = 1 / vp.convert_length(unit)
 
     fig = plt.figure()
     color_idx = 0
@@ -96,7 +183,7 @@ def show(
             color_idx = color_idx % len(COLORS)
 
         layer_lines = matplotlib.collections.LineCollection(
-            (as_vector(line) * scale for line in lc),
+            (vp.as_vector(line) * scale for line in lc),
             color=color,
             lw=1,
             alpha=0.5,
@@ -115,7 +202,7 @@ def show(
         if show_pen_up:
             pen_up_lines = matplotlib.collections.LineCollection(
                 (
-                    (as_vector(lc[i])[-1] * scale, as_vector(lc[i + 1])[0] * scale)
+                    (vp.as_vector(lc[i])[-1] * scale, vp.as_vector(lc[i + 1])[0] * scale)
                     for i in range(len(lc) - 1)
                 ),
                 color=(0, 0, 0),
@@ -164,5 +251,3 @@ def show(
     if show_grid:
         plt.grid("on")
     plt.show()
-
-    return document

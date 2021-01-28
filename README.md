@@ -37,7 +37,7 @@ _vpype_ is the Swiss-Army-knife command-line tool for plotter vector graphics.
 _vpype_ is the Swiss-Army-knife command-line tool for plotter vector graphics. Here is what it can do:
  - **laying out** existing vector files with precise control on position, scale and page format;
  - **optimizing** existing SVG files for faster and cleaner plots;
- - creating **HPGL output** for vintage plotter;
+ - creating **HPGL output** for vintage plotters;
  - creating **generative artwork** through built-in commands or plug-ins;
  - creating, modifying and processing **multi-layer vector files** for multi-colour plots;
  - and much more...
@@ -48,8 +48,9 @@ can greatly extend its capabilities. For example, plug-ins already exists for pl
 [plotting text](https://github.com/abey79/vpype-text) with Hershey fonts,
 applying [hidden line removal](https://github.com/LoicGoulefert/occult), and much more.  
 
-_vpype_ is also a [well documented](https://vpype.readthedocs.io/en/stable/api/vpype.html#module-vpype) **Python library**
-useful to create generative art and tools for plotters. For example, the plotter generative art environment
+_vpype_ is also a [well documented](https://vpype.readthedocs.io/en/stable/api.html) **Python library**
+useful to create generative art and tools for plotters. It includes data structures, utility and I/O functions, as well as
+a hardware-accelerated flexible viewer for vector graphics. For example, the plotter generative art environment
 [vsketch](https://github.com/abey79/vsketch) is built upon _vpype_.
 
 Check the [documentation](https://vpype.readthedocs.io/en/stable/) for a more thorough introduction to _vpype_.
@@ -170,7 +171,7 @@ and much more.
 
 - Easy to use **CLI** interface with integrated help (`vpype --help`and `vpype COMMAND --help`) and support for arbitrary units (e.g. `vpype read input.svg translate 3cm 2in`).
 - First-class **multi-layer support** with global or per-layer processing (e.g. `vpype COMMANDNAME --layer 1,3`) and layer edition commands ([`lmove`](https://vpype.readthedocs.io/en/stable/reference.html#lmove), [`lcopy`](https://vpype.readthedocs.io/en/stable/reference.html#lcopy), [`ldelete`](https://vpype.readthedocs.io/en/stable/reference.html#ldelete)).
-- Powerful **display** command with adjustable units, optional per-line coloring, optional pen-up trajectories display and per-layer visibility control ([`show`](https://vpype.readthedocs.io/en/stable/reference.html#show)).
+- Powerful hardware-accelerated **display** command with adjustable units, optional per-line coloring, optional pen-up trajectories display and per-layer visibility control ([`show`](https://vpype.readthedocs.io/en/stable/reference.html#show)).
 - Geometry **statistics** extraction ([`stat`](https://vpype.readthedocs.io/en/stable/reference.html#stat)).
 - Support for  **command history** recording (`vpype -H [...]`)
 - Support for **RNG seed** configuration for generative plug-ins (`vpype -s 37 [...]`).
@@ -185,6 +186,8 @@ and much more.
 
 #### Layout and transforms
 
+- Easy and flexible **layout** command for centring and fitting to margin with selectable le horizontal and vertical alignment
+  ([`layout`](https://vpype.readthedocs.io/en/stable/reference.html#layout)).
 - Powerful **transform** commands for scaling, translating, skewing and rotating geometries ([`scale`](https://vpype.readthedocs.io/en/stable/reference.html#scale), [`translate`](https://vpype.readthedocs.io/en/stable/reference.html#translate), [`skew`](https://vpype.readthedocs.io/en/stable/reference.html#skew), [`rotate`](https://vpype.readthedocs.io/en/stable/reference.html#rotate)).
 - Support for **scaling** and **cropping** to arbitrary dimensions ([`scaleto`](https://vpype.readthedocs.io/en/stable/reference.html#scaleto), [`crop`](https://vpype.readthedocs.io/en/stable/reference.html#crop)).
 - Support for **trimming** geometries by an arbitrary amount ([`trim`](https://vpype.readthedocs.io/en/stable/reference.html#trim)).
@@ -213,7 +216,7 @@ and much more.
 
  - First-class support for **plug-in** extensions (e.g [vpype-text](https://github.com/abey79/vpype-text), [hatched](https://github.com/abey79/hatched), [occult](https://github.com/LoicGoulefert/occult)).
  - Support for **script-based** generation ([`script`](https://vpype.readthedocs.io/en/stable/reference.html#script)).
- - Powerful and [well-documented](https://vpype.readthedocs.io/en/stable/api/vpype.html#module-vpype) **API** for plug-ins and other plotter generative art projects.
+ - Powerful and [well-documented](https://vpype.readthedocs.io/en/stable/api.html) **API** for plug-ins and other plotter generative art projects.
  
  
  ## Contributing

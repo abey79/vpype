@@ -1,7 +1,6 @@
 """Run a bunch of tests on the svg collection."""
 import difflib
 import os
-import pathlib
 import re
 
 import numpy as np
@@ -10,7 +9,7 @@ import pytest
 import vpype as vp
 from vpype_cli import cli
 
-TEST_FILE_DIRECTORY = (pathlib.Path(__file__).parent / "data" / "test_svg").absolute()
+from .utils import TEST_FILE_DIRECTORY
 
 TEST_FILES = [
     os.path.join(directory, file)
@@ -44,7 +43,7 @@ METADATA_PATTERN = re.compile(r"<metadata>.*</metadata>", flags=re.DOTALL)
 
 @pytest.mark.skip(reason="Write is currently not idempotent for some reason")
 @pytest.mark.parametrize("path", TEST_FILES)
-def test_write_is_idempotent(runner, path, tmp_path):
+def test_write_is_idempotent(runner, path, tmp_path):  # pragma: no cover
     output1 = tmp_path / "output1.svg"
     output2 = tmp_path / "output2.svg"
     runner.invoke(cli, ["read", path, "write", str(output1)])
@@ -102,3 +101,52 @@ def test_read_svg_visibility(svg_content, line_count, tmp_path):
 
     lc, _, _ = vp.read_svg(path, 1.0)
     assert len(lc) == line_count
+
+
+DEFAULT_WIDTH = 666
+DEFAULT_HEIGHT = 999
+
+
+@pytest.mark.parametrize(
+    ["params", "expected"],
+    [
+        ('width="1200" height="2000"', (1200, 2000)),
+        ("", (DEFAULT_WIDTH, DEFAULT_HEIGHT)),
+        ('width="1200" height="2000" viewBox="0 0 100 200"', (1200, 2000)),
+    ],
+)
+def test_read_svg_width_height(params, expected, tmp_path):
+    path = str(tmp_path / "file.svg")
+    with open(path, "w") as fp:
+        fp.write(
+            f"""<?xml version="1.0"?>
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"
+   {params}>
+</svg>
+"""
+        )
+
+    lc, width, height = vp.read_svg(
+        path, quantization=0.1, default_width=DEFAULT_WIDTH, default_height=DEFAULT_HEIGHT
+    )
+    assert width == expected[0]
+    assert height == expected[1]
+
+
+def test_read_with_viewbox(tmp_path):
+    path = str(tmp_path / "file.svg")
+    with open(path, "w") as fp:
+        fp.write(
+            f"""<?xml version="1.0"?>
+    <svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"
+       width="100" height="100" viewBox="50 50 10 10">
+       <line x1="50" y1="50" x2="60" y2="60" />
+    </svg>
+    """
+        )
+
+    lc, width, height = vp.read_svg(path, quantization=0.1)
+    assert width == 100
+    assert height == 100
+    assert len(lc) == 1
+    assert np.all(np.isclose(lc[0], np.array([0, 100 + 100j])))

@@ -1,11 +1,42 @@
 # Change log
 
-#### 1.3 (UNRELEASED)
+#### 1.4 (UNRELEASED)
 
 New features and improvements:
-* Minor loading time improvement (#133)
+* Optimized the viewer upon launch and display setting changes (#184)
+
+
+#### 1.3 (2021-01-27)
+
+New features and improvements:
+* Added new `layout` command (#168)
+  
+  This command automates the page layout process on a specified the page size by centering the geometries (with
+  customizable horizontal and vertical alignment) and optionally fitting to specified margins. It intends to supersede
+  `write`'s layout options (i.e. `--page-size` and `--center`) in more intuitive way. In particular this command
+  acts on the pipeline rather than on the output file so its effect can be previewed with the `show` command.
+
+* (Beta) Complete rewrite of the viewer underlying the `show` command (#163)
+  * fully hardware-accelerated rendering engine
+  * smooth zooming and panning, with touchpad and mouse support
+  * preview mode with adjustable pen width and opacity
+  * outline mode with optional colorful and point display
+  * optional pen-up trajectories display
+  * per-layer visibility control
+  * interactively adjustable display settings
+    
+  **Note**: This new viewer is a beta feature and will evolve in future versions. Your feedback is welcome. The current, matplotlib-based viewer is still available using `show --classic`.
+
+* Added support for arbitrary paper size to `write`'s HPGL output (configuration for the Calcomp Designmate included, check the documentation for details) (#178)
 * Added large format paper sizes (A2, A1, A0) (#144)
 * The `splitall` command will now filter out segments with identical end-points (#146)
+* Minor loading time improvement (#133)
+
+Bug fixes:
+* Various documentation fixes (#170, #172, thanks to @theomega)
+
+API changes:
+* Added the new viewer engine and Qt-based GUI (#163)
 
 
 #### 1.2.1 (2020-12-26)
