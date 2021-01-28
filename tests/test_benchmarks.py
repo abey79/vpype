@@ -66,6 +66,9 @@ def doc_for_render():
         pytest.param({"view_mode": ViewMode.PREVIEW}, id="preview"),
     ],
 )
-def test_benchmark_viewer(benchmark, doc_for_render, kwargs):
+def test_benchmark_viewer(request, benchmark, doc_for_render, kwargs):
+    if request.config.getoption("--skip-image-similarity"):
+        pytest.skip("viewer benchmark skipped (--skip-image-similarity)")
+
     # noinspection PyArgumentList
     benchmark(render_image, doc_for_render, size=(4096, 4096), **kwargs)
