@@ -86,6 +86,7 @@ class Engine:
         self._scale = 1.0  # one pixel of page equal one pixel of view port
         self._origin = (0.0, 0.0)  # top-left of page aligned with top-left of view port
         self._document: Optional[vp.Document] = None
+        self._rebuild_needed = True
 
         # painters
         self._layer_visibility: Dict[int, bool] = defaultdict(lambda: True)
@@ -99,7 +100,6 @@ class Engine:
         self._ctx.enable_only(mgl.BLEND | mgl.PROGRAM_POINT_SIZE)
 
         self.resize(width, height)
-        self._rebuild()
 
     # =========================================================================================
     # Properties
@@ -113,7 +113,7 @@ class Engine:
     def document(self, document: Optional[vp.Document]) -> None:
         self._document = document
         self._layer_visibility.clear()
-        self._rebuild()
+        self._rebuild_needed = True
 
     @property
     def scale(self) -> float:
@@ -143,7 +143,7 @@ class Engine:
     @view_mode.setter
     def view_mode(self, view_mode: ViewMode) -> None:
         self._view_mode = view_mode
-        self._rebuild()
+        self._rebuild_needed = True
 
     @property
     def show_pen_up(self) -> bool:
@@ -153,7 +153,7 @@ class Engine:
     @show_pen_up.setter
     def show_pen_up(self, show_pen_up: bool):
         self._show_pen_up = show_pen_up
-        self._rebuild()
+        self._rebuild_needed = True
 
     @property
     def show_points(self) -> bool:
@@ -163,7 +163,7 @@ class Engine:
     @show_points.setter
     def show_points(self, show_points: bool):
         self._show_points = show_points
-        self._rebuild()
+        self._rebuild_needed = True
 
     @property
     def pen_width(self) -> float:
@@ -173,7 +173,7 @@ class Engine:
     @pen_width.setter
     def pen_width(self, pen_width: float):
         self._pen_width = pen_width
-        self._rebuild()
+        self._rebuild_needed = True
 
     @property
     def pen_opacity(self) -> float:
@@ -183,7 +183,7 @@ class Engine:
     @pen_opacity.setter
     def pen_opacity(self, pen_opacity: float):
         self._pen_opacity = pen_opacity
-        self._rebuild()
+        self._rebuild_needed = True
 
     @property
     def debug(self) -> bool:
@@ -305,6 +305,9 @@ class Engine:
         if self._ctx is None:
             return
 
+        if self._rebuild_needed:
+            self._rebuild()
+
         self._ctx.clear(0.95, 0.95, 0.95, 1)
         proj = self._get_projection()
 
@@ -371,4 +374,5 @@ class Engine:
                     self._ctx, self._document.page_size
                 )
 
+        self._rebuild_needed = False
         self._render_cb()
