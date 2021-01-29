@@ -31,7 +31,7 @@ to choose the page size without changing the geometries::
 
 This command will :ref:`cmd_read` a SVG file and lay it out to 3cm margin with a top vertical alignment (a generally pleasing arrangement for square designs on the portrait-oriented page), and then :ref:`cmd_write` it to a new SVG::
 
-  $ vpype read input.svg layout --fit-to-margin 3cm --valign top a4 write output.svg
+  $ vpype read input.svg layout --fit-to-margins 3cm --valign top a4 write output.svg
 
 This command will :ref:`cmd_read` a SVG file, :ref:`cmd_scale` it down to a 80% of its original size, and then :ref:`cmd_write` it to a new A5-sized SVG, centred on the page::
 
@@ -281,7 +281,7 @@ Note the missing ``paper_size``, as well as the values for ``paper_orientation``
 When using arbitrary paper size, the paper size is assumed to be identical to the current page size as set by the
 :ref:`cmd_read`, :ref:`cmd_pagesize`, or :ref:`cmd_layout` commands. Here is a typical example of use::
 
-  $ vpype read input.svg layout --fit-to-margin 3cm 30x50cm write -d designmate -p flexl output.hpgl
+  $ vpype read input.svg layout --fit-to-margins 3cm 30x50cm write -d designmate -p flexl output.hpgl
 
 In this case, the page size is set by the :ref:`cmd_layout` command (30x50cm) and the :ref:`cmd_write` command is set to
 use the ``flexl`` paper configuration because the paper is loaded in landscape orientation in the plotter. If the input
