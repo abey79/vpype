@@ -113,7 +113,7 @@ class Engine:
     def document(self, document: Optional[vp.Document]) -> None:
         self._document = document
         self._layer_visibility.clear()
-        self._rebuild_needed = True
+        self._update()
 
     @property
     def scale(self) -> float:
@@ -123,7 +123,7 @@ class Engine:
     @scale.setter
     def scale(self, scale: float) -> None:
         self._scale = scale
-        self._render_cb()
+        self._update(False)
 
     @property
     def origin(self) -> Tuple[float, float]:
@@ -143,7 +143,7 @@ class Engine:
     @view_mode.setter
     def view_mode(self, view_mode: ViewMode) -> None:
         self._view_mode = view_mode
-        self._rebuild_needed = True
+        self._update()
 
     @property
     def show_pen_up(self) -> bool:
@@ -153,7 +153,7 @@ class Engine:
     @show_pen_up.setter
     def show_pen_up(self, show_pen_up: bool):
         self._show_pen_up = show_pen_up
-        self._rebuild_needed = True
+        self._update()
 
     @property
     def show_points(self) -> bool:
@@ -163,7 +163,7 @@ class Engine:
     @show_points.setter
     def show_points(self, show_points: bool):
         self._show_points = show_points
-        self._rebuild_needed = True
+        self._update()
 
     @property
     def pen_width(self) -> float:
@@ -173,7 +173,7 @@ class Engine:
     @pen_width.setter
     def pen_width(self, pen_width: float):
         self._pen_width = pen_width
-        self._rebuild_needed = True
+        self._update()
 
     @property
     def pen_opacity(self) -> float:
@@ -183,7 +183,7 @@ class Engine:
     @pen_opacity.setter
     def pen_opacity(self, pen_opacity: float):
         self._pen_opacity = pen_opacity
-        self._rebuild_needed = True
+        self._update()
 
     @property
     def debug(self) -> bool:
@@ -193,7 +193,7 @@ class Engine:
     @debug.setter
     def debug(self, debug: bool):
         self._debug = debug
-        self._render_cb()
+        self._update(False)
 
     def layer_visible(self, layer_id: int) -> bool:
         """True if the corresponding layer is currently visible.
@@ -210,7 +210,7 @@ class Engine:
             layer_id: layer to toggle
         """
         self._layer_visibility[layer_id] = not self._layer_visibility[layer_id]
-        self._render_cb()
+        self._update(False)
 
     # =========================================================================================
     # Geometry
@@ -239,7 +239,7 @@ class Engine:
             y1 - (self._viewport_height / self._scale - h) / 2,
         ]
 
-        self._render_cb()
+        self._update(False)
 
     def viewport_to_model(self, x: float, y: float) -> Tuple[float, float]:
         """Converts viewport coordinates to model coordinates."""
@@ -275,7 +275,7 @@ class Engine:
             dy: vertical distance to pan
         """
         self._origin = (self._origin[0] - dx / self._scale, self._origin[1] - dy / self._scale)
-        self._render_cb()
+        self._update(False)
 
     def zoom(self, delta_zoom: float, mouse_x: float, mouse_y: float) -> None:
         """Zoom the viewport.
@@ -295,7 +295,7 @@ class Engine:
         self._origin = (self._origin[0] + mouse_x * dz, self._origin[1] + mouse_y * dz)
         self._scale = new_scale
 
-        self._render_cb()
+        self._update(False)
 
     # =========================================================================================
     # Painters
@@ -318,6 +318,12 @@ class Engine:
             if self._layer_visibility[layer_id]:
                 for painter in self._layer_painters[layer_id]:
                     painter.render(proj, self._scale, self._debug)
+
+    def _update(self, rebuild=True):
+        """"""
+        if rebuild:
+            self._rebuild_needed = True
+        self._render_cb()
 
     def _rebuild(self):
         self._layer_painters.clear()
@@ -375,4 +381,3 @@ class Engine:
                 )
 
         self._rebuild_needed = False
-        self._render_cb()
