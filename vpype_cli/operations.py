@@ -401,14 +401,14 @@ def layout(
     alignment can be adjusted using the `--align`, resp. `--valign` options.
 
     Optionally, this command can scale the geometries to fit specified margins with the
-    `--fit-to-margin` option.
+    `--fit-to-margins` option.
 
     Examples:
 
         Fit the geometries to 3cm margins with top alignment (a generally pleasing arrangement
         for square designs on portrait-oriented pages):
 
-            vpype read input.svg layout --fit-to-margin 3cm --valign top a4 write.svg
+            vpype read input.svg layout --fit-to-margins 3cm --valign top a4 write.svg
     """
 
     size = _normalize_page_size(size, landscape)
