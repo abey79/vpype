@@ -142,7 +142,7 @@ using the following command:
 pip install vpype
 ```
 
-Python must previously be installed. Python version 3.8 is recommended to use *vpype*, although it is also compatible with Python 3.6 and 3.7. Python 3.9 should be avoided for the time being due to the lack of binary distribution for several dependencies.
+Python must previously be installed. Python version 3.9.1 or later is recommended to use *vpype*, although it is also compatible with Python 3.6 and later.
 
 For Linux, install Python with your OS's default package manager. For macOS, Python is best installed from either
 [MacPorts](https://www.macports.org) or [Homebrew](https://brew.sh). For Windows, use the

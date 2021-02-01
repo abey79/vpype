@@ -12,15 +12,15 @@ macOS
 
 .. highlight:: bash
 
-While macOS ships with a version of Python, this has been deprecated by Apple and may change in future version. Instead, you should install Python (3.8 recommended, 3.6 minimum, avoid using Python 3.9), either from `MacPorts <https://www.macports.org>`_ or from `Homebrew <https://brew.sh>`_.
+While macOS ships with a version of Python, this has been deprecated by Apple and may change in future version. Instead, you should install Python (3.9.1 or newer recommended, 3.6 minimum), either from `MacPorts <https://www.macports.org>`_ or from `Homebrew <https://brew.sh>`_.
 
 Use the following commands for Homebrew::
 
-  $ brew install python@3.8
+  $ brew install python@3.9
 
 And for MacPorts::
 
-  $ sudo port install python38
+  $ sudo port install python39
 
 Then, the preferred way to install *vpype* is in a dedicated `virtual environment <https://docs.python.org/3/tutorial/venv.html>`_. Follow these steps to do so::
 
@@ -47,9 +47,9 @@ Windows
 
 .. highlight:: bat
 
-A Windows installer is available `here <https://github.com/abey79/vpype/releases>`__. Although this installation method is easier, it does not allow plug-ins to be installed. If plug-ins are required, an installation from  the `Python Package Index <https://pypi.org>` is recommended.
+A Windows installer is available `here <https://github.com/abey79/vpype/releases>`__. Although this installation method is easier, it does not allow plug-ins to be installed. If plug-ins are required, a manual installation is recommended.
 
-Python 3.8 is recommended for *vpype*, although it is also compatible with Python 3.6 and 3.7. At this stage, using Python 3.9 is discouraged because several of *vpype*'s dependencies are still lacking a binary distribution for this version. The official Python distribution for Windows can be downloaded `here <https://www.python.org/downloads/>`__.
+First, Python must be installed. Python 3.9 is recommended, although it is also compatible with Python 3.6 and later. The official Python distribution for Windows can be downloaded `here <https://www.python.org/downloads/>`__.
 
 After installing Python, launch a terminal (by typing ``cmd`` in the Start menu) and enter the following command to install *vpype*::
 
@@ -119,12 +119,6 @@ Alternatively, *vpype* can be executed using the full path to the executable::
 Raspberry Pi
 ============
 
-.. highlight:: bash
+Installation on the Raspberry Pi is no longer supported. Expert users may succeed with `pip install vpype` provided that a suitable version of the PySide2 package is available. Also, new viewer requires OpenGL 3.3, which the Raspberry Pi does not support. The classic viewer should work correctly:
 
-Installing *vpype* on Raspbian is similar to Linux, but a number of libraries must be installed beforehand::
-
-  $ sudo apt-get install git python3-shapely python3-scipy python3-dev
-
-Also, the following command must be added to the ``~/.bashrc`` file for *vpype* to execute correctly::
-
-  export LD_PRELOAD=/usr/lib/arm-linux-gnueabihf/libatomic.so.1
+  $ vpype [...] show --classic
