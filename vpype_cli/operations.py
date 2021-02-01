@@ -361,8 +361,42 @@ def pagesize(document: vp.Document, size, landscape) -> vp.Document:
     return document
 
 
+LAYOUT_HELP = f"""Layout the geometries on the provided page size.
+
+SIZE may be one of:
+
+    {', '.join(vp.PAGE_SIZES.keys())}
+
+Alternatively, a custom size can be specified in the form of WIDTHxHEIGHT. WIDTH and
+HEIGHT may include units. If only one has an unit, the other is assumed to have the
+same unit. If none have units, both are assumed to be pixels by default. Here are some
+examples:
+
+\b
+    --page-size 11x14in     # 11in by 14in
+    --page-size 1024x768    # 1024px by 768px
+    --page-size 13.5inx4cm  # 13.5in by 4cm
+
+Portrait orientation is enforced, unless `--landscape` is used, in which case landscape
+orientation is enforced.
+
+By default, this command centers everything on the page. The horizontal and vertical
+alignment can be adjusted using the `--align`, resp. `--valign` options.
+
+Optionally, this command can scale the geometries to fit specified margins with the
+`--fit-to-margins` option.
+
+Examples:
+
+    Fit the geometries to 3cm margins with top alignment (a generally pleasing arrangement for
+square designs on portrait-oriented pages):
+
+        vpype read input.svg layout --fit-to-margins 3cm --valign top a4 write.svg
+"""
+
+
 # noinspection PyShadowingNames
-@cli.command(group="Operations")
+@cli.command(group="Operations", help=LAYOUT_HELP)
 @click.argument("size", type=vp.PageSizeType(), required=True)
 @click.option("-l", "--landscape", is_flag=True, default=False, help="Landscape orientation.")
 @click.option(
@@ -395,21 +429,7 @@ def layout(
     align: str,
     valign: str,
 ) -> vp.Document:
-    """Layout the geometries on the provided page size.
-
-    By default, this command centers everything on the page. The horizontal and vertical
-    alignment can be adjusted using the `--align`, resp. `--valign` options.
-
-    Optionally, this command can scale the geometries to fit specified margins with the
-    `--fit-to-margins` option.
-
-    Examples:
-
-        Fit the geometries to 3cm margins with top alignment (a generally pleasing arrangement
-        for square designs on portrait-oriented pages):
-
-            vpype read input.svg layout --fit-to-margins 3cm --valign top a4 write.svg
-    """
+    """Layout command"""
 
     size = _normalize_page_size(size, landscape)
 
