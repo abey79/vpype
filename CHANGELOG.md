@@ -5,6 +5,9 @@
 New features and improvements:
 * Optimized the viewer upon launch and display setting changes (#184)
 
+Bug fixes:
+* Documentation fixes (#186, thanks to @f4nu)
+
 
 #### 1.3 (2021-01-27)
 
