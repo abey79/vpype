@@ -82,10 +82,6 @@ jobs:
       with:
         path: .venv
         key: venv-${{ runner.os }}-${{ steps.full-python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
-    - name: Manual install of GEOS
-      run: |
-        brew install geos
-      if: matrix.os == 'macos-latest' && matrix.python-version == '3.9'
     - name: Install dependencies
       run: poetry install
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
