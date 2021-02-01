@@ -3,7 +3,10 @@
 #### 1.4 (UNRELEASED)
 
 New features and improvements:
-* Optimized the viewer upon launch and display setting changes (#184)
+* Viewer improvements:
+  * At start and when using the fit to window button, the display will now remain fitted to the window upon resizing,
+    until manual zooming or panning (#191)
+  * Optimized the viewer upon launch and display setting changes (#184)
 
 Bug fixes:
 * Documentation fixes (#186, thanks to @f4nu)
