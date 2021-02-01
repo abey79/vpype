@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1612167584880,
+  "lastUpdate": 1612169403934,
   "repoUrl": "https://github.com/abey79/vpype",
   "entries": {
     "Benchmark": [
@@ -1284,6 +1284,114 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 1.6967170390417599",
             "extra": "mean: 22.75334023140001 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "1b56ae8d45933edfba1389d87bfcb73a9ff836b5",
+          "message": "Bump moderngl from 5.6.2 to 5.6.3 (#188)\n\nBumps [moderngl](https://github.com/moderngl/moderngl) from 5.6.2 to 5.6.3.\r\n- [Release notes](https://github.com/moderngl/moderngl/releases)\r\n- [Changelog](https://github.com/moderngl/moderngl/blob/master/CHANGELOG.md)\r\n- [Commits](https://github.com/moderngl/moderngl/compare/5.6.2...5.6.3)\r\n\r\nSigned-off-by: dependabot[bot] <support@github.com>\r\n\r\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2021-02-01T09:34:53+01:00",
+          "tree_id": "d40576bd51a8b0d9c6fabf016c970782c27b4f61",
+          "url": "https://github.com/abey79/vpype/commit/1b56ae8d45933edfba1389d87bfcb73a9ff836b5"
+        },
+        "date": 1612169402833,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/test_benchmarks.py::test_benchmark_read[benchmark/300_beziers.svg]",
+            "value": 1.0873757521323983,
+            "unit": "iter/sec",
+            "range": "stddev: 0.021850569506232338",
+            "extra": "mean: 919.6453001999998 msec\nrounds: 5"
+          },
+          {
+            "name": "tests/test_benchmarks.py::test_benchmark_read[benchmark/900_quad_beziers.svg]",
+            "value": 0.8072303205215628,
+            "unit": "iter/sec",
+            "range": "stddev: 0.04170028330671577",
+            "extra": "mean: 1.2388038141999993 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/test_benchmarks.py::test_benchmark_read[benchmark/500_circles.svg]",
+            "value": 1.0904757073123683,
+            "unit": "iter/sec",
+            "range": "stddev: 0.021596448490027256",
+            "extra": "mean: 917.030974 msec\nrounds: 5"
+          },
+          {
+            "name": "tests/test_benchmarks.py::test_benchmark_read[benchmark/500_polylines.svg]",
+            "value": 0.8178086408727061,
+            "unit": "iter/sec",
+            "range": "stddev: 0.021767444646610987",
+            "extra": "mean: 1.2227799389999994 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/test_benchmarks.py::test_benchmark_read[benchmark/bar_nodef_path_polylines.svg]",
+            "value": 0.29033548510404994,
+            "unit": "iter/sec",
+            "range": "stddev: 0.04760086773013236",
+            "extra": "mean: 3.4442913501999994 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/test_benchmarks.py::test_benchmark_linesort",
+            "value": 0.4847586058317646,
+            "unit": "iter/sec",
+            "range": "stddev: 0.017940421988297154",
+            "extra": "mean: 2.0628824077999965 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/test_benchmarks.py::test_benchmark_linemerge",
+            "value": 0.2632167381408834,
+            "unit": "iter/sec",
+            "range": "stddev: 0.03664518885652851",
+            "extra": "mean: 3.799150491200004 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/test_benchmarks.py::test_benchmark_viewer[outline]",
+            "value": 0.6249659449806919,
+            "unit": "iter/sec",
+            "range": "stddev: 0.12037163329936343",
+            "extra": "mean: 1.6000871856000003 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/test_benchmarks.py::test_benchmark_viewer[outline_points]",
+            "value": 0.6031752517354396,
+            "unit": "iter/sec",
+            "range": "stddev: 0.08074342645005997",
+            "extra": "mean: 1.6578929542000054 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/test_benchmarks.py::test_benchmark_viewer[outline_pen_up]",
+            "value": 0.379288832357598,
+            "unit": "iter/sec",
+            "range": "stddev: 0.09167362457816795",
+            "extra": "mean: 2.636513165399998 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/test_benchmarks.py::test_benchmark_viewer[outline_colorful]",
+            "value": 0.6263904884627798,
+            "unit": "iter/sec",
+            "range": "stddev: 0.04632713991374246",
+            "extra": "mean: 1.5964482514000053 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/test_benchmarks.py::test_benchmark_viewer[preview]",
+            "value": 0.04415012509354369,
+            "unit": "iter/sec",
+            "range": "stddev: 1.4194069745410958",
+            "extra": "mean: 22.6499924492 sec\nrounds: 5"
           }
         ]
       }
