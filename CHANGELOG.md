@@ -6,7 +6,7 @@ New features and improvements:
 * Python 3.9.1 (or later) is finally supported and is now the recommended version (#115)
 * Viewer improvements:
   * At start and when using the fit to window button, the display will now remain fitted to the window upon resizing,
-    until manual zooming or panning (#191)
+    until manual zooming or panning (#193)
   * Optimized the viewer upon launch and display setting changes (#184)
 
 Bug fixes:
