@@ -93,6 +93,8 @@ class Engine:
         self._layer_painters: Dict[int, List[Painter]] = defaultdict(list)
         self._paper_bounds_painter: Optional[PaperBoundsPainter] = None
 
+        self._fit_to_viewport_flag = True
+
     def post_init(self, ctx: mgl.Context, width: int = 100, height: int = 100):
         """Post-init configuration to provide a GL context."""
 
@@ -239,6 +241,8 @@ class Engine:
             y1 - (self._viewport_height / self._scale - h) / 2,
         ]
 
+        self._fit_to_viewport_flag = True
+
         self._update(False)
 
     def viewport_to_model(self, x: float, y: float) -> Tuple[float, float]:
@@ -251,8 +255,11 @@ class Engine:
             width: new viewport width
             height: new viewport height
         """
-        self._viewport_width = width
-        self._viewport_height = height
+        self._viewport_width = max(width, 1)
+        self._viewport_height = max(height, 1)
+
+        if self._fit_to_viewport_flag:
+            self.fit_to_viewport()
 
     def _get_projection(self) -> np.ndarray:
         proj = orthogonal_projection_matrix(
@@ -274,6 +281,10 @@ class Engine:
             dx: horizontal distance to pan
             dy: vertical distance to pan
         """
+
+        if dx != 0 or dy != 0:
+            self._fit_to_viewport_flag = False
+
         self._origin = (self._origin[0] - dx / self._scale, self._origin[1] - dy / self._scale)
         self._update(False)
 
@@ -288,6 +299,9 @@ class Engine:
             mouse_x: mouse X coordinate
             mouse_y: mouse Y coordinate
         """
+        if delta_zoom != 0:
+            self._fit_to_viewport_flag = False
+
         new_scale = self._scale * (1 + delta_zoom)
         new_scale = max(min(new_scale, 100000), 0.05)  # clamp to reasonable values
 

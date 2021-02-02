@@ -67,9 +67,6 @@ class QtViewerWidget(QGLWidget):
             view_mode=ViewMode.OUTLINE, show_pen_up=False, render_cb=self.update
         )
 
-        # adjust default scale based on hidpi
-        self.engine.scale = self.window().devicePixelRatio()
-
     def document(self) -> Optional[vp.Document]:
         """Return the :class:`vpype.Document` currently assigned to the widget."""
         return self._document
