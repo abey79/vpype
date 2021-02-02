@@ -10,7 +10,7 @@ Bug fixes:
 * Various documentation fixes and improvements:
   * improved the `layout` command help text
   * improved the cookbook section on using `GNU parallel` (#108)
-  * fixed typos related to the `layout` command in the cookbook(#186, thanks to @f4nu)
+  * fixed typos related to the `layout` command in the cookbook (#186, thanks to @f4nu)
 
 
 #### 1.3 (2021-01-27)
