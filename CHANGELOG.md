@@ -3,11 +3,14 @@
 #### 1.4 (UNRELEASED)
 
 New features and improvements:
-* Python 3.9.1 (or later) is finally support and is now the recommended version (#115)
+* Python 3.9.1 (or later) is finally supported and is now the recommended version (#115)
 * Optimized the viewer upon launch and display setting changes (#184)
 
 Bug fixes:
-* Documentation fixes (#186, thanks to @f4nu)
+* Various documentation fixes and improvements:
+  * improved the `layout` command help text
+  * improved the cookbook section on using `GNU parallel` (#108)
+  * fixed typos related to the `layout` command in the cookbook(#186, thanks to @f4nu)
 
 
 #### 1.3 (2021-01-27)
