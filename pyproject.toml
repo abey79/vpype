@@ -45,7 +45,7 @@ PySide2 = "^5.15.2"
 Shapely = {extras = ["vectorized"], version = "~1.7.1"}
 scipy = "~1.5.4"
 setuptools = "^51.0.0"
-svgelements = "1.4.5"
+svgelements = "1.4.7"
 svgwrite = "~1.4"
 toml = "~0.10.2"
 
