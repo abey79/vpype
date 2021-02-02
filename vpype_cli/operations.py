@@ -388,8 +388,9 @@ Optionally, this command can scale the geometries to fit specified margins with 
 
 Examples:
 
-    Fit the geometries to 3cm margins with top alignment (a generally pleasing arrangement for
-square designs on portrait-oriented pages):
+\b
+    Fit the geometries to 3cm margins with top alignment (a generally
+    pleasing arrangement for square designs on portrait-oriented pages):
 
         vpype read input.svg layout --fit-to-margins 3cm --valign top a4 write.svg
 """
