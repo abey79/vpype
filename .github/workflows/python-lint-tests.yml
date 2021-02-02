@@ -53,7 +53,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.6, 3.7, 3.8, 3.9]
         os: [ubuntu-latest, macos-latest]
     defaults:
       run:
@@ -133,7 +133,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.6, 3.7, 3.8, 3.9]
     defaults:
       run:
         shell: bash

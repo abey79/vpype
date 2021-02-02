@@ -292,36 +292,26 @@ Batch processing many SVG with bash scripts and ``parallel``
 ============================================================
 
 Computers offer endless avenues for automation, which depend on OS and the type of task at hand. Here is one way to
-easily process a large number of SVG with the same vpype pipeline. This approach relies on a  bash script and the
+easily process a large number of SVG with the same vpype pipeline. This approach relies on the
 `GNU Parallel <https://www.gnu.org/software/parallel/>`_ software and is best suited to Unix/Linux/macOS computers.
-Thanks to ``parallel``, it takes advantage of all the processing cores available.
+Thanks to ``parallel``, this approach takes advantage of all available processing cores.
 
-The first step is create a script to generate all the vpype commands corresponding to each of the SVG file to process::
+This is an example that illustrates the general idea::
 
-  #!/bin/bash
+  $ parallel --plus vpype read {} linemerge linesort write {/.svg/_processed.svg} ::: *.svg
 
-  # Loop over all the files
-  for file in *.svg; do
-    echo "Processing $file"
-    # edit the following line with the exact command you want to run
-    echo vpype read "$file" linemerge linesort  write -p a4 -c processed/"$file" >> batch.txt
-  done
+Let's break down how this works:
 
-Name this file ``create_batch.sh``, move it next to your SVG files, and make it executable with the following command::
+  * ``GNU parallel`` will execute the command before the ``:::`` maker for each argument it finds after the marker. In this example, we used ``*.svg`` which expends to the list of SVG files in the current directory.
+  * The marker ``{}`` is replaced by ``GNU parallel`` with the current item being processed (e.g. the current SVG file).
+  * The marker ``{/.svg/_processed.svg}`` does the same but it replaces ``.svg`` by ``_processed.svg``. This way, if one of the original SVG file is called ``my_file.svg``, it will be saved as ``my_file_processed.svg`` once processed.
+  * The ``--plus`` option to ``GNU parallel`` is required to enable the string replacement syntax.
 
-  $ chmod +x create_batch.sh
+The results can easily be customised by changing one or more of these elements. When designing your own command, it is
+best to start with the ``--dry-run`` option so that ``GNU parallel`` just prints the jobs instead of actually executing
+them::
 
-You can then execute it::
-
-  $ ./create_batch.sh
-
-This script will create a new file called ``batch.txt`` which contains all the vpype commands to be executed, one per
-line. It can be opened in a text editor to verify that everything is as it should Finally, use the ``parallel`` command
-(which you must first install on your computer) to execute everything using all available processing cores::
-
-  $ parallel < batch.txt
-
-The processed files will be saved in the ``processed`` sub-directory.
+  $ parallel --dry-run --plus vpype read {} linemerge linesort write {/.svg/_processed.svg} ::: *.svg
 
 
 Repeating a design on a grid
