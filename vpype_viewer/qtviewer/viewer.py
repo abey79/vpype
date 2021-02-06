@@ -15,6 +15,7 @@ from PySide2.QtWidgets import (
     QAction,
     QActionGroup,
     QApplication,
+    QHBoxLayout,
     QLabel,
     QMenu,
     QSizePolicy,
@@ -52,6 +53,8 @@ class QtViewerWidget(QGLWidget):
         fmt.setSampleBuffers(True)
         super().__init__(fmt, parent=parent)
 
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
         self.setMouseTracking(True)
 
         self._document = document
@@ -71,7 +74,7 @@ class QtViewerWidget(QGLWidget):
         """Return the :class:`vpype.Document` currently assigned to the widget."""
         return self._document
 
-    def set_document(self, document: vp.Document) -> None:
+    def set_document(self, document: Optional[vp.Document]) -> None:
         """Assign a new :class:`vpype.Document` to the widget."""
         self._document = document
         self.engine.document = document
@@ -287,31 +290,46 @@ class QtViewer(QWidget):
         # noinspection PyUnresolvedReferences
         self._viewer_widget.mouse_coords.connect(self.set_mouse_coords)  # type: ignore
 
-        # setup layout
+        # setup horizontal layout for optional side widgets
+        self._hlayout = QHBoxLayout()
+        self._hlayout.setSpacing(0)
+        self._hlayout.setMargin(0)
+        self._hlayout.addWidget(self._viewer_widget)
+        widget = QWidget()
+        widget.setLayout(self._hlayout)
+
+        # setup global vertical layout
         layout = QVBoxLayout()
         layout.setSpacing(0)
         layout.setMargin(0)
         layout.addWidget(self._toolbar)
-        layout.addWidget(self._viewer_widget)
+        layout.addWidget(widget)
         self.setLayout(layout)
 
         if document is not None:
             self.set_document(document)
 
-    def set_document(self, document: vp.Document) -> None:
+    def add_side_widget(self, widget: QWidget) -> None:
+        self._hlayout.addWidget(widget)
+
+    def set_document(self, document: Optional[vp.Document]) -> None:
         self._viewer_widget.set_document(document)
         self._update_layer_menu()
 
     def _update_layer_menu(self):
         layer_menu = QMenu(self._layer_visibility_btn)
-        for layer_id in sorted(self._viewer_widget.document().layers):
-            action = layer_menu.addAction(f"Layer {layer_id}")
-            action.setCheckable(True)
-            action.setChecked(True)
-            # TODO: set color icon
-            action.triggered.connect(
-                functools.partial(self._viewer_widget.engine.toggle_layer_visibility, layer_id)
-            )
+        doc = self._viewer_widget.document()
+        if doc is not None:
+            for layer_id in sorted(doc.layers):
+                action = layer_menu.addAction(f"Layer {layer_id}")
+                action.setCheckable(True)
+                action.setChecked(True)
+                # TODO: set color icon
+                action.triggered.connect(
+                    functools.partial(
+                        self._viewer_widget.engine.toggle_layer_visibility, layer_id
+                    )
+                )
         self._layer_visibility_btn.setMenu(layer_menu)
 
     def set_mouse_coords(self, txt: str) -> None:
