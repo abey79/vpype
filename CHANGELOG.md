@@ -15,6 +15,8 @@ Bug fixes:
   * improved the cookbook section on using `GNU parallel` (#108)
   * fixed typos related to the `layout` command in the cookbook (#186, thanks to @f4nu)
 
+API changes:
+* Added support for a sidebar in the viewer (#194)
 
 #### 1.3 (2021-01-27)
 
