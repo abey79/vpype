@@ -81,26 +81,24 @@ class LineCollectionFastPainter(Painter):
     def __init__(self, ctx: mgl.Context, lc: vp.LineCollection, color: ColorType):
         super().__init__(ctx)
 
-        self._prog = load_program("fast_line", ctx)
+        self._prog = load_program("fast_line_mono", ctx)
+        self._color = color
 
-        vertices, indices = self._build_buffers(lc, color=color)
+        vertices, indices = self._build_buffers(lc)
         vbo = ctx.buffer(vertices.astype("f4").tobytes())
         ibo = ctx.buffer(indices.astype("i4").tobytes())
-        self._vao = ctx.simple_vertex_array(
-            self._prog, vbo, "in_vert", "in_color", index_buffer=ibo
-        )
+        self._vao = ctx.simple_vertex_array(self._prog, vbo, "in_vert", index_buffer=ibo)
 
     def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
         self._prog["projection"].write(projection)
+        self._prog["color"].value = self._color
         self._vao.render(mgl.LINE_STRIP)
 
     @staticmethod
-    def _build_buffers(
-        lc: vp.LineCollection, color: ColorType = (0.0, 0.0, 0.0, 1.0)
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    def _build_buffers(lc: vp.LineCollection) -> Tuple[np.ndarray, np.ndarray]:
         # build index array
         ranges: List[Sequence[int]] = []
-        block = []
+        vertices = []
         cur_index = 0
         restart_mark = [-1]
         for line in lc:
@@ -108,9 +106,9 @@ class LineCollectionFastPainter(Painter):
             ranges.append(restart_mark)
             cur_index += len(line)
 
-            block.append([vp.as_vector(line), np.tile(color, (len(line), 1))])
+            vertices.append(vp.as_vector(line))
 
-        return np.block(block), np.concatenate(ranges)
+        return np.vstack(vertices), np.concatenate(ranges)
 
 
 class LineCollectionFastColorfulPainter(Painter):
@@ -199,10 +197,9 @@ class LineCollectionPointsPainter(Painter):
         self._prog = ctx.program(vertex_shader=vertex, fragment_shader=fragment)
         self._color = color
 
-        vertices, indices = self._build_buffers(lc)
+        vertices = self._build_buffers(lc)
         vbo = ctx.buffer(vertices.astype("f4").tobytes())
-        ibo = ctx.buffer(indices.astype("i4").tobytes())
-        self._vao = ctx.simple_vertex_array(self._prog, vbo, "position", index_buffer=ibo)
+        self._vao = ctx.simple_vertex_array(self._prog, vbo, "position")
 
     def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
         self._prog["projection"].write(projection)
@@ -210,20 +207,13 @@ class LineCollectionPointsPainter(Painter):
         self._vao.render(mgl.POINTS)
 
     @staticmethod
-    def _build_buffers(lc: vp.LineCollection) -> Tuple[np.ndarray, np.ndarray]:
+    def _build_buffers(lc: vp.LineCollection) -> np.ndarray:
         # build index array
-        ranges: List[Sequence[int]] = []
         block = []
-        cur_index = 0
-        restart_mark = [-1]
         for line in lc:
-            ranges.append(range(cur_index, cur_index + len(line)))
-            ranges.append(restart_mark)
-            cur_index += len(line)
-
             block.append(vp.as_vector(line))
 
-        return np.vstack(block), np.concatenate(ranges)
+        return np.vstack(block)
 
 
 class LineCollectionPenUpPainter(Painter):
