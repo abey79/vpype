@@ -57,11 +57,11 @@ class PaperBoundsPainter(Painter):
         self._prog = load_program("fast_line_mono", ctx)
 
         vbo = ctx.buffer(data.tobytes())
-        self._bounds_vao = ctx.simple_vertex_array(
-            self._prog, vbo, "in_vert", index_buffer=ctx.buffer(line_idx.tobytes())
+        self._bounds_vao = ctx.vertex_array(
+            self._prog, [(vbo, "2f", "in_vert")], ctx.buffer(line_idx.tobytes())
         )
-        self._shading_vao = ctx.simple_vertex_array(
-            self._prog, vbo, "in_vert", index_buffer=ctx.buffer(triangle_idx.tobytes())
+        self._shading_vao = ctx.vertex_array(
+            self._prog, [(vbo, "2f", "in_vert")], ctx.buffer(triangle_idx.tobytes())
         )
 
     def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
@@ -87,7 +87,7 @@ class LineCollectionFastPainter(Painter):
         vertices, indices = self._build_buffers(lc)
         vbo = ctx.buffer(vertices.astype("f4").tobytes())
         ibo = ctx.buffer(indices.astype("i4").tobytes())
-        self._vao = ctx.simple_vertex_array(self._prog, vbo, "in_vert", index_buffer=ibo)
+        self._vao = ctx.vertex_array(self._prog, [(vbo, "2f", "in_vert")], index_buffer=ibo)
 
     def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
         self._prog["projection"].write(projection)
@@ -128,11 +128,18 @@ class LineCollectionFastColorfulPainter(Painter):
         self._show_points = show_points
         self._prog = load_program("fast_line", ctx)
 
+        # TODO: hacked color table size is not ideal, this will need to be changed when
+        # implementing color themes
+        self._prog["colors"].write(np.concatenate(self.COLORS).astype("f4").tobytes())
+
         vertices, indices = self._build_buffers(lc)
-        vbo = ctx.buffer(vertices.astype("f4").tobytes())
-        ibo = ctx.buffer(indices.astype("i4").tobytes())
-        self._vao = ctx.simple_vertex_array(
-            self._prog, vbo, "in_vert", "in_color", index_buffer=ibo
+        vbo = ctx.buffer(vertices.tobytes())
+        ibo = ctx.buffer(indices.tobytes())
+
+        self._vao = ctx.vertex_array(
+            self._prog,
+            [(vbo, "2f4 i1", "in_vert", "color_idx")],
+            ibo,
         )
 
     def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
@@ -143,24 +150,23 @@ class LineCollectionFastColorfulPainter(Painter):
 
     @classmethod
     def _build_buffers(cls, lc: vp.LineCollection) -> Tuple[np.ndarray, np.ndarray]:
+        total_length = sum(len(line) for line in lc)
+        buffer = np.empty(total_length, dtype=[("vertex", "2f4"), ("color", "i1")])
+        indices = np.empty(total_length + len(lc), dtype="i4")
+        indices.fill(-1)
+
         # build index array
-        ranges: List[Sequence[int]] = []
-        block = []
         cur_index = 0
-        restart_mark = [-1]
         for i, line in enumerate(lc):
-            n = len(line)
-            ranges.append(range(cur_index, cur_index + n))
-            ranges.append(restart_mark)
-            cur_index += n
+            next_idx = cur_index + len(line)
+            indices[i + cur_index : i + next_idx] = np.arange(cur_index, next_idx)
 
-            color = cls.COLORS[i % len(cls.COLORS)]
-            colors = np.tile(color, (n, 1))
-            colors[::2, 0:3] *= 0.6
+            buffer["vertex"][cur_index:next_idx] = vp.as_vector(line)
+            buffer["color"][cur_index:next_idx] = i % len(cls.COLORS)
 
-            block.append([vp.as_vector(line), colors])
+            cur_index = next_idx
 
-        return np.block(block), np.concatenate(ranges)
+        return buffer, indices
 
 
 class LineCollectionPointsPainter(Painter):
@@ -199,7 +205,7 @@ class LineCollectionPointsPainter(Painter):
 
         vertices = self._build_buffers(lc)
         vbo = ctx.buffer(vertices.astype("f4").tobytes())
-        self._vao = ctx.simple_vertex_array(self._prog, vbo, "position")
+        self._vao = ctx.vertex_array(self._prog, [(vbo, "2f", "position")])
 
     def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
         self._prog["projection"].write(projection)
@@ -234,7 +240,7 @@ class LineCollectionPenUpPainter(Painter):
 
         if len(vertices) > 0:
             vbo = ctx.buffer(np.array(vertices, dtype="f4").tobytes())
-            self._vao = ctx.simple_vertex_array(self._prog, vbo, "in_vert")
+            self._vao = ctx.vertex_array(self._prog, [(vbo, "2f", "in_vert")])
         else:
             self._vao = None
 
@@ -258,7 +264,7 @@ class LineCollectionPreviewPainter(Painter):
         vertices, indices = self._build_buffers(lc)
         vbo = ctx.buffer(vertices.tobytes())
         ibo = ctx.buffer(indices.tobytes())
-        self._vao = ctx.simple_vertex_array(self._prog, vbo, "position", index_buffer=ibo)
+        self._vao = ctx.vertex_array(self._prog, [(vbo, "2f", "position")], ibo)
 
     def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
         self._prog["color"].value = self._color
