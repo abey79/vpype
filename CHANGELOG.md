@@ -1,17 +1,16 @@
 # Change log
 
-#### 1.4 (UNRELEASED)
+#### 1.4 (2021-02-08)
 
 New features and improvements:
-* Python 3.9.1 (or later) is finally supported and is now the recommended version (#115)
+* Python 3.9.1 (or later) is finally supported and now is the recommended version (#115)
 * Viewer improvements:
-  * At start and when using the fit to window button, the display will now remain fitted to the window upon resizing,
-    until manual zooming or panning (#193)
+  * The viewer will now keep the page fitted to the window when resizing, until manually zoomed and/or panned (#193)
   * Significantly optimized launch and setting changes times (#184, #195)
 
 Bug fixes:
 * Various documentation fixes and improvements:
-  * improved the `layout` command help text
+  * improved the `layout` command's help text
   * improved the cookbook section on using `GNU parallel` (#108)
   * fixed typos related to the `layout` command in the cookbook (#186, thanks to @f4nu)
 
