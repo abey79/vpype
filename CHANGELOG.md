@@ -7,7 +7,7 @@ New features and improvements:
 * Viewer improvements:
   * At start and when using the fit to window button, the display will now remain fitted to the window upon resizing,
     until manual zooming or panning (#193)
-  * Optimized the viewer upon launch and display setting changes (#184, #195)
+  * Significantly optimized launch and setting changes times (#184, #195)
 
 Bug fixes:
 * Various documentation fixes and improvements:

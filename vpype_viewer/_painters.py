@@ -1,4 +1,4 @@
-from typing import List, Sequence, Tuple
+from typing import List, Tuple
 
 import moderngl as mgl
 import numpy as np
@@ -85,9 +85,9 @@ class LineCollectionFastPainter(Painter):
         self._color = color
 
         vertices, indices = self._build_buffers(lc)
-        vbo = ctx.buffer(vertices.astype("f4").tobytes())
-        ibo = ctx.buffer(indices.astype("i4").tobytes())
-        self._vao = ctx.vertex_array(self._prog, [(vbo, "2f", "in_vert")], index_buffer=ibo)
+        vbo = ctx.buffer(vertices.tobytes())
+        ibo = ctx.buffer(indices.tobytes())
+        self._vao = ctx.vertex_array(self._prog, [(vbo, "2f4", "in_vert")], index_buffer=ibo)
 
     def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
         self._prog["projection"].write(projection)
@@ -96,19 +96,20 @@ class LineCollectionFastPainter(Painter):
 
     @staticmethod
     def _build_buffers(lc: vp.LineCollection) -> Tuple[np.ndarray, np.ndarray]:
+        total_length = sum(len(line) for line in lc)
+        buffer = np.empty((total_length, 2), dtype="f4")
+        indices = np.empty(total_length + len(lc), dtype="i4")
+        indices.fill(-1)
+
         # build index array
-        ranges: List[Sequence[int]] = []
-        vertices = []
         cur_index = 0
-        restart_mark = [-1]
-        for line in lc:
-            ranges.append(range(cur_index, cur_index + len(line)))
-            ranges.append(restart_mark)
-            cur_index += len(line)
+        for i, line in enumerate(lc):
+            next_idx = cur_index + len(line)
+            indices[i + cur_index : i + next_idx] = np.arange(cur_index, next_idx)
+            buffer[cur_index:next_idx] = vp.as_vector(line)
+            cur_index = next_idx
 
-            vertices.append(vp.as_vector(line))
-
-        return np.vstack(vertices), np.concatenate(ranges)
+        return buffer, indices
 
 
 class LineCollectionFastColorfulPainter(Painter):
@@ -204,8 +205,8 @@ class LineCollectionPointsPainter(Painter):
         self._color = color
 
         vertices = self._build_buffers(lc)
-        vbo = ctx.buffer(vertices.astype("f4").tobytes())
-        self._vao = ctx.vertex_array(self._prog, [(vbo, "2f", "position")])
+        vbo = ctx.buffer(vertices.tobytes())
+        self._vao = ctx.vertex_array(self._prog, [(vbo, "2f4", "position")])
 
     def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
         self._prog["projection"].write(projection)
@@ -214,12 +215,16 @@ class LineCollectionPointsPainter(Painter):
 
     @staticmethod
     def _build_buffers(lc: vp.LineCollection) -> np.ndarray:
-        # build index array
-        block = []
-        for line in lc:
-            block.append(vp.as_vector(line))
+        buffer = np.empty((sum(len(line) for line in lc), 2), dtype="f4")
 
-        return np.vstack(block)
+        # build index array
+        cur_index = 0
+        for i, line in enumerate(lc):
+            next_idx = cur_index + len(line)
+            buffer[cur_index:next_idx] = vp.as_vector(line)
+            cur_index = next_idx
+
+        return buffer
 
 
 class LineCollectionPenUpPainter(Painter):
@@ -240,7 +245,7 @@ class LineCollectionPenUpPainter(Painter):
 
         if len(vertices) > 0:
             vbo = ctx.buffer(np.array(vertices, dtype="f4").tobytes())
-            self._vao = ctx.vertex_array(self._prog, [(vbo, "2f", "in_vert")])
+            self._vao = ctx.vertex_array(self._prog, [(vbo, "2f4", "in_vert")])
         else:
             self._vao = None
 
@@ -264,7 +269,7 @@ class LineCollectionPreviewPainter(Painter):
         vertices, indices = self._build_buffers(lc)
         vbo = ctx.buffer(vertices.tobytes())
         ibo = ctx.buffer(indices.tobytes())
-        self._vao = ctx.vertex_array(self._prog, [(vbo, "2f", "position")], ibo)
+        self._vao = ctx.vertex_array(self._prog, [(vbo, "2f4", "position")], ibo)
 
     def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
         self._prog["color"].value = self._color
