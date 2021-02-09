@@ -321,7 +321,7 @@ This command will draw a collection of 3x3cm :ref:`circles <cmd_circle>` in a 5x
 
   $ vpype begin                   \
       grid 5 8                    \
-      circle 0 0 3cm 3cm          \
+      circle 0 0 3cm              \
     end                           \
     show
 
