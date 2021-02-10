@@ -43,9 +43,10 @@ _vpype_ is the Swiss-Army-knife command-line tool for plotter vector graphics. H
  - create, modify and process **multi-layer vector files** for multi-colour plots;
  - and much more...
  
-_vpype_ is highly **extensible** through [plug-ins](#plugins) that can greatly extend its capabilities. For example, plug-ins
+_vpype_ is highly **extensible** through plug-ins that can greatly extend its capabilities. For example, plug-ins
 already exists for plotting [pixel art](https://github.com/abey79/vpype-pixelart),
-[half-toning with hatches](https://github.com/abey79/hatched), and much more (see the [list](#plug-ins) below).
+[half-toning with hatches](https://github.com/abey79/hatched), and much more. See below for a
+[list of existing plug-ins](#plug-ins).
 
 _vpype_ is also a [well documented](https://vpype.readthedocs.io/en/stable/api.html) **Python library**
 useful to create generative art and tools for plotters. It includes data structures, utility and I/O functions, as well as
@@ -222,9 +223,11 @@ and much more.
  
  Here is a list of known vpype plug-ins (please make a pull request if yours is missing):
  
+ - [vsketch](https://github.com/abey79/vsketch): *vsketch* is complete framework for plotter generative artists implemented using *vpype*'s API
  - [vpype-text](https://github.com/abey79/vpype-text): plot text with Hershey fonts
  - [vpype-pixelart](https://github.com/abey79/vpype-pixelart): plot pixel art
  - [hatched](https://github.com/abey79/hatched): half-toning with hatches
+ - [vpype-flow-imager](https://github.com/serycjon/vpype-flow-imager): convert images to flow-line-based designs
  - [occult](https://github.com/LoicGoulefert/occult): perform hidden line removal
  - [vpype-explorations](https://github.com/abey79/vpype-explortaions): my personal grab bag of experiments and utilities
  - [vpype-gcode](https://github.com/tatarize/vpype-gcode/): flexible export command for gcode and other text-based format
