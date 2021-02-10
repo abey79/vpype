@@ -28,6 +28,7 @@ _vpype_ is the Swiss-Army-knife command-line tool for plotter vector graphics.
     * [Plotting optimization](#plotting-optimization)
     * [Generation](#generation)
     * [Extensibility and API](#extensibility-and-api)
+* [Plug-ins](#plug-ins)
 * [Contributing](#contributing)
 * [License](#license)
 
@@ -35,18 +36,17 @@ _vpype_ is the Swiss-Army-knife command-line tool for plotter vector graphics.
 ## What _vpype_ is?
 
 _vpype_ is the Swiss-Army-knife command-line tool for plotter vector graphics. Here is what it can do:
- - **laying out** existing vector files with precise control on position, scale and page format;
- - **optimizing** existing SVG files for faster and cleaner plots;
- - creating **HPGL output** for vintage plotters;
- - creating **generative artwork** through built-in commands or plug-ins;
- - creating, modifying and processing **multi-layer vector files** for multi-colour plots;
+ - **layout** existing vector files with precise control on position, scale and page format;
+ - **optimize** existing SVG files for faster and cleaner plots;
+ - create **HPGL output** for vintage plotters;
+ - create **generative artwork** from scratch through built-in commands or [plug-ins](#plug-ins);
+ - create, modify and process **multi-layer vector files** for multi-colour plots;
  - and much more...
  
-_vpype_ is highly **extensible** through [plug-ins](https://vpype.readthedocs.io/en/stable/api/vpype.html#module-vpype) that
-can greatly extend its capabilities. For example, plug-ins already exists for plotting
-[pixel art](https://github.com/abey79/vpype-pixelart), [half-toning with hatches](https://github.com/abey79/hatched),
-[plotting text](https://github.com/abey79/vpype-text) with Hershey fonts,
-applying [hidden line removal](https://github.com/LoicGoulefert/occult), and much more.  
+_vpype_ is highly **extensible** through plug-ins that can greatly extend its capabilities. For example, plug-ins
+already exists for plotting [pixel art](https://github.com/abey79/vpype-pixelart),
+[half-toning with hatches](https://github.com/abey79/hatched), and much more. See below for a
+[list of existing plug-ins](#plug-ins).
 
 _vpype_ is also a [well documented](https://vpype.readthedocs.io/en/stable/api.html) **Python library**
 useful to create generative art and tools for plotters. It includes data structures, utility and I/O functions, as well as
@@ -217,6 +217,21 @@ and much more.
  - First-class support for **plug-in** extensions (e.g [vpype-text](https://github.com/abey79/vpype-text), [hatched](https://github.com/abey79/hatched), [occult](https://github.com/LoicGoulefert/occult)).
  - Support for **script-based** generation ([`script`](https://vpype.readthedocs.io/en/stable/reference.html#script)).
  - Powerful and [well-documented](https://vpype.readthedocs.io/en/stable/api.html) **API** for plug-ins and other plotter generative art projects.
+ 
+ 
+ ## Plug-ins
+ 
+ Here is a list of known vpype plug-ins (please make a pull request if yours is missing):
+ 
+ - [vsketch](https://github.com/abey79/vsketch): *vsketch* is complete framework for plotter generative artists implemented using *vpype*'s API
+ - [vpype-text](https://github.com/abey79/vpype-text): plot text with Hershey fonts
+ - [vpype-pixelart](https://github.com/abey79/vpype-pixelart): plot pixel art
+ - [hatched](https://github.com/abey79/hatched): half-toning with hatches
+ - [vpype-flow-imager](https://github.com/serycjon/vpype-flow-imager): convert images to flow-line-based designs
+ - [occult](https://github.com/LoicGoulefert/occult): perform hidden line removal
+ - [vpype-explorations](https://github.com/abey79/vpype-explortaions): my personal grab bag of experiments and utilities
+ - [vpype-gcode](https://github.com/tatarize/vpype-gcode/): flexible export command for gcode and other text-based format
+ - [vpype-embroidery](https://github.com/EmbroidePy/vpype-embroidery): various embroidery-related utilities, including read from/write to most embroidery formats 
  
  
  ## Contributing
