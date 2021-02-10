@@ -229,7 +229,7 @@ and much more.
  - [hatched](https://github.com/abey79/hatched): half-toning with hatches
  - [vpype-flow-imager](https://github.com/serycjon/vpype-flow-imager): convert images to flow-line-based designs
  - [occult](https://github.com/LoicGoulefert/occult): perform hidden line removal
- - [vpype-explorations](https://github.com/abey79/vpype-explortaions): my personal grab bag of experiments and utilities
+ - [vpype-explorations](https://github.com/abey79/vpype-explorations): my personal grab bag of experiments and utilities
  - [vpype-gcode](https://github.com/tatarize/vpype-gcode/): flexible export command for gcode and other text-based format
  - [vpype-embroidery](https://github.com/EmbroidePy/vpype-embroidery): various embroidery-related utilities, including read from/write to most embroidery formats 
  
