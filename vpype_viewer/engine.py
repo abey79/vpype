@@ -18,6 +18,7 @@ from ._painters import (
     LineCollectionPreviewPainter,
     Painter,
     PaperBoundsPainter,
+    RulersPainter,
 )
 from ._utils import ColorType, orthogonal_projection_matrix
 
@@ -92,6 +93,7 @@ class Engine:
         self._layer_visibility: Dict[int, bool] = defaultdict(lambda: True)
         self._layer_painters: Dict[int, List[Painter]] = defaultdict(list)
         self._paper_bounds_painter: Optional[PaperBoundsPainter] = None
+        self._rulers_painter: Optional[RulersPainter] = None
 
         self._fit_to_viewport_flag = True
 
@@ -136,6 +138,14 @@ class Engine:
     @origin.setter
     def origin(self, origin: Tuple[float, float]):
         self._origin = origin
+
+    @property
+    def width(self) -> float:
+        return self._viewport_width
+
+    @property
+    def height(self) -> float:
+        return self._viewport_height
 
     @property
     def view_mode(self) -> ViewMode:
@@ -326,12 +336,15 @@ class Engine:
         proj = self._get_projection()
 
         if self._paper_bounds_painter:
-            self._paper_bounds_painter.render(proj, self._scale, self._debug)
+            self._paper_bounds_painter.render(self, proj)
 
         for layer_id in sorted(self._layer_painters):
             if self._layer_visibility[layer_id]:
                 for painter in self._layer_painters[layer_id]:
-                    painter.render(proj, self._scale, self._debug)
+                    painter.render(self, proj)
+
+        if self._rulers_painter:
+            self._rulers_painter.render(self, proj)
 
     def _update(self, rebuild=True):
         """"""
@@ -393,5 +406,7 @@ class Engine:
                 self._paper_bounds_painter = PaperBoundsPainter(
                     self._ctx, self._document.page_size
                 )
+
+            self._rulers_painter = RulersPainter(self._ctx)
 
         self._rebuild_needed = False

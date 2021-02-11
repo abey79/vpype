@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import TYPE_CHECKING, List, Tuple
 
 import moderngl as mgl
 import numpy as np
@@ -7,12 +7,15 @@ import vpype as vp
 
 from ._utils import ColorType, load_program
 
+if TYPE_CHECKING:
+    from .engine import Engine
+
 
 class Painter:
     def __init__(self, ctx: mgl.Context):
         self._ctx = ctx
 
-    def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
+    def render(self, engine: "Engine", projection: np.ndarray) -> None:
         raise NotImplementedError
 
 
@@ -64,7 +67,7 @@ class PaperBoundsPainter(Painter):
             self._prog, [(vbo, "2f", "in_vert")], ctx.buffer(triangle_idx.tobytes())
         )
 
-    def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
+    def render(self, engine: "Engine", projection: np.ndarray) -> None:
         self._prog["projection"].write(projection)
 
         self._prog["color"].value = (0, 0, 0, 0.25)
@@ -89,7 +92,7 @@ class LineCollectionFastPainter(Painter):
         ibo = ctx.buffer(indices.tobytes())
         self._vao = ctx.vertex_array(self._prog, [(vbo, "2f4", "in_vert")], index_buffer=ibo)
 
-    def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
+    def render(self, engine: "Engine", projection: np.ndarray) -> None:
         self._prog["projection"].write(projection)
         self._prog["color"].value = self._color
         self._vao.render(mgl.LINE_STRIP)
@@ -143,7 +146,7 @@ class LineCollectionFastColorfulPainter(Painter):
             ibo,
         )
 
-    def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
+    def render(self, engine: "Engine", projection: np.ndarray) -> None:
         self._prog["projection"].write(projection)
         self._vao.render(mgl.LINE_STRIP)
         if self._show_points:
@@ -208,7 +211,7 @@ class LineCollectionPointsPainter(Painter):
         vbo = ctx.buffer(vertices.tobytes())
         self._vao = ctx.vertex_array(self._prog, [(vbo, "2f4", "position")])
 
-    def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
+    def render(self, engine: "Engine", projection: np.ndarray) -> None:
         self._prog["projection"].write(projection)
         self._prog["color"].value = self._color
         self._vao.render(mgl.POINTS)
@@ -249,7 +252,7 @@ class LineCollectionPenUpPainter(Painter):
         else:
             self._vao = None
 
-    def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
+    def render(self, engine: "Engine", projection: np.ndarray) -> None:
         if self._vao is not None:
             self._prog["color"].value = self._color
             self._prog["projection"].write(projection)
@@ -271,13 +274,13 @@ class LineCollectionPreviewPainter(Painter):
         ibo = ctx.buffer(indices.tobytes())
         self._vao = ctx.vertex_array(self._prog, [(vbo, "2f4", "position")], ibo)
 
-    def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
+    def render(self, engine: "Engine", projection: np.ndarray) -> None:
         self._prog["color"].value = self._color
         self._prog["pen_width"].value = self._pen_width
-        self._prog["antialias"].value = 1.5 / scale
+        self._prog["antialias"].value = 1.5 / engine.scale
         self._prog["projection"].write(projection)
 
-        if debug:
+        if engine.debug:
             self._prog["kill_frag_shader"].value = False
             self._prog["debug_view"].value = True
             self._prog["color"].value = self._color[0:3] + (0.3,)
@@ -318,3 +321,93 @@ class LineCollectionPreviewPainter(Painter):
             np.vstack([vp.as_vector(line).astype("f4") for line in lc]),
             np.concatenate(indices).astype("i4"),
         )
+
+
+class RulersPainter(Painter):
+    # scale, division, mid, minor
+    PIXEL_SCALES = (
+        (5000, 10, 5, 1),
+        (2000, 10, 5, 1),
+        (1000, 10, 5, 1),
+        (500, 10, 5, 1),
+        (200, 10, 5, 1),
+        (100, 10, 5, 1),
+        (50, 10, 5, 1),
+        (20, 10, 5, 1),
+        (10, 10, 5, 1),
+        (5, 10, 5, 1),
+        (2, 10, 5, 1),
+        (1, 10, 5, 1),
+    )
+
+    MAX_MAJOR_TICKS = 100
+
+    def __init__(self, ctx: mgl.Context):
+        super().__init__(ctx)
+
+        self._prog = load_program("ruler_patch", ctx)
+
+        # vertices
+        vertices = ctx.buffer(
+            np.array(
+                [
+                    (-1.0, 1.0),
+                    (0.0, 1.0),
+                    (1.0, 1.0),
+                    (-1.0, 0.0),
+                    (0, 0.0),
+                    (1.0, 0.0),
+                    (-1.0, -1.0),
+                    (0.0, -1.0),
+                ],
+                dtype="f4",
+            ).tobytes()
+        )
+
+        # line strip for stroke
+        frame_indices = ctx.buffer(np.array([3, 5, 1, 7], dtype="i4").tobytes())
+        self._stroke_vao = ctx.vertex_array(
+            self._prog, [(vertices, "2f4", "in_vert")], frame_indices
+        )
+
+        # triangle strip for fill
+        patch_indices = ctx.buffer(np.array([7, 6, 4, 3, 0, 4, 1, 5, 2], dtype="i4").tobytes())
+        self._fill_vao = ctx.vertex_array(
+            self._prog, [(vertices, "2f4", "in_vert")], patch_indices
+        )
+
+        # major ticks buffer
+        self._ticks_prog = load_program("ruler_ticks", ctx)
+        self._ticks_prog["color"] = (1.0, 0.0, 0.0, 1.0)
+        ticks = ctx.buffer(np.arange(self.MAX_MAJOR_TICKS, dtype="f4").tobytes())
+        self._ticks_vao = ctx.vertex_array(self._ticks_prog, [(ticks, "f4", "position")])
+
+    def render(self, engine: "Engine", projection: np.ndarray) -> None:
+        # frame
+        self._prog["ruler_width"] = 2 * 50.0 / engine.width
+        self._prog["ruler_height"] = 2 * 50.0 / engine.height
+        self._prog["color"].value = (1.0, 1.0, 1.0, 1.0)
+        self._fill_vao.render(mode=mgl.TRIANGLE_STRIP)
+        self._prog["color"].value = (0.0, 0, 0.0, 1.0)
+        self._stroke_vao.render(mode=mgl.LINES)
+
+        # find scale
+        for scale, *divisions in self.PIXEL_SCALES:
+            if scale * engine.scale < 300:
+                break
+
+        # ticks
+        self._ticks_prog["scale"] = scale * engine.scale
+        self._ticks_prog["divisions"] = divisions
+
+        self._ticks_prog["vertical"] = True
+        self._ticks_prog["viewport_dim"] = engine.height
+        self._ticks_prog["offset"] = (engine.origin[1] % scale) * engine.scale
+        self._ticks_prog["ruler_thickness"] = 2 * 50.0 / engine.width
+        self._ticks_vao.render(mode=mgl.POINTS)
+
+        self._ticks_prog["vertical"] = False
+        self._ticks_prog["viewport_dim"] = engine.width
+        self._ticks_prog["offset"] = (engine.origin[0] % scale) * engine.scale
+        self._ticks_prog["ruler_thickness"] = 2 * 50.0 / engine.height
+        self._ticks_vao.render(mode=mgl.POINTS)
