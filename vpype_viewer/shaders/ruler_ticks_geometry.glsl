@@ -14,60 +14,37 @@ void main(void)
 {
     vec4 p = gl_in[0].gl_Position;
 
+    // emit the major tick
+    gl_Position = p;
+    EmitVertex();
     if (vertical)
-    {
-        gl_Position = p;
-        EmitVertex();
-
         gl_Position = p + vec4(ruler_thickness, 0.0, 0.0, 0.0);
-        EmitVertex();
+    else
+        gl_Position = p + vec4(0.0, -ruler_thickness, 0.0, 0.0);
+    EmitVertex();
+    EndPrimitive();
 
-        EndPrimitive();
+    // emit the divisions ticks
+    for (int i = 1; i < divisions[0]; i++ ) {
+        float delta = i * scale / divisions[0] * 2. / viewport_dim;
+        float tick_width = 0.2 * ruler_thickness;
+        if ((i % divisions[1]) == 0)
+            tick_width = 0.6 * ruler_thickness;
+        else if ((i % divisions[2]) == 0)
+            tick_width = 0.4 * ruler_thickness;
 
-        for (int i = 1; i < divisions[0]; i++ ) {
-            float delta = i * scale / divisions[0] * 2. / viewport_dim;
-            float tick_width = 0.2 * ruler_thickness;
-            if ((i % divisions[1]) == 0)
-                tick_width = 0.6 * ruler_thickness;
-            else if ((i % divisions[2]) == 0)
-                tick_width = 0.4 * ruler_thickness;
-
-
+        if (vertical) {
             gl_Position = p + vec4(ruler_thickness - tick_width, -delta, 0.0, 0.0);
             EmitVertex();
-
             gl_Position = p + vec4(ruler_thickness, -delta, 0.0, 0.0);
             EmitVertex();
-
-            EndPrimitive();
-        }
-    }
-    else
-    {
-        gl_Position = p;
-        EmitVertex();
-
-        gl_Position = p + vec4(0.0, -ruler_thickness, 0.0, 0.0);
-        EmitVertex();
-
-        EndPrimitive();
-
-        for (int i = 1; i < divisions[0]; i++ ) {
-            float delta = i * scale / divisions[0] * 2. / viewport_dim;
-            float tick_width = 0.2 * ruler_thickness;
-            if ((i % divisions[1]) == 0)
-                tick_width = 0.6 * ruler_thickness;
-            else if ((i % divisions[2]) == 0)
-                tick_width = 0.4 * ruler_thickness;
-
-
+        } else {
             gl_Position = p + vec4(delta, -ruler_thickness + tick_width, 0.0, 0.0);
             EmitVertex();
-
             gl_Position = p + vec4(delta, -ruler_thickness, 0.0, 0.0);
             EmitVertex();
-
-            EndPrimitive();
         }
+
+        EndPrimitive();
     }
 }

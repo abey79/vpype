@@ -391,21 +391,23 @@ class RulersPainter(Painter):
         self._prog["color"].value = (0.0, 0, 0.0, 1.0)
         self._stroke_vao.render(mode=mgl.LINES)
 
-        # find scale
+        # set scale and divisions
+        scale = 1.0
+        divisions = 10, 5, 1
         for scale, *divisions in self.PIXEL_SCALES:
             if scale * engine.scale < 300:
                 break
-
-        # ticks
         self._ticks_prog["scale"] = scale * engine.scale
         self._ticks_prog["divisions"] = divisions
 
+        # render vertical ruler
         self._ticks_prog["vertical"] = True
         self._ticks_prog["viewport_dim"] = engine.height
         self._ticks_prog["offset"] = (engine.origin[1] % scale) * engine.scale
         self._ticks_prog["ruler_thickness"] = 2 * 50.0 / engine.width
         self._ticks_vao.render(mode=mgl.POINTS)
 
+        # render horizontal ruler
         self._ticks_prog["vertical"] = False
         self._ticks_prog["viewport_dim"] = engine.width
         self._ticks_prog["offset"] = (engine.origin[0] % scale) * engine.scale
