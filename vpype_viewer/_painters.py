@@ -418,13 +418,18 @@ class RulersPainter(Painter):
         self._text_vao = ctx.vertex_array(self._text_prog, [(ticks, "f4", "position")])
 
     def render(self, engine: "Engine", projection: np.ndarray) -> None:
-        # frame
+        # ===========================
+        # render frame
+
         self._prog["ruler_width"] = 2 * 50.0 / engine.width
         self._prog["ruler_height"] = 2 * 50.0 / engine.height
         self._prog["color"].value = (1.0, 1.0, 1.0, 1.0)
         self._fill_vao.render(mode=mgl.TRIANGLE_STRIP)
         self._prog["color"].value = (0.0, 0, 0.0, 1.0)
         self._stroke_vao.render(mode=mgl.LINES)
+
+        # ===========================
+        # render ticks
 
         # set scale and divisions
         scale = 1.0
@@ -449,9 +454,12 @@ class RulersPainter(Painter):
         self._ticks_prog["ruler_thickness"] = 2 * 50.0 / engine.height
         self._ticks_vao.render(mode=mgl.POINTS)
 
+        # ===========================
         # render glyph
         self._texture.use(0)
         self._text_prog["scale"] = scale * engine.scale
+        self._text_prog["delta_number"] = int(scale)
+
         self._text_prog["vertical"] = False
         self._text_prog["viewport_dim"] = engine.width
         self._text_prog["offset"] = (engine.origin[0] % scale) * engine.scale
@@ -460,8 +468,18 @@ class RulersPainter(Painter):
             14.0 * 2.0 * 159.0 / 77.0 / engine.height,
         )
         self._text_prog["start_number"] = math.floor(engine.origin[0] / scale) * scale
-        self._text_prog["delta_number"] = int(scale)
+        self._text_vao.render(mode=mgl.POINTS)
+
+        self._text_prog["vertical"] = True
+        self._text_prog["viewport_dim"] = engine.height
+        self._text_prog["offset"] = (engine.origin[1] % scale) * engine.scale
+        self._text_prog["glyph_size"].value = (
+            14.0 * 2.0 * 159.0 / 77.0 / engine.width,
+            14.0 * 2.0 / engine.height,
+        )
+        self._text_prog["start_number"] = math.floor(engine.origin[1] / scale) * scale
         self._text_vao.render(mode=mgl.POINTS)
 
         # TODO: only render N vertex (no need to spam beyond the screen
         # TODO: get rid of the arange buffer!!!!
+        # TODO: fix fit_to_viewport to take rulers into account
