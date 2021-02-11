@@ -24,6 +24,7 @@ include = [
     "LICENSE",
     "vpype/*.toml",
     "vpype_viewer/shaders/*.glsl",
+    "vpype_viewer/resources/*.png",
     "vpype_viewer/qtviewer/resources/*",
 ]
 

@@ -1,7 +1,10 @@
+import math
+import pathlib
 from typing import TYPE_CHECKING, List, Tuple
 
 import moderngl as mgl
 import numpy as np
+from PIL import Image
 
 import vpype as vp
 
@@ -382,6 +385,38 @@ class RulersPainter(Painter):
         ticks = ctx.buffer(np.arange(self.MAX_MAJOR_TICKS, dtype="f4").tobytes())
         self._ticks_vao = ctx.vertex_array(self._ticks_prog, [(ticks, "f4", "position")])
 
+        ## TEXT STUFF
+        # https://github.com/Contraz/demosys-py/blob/master/demosys/effects/text/resources/data/demosys/text/meta.json
+        # {
+        #     "characters": 190,
+        #     "character_ranges": [
+        #         {
+        #             "min": 32,
+        #             "max": 126
+        #         },
+        #         {
+        #             "min": 161,
+        #             "max": 255
+        #         }
+        #     ],
+        #     "character_height": 159,
+        #     "character_width": 77,
+        #     "atlas_height": 30210,
+        #     "atlas_width": 77
+        # }
+        texture_path = pathlib.Path(__file__).parent / "resources" / "VeraMono.png"
+        img = Image.open(str(texture_path))
+        self._texture = ctx.texture_array(
+            (77, 159, 190), 4, data=img.convert("RGBA").tobytes()
+        )
+        self._texture.build_mipmaps()
+
+        self._text_prog = load_program("ruler_text", ctx)
+        # self._text_prog["glyph_step"] = 1.0 / 190.0
+        self._aspect_ratio = 159.0 / 77.0
+        self._text_prog["color"].value = (0, 0, 0, 1.0)
+        self._text_vao = ctx.vertex_array(self._text_prog, [(ticks, "f4", "position")])
+
     def render(self, engine: "Engine", projection: np.ndarray) -> None:
         # frame
         self._prog["ruler_width"] = 2 * 50.0 / engine.width
@@ -413,3 +448,20 @@ class RulersPainter(Painter):
         self._ticks_prog["offset"] = (engine.origin[0] % scale) * engine.scale
         self._ticks_prog["ruler_thickness"] = 2 * 50.0 / engine.height
         self._ticks_vao.render(mode=mgl.POINTS)
+
+        # render glyph
+        self._texture.use(0)
+        self._text_prog["scale"] = scale * engine.scale
+        self._text_prog["vertical"] = False
+        self._text_prog["viewport_dim"] = engine.width
+        self._text_prog["offset"] = (engine.origin[0] % scale) * engine.scale
+        self._text_prog["glyph_size"].value = (
+            14.0 * 2.0 / engine.width,
+            14.0 * 2.0 * 159.0 / 77.0 / engine.height,
+        )
+        self._text_prog["start_number"] = math.floor(engine.origin[0] / scale) * scale
+        self._text_prog["delta_number"] = int(scale)
+        self._text_vao.render(mode=mgl.POINTS)
+
+        # TODO: only render N vertex (no need to spam beyond the screen
+        # TODO: get rid of the arange buffer!!!!
