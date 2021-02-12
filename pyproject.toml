@@ -40,11 +40,17 @@ click-plugins = "~1.1.1"
 matplotlib = "~3.3.2"
 moderngl = "^5.6.2"
 multiprocess = "^0.70.11"
-numpy = "~1.19.5"
+numpy = [
+    { version = "^1.19.0, !=1.19.4", python = "~3.6" },
+    { version = "^1.20.0", python = ">=3.7" },
+]
 Pillow = "^8.1.0"
 PySide2 = "^5.15.2"
 Shapely = {extras = ["vectorized"], version = "~1.7.1"}
-scipy = "~1.5.4"
+scipy = [
+    { version = "^1.5.4", python = "~3.6" },
+    { version = "^1.6.0", python = ">=3.7" },
+]
 setuptools = "^51.0.0"
 svgelements = "1.4.7"
 svgwrite = "~1.4"
