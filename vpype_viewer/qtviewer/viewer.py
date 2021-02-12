@@ -8,7 +8,7 @@ import sys
 from typing import Optional, Union
 
 import moderngl as mgl
-from PySide2.QtCore import QEvent, QSize, Qt, Signal
+from PySide2.QtCore import QEvent, QSettings, QSize, Qt, Signal
 from PySide2.QtGui import QWheelEvent
 from PySide2.QtOpenGL import QGLFormat, QGLWidget
 from PySide2.QtWidgets import (
@@ -173,6 +173,9 @@ class QtViewer(QWidget):
     ):
         super().__init__(parent)
 
+        self._settings = QSettings()
+        self._settings.beginGroup("viewer")
+
         self.setWindowTitle("vpype viewer")
         self.setStyleSheet(
             """
@@ -250,6 +253,14 @@ class QtViewer(QWidget):
             act = view_mode_menu.addAction("Debug View")
             act.setCheckable(True)
             act.toggled.connect(self.set_debug)
+        # rulers & units
+        view_mode_menu.addSeparator()
+        act = view_mode_menu.addAction("Show Rulers")
+        act.setCheckable(True)
+        val = bool(self._settings.value("show_rulers", True))
+        act.setChecked(val)
+        act.toggled.connect(self.set_show_rulers)
+        self._viewer_widget.engine.show_rulers = val
 
         view_mode_btn.setMenu(view_mode_menu)
         view_mode_btn.setIcon(load_icon("eye-outline.svg"))
@@ -357,6 +368,10 @@ class QtViewer(QWidget):
     def set_debug(self, debug: bool) -> None:
         self._viewer_widget.engine.debug = debug
 
+    def set_show_rulers(self, show_rulers: bool) -> None:
+        self._viewer_widget.engine.show_rulers = show_rulers
+        self._settings.setValue("show_rulers", show_rulers)
+
 
 def show(
     document: vp.Document,
@@ -384,6 +399,9 @@ def show(
 
     if not QApplication.instance():
         app = QApplication(argv)
+        app.setOrganizationName("abey79")
+        app.setOrganizationDomain("abey79.github.io")
+        app.setApplicationName("vpype")
     else:
         app = QApplication.instance()
     app.setAttribute(Qt.AA_UseHighDpiPixmaps)

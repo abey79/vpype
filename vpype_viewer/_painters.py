@@ -1,5 +1,5 @@
 import math
-from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Sequence, Tuple, Union
 
 import moderngl as mgl
 import numpy as np
@@ -357,11 +357,11 @@ class RulersPainter(Painter):
         (1, 10, 5, 1),
     )
 
-    def __init__(self, ctx: mgl.Context):
+    def __init__(self, ctx: mgl.Context, ruler_thickness: float = 40.0):
         super().__init__(ctx)
 
-        self._ruler_thickness = 40.0
-        self._font_size = 14.0
+        # this also sets the font size
+        self.thickness = ruler_thickness
 
         self._prog = load_program("ruler_patch", ctx)
 
@@ -435,6 +435,15 @@ class RulersPainter(Painter):
             ctx, "px", position=(6.0, 3.0), font_size=self._font_size
         )
 
+    @property
+    def thickness(self) -> float:
+        return self._ruler_thickness
+
+    @thickness.setter
+    def thickness(self, ruler_thickness: float) -> None:
+        self._ruler_thickness = ruler_thickness
+        self._font_size = 0.35 * self._ruler_thickness
+
     def render(self, engine: "Engine", projection: np.ndarray) -> None:
         # ===========================
         # render frame
@@ -449,7 +458,7 @@ class RulersPainter(Painter):
 
         # set scale and divisions
         scale = 1.0
-        divisions = 10, 5, 1
+        divisions: Sequence[int] = (10, 5, 1)
         for scale, *divisions in self.PIXEL_SCALES:
             if scale * engine.scale < 250:
                 break
@@ -462,7 +471,7 @@ class RulersPainter(Painter):
         vertical_tick_count = math.ceil(engine.height / engine.scale / scale) + 1
         doc_width, doc_height = (
             engine.document.page_size
-            if engine.document.page_size is not None
+            if engine.document is not None and engine.document.page_size is not None
             else (-1.0, -1.0)
         )
         start_number_horiz = math.floor(engine.origin[0] / scale) * scale

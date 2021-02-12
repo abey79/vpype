@@ -56,6 +56,8 @@ class Engine:
         view_mode: ViewMode = ViewMode.OUTLINE,
         show_pen_up: bool = False,
         show_points: bool = False,
+        show_rulers: bool = True,
+        ruler_thickness: float = 40.0,
         pen_width: float = DEFAULT_PEN_WIDTH,
         pen_opacity: float = DEFAULT_PEN_OPACITY,
         render_cb: Callable[[], None] = lambda: None,
@@ -66,6 +68,7 @@ class Engine:
             view_mode: the view mode to use
             show_pen_up: render pen-up trajectories if True
             show_points: render points if True
+            show_rulers: display the rulers
             pen_width: pen width (preview only)
             pen_opacity: pen opacity (preview only)
             render_cb: callback that will be called when rendering is required
@@ -76,6 +79,8 @@ class Engine:
         self._view_mode = view_mode
         self._show_pen_up = show_pen_up
         self._show_points = show_points
+        self._show_rulers = show_rulers
+        self._ruler_thickness = ruler_thickness
         self._pen_width = pen_width
         self._pen_opacity = pen_opacity
         self._render_cb = render_cb
@@ -178,6 +183,28 @@ class Engine:
         self._update()
 
     @property
+    def show_rulers(self) -> bool:
+        return self._show_rulers
+
+    @show_rulers.setter
+    def show_rulers(self, show_rulers: bool) -> None:
+        self._show_rulers = show_rulers
+        if self._fit_to_viewport_flag:
+            self.fit_to_viewport()
+        self._update(False)
+
+    @property
+    def ruler_thickness(self) -> float:
+        return self._ruler_thickness
+
+    @ruler_thickness.setter
+    def ruler_thickness(self, ruler_thickness: float) -> None:
+        self._ruler_thickness = ruler_thickness
+        if self._fit_to_viewport_flag:
+            self.fit_to_viewport()
+        self._update(False)
+
+    @property
     def pen_width(self) -> float:
         """Pen width used for rendering (preview only)."""
         return self._pen_width
@@ -245,10 +272,18 @@ class Engine:
         w = x2 - x1
         h = y2 - y1
 
-        self._scale = 0.95 * min(self._viewport_width / w, self._viewport_height / h)
+        viewport_width = self._viewport_width
+        viewport_height = self._viewport_height
+        if self.show_rulers:
+            viewport_width -= self.ruler_thickness
+            viewport_height -= self.ruler_thickness
+        self._scale = 0.95 * min(viewport_width / w, viewport_height / h)
+        ruler_space = 0.0
+        if self.show_rulers:
+            ruler_space = self.ruler_thickness / self.scale
         self._origin = [
-            x1 - (self._viewport_width / self._scale - w) / 2,
-            y1 - (self._viewport_height / self._scale - h) / 2,
+            x1 - (viewport_width / self._scale - w) / 2 - ruler_space,
+            y1 - (viewport_height / self._scale - h) / 2 - ruler_space,
         ]
 
         self._fit_to_viewport_flag = True
@@ -343,7 +378,8 @@ class Engine:
                 for painter in self._layer_painters[layer_id]:
                     painter.render(self, proj)
 
-        if self._rulers_painter:
+        if self._rulers_painter and self._show_rulers:
+            self._rulers_painter.thickness = self._ruler_thickness
             self._rulers_painter.render(self, proj)
 
     def _update(self, rebuild=True):
