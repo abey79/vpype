@@ -431,9 +431,7 @@ class RulersPainter(Painter):
         self._text_vao = ctx.vertex_array(self._text_prog, [])
 
         # unit label
-        self._unit_label = LabelPainter(
-            ctx, "px", position=(6.0, 3.0), font_size=self._font_size
-        )
+        self._unit_label = LabelPainter(ctx, "px", font_size=self._font_size)
 
     @property
     def thickness(self) -> float:
@@ -530,14 +528,13 @@ class RulersPainter(Painter):
 
         self._prog["color"].value = (1.0, 1.0, 1.0, 1.0)
         self._fill_vao.render(mode=mgl.TRIANGLES, vertices=6)
-        self._prog["color"].value = (0.0, 0, 0.0, 1.0)
+        self._prog["color"].value = (0.0, 0.0, 0.0, 1.0)
         self._stroke_vao.render(mode=mgl.LINES)
 
+        self._unit_label.font_size = self._font_size
+        self._unit_label.position = (self._ruler_thickness / 7.0, self._ruler_thickness / 8.0)
         self._unit_label.render(engine, projection)
 
-        # TODO: fix fit_to_viewport to take rulers into account
-        # TODO: parametrize all sizes (ruler width, font size, etc.)
-        # TODO: handle/test Hidpi
         # TODO: document shaders
         # TODO: tests
         # TODO: convert to single-file shaders
@@ -555,8 +552,8 @@ class LabelPainter(Painter):
     ):
         super().__init__(ctx)
 
-        self._position = position
-        self._font_size = font_size
+        self.position = position
+        self.font_size = font_size
         self._max_size = max_size or len(label)
         self._buffer = self.buffer(reserve=self._max_size)
         self.label = label
@@ -583,12 +580,12 @@ class LabelPainter(Painter):
         self._texture.use(0)
         self._prog["color"].value = self._color
         self._prog["position"].value = (
-            -1.0 + 2.0 * self._position[0] / engine.width,
-            1.0 - 2.0 * self._position[1] / engine.height,
+            -1.0 + 2.0 * self.position[0] / engine.width,
+            1.0 - 2.0 * self.position[1] / engine.height,
         )
         self._prog["glyph_size"].value = (
-            self._font_size * 2.0 / engine.width,
-            self._font_size * 2.0 * self._aspect_ratio / engine.height,
+            self.font_size * 2.0 / engine.width,
+            self.font_size * 2.0 * self._aspect_ratio / engine.height,
         )
 
         self._vao.render(mode=mgl.POINTS)
