@@ -343,8 +343,6 @@ class RulersPainter(Painter):
         (1, 10, 5, 1),
     )
 
-    MAX_MAJOR_TICKS = 100
-
     def __init__(self, ctx: mgl.Context):
         super().__init__(ctx)
 
@@ -382,8 +380,7 @@ class RulersPainter(Painter):
         # major ticks buffer
         self._ticks_prog = load_program("ruler_ticks", ctx)
         self._ticks_prog["color"] = (1.0, 0.0, 0.0, 1.0)
-        ticks = ctx.buffer(np.arange(self.MAX_MAJOR_TICKS, dtype="f4").tobytes())
-        self._ticks_vao = ctx.vertex_array(self._ticks_prog, [(ticks, "f4", "position")])
+        self._ticks_vao = ctx.vertex_array(self._ticks_prog, [])
 
         ## TEXT STUFF
         # https://github.com/Contraz/demosys-py/blob/master/demosys/effects/text/resources/data/demosys/text/meta.json
@@ -412,10 +409,9 @@ class RulersPainter(Painter):
         self._texture.build_mipmaps()
 
         self._text_prog = load_program("ruler_text", ctx)
-        # self._text_prog["glyph_step"] = 1.0 / 190.0
         self._aspect_ratio = 159.0 / 77.0
         self._text_prog["color"].value = (0, 0, 0, 1.0)
-        self._text_vao = ctx.vertex_array(self._text_prog, [(ticks, "f4", "position")])
+        self._text_vao = ctx.vertex_array(self._text_prog, [])
 
     def render(self, engine: "Engine", projection: np.ndarray) -> None:
         # ===========================
@@ -435,24 +431,28 @@ class RulersPainter(Painter):
         scale = 1.0
         divisions = 10, 5, 1
         for scale, *divisions in self.PIXEL_SCALES:
-            if scale * engine.scale < 300:
+            if scale * engine.scale < 250:
                 break
         self._ticks_prog["scale"] = scale * engine.scale
         self._ticks_prog["divisions"] = divisions
+
+        # compute tick count
+        horiz_tick_count = math.ceil(engine.width / engine.scale / scale) + 1
+        vertical_tick_count = math.ceil(engine.height / engine.scale / scale) + 1
 
         # render vertical ruler
         self._ticks_prog["vertical"] = True
         self._ticks_prog["viewport_dim"] = engine.height
         self._ticks_prog["offset"] = (engine.origin[1] % scale) * engine.scale
         self._ticks_prog["ruler_thickness"] = 2 * 50.0 / engine.width
-        self._ticks_vao.render(mode=mgl.POINTS)
+        self._ticks_vao.render(mode=mgl.POINTS, vertices=vertical_tick_count)
 
         # render horizontal ruler
         self._ticks_prog["vertical"] = False
         self._ticks_prog["viewport_dim"] = engine.width
         self._ticks_prog["offset"] = (engine.origin[0] % scale) * engine.scale
         self._ticks_prog["ruler_thickness"] = 2 * 50.0 / engine.height
-        self._ticks_vao.render(mode=mgl.POINTS)
+        self._ticks_vao.render(mode=mgl.POINTS, vertices=horiz_tick_count)
 
         # ===========================
         # render glyph
@@ -460,26 +460,30 @@ class RulersPainter(Painter):
         self._text_prog["scale"] = scale * engine.scale
         self._text_prog["delta_number"] = int(scale)
 
+        # horizontal
         self._text_prog["vertical"] = False
         self._text_prog["viewport_dim"] = engine.width
         self._text_prog["offset"] = (engine.origin[0] % scale) * engine.scale
         self._text_prog["glyph_size"].value = (
             14.0 * 2.0 / engine.width,
-            14.0 * 2.0 * 159.0 / 77.0 / engine.height,
+            14.0 * 2.0 * self._aspect_ratio / engine.height,
         )
         self._text_prog["start_number"] = math.floor(engine.origin[0] / scale) * scale
-        self._text_vao.render(mode=mgl.POINTS)
+        self._text_vao.render(mode=mgl.POINTS, vertices=horiz_tick_count)
 
+        # vertical
         self._text_prog["vertical"] = True
         self._text_prog["viewport_dim"] = engine.height
         self._text_prog["offset"] = (engine.origin[1] % scale) * engine.scale
         self._text_prog["glyph_size"].value = (
-            14.0 * 2.0 * 159.0 / 77.0 / engine.width,
+            14.0 * 2.0 * self._aspect_ratio / engine.width,
             14.0 * 2.0 / engine.height,
         )
         self._text_prog["start_number"] = math.floor(engine.origin[1] / scale) * scale
-        self._text_vao.render(mode=mgl.POINTS)
+        self._text_vao.render(mode=mgl.POINTS, vertices=vertical_tick_count)
 
-        # TODO: only render N vertex (no need to spam beyond the screen
-        # TODO: get rid of the arange buffer!!!!
         # TODO: fix fit_to_viewport to take rulers into account
+        # TODO: parametrize all sizes (ruler width, font size, etc.)
+        # TODO: handle/test Hidpi
+        # TODO: document shaders
+        # TODO: tests

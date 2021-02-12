@@ -32,6 +32,11 @@ void main(void)
     if (number < 0)
         number = -number;
 
+    if ((delta_number % 1000) == 0) {
+        number /= 1000;
+        str[cur_idx++] = 75; // k
+    }
+
     do {
         int digit = number % 10;
         str[cur_idx++] = 16 + digit;
