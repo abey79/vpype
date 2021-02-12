@@ -1,6 +1,6 @@
 import math
 import pathlib
-from typing import TYPE_CHECKING, List, Tuple
+from typing import TYPE_CHECKING, Any, List, Tuple, Union
 
 import moderngl as mgl
 import numpy as np
@@ -13,10 +13,26 @@ from ._utils import ColorType, load_program
 if TYPE_CHECKING:
     from .engine import Engine
 
+ResourceType = Union[mgl.Buffer, mgl.Texture, mgl.TextureArray]
+
 
 class Painter:
     def __init__(self, ctx: mgl.Context):
         self._ctx = ctx
+        self._resources: List[ResourceType] = []
+
+    def __del__(self):
+        for resource in self._resources:
+            resource.release()
+
+    def register_resource(self, resource: ResourceType) -> ResourceType:
+        self._resources.append(resource)
+        return resource
+
+    def buffer(self, *args: Any, **kwargs: Any) -> mgl.Buffer:
+        buffer = self._ctx.buffer(*args, **kwargs)
+        self.register_resource(buffer)
+        return buffer
 
     def render(self, engine: "Engine", projection: np.ndarray) -> None:
         raise NotImplementedError
@@ -62,12 +78,12 @@ class PaperBoundsPainter(Painter):
         self._color = color
         self._prog = load_program("fast_line_mono", ctx)
 
-        vbo = ctx.buffer(data.tobytes())
+        vbo = self.buffer(data.tobytes())
         self._bounds_vao = ctx.vertex_array(
-            self._prog, [(vbo, "2f", "in_vert")], ctx.buffer(line_idx.tobytes())
+            self._prog, [(vbo, "2f", "in_vert")], self.buffer(line_idx.tobytes())
         )
         self._shading_vao = ctx.vertex_array(
-            self._prog, [(vbo, "2f", "in_vert")], ctx.buffer(triangle_idx.tobytes())
+            self._prog, [(vbo, "2f", "in_vert")], self.buffer(triangle_idx.tobytes())
         )
 
     def render(self, engine: "Engine", projection: np.ndarray) -> None:
@@ -91,8 +107,8 @@ class LineCollectionFastPainter(Painter):
         self._color = color
 
         vertices, indices = self._build_buffers(lc)
-        vbo = ctx.buffer(vertices.tobytes())
-        ibo = ctx.buffer(indices.tobytes())
+        vbo = self.buffer(vertices.tobytes())
+        ibo = self.buffer(indices.tobytes())
         self._vao = ctx.vertex_array(self._prog, [(vbo, "2f4", "in_vert")], index_buffer=ibo)
 
     def render(self, engine: "Engine", projection: np.ndarray) -> None:
@@ -140,8 +156,8 @@ class LineCollectionFastColorfulPainter(Painter):
         self._prog["colors"].write(np.concatenate(self.COLORS).astype("f4").tobytes())
 
         vertices, indices = self._build_buffers(lc)
-        vbo = ctx.buffer(vertices.tobytes())
-        ibo = ctx.buffer(indices.tobytes())
+        vbo = self.buffer(vertices.tobytes())
+        ibo = self.buffer(indices.tobytes())
 
         self._vao = ctx.vertex_array(
             self._prog,
@@ -211,7 +227,7 @@ class LineCollectionPointsPainter(Painter):
         self._color = color
 
         vertices = self._build_buffers(lc)
-        vbo = ctx.buffer(vertices.tobytes())
+        vbo = self.buffer(vertices.tobytes())
         self._vao = ctx.vertex_array(self._prog, [(vbo, "2f4", "position")])
 
     def render(self, engine: "Engine", projection: np.ndarray) -> None:
@@ -250,7 +266,7 @@ class LineCollectionPenUpPainter(Painter):
             )
 
         if len(vertices) > 0:
-            vbo = ctx.buffer(np.array(vertices, dtype="f4").tobytes())
+            vbo = self.buffer(np.array(vertices, dtype="f4").tobytes())
             self._vao = ctx.vertex_array(self._prog, [(vbo, "2f4", "in_vert")])
         else:
             self._vao = None
@@ -273,8 +289,8 @@ class LineCollectionPreviewPainter(Painter):
         self._prog = load_program("preview_line", ctx)
 
         vertices, indices = self._build_buffers(lc)
-        vbo = ctx.buffer(vertices.tobytes())
-        ibo = ctx.buffer(indices.tobytes())
+        vbo = self.buffer(vertices.tobytes())
+        ibo = self.buffer(indices.tobytes())
         self._vao = ctx.vertex_array(self._prog, [(vbo, "2f4", "position")], ibo)
 
     def render(self, engine: "Engine", projection: np.ndarray) -> None:
@@ -349,7 +365,7 @@ class RulersPainter(Painter):
         self._prog = load_program("ruler_patch", ctx)
 
         # vertices
-        vertices = ctx.buffer(
+        vertices = self.buffer(
             np.array(
                 [
                     (-1.0, 1.0),
@@ -366,13 +382,15 @@ class RulersPainter(Painter):
         )
 
         # line strip for stroke
-        frame_indices = ctx.buffer(np.array([3, 5, 1, 7], dtype="i4").tobytes())
+        frame_indices = self.buffer(np.array([3, 5, 1, 7], dtype="i4").tobytes())
         self._stroke_vao = ctx.vertex_array(
             self._prog, [(vertices, "2f4", "in_vert")], frame_indices
         )
 
         # triangle strip for fill
-        patch_indices = ctx.buffer(np.array([7, 6, 4, 3, 0, 4, 1, 5, 2], dtype="i4").tobytes())
+        patch_indices = self.buffer(
+            np.array([7, 6, 4, 3, 0, 4, 1, 5, 2], dtype="i4").tobytes()
+        )
         self._fill_vao = ctx.vertex_array(
             self._prog, [(vertices, "2f4", "in_vert")], patch_indices
         )
@@ -382,7 +400,7 @@ class RulersPainter(Painter):
         self._ticks_prog["color"] = (1.0, 0.0, 0.0, 1.0)
         self._ticks_vao = ctx.vertex_array(self._ticks_prog, [])
 
-        ## TEXT STUFF
+        # TEXT STUFF
         # https://github.com/Contraz/demosys-py/blob/master/demosys/effects/text/resources/data/demosys/text/meta.json
         # {
         #     "characters": 190,
@@ -407,6 +425,7 @@ class RulersPainter(Painter):
             (77, 159, 190), 4, data=img.convert("RGBA").tobytes()
         )
         self._texture.build_mipmaps()
+        self.register_resource(self._texture)
 
         self._text_prog = load_program("ruler_text", ctx)
         self._aspect_ratio = 159.0 / 77.0
@@ -487,3 +506,5 @@ class RulersPainter(Painter):
         # TODO: handle/test Hidpi
         # TODO: document shaders
         # TODO: tests
+        # TODO: gray out parts of the ruler outside doc bounds
+        # TODO: convert to single-file shaders
