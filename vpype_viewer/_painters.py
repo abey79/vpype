@@ -1,14 +1,12 @@
 import math
-import pathlib
-from typing import TYPE_CHECKING, Any, List, Tuple, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union
 
 import moderngl as mgl
 import numpy as np
-from PIL import Image
 
 import vpype as vp
 
-from ._utils import ColorType, load_program
+from ._utils import ColorType, load_program, load_texture_array
 
 if TYPE_CHECKING:
     from .engine import Engine
@@ -390,9 +388,13 @@ class RulersPainter(Painter):
             self._prog, [(vertices, "2f4", "in_vert")], frame_indices
         )
 
-        # triangle strip for fill
+        # triangles for fill
+        # first 6 vertices for the small top-right
+        # next 12 vertices for the rulers themselves
         patch_indices = self.buffer(
-            np.array([7, 6, 4, 3, 0, 4, 1, 5, 2], dtype="i4").tobytes()
+            np.array(
+                [0, 1, 3, 1, 3, 4, 1, 2, 4, 2, 4, 5, 3, 4, 6, 4, 6, 7], dtype="i4"
+            ).tobytes()
         )
         self._fill_vao = ctx.vertex_array(
             self._prog, [(vertices, "2f4", "in_vert")], patch_indices
@@ -422,18 +424,16 @@ class RulersPainter(Painter):
         #     "atlas_height": 30210,
         #     "atlas_width": 77
         # }
-        texture_path = pathlib.Path(__file__).parent / "resources" / "VeraMono.png"
-        img = Image.open(str(texture_path))
-        self._texture = ctx.texture_array(
-            (77, 159, 190), 4, data=img.convert("RGBA").tobytes()
-        )
-        self._texture.build_mipmaps()
-        self.register_resource(self._texture)
-
+        self._texture = load_texture_array("VeraMono.png", ctx, (77, 159, 190), 4)
         self._text_prog = load_program("ruler_text", ctx)
         self._aspect_ratio = 159.0 / 77.0
         self._text_prog["color"].value = (0, 0, 0, 1.0)
         self._text_vao = ctx.vertex_array(self._text_prog, [])
+
+        # unit label
+        self._unit_label = LabelPainter(
+            ctx, "px", position=(6.0, 3.0), font_size=self._font_size
+        )
 
     def render(self, engine: "Engine", projection: np.ndarray) -> None:
         # ===========================
@@ -442,9 +442,7 @@ class RulersPainter(Painter):
         self._prog["ruler_width"] = 2 * self._ruler_thickness / engine.width
         self._prog["ruler_height"] = 2 * self._ruler_thickness / engine.height
         self._prog["color"].value = (1.0, 1.0, 1.0, 1.0)
-        self._fill_vao.render(mode=mgl.TRIANGLE_STRIP)
-        self._prog["color"].value = (0.0, 0, 0.0, 1.0)
-        self._stroke_vao.render(mode=mgl.LINES)
+        self._fill_vao.render(mode=mgl.TRIANGLES, first=6)
 
         # ===========================
         # render ticks
@@ -518,10 +516,70 @@ class RulersPainter(Painter):
         self._text_prog["start_number"] = start_number_vert
         self._text_vao.render(mode=mgl.POINTS, vertices=vertical_tick_count)
 
+        # ===========================
+        # render units corner
+
+        self._prog["color"].value = (1.0, 1.0, 1.0, 1.0)
+        self._fill_vao.render(mode=mgl.TRIANGLES, vertices=6)
+        self._prog["color"].value = (0.0, 0, 0.0, 1.0)
+        self._stroke_vao.render(mode=mgl.LINES)
+
+        self._unit_label.render(engine, projection)
+
         # TODO: fix fit_to_viewport to take rulers into account
         # TODO: parametrize all sizes (ruler width, font size, etc.)
         # TODO: handle/test Hidpi
         # TODO: document shaders
         # TODO: tests
-        # TODO: gray out parts of the ruler outside doc bounds
         # TODO: convert to single-file shaders
+
+
+class LabelPainter(Painter):
+    def __init__(
+        self,
+        ctx: mgl.Context,
+        label: str = "",
+        position: Tuple[float, float] = (0.0, 0.0),
+        font_size: float = 14.0,
+        max_size: Optional[int] = None,
+        color: ColorType = (0.0, 0.0, 0.0, 1.0),
+    ):
+        super().__init__(ctx)
+
+        self._position = position
+        self._font_size = font_size
+        self._max_size = max_size or len(label)
+        self._buffer = self.buffer(reserve=self._max_size)
+        self.label = label
+        self._color = color
+
+        self._texture = load_texture_array("VeraMono.png", ctx, (77, 159, 190), 4)
+        self._aspect_ratio = 159.0 / 77.0
+        self._prog = load_program("label", ctx)
+        self._vao = ctx.vertex_array(self._prog, [(self._buffer, "u1", "char")])
+
+    @property
+    def label(self) -> str:
+        return self._label
+
+    @label.setter
+    def label(self, label: str) -> None:
+        self._label = label
+        self._size = min(len(label), self._max_size)
+        self._buffer.write(
+            np.array([ord(c) for c in label[: self._max_size]], dtype=np.uint8).tobytes()
+        )
+
+    def render(self, engine: "Engine", projection: np.ndarray) -> None:
+        self._texture.use(0)
+        self._prog["color"].value = self._color
+        self._prog["position"].value = (
+            -1.0 + 2.0 * self._position[0] / engine.width,
+            1.0 - 2.0 * self._position[1] / engine.height,
+        )
+        self._prog["glyph_size"].value = (
+            self._font_size * 2.0 / engine.width,
+            self._font_size * 2.0 * self._aspect_ratio / engine.height,
+        )
+
+        self._vao.render(mode=mgl.POINTS)
