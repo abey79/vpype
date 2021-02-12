@@ -2,7 +2,11 @@
 
 #### 1.5 (UNRELEASED)
 
-...
+**Note**: big projects such as Numpy are moving away from the 4-year-old Python 3.6, and it is time for *vpype* to do the same. This is the last version of *vpype* to support Python 3.6.
+
+New features and improvements:
+* Viewer improvements:
+  * Rulers (#???)
 
 #### 1.4 (2021-02-08)
 
