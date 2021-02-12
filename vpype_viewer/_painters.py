@@ -362,6 +362,9 @@ class RulersPainter(Painter):
     def __init__(self, ctx: mgl.Context):
         super().__init__(ctx)
 
+        self._ruler_thickness = 40.0
+        self._font_size = 14.0
+
         self._prog = load_program("ruler_patch", ctx)
 
         # vertices
@@ -397,7 +400,7 @@ class RulersPainter(Painter):
 
         # major ticks buffer
         self._ticks_prog = load_program("ruler_ticks", ctx)
-        self._ticks_prog["color"] = (1.0, 0.0, 0.0, 1.0)
+        self._ticks_prog["color"] = (0.2, 0.2, 0.2, 1.0)
         self._ticks_vao = ctx.vertex_array(self._ticks_prog, [])
 
         # TEXT STUFF
@@ -436,8 +439,8 @@ class RulersPainter(Painter):
         # ===========================
         # render frame
 
-        self._prog["ruler_width"] = 2 * 50.0 / engine.width
-        self._prog["ruler_height"] = 2 * 50.0 / engine.height
+        self._prog["ruler_width"] = 2 * self._ruler_thickness / engine.width
+        self._prog["ruler_height"] = 2 * self._ruler_thickness / engine.height
         self._prog["color"].value = (1.0, 1.0, 1.0, 1.0)
         self._fill_vao.render(mode=mgl.TRIANGLE_STRIP)
         self._prog["color"].value = (0.0, 0, 0.0, 1.0)
@@ -454,23 +457,35 @@ class RulersPainter(Painter):
                 break
         self._ticks_prog["scale"] = scale * engine.scale
         self._ticks_prog["divisions"] = divisions
+        self._ticks_prog["delta_number"] = int(scale)
 
-        # compute tick count
+        # compute various stuff
         horiz_tick_count = math.ceil(engine.width / engine.scale / scale) + 1
         vertical_tick_count = math.ceil(engine.height / engine.scale / scale) + 1
+        doc_width, doc_height = (
+            engine.document.page_size
+            if engine.document.page_size is not None
+            else (-1.0, -1.0)
+        )
+        start_number_horiz = math.floor(engine.origin[0] / scale) * scale
+        start_number_vert = math.floor(engine.origin[1] / scale) * scale
 
         # render vertical ruler
         self._ticks_prog["vertical"] = True
         self._ticks_prog["viewport_dim"] = engine.height
+        self._ticks_prog["document_dim"] = doc_height
         self._ticks_prog["offset"] = (engine.origin[1] % scale) * engine.scale
-        self._ticks_prog["ruler_thickness"] = 2 * 50.0 / engine.width
+        self._ticks_prog["ruler_thickness"] = 2 * self._ruler_thickness / engine.width
+        self._ticks_prog["start_number"] = start_number_vert
         self._ticks_vao.render(mode=mgl.POINTS, vertices=vertical_tick_count)
 
         # render horizontal ruler
         self._ticks_prog["vertical"] = False
         self._ticks_prog["viewport_dim"] = engine.width
+        self._ticks_prog["document_dim"] = doc_width
         self._ticks_prog["offset"] = (engine.origin[0] % scale) * engine.scale
-        self._ticks_prog["ruler_thickness"] = 2 * 50.0 / engine.height
+        self._ticks_prog["ruler_thickness"] = 2 * self._ruler_thickness / engine.height
+        self._ticks_prog["start_number"] = start_number_horiz
         self._ticks_vao.render(mode=mgl.POINTS, vertices=horiz_tick_count)
 
         # ===========================
@@ -482,23 +497,25 @@ class RulersPainter(Painter):
         # horizontal
         self._text_prog["vertical"] = False
         self._text_prog["viewport_dim"] = engine.width
+        self._text_prog["document_dim"] = doc_width
         self._text_prog["offset"] = (engine.origin[0] % scale) * engine.scale
         self._text_prog["glyph_size"].value = (
-            14.0 * 2.0 / engine.width,
-            14.0 * 2.0 * self._aspect_ratio / engine.height,
+            self._font_size * 2.0 / engine.width,
+            self._font_size * 2.0 * self._aspect_ratio / engine.height,
         )
-        self._text_prog["start_number"] = math.floor(engine.origin[0] / scale) * scale
+        self._text_prog["start_number"] = start_number_horiz
         self._text_vao.render(mode=mgl.POINTS, vertices=horiz_tick_count)
 
         # vertical
         self._text_prog["vertical"] = True
         self._text_prog["viewport_dim"] = engine.height
+        self._text_prog["document_dim"] = doc_height
         self._text_prog["offset"] = (engine.origin[1] % scale) * engine.scale
         self._text_prog["glyph_size"].value = (
-            14.0 * 2.0 * self._aspect_ratio / engine.width,
-            14.0 * 2.0 / engine.height,
+            self._font_size * 2.0 * self._aspect_ratio / engine.width,
+            self._font_size * 2.0 / engine.height,
         )
-        self._text_prog["start_number"] = math.floor(engine.origin[1] / scale) * scale
+        self._text_prog["start_number"] = start_number_vert
         self._text_vao.render(mode=mgl.POINTS, vertices=vertical_tick_count)
 
         # TODO: fix fit_to_viewport to take rulers into account
