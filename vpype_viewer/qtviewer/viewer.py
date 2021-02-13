@@ -86,7 +86,7 @@ class QtViewerWidget(QGLWidget):
 
     def on_screen_changed(self, screen: QScreen):
         self._factor = screen.devicePixelRatio()
-        self.engine.ruler_thickness = 20.0 * self._factor
+        self.engine.pixel_factor = self._factor
 
     def initializeGL(self):
         self._ctx = mgl.create_context()

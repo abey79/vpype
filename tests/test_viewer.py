@@ -50,8 +50,8 @@ def test_viewer_engine_properties(assert_image_similarity):
     renderer.engine.unit_type = UnitType.IMPERIAL
     assert renderer.engine.unit_type == UnitType.IMPERIAL
 
-    renderer.engine.ruler_thickness = 50.0
-    assert renderer.engine.ruler_thickness == 50.0
+    renderer.engine.pixel_factor = 2.0
+    assert renderer.engine.pixel_factor == 2.0
 
     renderer.engine.show_rulers = False
     assert not renderer.engine.show_rulers
@@ -156,7 +156,7 @@ def test_viewer_uninitialized(assert_image_similarity):
     engine.pen_opacity = 0.5
     engine.debug = True
     engine.show_rulers = True
-    engine.ruler_thickness = 50.0
+    engine.pixel_factor = 2.0
     engine.unit_type = UnitType.IMPERIAL
 
     engine.zoom(2, 10, 10)

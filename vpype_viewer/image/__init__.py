@@ -53,7 +53,7 @@ def render_image(
     pen_width: float = DEFAULT_PEN_WIDTH,
     pen_opacity: float = DEFAULT_PEN_OPACITY,
     show_ruler: bool = False,
-    ruler_thickness: float = 20,
+    pixel_factor: float = 1.0,
     unit_type: UnitType = UnitType.METRIC,
     scale: Optional[float] = None,
     origin: Optional[Tuple[float, float]] = None,
@@ -72,7 +72,7 @@ def render_image(
         pen_width: pen width (``ViewMode.PREVIEW`` only)
         pen_opacity: pen opacity (``ViewMode.PREVIEW`` only)
         show_ruler: display the rulers
-        ruler_thickness: rulers' thickness
+        pixel_factor: pixel factor (HiDPI screen support)
         unit_type: type of unit to use for the ruler
         scale: manually set scale
         origin: manually set origin
@@ -90,7 +90,7 @@ def render_image(
     renderer.engine.pen_width = pen_width
     renderer.engine.pen_opacity = pen_opacity
     renderer.engine.show_rulers = show_ruler
-    renderer.engine.ruler_thickness = ruler_thickness
+    renderer.engine.pixel_factor = pixel_factor
     renderer.engine.unit_type = unit_type
 
     renderer.engine.fit_to_viewport()

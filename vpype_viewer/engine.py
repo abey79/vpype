@@ -58,7 +58,6 @@ class Engine:
         show_pen_up: bool = False,
         show_points: bool = False,
         show_rulers: bool = True,
-        ruler_thickness: float = 40.0,
         pen_width: float = DEFAULT_PEN_WIDTH,
         pen_opacity: float = DEFAULT_PEN_OPACITY,
         render_cb: Callable[[], None] = lambda: None,
@@ -81,13 +80,13 @@ class Engine:
         self._show_pen_up = show_pen_up
         self._show_points = show_points
         self._show_rulers = show_rulers
-        self._ruler_thickness = ruler_thickness
         self._pen_width = pen_width
         self._pen_opacity = pen_opacity
         self._render_cb = render_cb
         self._unit_type = UnitType.METRIC
 
         # state
+        self._pixel_factor = 1.0
         self._ctx: Optional[mgl.Context] = None
         self._viewport_width = 100
         self._viewport_height = 100
@@ -109,6 +108,8 @@ class Engine:
 
         self._ctx = ctx
         self._ctx.enable_only(mgl.BLEND | mgl.PROGRAM_POINT_SIZE)
+
+        self._rulers_painter = RulersPainter(self._ctx)
 
         self.resize(width, height)
 
@@ -199,12 +200,12 @@ class Engine:
         self._update(False)
 
     @property
-    def ruler_thickness(self) -> float:
-        return self._ruler_thickness
+    def pixel_factor(self) -> float:
+        return self._pixel_factor
 
-    @ruler_thickness.setter
-    def ruler_thickness(self, ruler_thickness: float) -> None:
-        self._ruler_thickness = ruler_thickness
+    @pixel_factor.setter
+    def pixel_factor(self, pixel_factor: float) -> None:
+        self._pixel_factor = pixel_factor
         if self._fit_to_viewport_flag:
             self.fit_to_viewport()
         self._update(False)
@@ -293,18 +294,16 @@ class Engine:
         w = x2 - x1
         h = y2 - y1
 
-        viewport_width = self._viewport_width
-        viewport_height = self._viewport_height
-        if self.show_rulers:
-            viewport_width -= self.ruler_thickness
-            viewport_height -= self.ruler_thickness
+        if self.show_rulers and self._rulers_painter is not None:
+            ruler_thickness = self._rulers_painter.thickness * self.pixel_factor
+        else:
+            ruler_thickness = 0.0
+        viewport_width = self._viewport_width - ruler_thickness
+        viewport_height = self._viewport_height - ruler_thickness
         self._scale = 0.95 * min(viewport_width / w, viewport_height / h)
-        ruler_space = 0.0
-        if self.show_rulers:
-            ruler_space = self.ruler_thickness / self.scale
         self._origin = [
-            x1 - (viewport_width / self._scale - w) / 2 - ruler_space,
-            y1 - (viewport_height / self._scale - h) / 2 - ruler_space,
+            x1 - (viewport_width / self._scale - w) / 2 - ruler_thickness / self.scale,
+            y1 - (viewport_height / self._scale - h) / 2 - ruler_thickness / self.scale,
         ]
 
         self._fit_to_viewport_flag = True
@@ -400,7 +399,6 @@ class Engine:
                     painter.render(self, proj)
 
         if self._rulers_painter and self._show_rulers:
-            self._rulers_painter.thickness = self._ruler_thickness
             self._rulers_painter.render(self, proj)
 
     def _update(self, rebuild=True):
@@ -463,7 +461,5 @@ class Engine:
                 self._paper_bounds_painter = PaperBoundsPainter(
                     self._ctx, self._document.page_size
                 )
-
-            self._rulers_painter = RulersPainter(self._ctx)
 
         self._rebuild_needed = False

@@ -342,13 +342,15 @@ class LineCollectionPreviewPainter(Painter):
 
 
 class RulersPainter(Painter):
-    def __init__(self, ctx: mgl.Context, ruler_thickness: float = 40.0):
+    def __init__(self, ctx: mgl.Context):
         super().__init__(ctx)
 
         # this also sets the font size
-        self.thickness = ruler_thickness
+        self._thickness = 20.0
+        self._font_size = 7.0
+        self._scale_threshold = 100.0
 
-        self.current_scale_spec = PIXEL_SCALES[0]
+        self.current_scale_spec = DEFAULT_SCALE_SPEC
         self._prog = load_program("ruler_patch", ctx)
 
         # vertices
@@ -417,23 +419,18 @@ class RulersPainter(Painter):
         self._text_vao = ctx.vertex_array(self._text_prog, [])
 
         # unit label
-        self._unit_label = LabelPainter(ctx, "XX", font_size=self._font_size)
+        self._unit_label = LabelPainter(ctx, "XX")
 
     @property
     def thickness(self) -> float:
-        return self._ruler_thickness
-
-    @thickness.setter
-    def thickness(self, ruler_thickness: float) -> None:
-        self._ruler_thickness = ruler_thickness
-        self._font_size = 0.35 * self._ruler_thickness
+        return self._thickness
 
     def render(self, engine: "Engine", projection: np.ndarray) -> None:
         # ===========================
         # render frame
 
-        self._prog["ruler_width"] = 2 * self._ruler_thickness / engine.width
-        self._prog["ruler_height"] = 2 * self._ruler_thickness / engine.height
+        self._prog["ruler_width"] = 2 * self._thickness * engine.pixel_factor / engine.width
+        self._prog["ruler_height"] = 2 * self._thickness * engine.pixel_factor / engine.height
         self._prog["color"].value = (1.0, 1.0, 1.0, 1.0)
         self._fill_vao.render(mode=mgl.TRIANGLES, first=6)
 
@@ -442,8 +439,9 @@ class RulersPainter(Painter):
 
         # set scale and divisions
         scales = SCALES_MAP[engine.unit_type]
+        threshold = self._scale_threshold * engine.pixel_factor
         for spec in scales:
-            if spec.scale_px * engine.scale < 250:
+            if spec.scale_px * engine.scale < threshold:
                 break
         else:
             spec = DEFAULT_SCALE_SPEC
@@ -465,13 +463,15 @@ class RulersPainter(Painter):
         )
         start_number_horiz = math.floor(engine.origin[0] / spec.scale_px) * spec.scale
         start_number_vert = math.floor(engine.origin[1] / spec.scale_px) * spec.scale
+        thickness = self._thickness * engine.pixel_factor
+        font_size = self._font_size * engine.pixel_factor
 
         # render vertical ruler
         self._ticks_prog["vertical"] = True
         self._ticks_prog["viewport_dim"] = engine.height
         self._ticks_prog["document_dim"] = doc_height / spec.to_px
         self._ticks_prog["offset"] = (engine.origin[1] % spec.scale_px) * engine.scale
-        self._ticks_prog["ruler_thickness"] = 2 * self._ruler_thickness / engine.width
+        self._ticks_prog["ruler_thickness"] = 2 * thickness / engine.width
         self._ticks_prog["start_number"] = start_number_vert
         self._ticks_vao.render(mode=mgl.POINTS, vertices=vertical_tick_count)
 
@@ -480,7 +480,7 @@ class RulersPainter(Painter):
         self._ticks_prog["viewport_dim"] = engine.width
         self._ticks_prog["document_dim"] = doc_width / spec.to_px
         self._ticks_prog["offset"] = (engine.origin[0] % spec.scale_px) * engine.scale
-        self._ticks_prog["ruler_thickness"] = 2 * self._ruler_thickness / engine.height
+        self._ticks_prog["ruler_thickness"] = 2 * thickness / engine.height
         self._ticks_prog["start_number"] = start_number_horiz
         self._ticks_vao.render(mode=mgl.POINTS, vertices=horiz_tick_count)
 
@@ -496,8 +496,8 @@ class RulersPainter(Painter):
         self._text_prog["document_dim"] = doc_width / spec.to_px
         self._text_prog["offset"] = (engine.origin[0] % spec.scale_px) * engine.scale
         self._text_prog["glyph_size"].value = (
-            self._font_size * 2.0 / engine.width,
-            self._font_size * 2.0 * self._aspect_ratio / engine.height,
+            font_size * 2.0 / engine.width,
+            font_size * 2.0 * self._aspect_ratio / engine.height,
         )
         self._text_prog["start_number"] = start_number_horiz
         self._text_vao.render(mode=mgl.POINTS, vertices=horiz_tick_count)
@@ -508,8 +508,8 @@ class RulersPainter(Painter):
         self._text_prog["document_dim"] = doc_height / spec.to_px
         self._text_prog["offset"] = (engine.origin[1] % spec.scale_px) * engine.scale
         self._text_prog["glyph_size"].value = (
-            self._font_size * 2.0 * self._aspect_ratio / engine.width,
-            self._font_size * 2.0 / engine.height,
+            font_size * 2.0 * self._aspect_ratio / engine.width,
+            font_size * 2.0 / engine.height,
         )
         self._text_prog["start_number"] = start_number_vert
         self._text_vao.render(mode=mgl.POINTS, vertices=vertical_tick_count)
@@ -522,14 +522,10 @@ class RulersPainter(Painter):
         self._prog["color"].value = (0.0, 0.0, 0.0, 1.0)
         self._stroke_vao.render(mode=mgl.LINES)
 
-        self._unit_label.font_size = self._font_size
-        self._unit_label.position = (self._ruler_thickness / 7.0, self._ruler_thickness / 8.0)
+        self._unit_label.font_size = font_size
+        self._unit_label.position = (thickness / 7.0, thickness / 8.0)
         self._unit_label.label = spec.unit
         self._unit_label.render(engine, projection)
-
-        # TODO: document shaders
-        # TODO: tests
-        # TODO: convert to single-file shaders
 
 
 class LabelPainter(Painter):
