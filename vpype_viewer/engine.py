@@ -20,6 +20,7 @@ from ._painters import (
     PaperBoundsPainter,
     RulersPainter,
 )
+from ._scales import UnitType
 from ._utils import ColorType, orthogonal_projection_matrix
 
 _COLORS: List[ColorType] = [
@@ -84,6 +85,7 @@ class Engine:
         self._pen_width = pen_width
         self._pen_opacity = pen_opacity
         self._render_cb = render_cb
+        self._unit_type = UnitType.METRIC
 
         # state
         self._ctx: Optional[mgl.Context] = None
@@ -202,6 +204,15 @@ class Engine:
         self._ruler_thickness = ruler_thickness
         if self._fit_to_viewport_flag:
             self.fit_to_viewport()
+        self._update(False)
+
+    @property
+    def unit_type(self) -> UnitType:
+        return self._unit_type
+
+    @unit_type.setter
+    def unit_type(self, unit_type: UnitType) -> None:
+        self._unit_type = unit_type
         self._update(False)
 
     @property

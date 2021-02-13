@@ -26,11 +26,13 @@ from PySide2.QtWidgets import (
 )
 
 import vpype as vp
-from vpype_viewer.engine import Engine, ViewMode
 
+from .._scales import UnitType
+from ..engine import Engine, ViewMode
 from .utils import PenOpacityActionGroup, PenWidthActionGroup, load_icon
 
 __all__ = ["QtViewerWidget", "QtViewer", "show"]
+
 
 _DEBUG_ENABLED = "VPYPE_VIEWER_DEBUG" in os.environ
 
@@ -262,7 +264,7 @@ class QtViewer(QWidget):
             act = view_mode_menu.addAction("Debug View")
             act.setCheckable(True)
             act.toggled.connect(self.set_debug)
-        # rulers & units
+        # rulers
         view_mode_menu.addSeparator()
         act = view_mode_menu.addAction("Show Rulers")
         act.setCheckable(True)
@@ -270,6 +272,24 @@ class QtViewer(QWidget):
         act.setChecked(val)
         act.toggled.connect(self.set_show_rulers)
         self._viewer_widget.engine.show_rulers = val
+        # units
+        units_menu = view_mode_menu.addMenu("Units")
+        unit_action_grp = QActionGroup(units_menu)
+        unit_type = UnitType(self._settings.value("unit_type", UnitType.METRIC))
+        act = unit_action_grp.addAction("Metric")
+        act.setCheckable(True)
+        act.setChecked(unit_type == UnitType.METRIC)
+        act.setData(UnitType.METRIC)
+        act = unit_action_grp.addAction("Imperial")
+        act.setCheckable(True)
+        act.setChecked(unit_type == UnitType.IMPERIAL)
+        act.setData(UnitType.IMPERIAL)
+        act = unit_action_grp.addAction("Pixel")
+        act.setCheckable(True)
+        act.setChecked(unit_type == UnitType.PIXELS)
+        act.setData(UnitType.PIXELS)
+        unit_action_grp.triggered.connect(self.set_unit_type)
+        units_menu.addActions(unit_action_grp.actions())
 
         view_mode_btn.setMenu(view_mode_menu)
         view_mode_btn.setIcon(load_icon("eye-outline.svg"))
@@ -380,6 +400,11 @@ class QtViewer(QWidget):
     def set_show_rulers(self, show_rulers: bool) -> None:
         self._viewer_widget.engine.show_rulers = show_rulers
         self._settings.setValue("show_rulers", show_rulers)
+
+    def set_unit_type(self, sender: QAction) -> None:
+        val = UnitType(sender.data())
+        self._viewer_widget.engine.unit_type = val
+        self._settings.setValue("unit_type", val)
 
 
 def show(
