@@ -6,10 +6,10 @@ import numpy as np
 
 import vpype as vp
 
-from ._scales import PIXEL_SCALES, SCALES_MAP
+from ._scales import DEFAULT_SCALE_SPEC, PIXEL_SCALES, SCALES_MAP
 from ._utils import ColorType, load_program, load_texture_array
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from .engine import Engine
 
 ResourceType = Union[mgl.Buffer, mgl.Texture, mgl.TextureArray]
@@ -442,10 +442,12 @@ class RulersPainter(Painter):
 
         # set scale and divisions
         scales = SCALES_MAP[engine.unit_type]
-        spec = scales[0]
         for spec in scales:
             if spec.scale_px * engine.scale < 250:
                 break
+        else:
+            spec = DEFAULT_SCALE_SPEC
+
         # saved for the benefit of engine's display functions
         self.current_scale_spec = spec
 

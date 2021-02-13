@@ -3,7 +3,14 @@ import os
 import pytest
 
 import vpype as vp
-from vpype_viewer import Engine, ImageRenderer, UnitType, ViewMode, render_image
+from vpype_viewer import (
+    Engine,
+    ImageRenderer,
+    UnitType,
+    ViewMode,
+    render_image,
+    DEFAULT_SCALE_SPEC,
+)
 
 from .utils import TEST_FILE_DIRECTORY
 
@@ -48,6 +55,8 @@ def test_viewer_engine_properties(assert_image_similarity):
 
     renderer.engine.show_rulers = False
     assert not renderer.engine.show_rulers
+
+    assert renderer.engine.current_scale_spec == DEFAULT_SCALE_SPEC
 
     renderer.engine.toggle_layer_visibility(10)
     assert not renderer.engine.layer_visible(10)

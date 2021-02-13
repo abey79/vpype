@@ -2,11 +2,12 @@
 
 #### 1.5 (UNRELEASED)
 
-**Note**: big projects such as Numpy are moving away from the 4-year-old Python 3.6, and it is time for *vpype* to do the same. This is the last version of *vpype* to support Python 3.6.
+**Note**: This is the last version of *vpype* to support Python 3.6.
 
 New features and improvements:
 * Viewer improvements:
-  * Rulers (#???)
+  * Added rulers with dynamic scale to the display (can be optionally hidden) (#199)
+  * Added metric and imperial unit system (in addition to pixels), used by the rulers and the mouse coordinate display (#199)
 
 #### 1.4 (2021-02-08)
 
