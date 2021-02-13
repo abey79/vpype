@@ -338,13 +338,9 @@ class QtViewer(QWidget):
 
         # MOUSE COORDINATES>
         self._mouse_coord_lbl = QLabel("")
-        font = self._mouse_coord_lbl.font()
-        font.setPointSize(11)
         self._mouse_coord_lbl.setMargin(6)
-        # self._mouse_coord_lbl.setStyleSheet("QLabel { background-color : red }")
         self._mouse_coord_lbl.setAlignment(Qt.AlignVCenter | Qt.AlignRight)
         self._mouse_coord_lbl.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self._mouse_coord_lbl.setFont(font)
         self._toolbar.addWidget(self._mouse_coord_lbl)
         # noinspection PyUnresolvedReferences
         self._viewer_widget.mouse_coords.connect(self.set_mouse_coords)  # type: ignore
