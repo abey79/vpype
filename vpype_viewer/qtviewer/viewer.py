@@ -131,9 +131,13 @@ class QtViewerWidget(QGLWidget):
             x, y = self.engine.viewport_to_model(
                 self._factor * evt.x(), self._factor * evt.y()
             )
-            decimals = max(0, math.ceil(-math.log10(1 / self.engine.scale)))
+            spec = self.engine.current_scale_spec
+            decimals = max(0, math.ceil(-math.log10(1 / spec.to_px / self.engine.scale)))
             # noinspection PyUnresolvedReferences
-            self.mouse_coords.emit(f"{x:.{decimals}f}, {y:.{decimals}f}")
+            self.mouse_coords.emit(
+                f"{x / spec.to_px:.{decimals}f}{spec.unit}, "
+                f"{y / spec.to_px:.{decimals}f}{spec.unit}"
+            )
 
     def mouseReleaseEvent(self, evt):
         self._mouse_drag = False
@@ -290,6 +294,7 @@ class QtViewer(QWidget):
         act.setData(UnitType.PIXELS)
         unit_action_grp.triggered.connect(self.set_unit_type)
         units_menu.addActions(unit_action_grp.actions())
+        self._viewer_widget.engine.unit_type = unit_type
 
         view_mode_btn.setMenu(view_mode_menu)
         view_mode_btn.setIcon(load_icon("eye-outline.svg"))

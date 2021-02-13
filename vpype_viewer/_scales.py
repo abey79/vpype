@@ -27,6 +27,8 @@ class ScaleSpec:
         return self.scale * self.to_px
 
 
+DEFAULT_SCALE_SPEC = ScaleSpec(1, (10, 5, 1), 1.0, "px")
+
 # scale, division, mid, minor
 PIXEL_SCALES = (
     ScaleSpec(5000, (10, 2, 1), 1.0, "px"),

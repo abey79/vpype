@@ -20,7 +20,7 @@ from ._painters import (
     PaperBoundsPainter,
     RulersPainter,
 )
-from ._scales import UnitType
+from ._scales import DEFAULT_SCALE_SPEC, ScaleSpec, UnitType
 from ._utils import ColorType, orthogonal_projection_matrix
 
 _COLORS: List[ColorType] = [
@@ -245,6 +245,13 @@ class Engine:
         self._debug = debug
         self._update(False)
 
+    @property
+    def current_scale_spec(self) -> ScaleSpec:
+        if self._rulers_painter is not None:
+            return self._rulers_painter.current_scale_spec
+        else:
+            return DEFAULT_SCALE_SPEC
+
     def layer_visible(self, layer_id: int) -> bool:
         """True if the corresponding layer is currently visible.
 
@@ -302,7 +309,7 @@ class Engine:
         self._update(False)
 
     def viewport_to_model(self, x: float, y: float) -> Tuple[float, float]:
-        """Converts viewport coordinates to model coordinates."""
+        """Converts viewport coordinates to model coordinates in pixels."""
         return x / self._scale + self._origin[0], y / self._scale + self._origin[1]
 
     def resize(self, width: int, height: int) -> None:
