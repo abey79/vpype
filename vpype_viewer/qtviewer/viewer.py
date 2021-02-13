@@ -2,6 +2,7 @@
 Qt Viewer
 """
 import functools
+import logging
 import math
 import os
 import sys
@@ -75,6 +76,17 @@ class QtViewerWidget(QGLWidget):
 
         self.windowHandle().screenChanged.connect(self.on_screen_changed)
 
+        # print diagnostic information
+        screen = self.screen()
+        logging.info(
+            f"QScreen info: pixelRatio={screen.devicePixelRatio()}, "
+            f"physicalSize={screen.physicalSize().toTuple()}, "
+            f"physicalDotsPerInch={screen.physicalDotsPerInch()}, "
+            f"virtualSize={screen.virtualSize().toTuple()}, "
+            f"size={screen.size().toTuple()}, "
+            f"logicalDotsPerInch={screen.logicalDotsPerInch()}, "
+        )
+
     def document(self) -> Optional[vp.Document]:
         """Return the :class:`vpype.Document` currently assigned to the widget."""
         return self._document
@@ -90,6 +102,8 @@ class QtViewerWidget(QGLWidget):
 
     def initializeGL(self):
         self._ctx = mgl.create_context()
+        logging.info(f"Context info: {self._ctx.info}")
+
         self._ctx.viewport = (0, 0, self._factor * self.width(), self._factor * self.height())
         self._screen = self._ctx.detect_framebuffer()
 

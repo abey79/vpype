@@ -116,8 +116,10 @@ def _test_mgl() -> bool:
         backend = glcontext.default_backend()
         ctx = backend(mode="standalone", glversion=330)
         if ctx.load("glProgramUniform1iv") == 0:
+            logging.info("ModernGL detection: glProgramUniform1iv not found")
             return False
-    except Exception:
+    except Exception as exc:
+        logging.info(f"ModernGL detection failed with error {exc}")
         return False
 
     return True
