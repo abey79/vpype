@@ -3,7 +3,7 @@ import os
 import pytest
 
 import vpype as vp
-from vpype_viewer import Engine, ImageRenderer, ViewMode, render_image
+from vpype_viewer import Engine, ImageRenderer, UnitType, ViewMode, render_image
 
 from .utils import TEST_FILE_DIRECTORY
 
@@ -40,6 +40,15 @@ def test_viewer_engine_properties(assert_image_similarity):
     renderer.engine.debug = True
     assert renderer.engine.debug
 
+    renderer.engine.unit_type = UnitType.IMPERIAL
+    assert renderer.engine.unit_type == UnitType.IMPERIAL
+
+    renderer.engine.ruler_thickness = 50.0
+    assert renderer.engine.ruler_thickness == 50.0
+
+    renderer.engine.show_rulers = False
+    assert not renderer.engine.show_rulers
+
     renderer.engine.toggle_layer_visibility(10)
     assert not renderer.engine.layer_visible(10)
 
@@ -69,6 +78,22 @@ def test_viewer_engine_properties(assert_image_similarity):
             {"view_mode": ViewMode.PREVIEW, "pen_opacity": 0.3}, id="preview_transparent"
         ),
         pytest.param({"view_mode": ViewMode.PREVIEW, "pen_width": 4.0}, id="preview_thick"),
+        pytest.param(
+            {"view_mode": ViewMode.OUTLINE, "show_ruler": True, "unit_type": UnitType.PIXELS},
+            id="outline_pixels",
+        ),
+        pytest.param(
+            {"view_mode": ViewMode.OUTLINE, "show_ruler": True, "unit_type": UnitType.METRIC},
+            id="outline_metric",
+        ),
+        pytest.param(
+            {
+                "view_mode": ViewMode.OUTLINE,
+                "show_ruler": True,
+                "unit_type": UnitType.IMPERIAL,
+            },
+            id="outline_imperial",
+        ),
     ],
 )
 def test_viewer(assert_image_similarity, file, render_kwargs):
@@ -83,6 +108,7 @@ def test_viewer_zoom_scale(assert_image_similarity):
     renderer = ImageRenderer((1024, 1024))
     renderer.engine.document = doc
     renderer.engine.fit_to_viewport()
+    renderer.engine.show_rulers = False
     renderer.engine.zoom(2, 500, 500)
     renderer.engine.pan(160, 250)
     assert_image_similarity(renderer.render())
@@ -103,6 +129,7 @@ def test_viewer_debug(assert_image_similarity):
     renderer.engine.scale = 8
     renderer.engine.view_mode = ViewMode.PREVIEW
     renderer.engine.debug = True
+    renderer.engine.show_rulers = False
     assert_image_similarity(renderer.render())
 
 
@@ -119,6 +146,9 @@ def test_viewer_uninitialized(assert_image_similarity):
     engine.pen_width = 0.5
     engine.pen_opacity = 0.5
     engine.debug = True
+    engine.show_rulers = True
+    engine.ruler_thickness = 50.0
+    engine.unit_type = UnitType.IMPERIAL
 
     engine.zoom(2, 10, 10)
     engine.pan(50, 40)

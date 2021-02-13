@@ -134,6 +134,7 @@ class Engine:
     @scale.setter
     def scale(self, scale: float) -> None:
         self._scale = scale
+        self._fit_to_viewport_flag = False
         self._update(False)
 
     @property
@@ -145,6 +146,8 @@ class Engine:
     @origin.setter
     def origin(self, origin: Tuple[float, float]):
         self._origin = origin
+        self._fit_to_viewport_flag = False
+        self._update(False)
 
     @property
     def width(self) -> float:
