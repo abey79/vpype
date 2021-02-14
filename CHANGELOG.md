@@ -2,7 +2,13 @@
 
 #### 1.5 (UNRELEASED)
 
-...
+**Note**: This is the last version of *vpype* to support Python 3.6.
+
+New features and improvements:
+* Viewer improvements:
+  * Added rulers with dynamic scale to the display (can be optionally hidden) (#199)
+  * Added metric and imperial unit system (in addition to pixels), used by the rulers and the mouse coordinate display (#199)
+  * Adjusted the size of the mouse coordinates text on Windows (#199)
 
 #### 1.4 (2021-02-08)
 

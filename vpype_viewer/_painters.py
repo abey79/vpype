@@ -1,18 +1,39 @@
-from typing import List, Tuple
+import math
+from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union
 
 import moderngl as mgl
 import numpy as np
 
 import vpype as vp
 
-from ._utils import ColorType, load_program
+from ._scales import DEFAULT_SCALE_SPEC, PIXEL_SCALES, SCALES_MAP
+from ._utils import ColorType, load_program, load_texture_array
+
+if TYPE_CHECKING:  # pragma: no cover
+    from .engine import Engine
+
+ResourceType = Union[mgl.Buffer, mgl.Texture, mgl.TextureArray]
 
 
 class Painter:
     def __init__(self, ctx: mgl.Context):
         self._ctx = ctx
+        self._resources: List[ResourceType] = []
 
-    def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
+    def __del__(self):
+        for resource in self._resources:
+            resource.release()
+
+    def register_resource(self, resource: ResourceType) -> ResourceType:
+        self._resources.append(resource)
+        return resource
+
+    def buffer(self, *args: Any, **kwargs: Any) -> mgl.Buffer:
+        buffer = self._ctx.buffer(*args, **kwargs)
+        self.register_resource(buffer)
+        return buffer
+
+    def render(self, engine: "Engine", projection: np.ndarray) -> None:
         raise NotImplementedError
 
 
@@ -56,15 +77,15 @@ class PaperBoundsPainter(Painter):
         self._color = color
         self._prog = load_program("fast_line_mono", ctx)
 
-        vbo = ctx.buffer(data.tobytes())
+        vbo = self.buffer(data.tobytes())
         self._bounds_vao = ctx.vertex_array(
-            self._prog, [(vbo, "2f", "in_vert")], ctx.buffer(line_idx.tobytes())
+            self._prog, [(vbo, "2f", "in_vert")], self.buffer(line_idx.tobytes())
         )
         self._shading_vao = ctx.vertex_array(
-            self._prog, [(vbo, "2f", "in_vert")], ctx.buffer(triangle_idx.tobytes())
+            self._prog, [(vbo, "2f", "in_vert")], self.buffer(triangle_idx.tobytes())
         )
 
-    def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
+    def render(self, engine: "Engine", projection: np.ndarray) -> None:
         self._prog["projection"].write(projection)
 
         self._prog["color"].value = (0, 0, 0, 0.25)
@@ -85,11 +106,11 @@ class LineCollectionFastPainter(Painter):
         self._color = color
 
         vertices, indices = self._build_buffers(lc)
-        vbo = ctx.buffer(vertices.tobytes())
-        ibo = ctx.buffer(indices.tobytes())
+        vbo = self.buffer(vertices.tobytes())
+        ibo = self.buffer(indices.tobytes())
         self._vao = ctx.vertex_array(self._prog, [(vbo, "2f4", "in_vert")], index_buffer=ibo)
 
-    def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
+    def render(self, engine: "Engine", projection: np.ndarray) -> None:
         self._prog["projection"].write(projection)
         self._prog["color"].value = self._color
         self._vao.render(mgl.LINE_STRIP)
@@ -134,8 +155,8 @@ class LineCollectionFastColorfulPainter(Painter):
         self._prog["colors"].write(np.concatenate(self.COLORS).astype("f4").tobytes())
 
         vertices, indices = self._build_buffers(lc)
-        vbo = ctx.buffer(vertices.tobytes())
-        ibo = ctx.buffer(indices.tobytes())
+        vbo = self.buffer(vertices.tobytes())
+        ibo = self.buffer(indices.tobytes())
 
         self._vao = ctx.vertex_array(
             self._prog,
@@ -143,7 +164,7 @@ class LineCollectionFastColorfulPainter(Painter):
             ibo,
         )
 
-    def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
+    def render(self, engine: "Engine", projection: np.ndarray) -> None:
         self._prog["projection"].write(projection)
         self._vao.render(mgl.LINE_STRIP)
         if self._show_points:
@@ -205,10 +226,10 @@ class LineCollectionPointsPainter(Painter):
         self._color = color
 
         vertices = self._build_buffers(lc)
-        vbo = ctx.buffer(vertices.tobytes())
+        vbo = self.buffer(vertices.tobytes())
         self._vao = ctx.vertex_array(self._prog, [(vbo, "2f4", "position")])
 
-    def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
+    def render(self, engine: "Engine", projection: np.ndarray) -> None:
         self._prog["projection"].write(projection)
         self._prog["color"].value = self._color
         self._vao.render(mgl.POINTS)
@@ -244,12 +265,12 @@ class LineCollectionPenUpPainter(Painter):
             )
 
         if len(vertices) > 0:
-            vbo = ctx.buffer(np.array(vertices, dtype="f4").tobytes())
+            vbo = self.buffer(np.array(vertices, dtype="f4").tobytes())
             self._vao = ctx.vertex_array(self._prog, [(vbo, "2f4", "in_vert")])
         else:
             self._vao = None
 
-    def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
+    def render(self, engine: "Engine", projection: np.ndarray) -> None:
         if self._vao is not None:
             self._prog["color"].value = self._color
             self._prog["projection"].write(projection)
@@ -267,17 +288,17 @@ class LineCollectionPreviewPainter(Painter):
         self._prog = load_program("preview_line", ctx)
 
         vertices, indices = self._build_buffers(lc)
-        vbo = ctx.buffer(vertices.tobytes())
-        ibo = ctx.buffer(indices.tobytes())
+        vbo = self.buffer(vertices.tobytes())
+        ibo = self.buffer(indices.tobytes())
         self._vao = ctx.vertex_array(self._prog, [(vbo, "2f4", "position")], ibo)
 
-    def render(self, projection: np.ndarray, scale: float, debug: bool = False) -> None:
+    def render(self, engine: "Engine", projection: np.ndarray) -> None:
         self._prog["color"].value = self._color
         self._prog["pen_width"].value = self._pen_width
-        self._prog["antialias"].value = 1.5 / scale
+        self._prog["antialias"].value = 1.5 / engine.scale
         self._prog["projection"].write(projection)
 
-        if debug:
+        if engine.debug:
             self._prog["kill_frag_shader"].value = False
             self._prog["debug_view"].value = True
             self._prog["color"].value = self._color[0:3] + (0.3,)
@@ -318,3 +339,241 @@ class LineCollectionPreviewPainter(Painter):
             np.vstack([vp.as_vector(line).astype("f4") for line in lc]),
             np.concatenate(indices).astype("i4"),
         )
+
+
+class RulersPainter(Painter):
+    def __init__(self, ctx: mgl.Context):
+        super().__init__(ctx)
+
+        # this also sets the font size
+        self._thickness = 20.0
+        self._font_size = 7.0
+        self._scale_threshold = 100.0
+
+        self.current_scale_spec = DEFAULT_SCALE_SPEC
+        self._prog = load_program("ruler_patch", ctx)
+
+        # vertices
+        vertices = self.buffer(
+            np.array(
+                [
+                    (-1.0, 1.0),
+                    (0.0, 1.0),
+                    (1.0, 1.0),
+                    (-1.0, 0.0),
+                    (0, 0.0),
+                    (1.0, 0.0),
+                    (-1.0, -1.0),
+                    (0.0, -1.0),
+                ],
+                dtype="f4",
+            ).tobytes()
+        )
+
+        # line strip for stroke
+        frame_indices = self.buffer(np.array([3, 5, 1, 7], dtype="i4").tobytes())
+        self._stroke_vao = ctx.vertex_array(
+            self._prog, [(vertices, "2f4", "in_vert")], frame_indices
+        )
+
+        # triangles for fill
+        # first 6 vertices for the small top-right
+        # next 12 vertices for the rulers themselves
+        patch_indices = self.buffer(
+            np.array(
+                [0, 1, 3, 1, 3, 4, 1, 2, 4, 2, 4, 5, 3, 4, 6, 4, 6, 7], dtype="i4"
+            ).tobytes()
+        )
+        self._fill_vao = ctx.vertex_array(
+            self._prog, [(vertices, "2f4", "in_vert")], patch_indices
+        )
+
+        # major ticks buffer
+        self._ticks_prog = load_program("ruler_ticks", ctx)
+        self._ticks_prog["color"] = (0.2, 0.2, 0.2, 1.0)
+        self._ticks_vao = ctx.vertex_array(self._ticks_prog, [])
+
+        # TEXT STUFF
+        # https://github.com/Contraz/demosys-py/blob/master/demosys/effects/text/resources/data/demosys/text/meta.json
+        # {
+        #     "characters": 190,
+        #     "character_ranges": [
+        #         {
+        #             "min": 32,
+        #             "max": 126
+        #         },
+        #         {
+        #             "min": 161,
+        #             "max": 255
+        #         }
+        #     ],
+        #     "character_height": 159,
+        #     "character_width": 77,
+        #     "atlas_height": 30210,
+        #     "atlas_width": 77
+        # }
+        self._texture = load_texture_array("VeraMono.png", ctx, (77, 159, 190), 4)
+        self._text_prog = load_program("ruler_text", ctx)
+        self._aspect_ratio = 159.0 / 77.0
+        self._text_prog["color"].value = (0, 0, 0, 1.0)
+        self._text_vao = ctx.vertex_array(self._text_prog, [])
+
+        # unit label
+        self._unit_label = LabelPainter(ctx, "XX")
+
+    @property
+    def thickness(self) -> float:
+        return self._thickness
+
+    def render(self, engine: "Engine", projection: np.ndarray) -> None:
+        # ===========================
+        # render frame
+
+        self._prog["ruler_width"] = 2 * self._thickness * engine.pixel_factor / engine.width
+        self._prog["ruler_height"] = 2 * self._thickness * engine.pixel_factor / engine.height
+        self._prog["color"].value = (1.0, 1.0, 1.0, 1.0)
+        self._fill_vao.render(mode=mgl.TRIANGLES, first=6)
+
+        # ===========================
+        # render ticks
+
+        # set scale and divisions
+        scales = SCALES_MAP[engine.unit_type]
+        threshold = self._scale_threshold * engine.pixel_factor
+        for spec in scales:
+            if spec.scale_px * engine.scale < threshold:
+                break
+        else:
+            spec = DEFAULT_SCALE_SPEC
+
+        # saved for the benefit of engine's display functions
+        self.current_scale_spec = spec
+
+        self._ticks_prog["scale"] = spec.scale_px * engine.scale
+        self._ticks_prog["divisions"] = list(spec.divisions)
+        self._ticks_prog["delta_number"] = spec.scale
+
+        # compute various stuff
+        horiz_tick_count = math.ceil(engine.width / engine.scale / spec.scale_px) + 1
+        vertical_tick_count = math.ceil(engine.height / engine.scale / spec.scale_px) + 1
+        doc_width, doc_height = (
+            engine.document.page_size
+            if engine.document is not None and engine.document.page_size is not None
+            else (-1.0, -1.0)
+        )
+        start_number_horiz = math.floor(engine.origin[0] / spec.scale_px) * spec.scale
+        start_number_vert = math.floor(engine.origin[1] / spec.scale_px) * spec.scale
+        thickness = self._thickness * engine.pixel_factor
+        font_size = self._font_size * engine.pixel_factor
+
+        # render vertical ruler
+        self._ticks_prog["vertical"] = True
+        self._ticks_prog["viewport_dim"] = engine.height
+        self._ticks_prog["document_dim"] = doc_height / spec.to_px
+        self._ticks_prog["offset"] = (engine.origin[1] % spec.scale_px) * engine.scale
+        self._ticks_prog["ruler_thickness"] = 2 * thickness / engine.width
+        self._ticks_prog["start_number"] = start_number_vert
+        self._ticks_vao.render(mode=mgl.POINTS, vertices=vertical_tick_count)
+
+        # render horizontal ruler
+        self._ticks_prog["vertical"] = False
+        self._ticks_prog["viewport_dim"] = engine.width
+        self._ticks_prog["document_dim"] = doc_width / spec.to_px
+        self._ticks_prog["offset"] = (engine.origin[0] % spec.scale_px) * engine.scale
+        self._ticks_prog["ruler_thickness"] = 2 * thickness / engine.height
+        self._ticks_prog["start_number"] = start_number_horiz
+        self._ticks_vao.render(mode=mgl.POINTS, vertices=horiz_tick_count)
+
+        # ===========================
+        # render glyph
+        self._texture.use(0)
+        self._text_prog["scale"] = spec.scale_px * engine.scale
+        self._text_prog["delta_number"] = spec.scale
+
+        # horizontal
+        self._text_prog["vertical"] = False
+        self._text_prog["viewport_dim"] = engine.width
+        self._text_prog["document_dim"] = doc_width / spec.to_px
+        self._text_prog["offset"] = (engine.origin[0] % spec.scale_px) * engine.scale
+        self._text_prog["glyph_size"].value = (
+            font_size * 2.0 / engine.width,
+            font_size * 2.0 * self._aspect_ratio / engine.height,
+        )
+        self._text_prog["start_number"] = start_number_horiz
+        self._text_vao.render(mode=mgl.POINTS, vertices=horiz_tick_count)
+
+        # vertical
+        self._text_prog["vertical"] = True
+        self._text_prog["viewport_dim"] = engine.height
+        self._text_prog["document_dim"] = doc_height / spec.to_px
+        self._text_prog["offset"] = (engine.origin[1] % spec.scale_px) * engine.scale
+        self._text_prog["glyph_size"].value = (
+            font_size * 2.0 * self._aspect_ratio / engine.width,
+            font_size * 2.0 / engine.height,
+        )
+        self._text_prog["start_number"] = start_number_vert
+        self._text_vao.render(mode=mgl.POINTS, vertices=vertical_tick_count)
+
+        # ===========================
+        # render units corner
+
+        self._prog["color"].value = (1.0, 1.0, 1.0, 1.0)
+        self._fill_vao.render(mode=mgl.TRIANGLES, vertices=6)
+        self._prog["color"].value = (0.0, 0.0, 0.0, 1.0)
+        self._stroke_vao.render(mode=mgl.LINES)
+
+        self._unit_label.font_size = font_size
+        self._unit_label.position = (thickness / 7.0, thickness / 8.0)
+        self._unit_label.label = spec.unit
+        self._unit_label.render(engine, projection)
+
+
+class LabelPainter(Painter):
+    def __init__(
+        self,
+        ctx: mgl.Context,
+        label: str = "",
+        position: Tuple[float, float] = (0.0, 0.0),
+        font_size: float = 14.0,
+        max_size: Optional[int] = None,
+        color: ColorType = (0.0, 0.0, 0.0, 1.0),
+    ):
+        super().__init__(ctx)
+
+        self.position = position
+        self.font_size = font_size
+        self._max_size = max_size or len(label)
+        self._buffer = self.buffer(reserve=self._max_size)
+        self.label = label
+        self._color = color
+
+        self._texture = load_texture_array("VeraMono.png", ctx, (77, 159, 190), 4)
+        self._aspect_ratio = 159.0 / 77.0
+        self._prog = load_program("label", ctx)
+        self._vao = ctx.vertex_array(self._prog, [(self._buffer, "u1", "char")])
+
+    @property
+    def label(self) -> str:
+        return self._label
+
+    @label.setter
+    def label(self, label: str) -> None:
+        self._label = label
+        self._size = min(len(label), self._max_size)
+        self._buffer.write(
+            np.array([ord(c) for c in label[: self._max_size]], dtype=np.uint8).tobytes()
+        )
+
+    def render(self, engine: "Engine", projection: np.ndarray) -> None:
+        self._texture.use(0)
+        self._prog["color"].value = self._color
+        self._prog["position"].value = (
+            -1.0 + 2.0 * self.position[0] / engine.width,
+            1.0 - 2.0 * self.position[1] / engine.height,
+        )
+        self._prog["glyph_size"].value = (
+            self.font_size * 2.0 / engine.width,
+            self.font_size * 2.0 * self._aspect_ratio / engine.height,
+        )
+
+        self._vao.render(mode=mgl.POINTS, vertices=self._size)

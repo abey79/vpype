@@ -1,10 +1,12 @@
 import os
+import pathlib
 from typing import Optional, Tuple
 
 import cachetools
 import cachetools.keys
 import moderngl as mgl
 import numpy as np
+from PIL import Image
 
 ColorType = Tuple[float, float, float, float]
 
@@ -43,6 +45,22 @@ def load_program(name: str, ctx: mgl.Context) -> mgl.Program:
         fragment_shader=_load_shader(full_path + "_fragment.glsl"),
         geometry_shader=_load_shader(full_path + "_geometry.glsl"),
     )
+
+
+@cachetools.cached(
+    cache={},  # type: ignore
+    key=lambda name, ctx, size, components: cachetools.keys.hashkey(
+        (name, id(ctx), size, components)
+    ),
+)
+def load_texture_array(
+    name: str, ctx: mgl.Context, size: Tuple[int, int, int], components: int = 4
+) -> mgl.TextureArray:
+    texture_path = pathlib.Path(__file__).parent / "resources" / name
+    img = Image.open(str(texture_path))
+    texture = ctx.texture_array(size, components, data=img.convert("RGBA").tobytes())
+    texture.build_mipmaps()
+    return texture
 
 
 def orthogonal_projection_matrix(

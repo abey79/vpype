@@ -18,7 +18,9 @@ from ._painters import (
     LineCollectionPreviewPainter,
     Painter,
     PaperBoundsPainter,
+    RulersPainter,
 )
+from ._scales import DEFAULT_SCALE_SPEC, ScaleSpec, UnitType
 from ._utils import ColorType, orthogonal_projection_matrix
 
 _COLORS: List[ColorType] = [
@@ -55,6 +57,7 @@ class Engine:
         view_mode: ViewMode = ViewMode.OUTLINE,
         show_pen_up: bool = False,
         show_points: bool = False,
+        show_rulers: bool = True,
         pen_width: float = DEFAULT_PEN_WIDTH,
         pen_opacity: float = DEFAULT_PEN_OPACITY,
         render_cb: Callable[[], None] = lambda: None,
@@ -65,6 +68,7 @@ class Engine:
             view_mode: the view mode to use
             show_pen_up: render pen-up trajectories if True
             show_points: render points if True
+            show_rulers: display the rulers
             pen_width: pen width (preview only)
             pen_opacity: pen opacity (preview only)
             render_cb: callback that will be called when rendering is required
@@ -75,11 +79,14 @@ class Engine:
         self._view_mode = view_mode
         self._show_pen_up = show_pen_up
         self._show_points = show_points
+        self._show_rulers = show_rulers
         self._pen_width = pen_width
         self._pen_opacity = pen_opacity
         self._render_cb = render_cb
+        self._unit_type = UnitType.METRIC
 
         # state
+        self._pixel_factor = 1.0
         self._ctx: Optional[mgl.Context] = None
         self._viewport_width = 100
         self._viewport_height = 100
@@ -92,6 +99,7 @@ class Engine:
         self._layer_visibility: Dict[int, bool] = defaultdict(lambda: True)
         self._layer_painters: Dict[int, List[Painter]] = defaultdict(list)
         self._paper_bounds_painter: Optional[PaperBoundsPainter] = None
+        self._rulers_painter: Optional[RulersPainter] = None
 
         self._fit_to_viewport_flag = True
 
@@ -100,6 +108,8 @@ class Engine:
 
         self._ctx = ctx
         self._ctx.enable_only(mgl.BLEND | mgl.PROGRAM_POINT_SIZE)
+
+        self._rulers_painter = RulersPainter(self._ctx)
 
         self.resize(width, height)
 
@@ -125,6 +135,7 @@ class Engine:
     @scale.setter
     def scale(self, scale: float) -> None:
         self._scale = scale
+        self._fit_to_viewport_flag = False
         self._update(False)
 
     @property
@@ -136,6 +147,16 @@ class Engine:
     @origin.setter
     def origin(self, origin: Tuple[float, float]):
         self._origin = origin
+        self._fit_to_viewport_flag = False
+        self._update(False)
+
+    @property
+    def width(self) -> float:
+        return self._viewport_width
+
+    @property
+    def height(self) -> float:
+        return self._viewport_height
 
     @property
     def view_mode(self) -> ViewMode:
@@ -168,6 +189,37 @@ class Engine:
         self._update()
 
     @property
+    def show_rulers(self) -> bool:
+        return self._show_rulers
+
+    @show_rulers.setter
+    def show_rulers(self, show_rulers: bool) -> None:
+        self._show_rulers = show_rulers
+        if self._fit_to_viewport_flag:
+            self.fit_to_viewport()
+        self._update(False)
+
+    @property
+    def pixel_factor(self) -> float:
+        return self._pixel_factor
+
+    @pixel_factor.setter
+    def pixel_factor(self, pixel_factor: float) -> None:
+        self._pixel_factor = pixel_factor
+        if self._fit_to_viewport_flag:
+            self.fit_to_viewport()
+        self._update(False)
+
+    @property
+    def unit_type(self) -> UnitType:
+        return self._unit_type
+
+    @unit_type.setter
+    def unit_type(self, unit_type: UnitType) -> None:
+        self._unit_type = unit_type
+        self._update(False)
+
+    @property
     def pen_width(self) -> float:
         """Pen width used for rendering (preview only)."""
         return self._pen_width
@@ -196,6 +248,13 @@ class Engine:
     def debug(self, debug: bool):
         self._debug = debug
         self._update(False)
+
+    @property
+    def current_scale_spec(self) -> ScaleSpec:
+        if self._rulers_painter is not None:
+            return self._rulers_painter.current_scale_spec
+        else:
+            return DEFAULT_SCALE_SPEC
 
     def layer_visible(self, layer_id: int) -> bool:
         """True if the corresponding layer is currently visible.
@@ -235,10 +294,16 @@ class Engine:
         w = x2 - x1
         h = y2 - y1
 
-        self._scale = 0.95 * min(self._viewport_width / w, self._viewport_height / h)
+        if self.show_rulers and self._rulers_painter is not None:
+            ruler_thickness = self._rulers_painter.thickness * self.pixel_factor
+        else:
+            ruler_thickness = 0.0
+        viewport_width = self._viewport_width - ruler_thickness
+        viewport_height = self._viewport_height - ruler_thickness
+        self._scale = 0.95 * min(viewport_width / w, viewport_height / h)
         self._origin = [
-            x1 - (self._viewport_width / self._scale - w) / 2,
-            y1 - (self._viewport_height / self._scale - h) / 2,
+            x1 - (viewport_width / self._scale - w) / 2 - ruler_thickness / self.scale,
+            y1 - (viewport_height / self._scale - h) / 2 - ruler_thickness / self.scale,
         ]
 
         self._fit_to_viewport_flag = True
@@ -246,7 +311,7 @@ class Engine:
         self._update(False)
 
     def viewport_to_model(self, x: float, y: float) -> Tuple[float, float]:
-        """Converts viewport coordinates to model coordinates."""
+        """Converts viewport coordinates to model coordinates in pixels."""
         return x / self._scale + self._origin[0], y / self._scale + self._origin[1]
 
     def resize(self, width: int, height: int) -> None:
@@ -326,12 +391,15 @@ class Engine:
         proj = self._get_projection()
 
         if self._paper_bounds_painter:
-            self._paper_bounds_painter.render(proj, self._scale, self._debug)
+            self._paper_bounds_painter.render(self, proj)
 
         for layer_id in sorted(self._layer_painters):
             if self._layer_visibility[layer_id]:
                 for painter in self._layer_painters[layer_id]:
-                    painter.render(proj, self._scale, self._debug)
+                    painter.render(self, proj)
+
+        if self._rulers_painter and self._show_rulers:
+            self._rulers_painter.render(self, proj)
 
     def _update(self, rebuild=True):
         """"""

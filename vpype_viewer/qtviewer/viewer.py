@@ -2,14 +2,15 @@
 Qt Viewer
 """
 import functools
+import logging
 import math
 import os
 import sys
 from typing import Optional, Union
 
 import moderngl as mgl
-from PySide2.QtCore import QEvent, QSize, Qt, Signal
-from PySide2.QtGui import QWheelEvent
+from PySide2.QtCore import QEvent, QSettings, QSize, Qt, Signal
+from PySide2.QtGui import QScreen, QWheelEvent
 from PySide2.QtOpenGL import QGLFormat, QGLWidget
 from PySide2.QtWidgets import (
     QAction,
@@ -26,11 +27,13 @@ from PySide2.QtWidgets import (
 )
 
 import vpype as vp
-from vpype_viewer.engine import Engine, ViewMode
 
+from .._scales import UnitType
+from ..engine import Engine, ViewMode
 from .utils import PenOpacityActionGroup, PenWidthActionGroup, load_icon
 
 __all__ = ["QtViewerWidget", "QtViewer", "show"]
+
 
 _DEBUG_ENABLED = "VPYPE_VIEWER_DEBUG" in os.environ
 
@@ -62,12 +65,26 @@ class QtViewerWidget(QGLWidget):
         self._last_mouse_x = 0.0
         self._last_mouse_y = 0.0
         self._mouse_drag = False
+        self._factor = 1.0
 
         # deferred initialization in initializeGL()
         self._ctx: Optional[mgl.Context] = None
         self._screen = None
         self.engine = Engine(
             view_mode=ViewMode.OUTLINE, show_pen_up=False, render_cb=self.update
+        )
+
+        self.windowHandle().screenChanged.connect(self.on_screen_changed)
+
+        # print diagnostic information
+        screen = self.screen()
+        logging.info(
+            f"QScreen info: pixelRatio={screen.devicePixelRatio()}, "
+            f"physicalSize={screen.physicalSize().toTuple()}, "
+            f"physicalDotsPerInch={screen.physicalDotsPerInch()}, "
+            f"virtualSize={screen.virtualSize().toTuple()}, "
+            f"size={screen.size().toTuple()}, "
+            f"logicalDotsPerInch={screen.logicalDotsPerInch()}, "
         )
 
     def document(self) -> Optional[vp.Document]:
@@ -79,13 +96,21 @@ class QtViewerWidget(QGLWidget):
         self._document = document
         self.engine.document = document
 
+    def on_screen_changed(self, screen: QScreen):
+        self._factor = screen.devicePixelRatio()
+        self.engine.pixel_factor = self._factor
+
     def initializeGL(self):
         self._ctx = mgl.create_context()
-        factor = self.window().devicePixelRatio()
-        self._ctx.viewport = (0, 0, factor * self.width(), factor * self.height())
+        logging.info(f"Context info: {self._ctx.info}")
+
+        self._ctx.viewport = (0, 0, self._factor * self.width(), self._factor * self.height())
         self._screen = self._ctx.detect_framebuffer()
 
-        self.engine.post_init(self._ctx, factor * self.width(), factor * self.height())
+        self.engine.post_init(
+            self._ctx, int(self._factor * self.width()), int(self._factor * self.height())
+        )
+        self.on_screen_changed(self.screen())
         self.engine.document = self._document
         self.engine.fit_to_viewport()
 
@@ -104,12 +129,10 @@ class QtViewerWidget(QGLWidget):
         self._mouse_drag = True
 
     def mouseMoveEvent(self, evt):
-        factor = self.window().devicePixelRatio()
-
         if self._mouse_drag:
             self.engine.pan(
-                factor * (evt.x() - self._last_mouse_x),
-                factor * (evt.y() - self._last_mouse_y),
+                self._factor * (evt.x() - self._last_mouse_x),
+                self._factor * (evt.y() - self._last_mouse_y),
             )
             self._last_mouse_x = evt.x()
             self._last_mouse_y = evt.y()
@@ -119,10 +142,16 @@ class QtViewerWidget(QGLWidget):
             # noinspection PyUnresolvedReferences
             self.mouse_coords.emit("")
         else:
-            x, y = self.engine.viewport_to_model(factor * evt.x(), factor * evt.y())
-            decimals = max(0, math.ceil(-math.log10(1 / self.engine.scale)))
+            x, y = self.engine.viewport_to_model(
+                self._factor * evt.x(), self._factor * evt.y()
+            )
+            spec = self.engine.current_scale_spec
+            decimals = max(0, math.ceil(-math.log10(1 / spec.to_px / self.engine.scale)))
             # noinspection PyUnresolvedReferences
-            self.mouse_coords.emit(f"{x:.{decimals}f}, {y:.{decimals}f}")
+            self.mouse_coords.emit(
+                f"{x / spec.to_px:.{decimals}f}{spec.unit}, "
+                f"{y / spec.to_px:.{decimals}f}{spec.unit}"
+            )
 
     def mouseReleaseEvent(self, evt):
         self._mouse_drag = False
@@ -132,15 +161,16 @@ class QtViewerWidget(QGLWidget):
         self.mouse_coords.emit("")  # type: ignore
 
     def wheelEvent(self, event: QWheelEvent) -> None:
-        factor = self.window().devicePixelRatio()
         if event.source() == Qt.MouseEventSource.MouseEventSynthesizedBySystem:
             # track pad
             scroll_delta = event.pixelDelta()
-            self.engine.pan(factor * scroll_delta.x(), factor * scroll_delta.y())
+            self.engine.pan(self._factor * scroll_delta.x(), self._factor * scroll_delta.y())
         else:
             # mouse wheel
             zoom_delta = event.angleDelta().y()
-            self.engine.zoom(zoom_delta / 500.0, factor * event.x(), factor * event.y())
+            self.engine.zoom(
+                zoom_delta / 500.0, self._factor * event.x(), self._factor * event.y()
+            )
 
     def event(self, event: QEvent) -> bool:
         # handle pinch zoom on mac
@@ -148,11 +178,10 @@ class QtViewerWidget(QGLWidget):
             event.type() == QEvent.Type.NativeGesture
             and event.gestureType() == Qt.NativeGestureType.ZoomNativeGesture
         ):
-            factor = self.window().devicePixelRatio()
             self.engine.zoom(
                 2.0 * event.value(),
-                event.localPos().x() * factor,
-                event.localPos().y() * factor,
+                event.localPos().x() * self._factor,
+                event.localPos().y() * self._factor,
             )
             return True
 
@@ -172,6 +201,9 @@ class QtViewer(QWidget):
         parent=None,
     ):
         super().__init__(parent)
+
+        self._settings = QSettings()
+        self._settings.beginGroup("viewer")
 
         self.setWindowTitle("vpype viewer")
         self.setStyleSheet(
@@ -250,6 +282,33 @@ class QtViewer(QWidget):
             act = view_mode_menu.addAction("Debug View")
             act.setCheckable(True)
             act.toggled.connect(self.set_debug)
+        # rulers
+        view_mode_menu.addSeparator()
+        act = view_mode_menu.addAction("Show Rulers")
+        act.setCheckable(True)
+        val = bool(self._settings.value("show_rulers", True))
+        act.setChecked(val)
+        act.toggled.connect(self.set_show_rulers)
+        self._viewer_widget.engine.show_rulers = val
+        # units
+        units_menu = view_mode_menu.addMenu("Units")
+        unit_action_grp = QActionGroup(units_menu)
+        unit_type = UnitType(self._settings.value("unit_type", UnitType.METRIC))
+        act = unit_action_grp.addAction("Metric")
+        act.setCheckable(True)
+        act.setChecked(unit_type == UnitType.METRIC)
+        act.setData(UnitType.METRIC)
+        act = unit_action_grp.addAction("Imperial")
+        act.setCheckable(True)
+        act.setChecked(unit_type == UnitType.IMPERIAL)
+        act.setData(UnitType.IMPERIAL)
+        act = unit_action_grp.addAction("Pixel")
+        act.setCheckable(True)
+        act.setChecked(unit_type == UnitType.PIXELS)
+        act.setData(UnitType.PIXELS)
+        unit_action_grp.triggered.connect(self.set_unit_type)
+        units_menu.addActions(unit_action_grp.actions())
+        self._viewer_widget.engine.unit_type = unit_type
 
         view_mode_btn.setMenu(view_mode_menu)
         view_mode_btn.setIcon(load_icon("eye-outline.svg"))
@@ -279,13 +338,9 @@ class QtViewer(QWidget):
 
         # MOUSE COORDINATES>
         self._mouse_coord_lbl = QLabel("")
-        font = self._mouse_coord_lbl.font()
-        font.setPointSize(11)
         self._mouse_coord_lbl.setMargin(6)
-        # self._mouse_coord_lbl.setStyleSheet("QLabel { background-color : red }")
         self._mouse_coord_lbl.setAlignment(Qt.AlignVCenter | Qt.AlignRight)
         self._mouse_coord_lbl.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self._mouse_coord_lbl.setFont(font)
         self._toolbar.addWidget(self._mouse_coord_lbl)
         # noinspection PyUnresolvedReferences
         self._viewer_widget.mouse_coords.connect(self.set_mouse_coords)  # type: ignore
@@ -357,6 +412,15 @@ class QtViewer(QWidget):
     def set_debug(self, debug: bool) -> None:
         self._viewer_widget.engine.debug = debug
 
+    def set_show_rulers(self, show_rulers: bool) -> None:
+        self._viewer_widget.engine.show_rulers = show_rulers
+        self._settings.setValue("show_rulers", show_rulers)
+
+    def set_unit_type(self, sender: QAction) -> None:
+        val = UnitType(sender.data())
+        self._viewer_widget.engine.unit_type = val
+        self._settings.setValue("unit_type", val)
+
 
 def show(
     document: vp.Document,
@@ -384,6 +448,9 @@ def show(
 
     if not QApplication.instance():
         app = QApplication(argv)
+        app.setOrganizationName("abey79")
+        app.setOrganizationDomain("abey79.github.io")
+        app.setApplicationName("vpype")
     else:
         app = QApplication.instance()
     app.setAttribute(Qt.AA_UseHighDpiPixmaps)

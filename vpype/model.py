@@ -2,7 +2,7 @@
 """
 import logging
 import math
-from typing import Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Union
+from typing import Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Union, cast
 
 import numpy as np
 from shapely.geometry import LinearRing, LineString, MultiLineString
@@ -329,7 +329,7 @@ class LineCollection:
                     line = np.flip(line)
                 if idx is None:
                     break
-                new_line = index.pop(idx)
+                new_line = cast(np.ndarray, index.pop(idx))
                 if reverse:
                     new_line = np.flip(new_line)
                 line = np.hstack([line, new_line])
@@ -349,10 +349,10 @@ class LineCollection:
             return None
         else:
             return (
-                min((line.real.min() for line in self._lines)),
-                min((line.imag.min() for line in self._lines)),
-                max((line.real.max() for line in self._lines)),
-                max((line.imag.max() for line in self._lines)),
+                float(min((line.real.min() for line in self._lines))),
+                float(min((line.imag.min() for line in self._lines))),
+                float(max((line.real.max() for line in self._lines))),
+                float(max((line.imag.max() for line in self._lines))),
             )
 
     def width(self) -> float:
@@ -363,8 +363,9 @@ class LineCollection:
         """
 
         if self._lines:
-            return max((line.real.max() for line in self._lines)) - min(
-                (line.real.min() for line in self._lines)
+            return float(
+                max((line.real.max() for line in self._lines))
+                - min((line.real.min() for line in self._lines))
             )
         else:
             return 0.0
@@ -376,8 +377,9 @@ class LineCollection:
             the width (ymax - ymin) or 0.0 if the LineCollection is empty
         """
         if self._lines:
-            return max((line.imag.max() for line in self._lines)) - min(
-                (line.imag.min() for line in self._lines)
+            return float(
+                max((line.imag.max() for line in self._lines))
+                - min((line.imag.min() for line in self._lines))
             )
         else:
             return 0.0
@@ -412,7 +414,7 @@ class LineCollection:
         starts = np.array([line[0] for line in self.lines[1:]])
         dists = np.abs(starts - ends)
         # noinspection PyTypeChecker
-        return np.sum(dists), np.mean(dists), np.median(dists)
+        return float(np.sum(dists)), float(np.mean(dists)), float(np.median(dists))
 
     def segment_count(self) -> int:
         """Returns the total number of segment across all lines.

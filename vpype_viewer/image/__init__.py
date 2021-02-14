@@ -4,7 +4,9 @@ import moderngl
 from PIL import Image
 
 import vpype as vp
-from vpype_viewer.engine import DEFAULT_PEN_OPACITY, DEFAULT_PEN_WIDTH, Engine, ViewMode
+
+from .._scales import UnitType
+from ..engine import DEFAULT_PEN_OPACITY, DEFAULT_PEN_WIDTH, Engine, ViewMode
 
 
 class ImageRenderer:
@@ -50,6 +52,9 @@ def render_image(
     show_points: bool = False,
     pen_width: float = DEFAULT_PEN_WIDTH,
     pen_opacity: float = DEFAULT_PEN_OPACITY,
+    show_ruler: bool = False,
+    pixel_factor: float = 1.0,
+    unit_type: UnitType = UnitType.METRIC,
     scale: Optional[float] = None,
     origin: Optional[Tuple[float, float]] = None,
 ) -> Image:
@@ -66,6 +71,9 @@ def render_image(
         show_points: render points
         pen_width: pen width (``ViewMode.PREVIEW`` only)
         pen_opacity: pen opacity (``ViewMode.PREVIEW`` only)
+        show_ruler: display the rulers
+        pixel_factor: pixel factor (HiDPI screen support)
+        unit_type: type of unit to use for the ruler
         scale: manually set scale
         origin: manually set origin
 
@@ -81,6 +89,9 @@ def render_image(
     renderer.engine.show_points = show_points
     renderer.engine.pen_width = pen_width
     renderer.engine.pen_opacity = pen_opacity
+    renderer.engine.show_rulers = show_ruler
+    renderer.engine.pixel_factor = pixel_factor
+    renderer.engine.unit_type = unit_type
 
     renderer.engine.fit_to_viewport()
     if scale is not None:
