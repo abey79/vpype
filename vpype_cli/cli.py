@@ -119,7 +119,7 @@ def cli(ctx, verbose, include, history, seed, config):
     random.seed(seed)
 
     if config is not None:
-        vp.CONFIG_MANAGER.load_config_file(config)
+        vp.config_manager.load_config_file(config)
 
 
 # noinspection PyShadowingNames,PyUnusedLocal

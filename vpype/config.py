@@ -1,13 +1,13 @@
 """Config file support for vpype.
 
-Configuration data is accessed via the ``CONFIG_MANAGER`` global variable::
+Configuration data is accessed via the ``config_manager`` global variable::
 
-    >>> from vpype import CONFIG_MANAGER
-    >>> CONFIG_MANAGER.config  # dictionary of all configuration
+    >>> from vpype import config_manager
+    >>> config_manager.config  # dictionary of all configuration
 
 HPGL plotter have specific config support::
 
-    >>> plotter_config = CONFIG_MANAGER.get_plotter_config("hp7475a")
+    >>> plotter_config = config_manager.get_plotter_config("hp7475a")
     >>> plotter_config
     PlotterConfig(name='hp7475a', ...)
     >>> plotter_config.paper_config("a4")
@@ -29,6 +29,7 @@ __all__ = [
     "PaperConfig",
     "PlotterConfig",
     "ConfigManager",
+    "config_manager",
     "CONFIG_MANAGER",
 ]
 
@@ -152,10 +153,10 @@ class PlotterConfig:
 class ConfigManager:
     """Helper class to handle vpype's TOML configuration files.
 
-    This class is typically used via its singleton instance ``CONFIG_MANAGER``::
+    This class is typically used via its singleton instance ``config_manager``::
 
-        >>> from vpype import CONFIG_MANAGER
-        >>> my_config = CONFIG_MANAGER.config.get("my_config", None)
+        >>> from vpype import config_manager
+        >>> my_config = config_manager.config.get("my_config", None)
 
     Helper methods are provided for specific aspects of configuration, such as command-specific
     configs or HPGL-related configs.
@@ -237,14 +238,17 @@ class ConfigManager:
         return self._config
 
 
-CONFIG_MANAGER = ConfigManager()
+config_manager = ConfigManager()
+
+# deprecated
+CONFIG_MANAGER = config_manager
 
 
 def _init():
-    CONFIG_MANAGER.load_config_file(str(pathlib.Path(__file__).parent / "hpgl_devices.toml"))
+    config_manager.load_config_file(str(pathlib.Path(__file__).parent / "hpgl_devices.toml"))
     path = os.path.expanduser("~/.vpype.toml")
     if os.path.exists(path):
-        CONFIG_MANAGER.load_config_file(str(path))
+        config_manager.load_config_file(str(path))
 
 
 _init()
