@@ -41,9 +41,8 @@ _DEBUG_ENABLED = "VPYPE_VIEWER_DEBUG" in os.environ
 # handle UI scaling
 def _configure_ui_scaling():
     viewer_config = vp.config_manager.config.get("viewer", {})
-    if "QT_SCALE_FACTOR" not in os.environ:
-        if "ui_scale_factor" in viewer_config:
-            os.environ["QT_SCALE_FACTOR"] = str(viewer_config["ui_scale_factor"])
+    if "QT_SCALE_FACTOR" not in os.environ and "ui_scale_factor" in viewer_config:
+        os.environ["QT_SCALE_FACTOR"] = str(viewer_config["ui_scale_factor"])
 
 
 _configure_ui_scaling()
