@@ -11,7 +11,7 @@ New features and improvements:
   * Adjusted the size of the mouse coordinates text on Windows (#199)
   
 API changes:
-  * Renamed `vpype.CONFIG_MANAGER` in favour of `vpype.config_manager` (existing name kept for compatibility) (#XXX)
+  * Renamed `vpype.CONFIG_MANAGER` in favour of `vpype.config_manager` (existing name kept for compatibility) (#202)
 
 #### 1.4 (2021-02-08)
 
