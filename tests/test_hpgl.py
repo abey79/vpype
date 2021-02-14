@@ -254,8 +254,8 @@ def test_hpgl_info_quiet(runner, simple_printer_config):
     ],
 )
 def test_hpgl_paper_config_from_size(simple_printer_config, paper_format, expected_name):
-    vp.CONFIG_MANAGER.load_config_file(simple_printer_config)
-    pc = vp.CONFIG_MANAGER.get_plotter_config("simple").paper_config_from_size(paper_format)
+    vp.config_manager.load_config_file(simple_printer_config)
+    pc = vp.config_manager.get_plotter_config("simple").paper_config_from_size(paper_format)
     if expected_name is None:
         assert pc is None
     else:
@@ -263,9 +263,9 @@ def test_hpgl_paper_config_from_size(simple_printer_config, paper_format, expect
 
 
 def test_hpgl_paper_config(simple_printer_config):
-    vp.CONFIG_MANAGER.load_config_file(simple_printer_config)
-    assert vp.CONFIG_MANAGER.get_plotter_config("simple").paper_config("simple") is not None
-    assert vp.CONFIG_MANAGER.get_plotter_config("simple").paper_config("DOESNTEXIST") is None
+    vp.config_manager.load_config_file(simple_printer_config)
+    assert vp.config_manager.get_plotter_config("simple").paper_config("simple") is not None
+    assert vp.config_manager.get_plotter_config("simple").paper_config("DOESNTEXIST") is None
 
 
 def test_hpgl_paper_size_inference(runner):
@@ -288,7 +288,7 @@ def test_hpgl_paper_size_inference_fail(runner):
 def test_hpgl_flex_no_pagesize(simple_printer_config):
     doc = vp.Document()
     doc.add(vp.LineCollection([(1 + 1j, 2 + 4j)]))
-    vp.CONFIG_MANAGER.load_config_file(simple_printer_config)
+    vp.config_manager.load_config_file(simple_printer_config)
     with pytest.raises(ValueError):
         vp.write_hpgl(
             output=sys.stdout,
@@ -305,7 +305,7 @@ def test_hpgl_wrong_ref(simple_printer_config):
     doc = vp.Document()
     doc.add(vp.LineCollection([(1 + 1j, 2 + 4j)]))
     doc.page_size = 10, 15
-    vp.CONFIG_MANAGER.load_config_file(simple_printer_config)
+    vp.config_manager.load_config_file(simple_printer_config)
     with pytest.raises(ValueError):
         vp.write_hpgl(
             output=sys.stdout,

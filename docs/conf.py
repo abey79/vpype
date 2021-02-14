@@ -99,6 +99,8 @@ def autodoc_skip_member(app, what, name, obj, skip, options):
         "convert",
         "convert_page_format",
         "Length",
+        # vpype/config.py
+        "CONFIG_MANAGER",
         # vpype_cli/debug.py
         "DebugData",
         # private attribute

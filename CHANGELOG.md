@@ -9,6 +9,9 @@ New features and improvements:
   * Added rulers with dynamic scale to the display (can be optionally hidden) (#199)
   * Added metric and imperial unit system (in addition to pixels), used by the rulers and the mouse coordinate display (#199)
   * Adjusted the size of the mouse coordinates text on Windows (#199)
+  
+API changes:
+  * Renamed `vpype.CONFIG_MANAGER` in favour of `vpype.config_manager` (existing name kept for compatibility) (#202)
 
 #### 1.4 (2021-02-08)
 

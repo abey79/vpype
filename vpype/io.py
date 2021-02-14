@@ -15,7 +15,7 @@ from multiprocess import Pool
 from shapely.geometry import LineString
 from svgwrite.extensions import Inkscape
 
-from .config import CONFIG_MANAGER, PaperConfig, PlotterConfig
+from .config import PaperConfig, PlotterConfig, config_manager
 from .model import Document, LineCollection
 from .utils import UNITS
 
@@ -473,8 +473,8 @@ def _get_hpgl_config(
     device: Optional[str], page_size: str
 ) -> Tuple[PlotterConfig, PaperConfig]:
     if device is None:
-        device = CONFIG_MANAGER.get_command_config("write").get("default_hpgl_device", None)
-    plotter_config = CONFIG_MANAGER.get_plotter_config(str(device))
+        device = config_manager.get_command_config("write").get("default_hpgl_device", None)
+    plotter_config = config_manager.get_plotter_config(str(device))
     if plotter_config is None:
         raise ValueError(f"no configuration available for plotter '{device}'")
     paper_config = plotter_config.paper_config(page_size)
