@@ -6,7 +6,6 @@ import numpy as np
 
 import vpype as vp
 
-from ._scales import DEFAULT_SCALE_SPEC, PIXEL_SCALES, SCALES_MAP
 from ._utils import ColorType, load_program, load_texture_array
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -348,9 +347,7 @@ class RulersPainter(Painter):
         # this also sets the font size
         self._thickness = 20.0
         self._font_size = 7.0
-        self._scale_threshold = 100.0
 
-        self.current_scale_spec = DEFAULT_SCALE_SPEC
         self._prog = load_program("ruler_patch", ctx)
 
         # vertices
@@ -437,17 +434,7 @@ class RulersPainter(Painter):
         # ===========================
         # render ticks
 
-        # set scale and divisions
-        scales = SCALES_MAP[engine.unit_type]
-        threshold = self._scale_threshold * engine.pixel_factor
-        for spec in scales:
-            if spec.scale_px * engine.scale < threshold:
-                break
-        else:
-            spec = DEFAULT_SCALE_SPEC
-
-        # saved for the benefit of engine's display functions
-        self.current_scale_spec = spec
+        spec = engine.scale_spec
 
         self._ticks_prog["scale"] = spec.scale_px * engine.scale
         self._ticks_prog["divisions"] = list(spec.divisions)

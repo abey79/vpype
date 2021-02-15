@@ -56,7 +56,7 @@ def test_viewer_engine_properties(assert_image_similarity):
     renderer.engine.show_rulers = False
     assert not renderer.engine.show_rulers
 
-    assert renderer.engine.current_scale_spec == DEFAULT_SCALE_SPEC
+    assert renderer.engine.scale_spec == DEFAULT_SCALE_SPEC
 
     renderer.engine.toggle_layer_visibility(10)
     assert not renderer.engine.layer_visible(10)

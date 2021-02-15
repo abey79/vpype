@@ -7,7 +7,7 @@
 New features and improvements:
 * Viewer improvements:
   * Added rulers with dynamic scale to the display (can be optionally hidden) (#199)
-  * Added metric and imperial unit system (in addition to pixels), used by the rulers and the mouse coordinate display (#199)
+  * Added metric and imperial unit system (in addition to pixels), used by the rulers and the mouse coordinates display (#199, #205)
   * Adjusted the size of the mouse coordinates text on Windows (#199)
   * Added support to scale the UI via `~/.vpype.toml` (#203)
   

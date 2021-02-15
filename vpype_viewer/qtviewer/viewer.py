@@ -155,7 +155,7 @@ class QtViewerWidget(QGLWidget):
             x, y = self.engine.viewport_to_model(
                 self._factor * evt.x(), self._factor * evt.y()
             )
-            spec = self.engine.current_scale_spec
+            spec = self.engine.scale_spec
             decimals = max(0, math.ceil(-math.log10(1 / spec.to_px / self.engine.scale)))
             # noinspection PyUnresolvedReferences
             self.mouse_coords.emit(
