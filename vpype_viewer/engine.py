@@ -20,7 +20,7 @@ from ._painters import (
     PaperBoundsPainter,
     RulersPainter,
 )
-from ._scales import DEFAULT_SCALE_SPEC, ScaleSpec, UnitType
+from ._scales import DEFAULT_SCALE_SPEC, SCALES_MAP, ScaleSpec, UnitType
 from ._utils import ColorType, orthogonal_projection_matrix
 
 _COLORS: List[ColorType] = [
@@ -84,6 +84,7 @@ class Engine:
         self._pen_opacity = pen_opacity
         self._render_cb = render_cb
         self._unit_type = UnitType.METRIC
+        self._scale_threshold = 100.0  # min size for a major tick in rulers
 
         # state
         self._pixel_factor = 1.0
@@ -94,6 +95,7 @@ class Engine:
         self._origin = (0.0, 0.0)  # top-left of page aligned with top-left of view port
         self._document: Optional[vp.Document] = None
         self._rebuild_needed = True
+        self._scale_spec = DEFAULT_SCALE_SPEC
 
         # painters
         self._layer_visibility: Dict[int, bool] = defaultdict(lambda: True)
@@ -211,6 +213,10 @@ class Engine:
         self._update(False)
 
     @property
+    def scale_spec(self) -> ScaleSpec:
+        return self._scale_spec
+
+    @property
     def unit_type(self) -> UnitType:
         return self._unit_type
 
@@ -248,13 +254,6 @@ class Engine:
     def debug(self, debug: bool):
         self._debug = debug
         self._update(False)
-
-    @property
-    def current_scale_spec(self) -> ScaleSpec:
-        if self._rulers_painter is not None:
-            return self._rulers_painter.current_scale_spec
-        else:
-            return DEFAULT_SCALE_SPEC
 
     def layer_visible(self, layer_id: int) -> bool:
         """True if the corresponding layer is currently visible.
@@ -386,6 +385,16 @@ class Engine:
 
         if self._rebuild_needed:
             self._rebuild()
+
+        # update scale spec
+        scales = SCALES_MAP[self.unit_type]
+        threshold = self._scale_threshold * self.pixel_factor
+        for spec in scales:
+            if spec.scale_px * self.scale < threshold:
+                break
+        else:
+            spec = scales[-1]
+        self._scale_spec = spec
 
         self._ctx.clear(0.95, 0.95, 0.95, 1)
         proj = self._get_projection()
