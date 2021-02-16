@@ -22,7 +22,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.8
+        python-version: 3.9
     # Cache pip
     - uses: actions/cache@v2
       with:
@@ -53,7 +53,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        python-version: [3.7, 3.8, 3.9]
         os: [ubuntu-latest, macos-latest]
     defaults:
       run:
@@ -87,16 +87,17 @@ jobs:
     # PYTEST STRATEGY
     # macOS is the only runner who has working ModernGL behaviour
     # macOS + 3.8 is used for code coverage
-    - name: Pytest (code coverage + benchmark)
+    - name: Pytest (code coverage)
       run: |
         poetry run pytest --cov=./ --cov-report=xml
-        poetry run pytest tests/test_benchmarks.py --benchmark-enable --benchmark-json output.json
-      if: matrix.os == 'macos-latest' && matrix.python-version == '3.8'
+      if: matrix.os == 'macos-latest' && matrix.python-version == '3.9'
     - name: Pytest
-      run: poetry run pytest
-      if: matrix.os == 'macos-latest' && matrix.python-version != '3.8'
+      run: |
+        poetry run pytest
+      if: matrix.os == 'macos-latest' && matrix.python-version != '3.9'
     - name: Pytest (no image similarity check)
-      run: poetry run pytest --skip-image-similarity
+      run: |
+        poetry run pytest --skip-image-similarity
       if: matrix.os != 'macos-latest'
     - name: Upload test results
       if: always()
@@ -109,20 +110,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         file: ./coverage.xml
-      if: matrix.os == 'macos-latest' && matrix.python-version == '3.8'
-    - name: Store benchmark result
-      uses: rhysd/github-action-benchmark@v1
-      if: matrix.os == 'macos-latest' && matrix.python-version == '3.8'
-      with:
-        tool: 'pytest'
-        output-file-path: output.json
-        # push to gh-page
-        github-token: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
-        auto-push: true
-        # Show alert with commit comment on detecting possible performance regression
-        alert-threshold: '150%'
-        comment-on-alert: true
-        fail-on-alert: true
+      if: matrix.os == 'macos-latest' && matrix.python-version == '3.9'
 
 
   #################
@@ -133,7 +121,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        python-version: [3.7, 3.8, 3.9]
     defaults:
       run:
         shell: bash
@@ -174,10 +162,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.8
+    - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
-        python-version: 3.8
+        python-version: 3.9
     - name: Install and configure Poetry
       uses: snok/install-poetry@v1.1.1
       with:
