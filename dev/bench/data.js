@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1613498473470,
+  "lastUpdate": 1613501774901,
   "repoUrl": "https://github.com/abey79/vpype",
   "entries": {
     "Benchmark": [
@@ -6880,6 +6880,114 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.4137769481428692",
             "extra": "mean: 21.858559210800003 sec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "abeyeler@ab-ware.com",
+            "name": "Antoine Beyeler",
+            "username": "abey79"
+          },
+          "committer": {
+            "email": "abeyeler@ab-ware.com",
+            "name": "Antoine Beyeler",
+            "username": "abey79"
+          },
+          "distinct": true,
+          "id": "e29d82cc0559c66ec5ab863fbe530c7feeaa3573",
+          "message": "Bumping version from 1.5.0 to 1.6.0-alpha.0",
+          "timestamp": "2021-02-16T19:43:48+01:00",
+          "tree_id": "0a41e5edefc7827918172bfe2be28fd2467e06b1",
+          "url": "https://github.com/abey79/vpype/commit/e29d82cc0559c66ec5ab863fbe530c7feeaa3573"
+        },
+        "date": 1613501773966,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/test_benchmarks.py::test_benchmark_read[benchmark/300_beziers.svg]",
+            "value": 1.1606298502450145,
+            "unit": "iter/sec",
+            "range": "stddev: 0.03535622194176054",
+            "extra": "mean: 861.6011381999999 msec\nrounds: 5"
+          },
+          {
+            "name": "tests/test_benchmarks.py::test_benchmark_read[benchmark/900_quad_beziers.svg]",
+            "value": 0.8580349919653512,
+            "unit": "iter/sec",
+            "range": "stddev: 0.021808093919056498",
+            "extra": "mean: 1.1654536345999997 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/test_benchmarks.py::test_benchmark_read[benchmark/500_circles.svg]",
+            "value": 1.1082767870623011,
+            "unit": "iter/sec",
+            "range": "stddev: 0.03162032140621232",
+            "extra": "mean: 902.3016737999995 msec\nrounds: 5"
+          },
+          {
+            "name": "tests/test_benchmarks.py::test_benchmark_read[benchmark/500_polylines.svg]",
+            "value": 1.2547688468745177,
+            "unit": "iter/sec",
+            "range": "stddev: 0.019651545158872498",
+            "extra": "mean: 796.9595375999994 msec\nrounds: 5"
+          },
+          {
+            "name": "tests/test_benchmarks.py::test_benchmark_read[benchmark/bar_nodef_path_polylines.svg]",
+            "value": 0.2936305802004203,
+            "unit": "iter/sec",
+            "range": "stddev: 0.07728457976324031",
+            "extra": "mean: 3.4056398325999986 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/test_benchmarks.py::test_benchmark_linesort",
+            "value": 0.5225327776811459,
+            "unit": "iter/sec",
+            "range": "stddev: 0.6195397712509609",
+            "extra": "mean: 1.9137555436000013 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/test_benchmarks.py::test_benchmark_linemerge",
+            "value": 0.3608752817909521,
+            "unit": "iter/sec",
+            "range": "stddev: 0.021889144454803066",
+            "extra": "mean: 2.7710404410000025 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/test_benchmarks.py::test_benchmark_viewer[outline]",
+            "value": 0.7480893117095545,
+            "unit": "iter/sec",
+            "range": "stddev: 0.02029676493518371",
+            "extra": "mean: 1.3367387881999975 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/test_benchmarks.py::test_benchmark_viewer[outline_points]",
+            "value": 0.6459199394603119,
+            "unit": "iter/sec",
+            "range": "stddev: 0.09648111632595702",
+            "extra": "mean: 1.5481794861999987 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/test_benchmarks.py::test_benchmark_viewer[outline_pen_up]",
+            "value": 0.38868105739184505,
+            "unit": "iter/sec",
+            "range": "stddev: 0.012746053541898087",
+            "extra": "mean: 2.5728035389999975 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/test_benchmarks.py::test_benchmark_viewer[outline_colorful]",
+            "value": 0.7073273880777311,
+            "unit": "iter/sec",
+            "range": "stddev: 0.035017467327006106",
+            "extra": "mean: 1.4137724861999914 sec\nrounds: 5"
+          },
+          {
+            "name": "tests/test_benchmarks.py::test_benchmark_viewer[preview]",
+            "value": 0.04515414204126067,
+            "unit": "iter/sec",
+            "range": "stddev: 1.1738947658529297",
+            "extra": "mean: 22.146362543799995 sec\nrounds: 5"
           }
         ]
       }
