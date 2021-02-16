@@ -2,7 +2,8 @@
 
 #### 1.6 (UNRELEASED)
 
-...
+Other changes:
+- Dropped support for Python 3.6 (#207)
 
 #### 1.5 (2021-02-16)
 

@@ -1,11 +1,10 @@
-name: Lint and Tests
+name: Benchmarks
 
 on:
   schedule:
     # * is a special character in YAML so you have to quote this string
     - cron: '* 3 * * *'
-
-  workflow_dispatch
+  workflow_dispatch:
 
 jobs:
   benchmark:
