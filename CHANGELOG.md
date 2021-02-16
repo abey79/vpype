@@ -1,6 +1,6 @@
 # Change log
 
-#### 1.5 (UNRELEASED)
+#### 1.5 (2021-02-16)
 
 **Note**: This is the last version of *vpype* to support Python 3.6.
 
