@@ -9,17 +9,20 @@ New features and improvements:
   * Added rulers with dynamic scale to the display (can be optionally hidden) (#199)
   * Added metric and imperial unit system (in addition to pixels), used by the rulers and the mouse coordinates display (#199, #205)
   * Adjusted the size of the mouse coordinates text on Windows (#199)
-  * Added support to scale the UI via `~/.vpype.toml` (#203)
+  * Added support to adjust the scale of the UI via `~/.vpype.toml` (#203)
   
-    This can be achieved by adding the following lines to your `~/.vpype.toml` file:
+    This is achieved by adding the following lines to your `~/.vpype.toml` file:
     ```toml
     [viewer]
     ui_scale_factor = 1.5
     ```  
     A value of 1.5 may be useful on some Windows configurations where the default UI is very small.
   
+Bug fixes:
+* Fixed issue on Linux where `show` would revert to the classic viewer due to a `libX11` discovery issue (#206)
+
 API changes:
-  * Renamed `vpype.CONFIG_MANAGER` in favour of `vpype.config_manager` (existing name kept for compatibility) (#202)
+* Renamed `vpype.CONFIG_MANAGER` in favour of `vpype.config_manager` (existing name kept for compatibility) (#202)
 
 #### 1.4 (2021-02-08)
 
