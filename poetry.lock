@@ -205,7 +205,7 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
 name = "glcontext"
-version = "2.3.1"
+version = "2.3.2"
 description = "Portable OpenGL Context"
 category = "main"
 optional = false
@@ -713,7 +713,7 @@ python-versions = "*"
 
 [[package]]
 name = "sphinx"
-version = "3.5.0"
+version = "3.5.1"
 description = "Python documentation generator"
 category = "main"
 optional = true
@@ -738,9 +738,9 @@ sphinxcontrib-qthelp = "*"
 sphinxcontrib-serializinghtml = "*"
 
 [package.extras]
-lint = ["docutils-stubs", "flake8 (>=3.5.0)", "isort", "mypy (>=0.800)"]
-test = ["pytest", "pytest-cov", "html5lib", "cython", "typed-ast"]
 docs = ["sphinxcontrib-websupport"]
+lint = ["flake8 (>=3.5.0)", "isort", "mypy (>=0.800)", "docutils-stubs"]
+test = ["pytest", "pytest-cov", "html5lib", "cython", "typed-ast"]
 
 [[package]]
 name = "sphinx-autodoc-typehints"
@@ -925,7 +925,7 @@ docs = ["Sphinx", "sphinx-click", "sphinx-autodoc-typehints", "sphinx-rtd-theme"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.6.1, !=3.9.0, <3.10"
-content-hash = "60c5fead3aa49591e9fa502365ef333dede5fa13e30502628f875d678e6010d3"
+content-hash = "123cee13e7ac608de0008e3066b53600c78f960acbd2d51bad44b056099df93a"
 
 [metadata.files]
 alabaster = [
@@ -1054,30 +1054,30 @@ future = [
     {file = "future-0.18.2.tar.gz", hash = "sha256:b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d"},
 ]
 glcontext = [
-    {file = "glcontext-2.3.1-cp35-cp35m-macosx_10_9_x86_64.whl", hash = "sha256:22e0d8d037b7270d2443eb1cfcaa2e0ae095bf3a729ed8fcbbdd9cbe3a80ccf2"},
-    {file = "glcontext-2.3.1-cp35-cp35m-manylinux1_i686.whl", hash = "sha256:31ebe2c216a37f83e48c183c7cf63fd3a589c8a954f35714108393b8dea33dfc"},
-    {file = "glcontext-2.3.1-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:e9827c43267a62cc4e637e685c9012b6e386edf137028246fbb3d2cabbdde76d"},
-    {file = "glcontext-2.3.1-cp35-cp35m-win32.whl", hash = "sha256:9067ea89a6f8dc7604d478bbe2cbb050e468f2627bd0028028c46249feac7496"},
-    {file = "glcontext-2.3.1-cp35-cp35m-win_amd64.whl", hash = "sha256:7a4ead18900ee37f34560256a22bdb72a643b2d5351771e94d9f2abef7243bd0"},
-    {file = "glcontext-2.3.1-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:f05f07d0bc2159d4809618cee9fc65d0fad13d9df2462e95064dee0e506e3ff6"},
-    {file = "glcontext-2.3.1-cp36-cp36m-manylinux1_i686.whl", hash = "sha256:df9795be68c91427f437f4d27268d918977e797786e6f419ca6ab99d6d6d37bf"},
-    {file = "glcontext-2.3.1-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:e938f67a278130100587bce2b4c32b6c0f73426ea991fda1575caeecf66a01f7"},
-    {file = "glcontext-2.3.1-cp36-cp36m-win32.whl", hash = "sha256:d4fa5d4f172b0f173aa1b59817a453ec2cdb8e2cf5b143f40b2dcbf70e3df9d6"},
-    {file = "glcontext-2.3.1-cp36-cp36m-win_amd64.whl", hash = "sha256:179133d84c719b8483d7369247ff3fa48c45156213af11a8b6553f1cf9602244"},
-    {file = "glcontext-2.3.1-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:7920b81ea7116102855c863dc7ac71687ec8508db68a4fdcb2b293c7f0e02bd3"},
-    {file = "glcontext-2.3.1-cp37-cp37m-manylinux1_i686.whl", hash = "sha256:2cbd8920af80ae8d797a25eae8ca4dd57706847254b5b160a94d1ae427369277"},
-    {file = "glcontext-2.3.1-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:15f7fefae9985bf9a25df3d35c326203bd6910d7cc576d0174291de36173df2a"},
-    {file = "glcontext-2.3.1-cp37-cp37m-win32.whl", hash = "sha256:dddeadf38805f2e5c63bdd5e8c0cfe6d767afb83c7b0a475beee00b39b7b2b71"},
-    {file = "glcontext-2.3.1-cp37-cp37m-win_amd64.whl", hash = "sha256:ef2faeb2c20f0efba0fc4934caf46e10d46b9e803e9a9bf69ba1c2fdd413bf33"},
-    {file = "glcontext-2.3.1-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:f4aa9e898f691a5739e3e44c7ae809164c3b4a75b589f6ef39ae85bf599079b4"},
-    {file = "glcontext-2.3.1-cp38-cp38-manylinux1_i686.whl", hash = "sha256:042dd905437f9435102629acea53cb13f1c0a042db51cfdcf6598d305e1e1487"},
-    {file = "glcontext-2.3.1-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:1d6556dedb399425c10d3c0174c8ce839577900489594bc8695f7b6f83f7a9d2"},
-    {file = "glcontext-2.3.1-cp38-cp38-win32.whl", hash = "sha256:2c0f0f9aedb0287409ef03f4788cae5b7d1e7ba988d0314c6749841a7d379091"},
-    {file = "glcontext-2.3.1-cp38-cp38-win_amd64.whl", hash = "sha256:5c88c5ae6037a396bff322b88f0c5e9aa61059c4db2adb55529ecbc4206bbd10"},
-    {file = "glcontext-2.3.1-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:f5c33e566755149644a64de7a9b8e16dfb51cfa14d459be9574e8f7896034f7c"},
-    {file = "glcontext-2.3.1-cp39-cp39-win32.whl", hash = "sha256:b2e7d27c226a5354b518b8ee8df17bc8b2512d6bfcb83352d662d5bf54545494"},
-    {file = "glcontext-2.3.1-cp39-cp39-win_amd64.whl", hash = "sha256:9198abb476c6683d56227ac17ec805d18fa58466922c748c1ea44bf35c9c16c8"},
-    {file = "glcontext-2.3.1.tar.gz", hash = "sha256:559705d3e1059311c53e87d91d7270f07aed594bebf25d328253c0155ac00fc4"},
+    {file = "glcontext-2.3.2-cp35-cp35m-macosx_10_9_x86_64.whl", hash = "sha256:8b92a3bcca1cd0be5fa6add8c3feb723747a160b372523c6f720485c7648838d"},
+    {file = "glcontext-2.3.2-cp35-cp35m-manylinux1_i686.whl", hash = "sha256:3c62af1f972f97565deac6d08230bcd3ce09e6ab580b822eebe30dd9c902d19b"},
+    {file = "glcontext-2.3.2-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:771c36d0a2fc03b94130f46ff996e0f607c72b54fcba72fb7493cf2dd18fe46a"},
+    {file = "glcontext-2.3.2-cp35-cp35m-win32.whl", hash = "sha256:fdf3ae07f8de29b7fa9c6006b5bc6b8fc8e508455574405473f680ecba8272b7"},
+    {file = "glcontext-2.3.2-cp35-cp35m-win_amd64.whl", hash = "sha256:eb35d324239cc42df402b8716f0aa0d7f30d68b895f183f4d4a3f424b3b9579b"},
+    {file = "glcontext-2.3.2-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:17cf58e4a70897da8a99d72044cf1437e2fd232d4e3af599e018e858e27df6d7"},
+    {file = "glcontext-2.3.2-cp36-cp36m-manylinux1_i686.whl", hash = "sha256:470474a7b2e963af284c07116dd9b3f7fab0a5195da308f33599fcad1ef5de7f"},
+    {file = "glcontext-2.3.2-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:842492c39ec7fc87f982300def79751dab7888b985c6f1dab13b5937f56f5a0d"},
+    {file = "glcontext-2.3.2-cp36-cp36m-win32.whl", hash = "sha256:b59ec600fbdd7bffeb22ac96fd1639980fe08a41a5935c9deb0c2012cdd190da"},
+    {file = "glcontext-2.3.2-cp36-cp36m-win_amd64.whl", hash = "sha256:4385d2d6626a7f3d33b06eefe5b506bb1c4afc2b2996b9ac8c5ff32d7de2b432"},
+    {file = "glcontext-2.3.2-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:ecea09f612eed473b5eec2f56b68e3278ce683e7220b2895e5864b6c4ccef87f"},
+    {file = "glcontext-2.3.2-cp37-cp37m-manylinux1_i686.whl", hash = "sha256:59bf670a5899998ee7190bc5130da025512c765b36b89dcb06477535f67ae882"},
+    {file = "glcontext-2.3.2-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:eb83051e4246160c1f60943b74accb5fe91835022deb753ffc18e3087d82a011"},
+    {file = "glcontext-2.3.2-cp37-cp37m-win32.whl", hash = "sha256:6257b0319bf05859630c117550d46b71973b591e863bd8b1eb6faec0f51199fe"},
+    {file = "glcontext-2.3.2-cp37-cp37m-win_amd64.whl", hash = "sha256:7804bc3ef37ba0d35845e02e5e428713857b181bd2826ffc48b863613e40649b"},
+    {file = "glcontext-2.3.2-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:eae3ff044064f2b6b5a6023afbccd6751aa6b1c1896dd4bb411e36cc8f64c143"},
+    {file = "glcontext-2.3.2-cp38-cp38-manylinux1_i686.whl", hash = "sha256:01632bc0c33e71f57801daacb0f3e552a01a426e1e9cd45dadd969bc66fc0c9c"},
+    {file = "glcontext-2.3.2-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:e34b8d6f0598d27ce02fb1b535d37827b37259ddc811ec689091d68e9f8df054"},
+    {file = "glcontext-2.3.2-cp38-cp38-win32.whl", hash = "sha256:beeb8aa834773cc3dc1c37809841cfb26be16dfd2dedffdf76a246fb9c92de51"},
+    {file = "glcontext-2.3.2-cp38-cp38-win_amd64.whl", hash = "sha256:dad729ebbb870a725aba7fba75589d3b90e1b495b8d4b4533721b8ea798898f8"},
+    {file = "glcontext-2.3.2-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:54324b5b5486ca53f83a64410939c08549ee5253845675131b54e57c8f9bc11a"},
+    {file = "glcontext-2.3.2-cp39-cp39-win32.whl", hash = "sha256:44f8c5a07add0b90a46b10e3f328731f51d7ac973047dfada6e0338d3bf3f77e"},
+    {file = "glcontext-2.3.2-cp39-cp39-win_amd64.whl", hash = "sha256:950bdbfad1162ecaee03cdd070ab02b0e0ce4a9efe03708f706bd3c5985f29f7"},
+    {file = "glcontext-2.3.2.tar.gz", hash = "sha256:f716c05689ddf911afe68c7e7e3ac2b283e40a184031d81055141d310f07235e"},
 ]
 idna = [
     {file = "idna-2.10-py2.py3-none-any.whl", hash = "sha256:b97d804b1e9b523befed77c48dacec60e6dcb0b5391d57af6a65a312a90648c0"},
@@ -1571,8 +1571,8 @@ snowballstemmer = [
     {file = "snowballstemmer-2.1.0.tar.gz", hash = "sha256:e997baa4f2e9139951b6f4c631bad912dfd3c792467e2f03d7239464af90e914"},
 ]
 sphinx = [
-    {file = "Sphinx-3.5.0-py3-none-any.whl", hash = "sha256:68da66ca3d6b35b22bea5c53d938d5f8988663dca042f0a46429a1eba1010051"},
-    {file = "Sphinx-3.5.0.tar.gz", hash = "sha256:deb468efb3abaa70d790add4147d18782d86fdeacf648d6e8afb7a99807f1546"},
+    {file = "Sphinx-3.5.1-py3-none-any.whl", hash = "sha256:e90161222e4d80ce5fc811ace7c6787a226b4f5951545f7f42acf97277bfc35c"},
+    {file = "Sphinx-3.5.1.tar.gz", hash = "sha256:11d521e787d9372c289472513d807277caafb1684b33eb4f08f7574c405893a9"},
 ]
 sphinx-autodoc-typehints = [
     {file = "sphinx-autodoc-typehints-1.11.1.tar.gz", hash = "sha256:244ba6d3e2fdb854622f643c7763d6f95b6886eba24bec28e86edf205e4ddb20"},
