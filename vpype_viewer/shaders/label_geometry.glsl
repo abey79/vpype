@@ -12,12 +12,12 @@ out vec2 uv;
 
 void main(void)
 {
-    int char = v_char[0];
+    int c = v_char[0];
     int glyph;
-    if (char >= 32 && char <= 126)
-        glyph = char - 32;
-    else if (char >= 161 && char <= 255)
-        glyph = 95 + char - 161;
+    if (c >= 32 && c <= 126)
+        glyph = c - 32;
+    else if (c >= 161 && c <= 255)
+        glyph = 95 + c - 161;
     else
         return;
 

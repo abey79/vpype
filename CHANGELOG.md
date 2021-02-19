@@ -1,5 +1,10 @@
 # Change log
 
+#### 1.5.1 (UNRELEASE)
+
+Bug fixes:
+* Fixed a shader compilation issue arising on some Windows configuration (#201)
+
 #### 1.5 (2021-02-16)
 
 **Note**: This is the last version of *vpype* to support Python 3.6.
