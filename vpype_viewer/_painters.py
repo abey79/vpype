@@ -537,7 +537,7 @@ class LabelPainter(Painter):
         self._texture = load_texture_array("VeraMono.png", ctx, (77, 159, 190), 4)
         self._aspect_ratio = 159.0 / 77.0
         self._prog = load_program("label", ctx)
-        self._vao = ctx.vertex_array(self._prog, [(self._buffer, "u1", "char")])
+        self._vao = ctx.vertex_array(self._prog, [(self._buffer, "u1", "in_char")])
 
     @property
     def label(self) -> str:

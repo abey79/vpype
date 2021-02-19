@@ -2,6 +2,9 @@
 
 #### 1.6 (UNRELEASED)
 
+Bug fixes:
+* Fixed a shader compilation issue arising on some Windows configuration (#201)
+
 Other changes:
 - Dropped support for Python 3.6 (#207)
 
