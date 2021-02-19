@@ -1,9 +1,10 @@
 # Change log
 
-#### 1.5.1 (UNRELEASE)
+#### 1.5.1 (UNRELEASED)
 
 Bug fixes:
-* Fixed a shader compilation issue arising on some Windows configuration (#201)
+* Fixed a shader compilation issue arising on some Windows configuration (#210)
+* Fixed UI glitches when using both non-HiDPI and HiDPI (a.k.a Retina) monitors (#211)
 
 #### 1.5 (2021-02-16)
 

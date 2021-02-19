@@ -110,6 +110,11 @@ class QtViewerWidget(QGLWidget):
         self._factor = screen.devicePixelRatio()
         self.engine.pixel_factor = self._factor
 
+        # force an update and reset of viewport's dimensions
+        self.resizeGL(
+            self.geometry().width() * self._factor, self.geometry().height() * self._factor
+        )
+
     def initializeGL(self):
         self._ctx = mgl.create_context()
         logging.info(f"Context info: {self._ctx.info}")
