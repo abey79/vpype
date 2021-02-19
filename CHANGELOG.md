@@ -1,6 +1,6 @@
 # Change log
 
-#### 1.5.1 (UNRELEASED)
+#### 1.5.1 (2021-02-19)
 
 Bug fixes:
 * Fixed a shader compilation issue arising on some Windows configuration (#210)
