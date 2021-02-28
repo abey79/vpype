@@ -48,6 +48,7 @@ MINIMAL_COMMANDS = [
     "snap 1",
     "reverse",
     "layout a4",
+    "squiggles",
 ]
 
 

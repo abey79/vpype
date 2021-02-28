@@ -112,7 +112,8 @@ class QtViewerWidget(QGLWidget):
 
         # force an update and reset of viewport's dimensions
         self.resizeGL(
-            self.geometry().width() * self._factor, self.geometry().height() * self._factor
+            round(self.geometry().width() * self._factor),
+            round(self.geometry().height() * self._factor),
         )
 
     def initializeGL(self):

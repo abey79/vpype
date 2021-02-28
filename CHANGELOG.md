@@ -2,8 +2,11 @@
 
 #### 1.6 (UNRELEASED)
 
+New features and improvements:
+* Added `squiggles` command to apply "shaky hand" style to the geometries (#XXX)  
+
 Other changes:
-- Dropped support for Python 3.6 (#207)
+* Dropped support for Python 3.6 (#207)
 
 #### 1.5.1 (2021-02-19)
 
