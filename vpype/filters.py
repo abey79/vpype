@@ -12,8 +12,14 @@ __all__ = ["squiggles"]
 def squiggles(
     lines: LineCollection, ampl: float, period: float, quantization: float
 ) -> LineCollection:
-    """
-    TODO
+    """Apply a squiggle filter to a :class:`LineCollection`.
+
+    This filter first densely resample the input lines (based on the ``quantization``
+    parameter), and then applies a 2D-Perlin-noise-based displacement to all points.
+
+    For small values of amplitude (~2px) and period (~12px), this filter gives a "shaky-hand"
+    style to the lines. Larger values of amplitude (~60px) and period (~400px) result in a
+    a smoother, liquid-like effect.
 
     Args:
         lines: input lines

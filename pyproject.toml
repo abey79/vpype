@@ -54,7 +54,7 @@ toml = "~0.10.2"
 
 # these needs to be there because of https://github.com/python-poetry/poetry/issues/1145
 Sphinx = { version = "^3.3.0", optional = true }
-sphinx-click = { version = "^2.5.0", optional = true }
+sphinx-click = { version = ">=2.5.0", optional = true }
 sphinx-autodoc-typehints = { version = "^1.11.1", optional = true }
 sphinx-rtd-theme = { version = "^0.5.0", optional = true }
 recommonmark = { version = ">=0.6,<0.8", optional = true }
