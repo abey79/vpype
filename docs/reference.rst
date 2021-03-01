@@ -107,6 +107,10 @@ CLI reference
 .. click:: vpype_cli:RepeatBlockProcessor
    :prog: repeat
 
+.. _cmd_reverse:
+.. click:: vpype_cli:reverse
+   :prog: reverse
+
 .. _cmd_rotate:
 .. click:: vpype_cli:rotate
    :prog: rotate
