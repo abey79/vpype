@@ -150,7 +150,6 @@ def lmove(document, sources, dest, prob: Optional[float]):
     "-p",
     "--prob",
     type=click.FloatRange(0.0, 1.0),
-    default=1.0,
     help="Path deletion probability (default: 1.0).",
 )
 @global_processor
