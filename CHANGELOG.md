@@ -4,6 +4,7 @@
 
 New features and improvements:
 * Added `squiggles` command to apply "shaky hand" style to the geometries (#217)
+* Added probabilistic mode to `lmove`, `lcopy`, and `ldelete` to enable various random coloring effects (#220)
 
 Bug fixes:
 * Fixed missing documentation for the `reverse` command (#217)
