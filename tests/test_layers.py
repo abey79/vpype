@@ -98,8 +98,8 @@ def test_lmove_prob(big_doc):
         doc = copy.deepcopy(big_doc)
         doc = execute("lmove --prob 0.5 1 2", doc)
 
-        assert math.isclose(len(doc.layers[1]) / 1000, 0.5, abs_tol=0.05)
-        assert math.isclose(len(doc.layers[2]) / 1000, 0.5, abs_tol=0.05)
+        assert math.isclose(len(doc.layers[1]) / 1000, 0.5, abs_tol=0.1)
+        assert math.isclose(len(doc.layers[2]) / 1000, 0.5, abs_tol=0.1)
 
 
 def test_lmove_prob_zero(big_doc):
@@ -123,7 +123,7 @@ def test_ldelete_prob(big_doc):
         doc = copy.deepcopy(big_doc)
         doc = execute("ldelete --prob 0.5 1", doc)
 
-        assert math.isclose(len(doc.layers[1]) / 1000, 0.5, abs_tol=0.05)
+        assert math.isclose(len(doc.layers[1]) / 1000, 0.5, abs_tol=0.1)
 
 
 def test_ldelete_prob_zero(big_doc):
@@ -148,7 +148,7 @@ def test_lcopy_prob(big_doc):
         doc = execute("lcopy --prob 0.5 1 2", doc)
 
         assert len(doc.layers[1]) == 1000
-        assert math.isclose(len(doc.layers[2]) / 1000, 0.5, abs_tol=0.05)
+        assert math.isclose(len(doc.layers[2]) / 1000, 0.5, abs_tol=0.1)
 
 
 def test_lcopy_prob_zero(big_doc):
