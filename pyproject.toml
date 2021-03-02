@@ -43,6 +43,7 @@ moderngl = "^5.6.2"
 multiprocess = "^0.70.11"
 numpy = "^1.20"
 Pillow = "^8.1.0"
+pnoise = "^0.1.0"
 PySide2 = "^5.15.2"
 Shapely = {extras = ["vectorized"], version = "~1.7.1"}
 scipy = "^1.6"
@@ -53,7 +54,7 @@ toml = "~0.10.2"
 
 # these needs to be there because of https://github.com/python-poetry/poetry/issues/1145
 Sphinx = { version = "^3.3.0", optional = true }
-sphinx-click = { version = "^2.5.0", optional = true }
+sphinx-click = { version = ">=2.5.0", optional = true }
 sphinx-autodoc-typehints = { version = "^1.11.1", optional = true }
 sphinx-rtd-theme = { version = "^0.5.0", optional = true }
 recommonmark = { version = ">=0.6,<0.8", optional = true }

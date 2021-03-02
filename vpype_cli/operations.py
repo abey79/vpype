@@ -18,6 +18,7 @@ __all__ = (
     "multipass",
     "pagesize",
     "reloop",
+    "reverse",
     "snap",
     "splitall",
     "trim",
