@@ -90,6 +90,13 @@ def test_lmove(big_doc):
     assert len(doc.layers[2]) == 1000
 
 
+def test_lmove_prob_one(big_doc):
+    doc = execute("lmove --prob 1. 1 2", big_doc)
+
+    assert 1 not in doc.layers
+    assert len(doc.layers[2]) == 1000
+
+
 def test_lmove_prob(big_doc):
     # test for a bunch of seeds without making the test fragile
     for seed in range(100):
@@ -115,6 +122,12 @@ def test_ldelete(big_doc):
     assert len(doc.layers) == 0
 
 
+def test_ldelete_prob_one(big_doc):
+    doc = execute("ldelete --prob 1. 1", big_doc)
+
+    assert len(doc.layers) == 0
+
+
 def test_ldelete_prob(big_doc):
     # test for a bunch of seeds without making the test fragile
     for seed in range(100):
@@ -134,6 +147,13 @@ def test_ldelete_prob_zero(big_doc):
 
 def test_lcopy(big_doc):
     doc = execute("lcopy 1 2", big_doc)
+
+    assert len(doc.layers[1]) == 1000
+    assert len(doc.layers[2]) == 1000
+
+
+def test_lcopy_prob_one(big_doc):
+    doc = execute("lcopy --prob 1. 1 2", big_doc)
 
     assert len(doc.layers[1]) == 1000
     assert len(doc.layers[2]) == 1000
