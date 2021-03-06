@@ -235,6 +235,7 @@ and much more.
  - [occult](https://github.com/LoicGoulefert/occult): perform hidden line removal
  - [vpype-explorations](https://github.com/abey79/vpype-explorations): my personal grab bag of experiments and utilities
  - [vpype-gcode](https://github.com/tatarize/vpype-gcode/): flexible export command for gcode and other text-based format
+ - [vpype-dxf](https://github.com/tatarize/vpype-dxf/): read dxf files
  - [vpype-embroidery](https://github.com/EmbroidePy/vpype-embroidery): various embroidery-related utilities, including read from/write to most embroidery formats 
  - [vpype-vectrace](https://github.com/tatarize/vpype-vectrace): create outlines from images with vector tracing
  
