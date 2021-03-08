@@ -3,11 +3,23 @@
 #### 1.6 (UNRELEASED)
 
 New features and improvements:
+* Added new `text` command  (#XXX)
+  
+  This command render text using Hershey fonts. It can optionally create text blocks with wrapping, custom alignment, and optional justify mode. A set of Hershey fonts are included.
+
+  **Notes**:
+  * Part of this feature was previously available through the [*vpype-text*](https://github.com/abey79/vpype-text) plug-in, which is now deprecated. The plug-in should no longer be used, and, if present, uninstalled.
+  * The implementation of this feature is forked from the [axi library](https://github.com/fogleman/axi) -- thanks @fogleman!
+
 * Added `squiggles` command to apply "shaky hand" style to the geometries (#217)
 * Added probabilistic mode to `lmove`, `lcopy`, and `ldelete` to enable various random coloring effects (#220)
 
 Bug fixes:
 * Fixed missing documentation for the `reverse` command (#217)
+
+API changes:
+* Added `vpype.FONT_NAMES`, `vpype.text_line`, and `vpype.text_block` for Hershey-font-based text rendering (#XXX)
+
 
 Other changes:
 * Dropped support for Python 3.6 (#207)
