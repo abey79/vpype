@@ -25,7 +25,7 @@ import itertools
 import pickle
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List
+from typing import Callable, Dict, List
 
 from .model import LineCollection
 
@@ -36,21 +36,32 @@ _FONT_DIR = Path(__file__).parent / "fonts"
 
 FONT_NAMES = [p.stem for p in _FONT_DIR.glob("*.pickle")]
 
-_FONTS = {}
-
 
 @dataclass
 class _Glyph:
+    """Glyph description class."""
+
     lt: float
     rt: float
-    lines: LineCollection()
+    lines: LineCollection
 
     def append_with_offset(self, target: LineCollection, dx: float, dy: float = 0.0) -> None:
+        """Append the glyph to a target LineCollection instance using the provided offset."""
         for line in self.lines:
             target.append(line + complex(dx, dy))
 
 
 class _Font:
+    """Font description class.
+
+    Loads pickled version of the Ax i's Hershey font in:
+    https://github.com/fogleman/axi/blob/master/axi/hershey_fonts.py
+
+    The glyph data is converted to LineCollection.
+    """
+
+    _FONTS: Dict[str, "_Font"] = {}
+
     def __init__(self, name: str):
         with open(_FONT_DIR / (name + ".pickle"), "rb") as fp:
             font_data = pickle.load(fp)
@@ -69,19 +80,23 @@ class _Font:
             all_glyphs.extend(glyph.lines)
         self.max_height = all_glyphs.height()
 
+    @classmethod
+    def get(cls, font_name: str) -> "_Font":
+        """Get _Font instance for provided name, using caching."""
+        try:
+            if font_name not in cls._FONTS:
+                cls._FONTS[font_name] = _Font(font_name)
+            return cls._FONTS[font_name]
+        except FileNotFoundError as exc:
+            raise ValueError(f"font '{font_name}' could not be found", exc)
 
-def _get_font(font_name: str) -> _Font:
-    try:
-        if font_name not in _FONTS:
-            _FONTS[font_name] = _Font(font_name)
-        return _FONTS[font_name]
-    except FileNotFoundError as exc:
-        raise ValueError(f"font '{font_name}' could not be found", exc)
 
-
-def _text_line(txt: str, font: _Font, spacing: float = 0, extra: float = 0) -> LineCollection:
+def _text_line(
+    txt: str, font: _Font, spacing: float = 0.0, extra: float = 0.0
+) -> LineCollection:
+    """Generate a single line of text."""
     result = LineCollection()
-    x = 0
+    x = 0.0
     for ch in txt:
         index = ord(ch) - 32
         if index < 0 or index >= 96:
@@ -101,7 +116,7 @@ def text_line(
     font_name="futural",
     size: float = 18.0,
     align: str = "left",
-    spacing: float = 0,
+    spacing: float = 0.0,
 ) -> LineCollection:
     """Create a line of text.
 
@@ -116,7 +131,7 @@ def text_line(
             left alignment)
         spacing: additional spacing added after each character
     """
-    font = _get_font(font_name)
+    font = _Font.get(font_name)
     lc = _text_line(txt, font, spacing)
     lc.scale(size / font.max_height)
 
@@ -130,7 +145,8 @@ def text_line(
     return lc
 
 
-def _word_wrap(paragraph: str, width: float, measure_func):
+def _word_wrap(paragraph: str, width: float, measure_func: Callable[[str], float]):
+    """Break text in multiple line."""
     result = []
     for line in paragraph.split("\n"):
         fields = itertools.groupby(line, lambda c: c.isspace())
@@ -155,8 +171,10 @@ def _word_wrap(paragraph: str, width: float, measure_func):
 
 
 def _justify_text(txt: str, font: _Font, width: float) -> LineCollection:
+    """Draw text with justification."""
     d = _text_line(txt, font)
-    w = d.width()
+    bounds = d.bounds()
+    w = bounds[2] if bounds else 0.0
     spaces = txt.count(" ")
     if spaces == 0 or w >= width:
         return d
@@ -189,31 +207,32 @@ def text_block(
         justify: should the text be justified (default: False)
     """
 
-    font = _get_font(font_name)
+    font = _Font.get(font_name)
     scale_factor = size / font.max_height
     width /= scale_factor
 
     def measure(txt):
-        return _text_line(txt, font).width()
+        bounds = _text_line(txt, font).bounds()
+        return bounds[2] if bounds else 0.0
 
     lines = _word_wrap(paragraph, width, measure)
-    lc_arr = [_text_line(line, font) for line in lines]
 
-    max_width = max(lc.width() for lc in lc_arr)
     if justify:
-        justified_lcs = [_justify_text(line, font, max_width) for line in lines]
-        lc_arr = justified_lcs[:-1] + [lc_arr[-1]]
+        lc_arr = [_justify_text(line, font, width) for line in lines[:-1]]
+        lc_arr += [_text_line(lines[-1], font)]
+    else:
+        lc_arr = [_text_line(line, font) for line in lines]
 
     spacing = line_spacing * font.max_height
     result = LineCollection()
-    y = 0
+    y = 0.0
     for lc in lc_arr:
         if align == "left":
-            x = 0
+            x = 0.0
         elif align == "right":
-            x = max_width - lc.width()
+            x = width - lc.width()
         elif align == "center":
-            x = max_width / 2 - lc.width() / 2
+            x = width / 2 - lc.width() / 2
         else:
             raise ValueError(f"unknown value for align ('{align}')")
 

@@ -49,7 +49,15 @@ MINIMAL_COMMANDS = [
     "reverse",
     "layout a4",
     "squiggles",
+    "text 'hello wold'",
 ]
+
+# noinspection SpellCheckingInspection
+LOREM = (
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor "
+    "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud "
+    "exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+)
 
 
 @pytest.mark.parametrize("args", MINIMAL_COMMANDS)
@@ -434,3 +442,17 @@ def test_layout(runner, args, expected_bounds):
     assert bounds is not None
     for act, exp in zip(bounds, expected_bounds):
         assert act == pytest.approx(exp * CM)
+
+
+@pytest.mark.parametrize("font_name", vp.FONT_NAMES)
+@pytest.mark.parametrize("options", ["", "-j"])
+def test_text_wrap(font_name, options):
+    doc = execute(f"text -f {font_name} -w 300 {options} '{LOREM}'")
+
+    bounds = doc[1].bounds()
+    assert bounds is not None
+    assert -2.0 <= bounds[0] <= 3.0
+    if options == "-j":
+        assert bounds[2] == pytest.approx(300.0)
+    else:
+        assert bounds[2] <= 300.0
