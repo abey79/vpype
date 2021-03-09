@@ -9,6 +9,7 @@ from .layers import *
 from .line_index import *
 from .model import *
 from .primitives import *
+from .text import *
 from .utils import *
 
 

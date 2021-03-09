@@ -151,6 +151,10 @@ CLI reference
 .. click:: vpype_cli:stat
    :prog: stat
 
+.. _cmd_text:
+.. click:: vpype_cli:text
+   :prog: text
+
 .. _cmd_translate:
 .. click:: vpype_cli:translate
    :prog: translate

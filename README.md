@@ -212,6 +212,7 @@ and much more.
 #### Generation
  
  - Generation of arbitrary **primitives** including lines, rectangles, circles, ellipses and arcs ([`line`](https://vpype.readthedocs.io/en/stable/reference.html#line), [`rect`](https://vpype.readthedocs.io/en/stable/reference.html#rect), [`circle`](https://vpype.readthedocs.io/en/stable/reference.html#circle), [`ellipse`](https://vpype.readthedocs.io/en/stable/reference.html#ellipse), [`arc`](https://vpype.readthedocs.io/en/stable/reference.html#arc)).
+ - Generation of **text** using bundled Hershey fonts ([`text`](https://vpype.readthedocs.io/en/latest/reference.html#text))
  - Generation of grid-like layouts ([`grid`](https://vpype.readthedocs.io/en/stable/reference.html#grid)).
  - Generation of a **frame** around the geometries ([`frame`](https://vpype.readthedocs.io/en/stable/reference.html#frame)).
  - Generation of random lines for debug/learning purposes ([`random`](https://vpype.readthedocs.io/en/stable/reference.html#random))
@@ -228,7 +229,6 @@ and much more.
  Here is a list of known vpype plug-ins (please make a pull request if yours is missing):
  
  - [vsketch](https://github.com/abey79/vsketch): *vsketch* is complete framework for plotter generative artists implemented using *vpype*'s API
- - [vpype-text](https://github.com/abey79/vpype-text): plot text with Hershey fonts
  - [vpype-pixelart](https://github.com/abey79/vpype-pixelart): plot pixel art
  - [hatched](https://github.com/abey79/hatched): half-toning with hatches
  - [vpype-flow-imager](https://github.com/serycjon/vpype-flow-imager): convert images to flow-line-based designs

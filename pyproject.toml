@@ -23,6 +23,7 @@ include = [
     "CHANGELOG.md",
     "LICENSE",
     "vpype/*.toml",
+    "vpype/fonts/*.pickle",
     "vpype_viewer/shaders/*.glsl",
     "vpype_viewer/resources/*.png",
     "vpype_viewer/qtviewer/resources/*",

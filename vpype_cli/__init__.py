@@ -14,5 +14,6 @@ from .primitives import *
 from .read import *
 from .script import *
 from .show import *
+from .text import *
 from .transforms import *
 from .write import *
