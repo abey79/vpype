@@ -184,9 +184,9 @@ def _justify_text(txt: str, font: _Font, width: float) -> LineCollection:
 
 def text_block(
     paragraph: str,
-    font_name: str,
     width: float,
-    size: float,
+    font_name="futural",
+    size: float = 18.0,
     align: str = "left",
     line_spacing: float = 1,
     justify=False,

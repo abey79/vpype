@@ -42,8 +42,20 @@ def text(
     position: Tuple[float, float],
     align: str,
 ):
-    """
-    Generate text using a Hershey font.
+    """Generate text using Hershey fonts.
+
+    By default, `text` generates a single line of text. Automatic text wrapping can be enabled
+    using the the `--wrap` option.
+
+    In normal mode, the text starts at coordinate (0, 0) and expends right. This can be
+    controlled using the `--align` option. By passing "center", the text is centered around
+    (0, 0). With "right", the text expends left of (0, 0).
+
+    In wrap mode, the text start at (0, 0) and expends left until it reach the specified width.
+    The `--align` option controls how the text is laid out within the column and behaves as
+    typically expected.
+
+    To start the text at the different location than (0, 0), use the `--position` option.
     """
 
     # skip if text is empty
