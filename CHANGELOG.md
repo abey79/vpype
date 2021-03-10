@@ -3,7 +3,7 @@
 #### 1.6 (UNRELEASED)
 
 New features and improvements:
-* Added new `text` command  (#226)
+* Added new `text` command  (#226, #227)
   
   This command render text using Hershey fonts. It can optionally create text blocks with wrapping, custom alignment, and optional justify mode. A set of Hershey fonts are included.
 
@@ -18,7 +18,7 @@ Bug fixes:
 * Fixed missing documentation for the `reverse` command (#217)
 
 API changes:
-* Added `vpype.FONT_NAMES`, `vpype.text_line`, and `vpype.text_block` for Hershey-font-based text rendering (#226)
+* Added `vpype.FONT_NAMES`, `vpype.text_line`, and `vpype.text_block` for Hershey-font-based text rendering (#226, #227)
 
 
 Other changes:

@@ -447,15 +447,15 @@ def test_layout(runner, args, expected_bounds):
 @pytest.mark.parametrize("font_name", vp.FONT_NAMES)
 @pytest.mark.parametrize("options", ["", "-j"])
 def test_text_command_wrap(font_name, options):
-    doc = execute(f"text -f {font_name} -w 300 {options} '{LOREM}'")
+    doc = execute(f"text -f {font_name} -w 350 {options} '{LOREM}'")
 
     bounds = doc[1].bounds()
     assert bounds is not None
     assert -2.0 <= bounds[0] <= 3.0
     if options == "-j":
-        assert bounds[2] == pytest.approx(300.0)
+        assert bounds[2] == pytest.approx(350.0)
     else:
-        assert bounds[2] <= 300.0
+        assert bounds[2] <= 350.0
 
 
 def test_text_command_empty():
