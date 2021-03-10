@@ -149,6 +149,11 @@ def _word_wrap(paragraph: str, width: float, measure_func: Callable[[str], float
     """Break text in multiple line."""
     result = []
     for line in paragraph.split("\n"):
+        # handle empty lines
+        if line == "":
+            result.append("\n")
+            continue
+
         fields = itertools.groupby(line, lambda c: c.isspace())
         fields = ["".join(g) for _, g in fields]
         if len(fields) % 2 == 1:
@@ -165,13 +170,13 @@ def _word_wrap(paragraph: str, width: float, measure_func: Callable[[str], float
                     x = ""
             x += a + b
         if x != "":
-            result.append(x)
-    result = [x.strip() for x in result]
+            result.append(x + "\n")
     return result
 
 
 def _justify_text(txt: str, font: _Font, width: float) -> LineCollection:
     """Draw text with justification."""
+    txt = txt.strip()
     d = _text_line(txt, font)
     bounds = d.bounds()
     w = bounds[2] if bounds else 0.0
@@ -217,22 +222,25 @@ def text_block(
 
     lines = _word_wrap(paragraph, width, measure)
 
-    if justify:
-        lc_arr = [_justify_text(line, font, width) for line in lines[:-1]]
-        lc_arr += [_text_line(lines[-1], font)]
-    else:
-        lc_arr = [_text_line(line, font) for line in lines]
+    lc_arr = [
+        _justify_text(line, font, width)
+        if justify and not line.endswith("\n")
+        else _text_line(line, font)
+        for line in lines
+    ]
 
     spacing = line_spacing * font.max_height
     result = LineCollection()
     y = 0.0
     for lc in lc_arr:
+        bounds = lc.bounds()
+        w = bounds[2] if bounds else 0.0
         if align == "left":
             x = 0.0
         elif align == "right":
-            x = width - lc.width()
+            x = width - w
         elif align == "center":
-            x = width / 2 - lc.width() / 2
+            x = width / 2 - w / 2
         else:
             raise ValueError(f"unknown value for align ('{align}')")
 

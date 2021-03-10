@@ -1,14 +1,20 @@
 import pytest
 
 import vpype as vp
+from vpype_viewer import ImageRenderer, UnitType
 
 # noinspection SpellCheckingInspection
-from vpype_viewer import ImageRenderer
-
 LOREM = (
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor "
     "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud "
-    "exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+    "exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. "
+    "Semper quis lectus nulla at volutpat. Nibh tortor id aliquet lectus.\n"
+    "\n"
+    "Ultrices sagittis orci a scelerisque purus semper eget duis at. Ultrices vitae auctor eu "
+    "augue ut lectus.\n"
+    "Interdum velit euismod in pellentesque massa placerat duis ultricies lacus. Morbi quis "
+    "commodo odio aenean sed adipiscing diam. Risus nec feugiat in fermentum posuere urna nec "
+    "tincidunt."
 )
 
 
@@ -17,7 +23,7 @@ def test_text_unknown_font():
         vp.text_line("Hello", "unknown font")
 
     with pytest.raises(ValueError):
-        vp.text_block("Hello world", 500, font_name="unkown font")
+        vp.text_block("Hello world", 500, font_name="unknown font")
 
 
 def test_text_unknown_align():
@@ -56,9 +62,11 @@ def test_text_block_render(assert_image_similarity, font_name, align, line_spaci
             justify=justify,
         )
     )
+    doc[1].append(vp.line(500, -20, 500, 500))
     renderer = ImageRenderer((1024, 1024))
     renderer.engine.document = doc
-    renderer.engine.show_rulers = False
+    renderer.engine.show_rulers = True
+    renderer.engine.unit_type = UnitType.PIXELS
     renderer.engine.origin = (-20, -20)
     renderer.engine.scale = 1.8
     assert_image_similarity(renderer.render())
