@@ -1,5 +1,10 @@
 # Change log
 
+#### 1.7 (UNRELEASED)
+
+New features and improvements:
+* ...
+
 #### 1.6 (2021-03-10)
 
 New features and improvements:
