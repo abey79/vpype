@@ -59,12 +59,12 @@ When writing to HPGL, a device name must be provided with the `--device` option.
 corresponding device must be configured in the built-in or a user-provided configuration file
 (see the documentation for more details). The following devices are currently available:
 
-    {', '.join(vp.CONFIG_MANAGER.get_plotter_list())}
+    {', '.join(vp.config_manager.get_plotter_list())}
 
 In HPGL mode, this command will try to infer the paper size to use based on the current page
 size (the current page size is set by the `read` command based on the input file and can be
-manually set or changed with the `pagesize` command). An error will be displayed if no
-corresponding paper size if found. Use the `--page-size` option with a format defined in the
+manually set or changed with the `pagesize` or `layout` command). An error will be displayed if
+no corresponding paper size if found. Use the `--page-size` option with a format defined in the
 device's configuration to manually specify with paper size to use.
 
 The plotter may need to be specifically configured for the desired paper size (e.g. for A4 or
@@ -208,7 +208,7 @@ def write(
         )
     elif file_format == "hpgl":
         if not page_size:
-            config = vp.CONFIG_MANAGER.get_plotter_config(device)
+            config = vp.config_manager.get_plotter_config(device)
             if config is not None:
                 paper_config = config.paper_config_from_size(document.page_size)
             else:

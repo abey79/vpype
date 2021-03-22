@@ -22,7 +22,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.8
+        python-version: 3.9
     # Cache pip
     - uses: actions/cache@v2
       with:
@@ -36,19 +36,14 @@ jobs:
     - name: Python Code Quality and Lint
       uses: abey79/python-lint@master
       with:
-        python-root-list: "vpype vpype_cli tests"
+        python-root-list: "vpype vpype_cli vpype_viewer tests"
         use-pylint: false
         use-pycodestyle: false
         use-flake8: false
         use-black: true
+        extra-black-options: --diff
         use-mypy: true
         use-isort: true
-        # extra-pylint-options:
-        # extra-pycodestyle-options:
-        # extra-flake8-options:
-        extra-black-options: --diff
-        # extra-mypy-options:
-        # extra-isort-options:
 
   #########
   # TESTS #
@@ -58,7 +53,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.7, 3.8, 3.9]
         os: [ubuntu-latest, macos-latest]
     defaults:
       run:
@@ -89,21 +84,34 @@ jobs:
     - name: Install dependencies
       run: poetry install
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+    # PYTEST STRATEGY
+    # macOS is the only runner who has working ModernGL behaviour
+    # macOS + 3.8 is used for code coverage
+    - name: Pytest (code coverage)
+      run: |
+        poetry run pytest --cov=./ --cov-report=xml
+      if: matrix.os == 'macos-latest' && matrix.python-version == '3.9'
     - name: Pytest
       run: |
         poetry run pytest
-      if: matrix.python-version != '3.8' || matrix.os != 'ubuntu-latest'
-    ## CODECOV SUPPORT ##
-    - name: Pytest with coverage
+      if: matrix.os == 'macos-latest' && matrix.python-version != '3.9'
+    - name: Pytest (no image similarity check)
       run: |
-        poetry run pytest --cov=./ --cov-report=xml
-      if: matrix.python-version == '3.8' && matrix.os == 'ubuntu-latest'
+        poetry run pytest --skip-image-similarity
+      if: matrix.os != 'macos-latest'
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: test_report_img_sim_${{ runner.os }}_${{ matrix.python-version }}
+        path: test_report_img_sim/**/*
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         file: ./coverage.xml
-      if: matrix.python-version == '3.8' && matrix.os == 'ubuntu-latest'
+      if: matrix.os == 'macos-latest' && matrix.python-version == '3.9'
+
 
   #################
   # TESTS WINDOWS #
@@ -113,7 +121,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.7, 3.8, 3.9]
     defaults:
       run:
         shell: bash
@@ -134,7 +142,13 @@ jobs:
       run: poetry install
     - name: Pytest
       run: |
-        poetry run pytest
+        poetry run pytest --skip-image-similarity
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: test_report_img_sim_${{ runner.os }}_${{ matrix.python-version }}
+        path: test_report_img_sim/**/*
 
   #####################
   # INSTALLER WINDOWS #
@@ -148,10 +162,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.8
+    - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
-        python-version: 3.8
+        python-version: 3.9
     - name: Install and configure Poetry
       uses: snok/install-poetry@v1.1.1
       with:

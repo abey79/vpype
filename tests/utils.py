@@ -7,6 +7,7 @@ import vpype as vp
 from vpype_cli import execute
 
 TESTS_DIRECTORY = pathlib.Path(__file__).parent
+TEST_FILE_DIRECTORY = (TESTS_DIRECTORY / "data" / "test_svg").absolute()
 
 
 def line_collection_contains(lc: vp.LineCollection, line: Sequence[complex]) -> bool:

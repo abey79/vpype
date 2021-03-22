@@ -1,6 +1,11 @@
+import copy
+import math
+import random
+
 import pytest
 
-from vpype_cli import cli
+import vpype as vp
+from vpype_cli import cli, execute
 from vpype_cli.debug import DebugData
 
 
@@ -58,3 +63,116 @@ def test_layer_processors(runner, command, bounds_offset):
             bounds_offset[i] + 1,
             bounds_offset[i] + 1,
         )
+
+
+@pytest.fixture
+def big_doc():
+    random.seed(0)
+    doc = vp.Document()
+    doc.add(
+        vp.LineCollection(
+            [
+                (
+                    random.uniform(0, 100) + random.uniform(0, 100) * 1j,
+                    random.uniform(0, 100) + random.uniform(0, 100) * 1j,
+                )
+                for _ in range(1000)
+            ]
+        )
+    )
+    return doc
+
+
+def test_lmove(big_doc):
+    doc = execute("lmove 1 2", big_doc)
+
+    assert 1 not in doc.layers
+    assert len(doc.layers[2]) == 1000
+
+
+def test_lmove_prob_one(big_doc):
+    doc = execute("lmove --prob 1. 1 2", big_doc)
+
+    assert 1 not in doc.layers
+    assert len(doc.layers[2]) == 1000
+
+
+def test_lmove_prob(big_doc):
+    # test for a bunch of seeds without making the test fragile
+    for seed in range(100):
+        random.seed(seed)
+
+        doc = copy.deepcopy(big_doc)
+        doc = execute("lmove --prob 0.5 1 2", doc)
+
+        assert math.isclose(len(doc.layers[1]) / 1000, 0.5, abs_tol=0.1)
+        assert math.isclose(len(doc.layers[2]) / 1000, 0.5, abs_tol=0.1)
+
+
+def test_lmove_prob_zero(big_doc):
+    doc = execute("lmove --prob 0. 1 2", big_doc)
+
+    assert 2 not in doc.layers
+    assert len(doc.layers[1]) == 1000
+
+
+def test_ldelete(big_doc):
+    doc = execute("ldelete 1", big_doc)
+
+    assert len(doc.layers) == 0
+
+
+def test_ldelete_prob_one(big_doc):
+    doc = execute("ldelete --prob 1. 1", big_doc)
+
+    assert len(doc.layers) == 0
+
+
+def test_ldelete_prob(big_doc):
+    # test for a bunch of seeds without making the test fragile
+    for seed in range(100):
+        random.seed(seed)
+
+        doc = copy.deepcopy(big_doc)
+        doc = execute("ldelete --prob 0.5 1", doc)
+
+        assert math.isclose(len(doc.layers[1]) / 1000, 0.5, abs_tol=0.1)
+
+
+def test_ldelete_prob_zero(big_doc):
+    doc = execute("ldelete --prob 0. 1", big_doc)
+
+    assert len(doc.layers[1]) == 1000
+
+
+def test_lcopy(big_doc):
+    doc = execute("lcopy 1 2", big_doc)
+
+    assert len(doc.layers[1]) == 1000
+    assert len(doc.layers[2]) == 1000
+
+
+def test_lcopy_prob_one(big_doc):
+    doc = execute("lcopy --prob 1. 1 2", big_doc)
+
+    assert len(doc.layers[1]) == 1000
+    assert len(doc.layers[2]) == 1000
+
+
+def test_lcopy_prob(big_doc):
+    # test for a bunch of seeds without making the test fragile
+    for seed in range(100):
+        random.seed(seed)
+
+        doc = copy.deepcopy(big_doc)
+        doc = execute("lcopy --prob 0.5 1 2", doc)
+
+        assert len(doc.layers[1]) == 1000
+        assert math.isclose(len(doc.layers[2]) / 1000, 0.5, abs_tol=0.1)
+
+
+def test_lcopy_prob_zero(big_doc):
+    doc = execute("lcopy --prob 0. 1 2", big_doc)
+
+    assert len(doc.layers[1]) == 1000
+    assert 2 not in doc.layers

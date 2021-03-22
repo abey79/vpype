@@ -15,7 +15,7 @@ from multiprocess import Pool
 from shapely.geometry import LineString
 from svgwrite.extensions import Inkscape
 
-from .config import CONFIG_MANAGER, PaperConfig, PlotterConfig
+from .config import PaperConfig, PlotterConfig, config_manager
 from .model import Document, LineCollection
 from .utils import UNITS
 
@@ -235,13 +235,10 @@ def read_svg(
     paths = _extract_paths(svg, recursive=True)
     lc = _convert_flattened_paths(paths, quantization, simplify, parallel)
 
-    width = svg.viewbox.element_width or default_width
-    height = svg.viewbox.element_height or default_height
-
     if crop:
-        lc.crop(0, 0, width, height)
+        lc.crop(0, 0, svg.width, svg.height)
 
-    return lc, width, height
+    return lc, svg.width, svg.height
 
 
 def read_multilayer_svg(
@@ -322,13 +319,10 @@ def read_multilayer_svg(
         if not lc.is_empty():
             document.add(lc, lid)
 
-    width = svg.viewbox.element_width or default_width
-    height = svg.viewbox.element_height or default_height
-
-    document.page_size = (width, height)
+    document.page_size = (svg.width, svg.height)
 
     if crop:
-        document.crop(0, 0, width, height)
+        document.crop(0, 0, svg.width, svg.height)
 
     return document
 
@@ -479,8 +473,8 @@ def _get_hpgl_config(
     device: Optional[str], page_size: str
 ) -> Tuple[PlotterConfig, PaperConfig]:
     if device is None:
-        device = CONFIG_MANAGER.get_command_config("write").get("default_hpgl_device", None)
-    plotter_config = CONFIG_MANAGER.get_plotter_config(str(device))
+        device = config_manager.get_command_config("write").get("default_hpgl_device", None)
+    plotter_config = config_manager.get_plotter_config(str(device))
     if plotter_config is None:
         raise ValueError(f"no configuration available for plotter '{device}'")
     paper_config = plotter_config.paper_config(page_size)
@@ -538,8 +532,38 @@ def write_hpgl(
         if paper_config.info:
             click.echo(paper_config.info, err=True)
 
+    # Handle flex paper size.
+    # If paper_size is not provided by the config, the paper size is then assumed to be the
+    # same a the current page size. In this case, the config should provide paper_orientation
+    # since it may not be the same as the document's page size
+    paper_size = paper_config.paper_size
+    if paper_size is None:
+        if document.page_size is not None:
+            paper_size = document.page_size
+        else:
+            raise ValueError(
+                "paper size must be set using `read`, `pagesize`, or `layout` command"
+            )
+
+    # Ensure paper orientation is correct.
+    if paper_config.paper_orientation is not None and (
+        (paper_config.paper_orientation == "portrait" and paper_size[0] > paper_size[1])
+        or (paper_config.paper_orientation == "landscape" and paper_size[0] < paper_size[1])
+    ):
+        paper_size = paper_size[::-1]
+
+    # Handle origin location.
+    origin_x, origin_y = paper_config.origin_location
+    if paper_config.origin_location_reference not in ["topleft", "botleft"]:
+        raise ValueError(
+            "incorrect value for origin_location_reference: "
+            f"{paper_config.origin_location_reference}"
+        )
+    if paper_config.origin_location_reference == "botleft":
+        origin_y = paper_size[1] - origin_y
+
     # are plotter coordinate placed in landscape or portrait orientation?
-    coords_landscape = paper_config.paper_size[0] > paper_config.paper_size[1]
+    coords_landscape = paper_size[0] > paper_size[1]
 
     # document preprocessing:
     # - make a copy
@@ -551,31 +575,32 @@ def write_hpgl(
 
     if landscape != coords_landscape:
         document.rotate(-math.pi / 2)
-        document.translate(0, paper_config.paper_size[1])
+        document.translate(0, paper_size[1])
 
     if paper_config.rotate_180:
         document.scale(-1, -1)
-        document.translate(*paper_config.paper_size)
+        document.translate(*paper_size)
 
     if center:
         bounds = document.bounds()
         if bounds is not None:
             document.translate(
-                (paper_config.paper_size[0] - (bounds[2] - bounds[0])) / 2.0 - bounds[0],
-                (paper_config.paper_size[1] - (bounds[3] - bounds[1])) / 2.0 - bounds[1],
+                (paper_size[0] - (bounds[2] - bounds[0])) / 2.0 - bounds[0],
+                (paper_size[1] - (bounds[3] - bounds[1])) / 2.0 - bounds[1],
             )
 
-    document.translate(-paper_config.origin_location[0], -paper_config.origin_location[1])
+    document.translate(-origin_x, -origin_y)
     unit_per_pixel = 1 / plotter_config.plotter_unit_length
     document.scale(
         unit_per_pixel, -unit_per_pixel if paper_config.y_axis_up else unit_per_pixel
     )
-    document.crop(
-        paper_config.x_range[0],
-        paper_config.y_range[0],
-        paper_config.x_range[1],
-        paper_config.y_range[1],
-    )
+    if paper_config.x_range is not None and paper_config.y_range is not None:
+        document.crop(
+            paper_config.x_range[0],
+            paper_config.y_range[0],
+            paper_config.x_range[1],
+            paper_config.y_range[1],
+        )
 
     # output HPGL
     def complex_to_str(p: complex) -> str:

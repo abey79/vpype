@@ -47,6 +47,10 @@ CLI reference
 .. click:: vpype_cli:GridBlockProcessor
    :prog: grid
 
+.. _cmd_layout:
+.. click:: vpype_cli:layout
+   :prog: layout
+
 .. _cmd_lcopy:
 .. click:: vpype_cli:lcopy
    :prog: lcopy
@@ -103,6 +107,10 @@ CLI reference
 .. click:: vpype_cli:RepeatBlockProcessor
    :prog: repeat
 
+.. _cmd_reverse:
+.. click:: vpype_cli:reverse
+   :prog: reverse
+
 .. _cmd_rotate:
 .. click:: vpype_cli:rotate
    :prog: rotate
@@ -135,9 +143,17 @@ CLI reference
 .. click:: vpype_cli:splitall
    :prog: splitall
 
+.. _cmd_squiggles:
+.. click:: vpype_cli:squiggles
+   :prog: squiggles
+
 .. _cmd_stat:
 .. click:: vpype_cli:stat
    :prog: stat
+
+.. _cmd_text:
+.. click:: vpype_cli:text
+   :prog: text
 
 .. _cmd_translate:
 .. click:: vpype_cli:translate

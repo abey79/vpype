@@ -1,13 +1,13 @@
 """Config file support for vpype.
 
-Configuration data is accessed via the ``CONFIG_MANAGER`` global variable::
+Configuration data is accessed via the ``config_manager`` global variable::
 
-    >>> from vpype import CONFIG_MANAGER
-    >>> CONFIG_MANAGER.config  # dictionary of all configuration
+    >>> from vpype import config_manager
+    >>> config_manager.config  # dictionary of all configuration
 
 HPGL plotter have specific config support::
 
-    >>> plotter_config = CONFIG_MANAGER.get_plotter_config("hp7475a")
+    >>> plotter_config = config_manager.get_plotter_config("hp7475a")
     >>> plotter_config
     PlotterConfig(name='hp7475a', ...)
     >>> plotter_config.paper_config("a4")
@@ -29,6 +29,7 @@ __all__ = [
     "PaperConfig",
     "PlotterConfig",
     "ConfigManager",
+    "config_manager",
     "CONFIG_MANAGER",
 ]
 
@@ -42,13 +43,18 @@ class PaperConfig:
     """Data class containing configuration for a give plotter type/paper size combinations."""
 
     name: str  #: name of the paper format
-    paper_size: Tuple[float, float]  #: X/Y axis convention of the plotter
-    x_range: Tuple[int, int]  #: admissible range of X coordinates
-    y_range: Tuple[int, int]  #: admissible range of Y coordinates
     y_axis_up: bool  #: if True, the Y axis point upwards instead of downwards
     origin_location: Tuple[
         float, float
     ]  #: location on paper of the (0, 0) plotter unit coordinates
+
+    paper_size: Optional[Tuple[float, float]] = None  #: X/Y axis convention of the plotter
+    paper_orientation: Optional[
+        str
+    ] = None  #: orientation of the plotter coordinate system on paper
+    x_range: Optional[Tuple[int, int]] = None  #: admissible range of X coordinates
+    y_range: Optional[Tuple[int, int]] = None  #: admissible range of Y coordinates
+    origin_location_reference: Optional[str] = "topleft"  #: reference for ``origin_location``
 
     info: str = ""  #: information printed to the user when paper is used
     rotate_180: bool = False  #: if True, the geometries are rotated by 180 degrees on the page
@@ -64,11 +70,15 @@ class PaperConfig:
     def from_config(cls, data: Dict[str, Any]) -> "PaperConfig":
         return cls(
             name=data["name"],
-            paper_size=_convert_length_pair(data["paper_size"]),
-            x_range=(data["x_range"][0], data["x_range"][1]),
-            y_range=(data["y_range"][0], data["y_range"][1]),
             y_axis_up=data["y_axis_up"],
             origin_location=_convert_length_pair(data["origin_location"]),
+            paper_size=_convert_length_pair(data["paper_size"])
+            if "paper_size" in data
+            else None,
+            paper_orientation=data.get("paper_orientation", None),
+            x_range=(data["x_range"][0], data["x_range"][1]) if "x_range" in data else None,
+            y_range=(data["y_range"][0], data["y_range"][1]) if "y_range" in data else None,
+            origin_location_reference=data.get("origin_location_reference", "topleft"),
             info=data.get("info", ""),
             rotate_180=data.get("rotate_180", False),
             set_ps=data.get("set_ps", None),
@@ -83,7 +93,7 @@ class PlotterConfig:
 
     name: str  #: name of the plotter
     paper_configs: List[PaperConfig]  #: list of :class:`PaperConfig` instance
-    plotter_unit_length: float  #: phyiscal size of plotter units (in pixel)
+    plotter_unit_length: float  #: physical size of plotter units (in pixel)
     pen_count: int  #: number of pen supported by the plotter
 
     info: str = ""  #: information printed to the user when plotter is used
@@ -143,10 +153,10 @@ class PlotterConfig:
 class ConfigManager:
     """Helper class to handle vpype's TOML configuration files.
 
-    This class is typically used via its singleton instance ``CONFIG_MANAGER``::
+    This class is typically used via its singleton instance ``config_manager``::
 
-        >>> from vpype import CONFIG_MANAGER
-        >>> my_config = CONFIG_MANAGER.config.get("my_config", None)
+        >>> from vpype import config_manager
+        >>> my_config = config_manager.config.get("my_config", None)
 
     Helper methods are provided for specific aspects of configuration, such as command-specific
     configs or HPGL-related configs.
@@ -228,14 +238,17 @@ class ConfigManager:
         return self._config
 
 
-CONFIG_MANAGER = ConfigManager()
+config_manager = ConfigManager()
+
+# deprecated
+CONFIG_MANAGER = config_manager
 
 
 def _init():
-    CONFIG_MANAGER.load_config_file(str(pathlib.Path(__file__).parent / "hpgl_devices.toml"))
+    config_manager.load_config_file(str(pathlib.Path(__file__).parent / "hpgl_devices.toml"))
     path = os.path.expanduser("~/.vpype.toml")
     if os.path.exists(path):
-        CONFIG_MANAGER.load_config_file(str(path))
+        config_manager.load_config_file(str(path))
 
 
 _init()

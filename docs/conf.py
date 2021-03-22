@@ -15,6 +15,8 @@
 # sys.path.insert(0, os.path.abspath('.'))
 
 # -- Project information -----------------------------------------------------
+# noinspection PyPackageRequirements
+from recommonmark.parser import CommonMarkParser
 
 project = "vpype"
 # noinspection PyShadowingBuiltins
@@ -33,7 +35,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx_click.ext",
     "sphinx_autodoc_typehints",
-    "recommonmark",
+    # "recommonmark", # NOTE: see workaround below
     # "alabaster",
     # 'autoapi.extension',
 ]
@@ -79,19 +81,12 @@ intersphinx_mapping = {
     "shapely": ("https://shapely.readthedocs.io/en/latest/", None),
     "click": ("https://click.palletsprojects.com/en/7.x/", None),
     "python": ("https://docs.python.org/3/", None),
+    "Pillow": ("https://pillow.readthedocs.io/en/stable/", None),
 }
 
 # -- Napoleon options
 
 napoleon_include_init_with_doc = True
-
-# def setup(app):
-#     app.add_config_value('recommonmark_config', {
-#             'auto_toc_tree_section': 'Contents',
-#             'enable_auto_doc_ref': True,
-#             'enable_eval_rst': True,
-#             }, True)
-#     app.add_transform(AutoStructify)
 
 
 # noinspection PyUnusedLocal
@@ -104,12 +99,32 @@ def autodoc_skip_member(app, what, name, obj, skip, options):
         "convert",
         "convert_page_format",
         "Length",
+        # vpype/config.py
+        "CONFIG_MANAGER",
         # vpype_cli/debug.py
         "DebugData",
+        # private attribute
+        "__dict__",
+        "__doc__",
+        "__module__",
+        "__weakref__",
     )
     exclude = name in exclusions
     return skip or exclude
 
 
+# RECOMMONMARK WORKAROUND
+# see https://github.com/readthedocs/recommonmark/issues/177
+
+
+class CustomCommonMarkParser(CommonMarkParser):
+    def visit_document(self, node):
+        pass
+
+
 def setup(app):
     app.connect("autodoc-skip-member", autodoc_skip_member)
+
+    # recommonmark workaround
+    app.add_source_suffix(".md", "markdown")
+    app.add_source_parser(CustomCommonMarkParser)

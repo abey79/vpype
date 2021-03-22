@@ -149,10 +149,11 @@ def _crop_half_plane_mult(lines: List[np.ndarray], loc: float, axis: int, keep_s
     return new_lines
 
 
-def crop(line: np.ndarray, x1: float, y1: float, x2: float, y2: float) -> List[np.array]:
+def crop(line: np.ndarray, x1: float, y1: float, x2: float, y2: float) -> List[np.ndarray]:
     """Crop a polyline to a rectangular area.
 
     Args:
+        line: line to crop
         x1: left coordinate of the crop area
         y1: bottom coordinate of the crop area
         x2: right coordinate of the crop area

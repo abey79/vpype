@@ -225,3 +225,13 @@ def test_line_collection_merge(lines, merge_lines):
     lc.merge(0.1)
 
     assert _line_set(lc) == _line_set(merge_lines)
+
+
+def test_document_empty_copy():
+    doc = Document()
+    doc.add(LineCollection([(0, 1)]), 1)
+    doc.page_size = 3, 4
+
+    new_doc = doc.empty_copy()
+    assert len(new_doc.layers) == 0
+    assert new_doc.page_size == (3, 4)
