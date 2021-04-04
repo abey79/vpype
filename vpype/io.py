@@ -336,6 +336,7 @@ def write_svg(
     layer_label_format: str = "%d",
     show_pen_up: bool = False,
     color_mode: str = "none",
+    no_basic_shapes: bool = False
 ) -> None:
     """Create a SVG from a :py:class:`Document` instance.
 
@@ -364,6 +365,8 @@ def write_svg(
         show_pen_up: add paths for the pen-up trajectories
         color_mode: "none" (no formatting), "layer" (one color per layer), "path" (one color
             per path)
+        no_basic_shapes: if false we use svg:path elements to write lines. Else we use 
+            svg:line, svg:polyline and svg:polygon
     """
 
     # compute bounds
@@ -429,10 +432,14 @@ def write_svg(
 
         for layer in corrected_doc.layers.values():
             for line in layer.pen_up_trajectories():
-                group.add(
-                    dwg.line((line[0].real, line[0].imag), (line[-1].real, line[-1].imag))
-                )
-
+                if no_basic_shapes:
+                    group.add(
+                        dwg.path(d='M'+ str(line[0].real) + ',' + str(line[0].imag) + ' ' + str(line[1].real) + ',' + str(line[1].imag))
+                    )
+                else:
+                    group.add(
+                        dwg.line((line[0].real, line[0].imag), (line[-1].real, line[-1].imag))
+                    )
         dwg.add(group)
 
     for layer_id in sorted(corrected_doc.layers.keys()):
@@ -452,12 +459,27 @@ def write_svg(
             if len(line) <= 1:
                 continue
 
-            if len(line) == 2:
-                path = dwg.line((line[0].real, line[0].imag), (line[1].real, line[1].imag))
-            elif line[0] == line[-1]:
-                path = dwg.polygon((c.real, c.imag) for c in line[:-1])
+            if no_basic_shapes:
+                if len(line) == 2:
+                    path = dwg.path(d='M'+ str(line[0].real) + ',' + str(line[0].imag) + ' ' + str(line[1].real) + ',' + str(line[1].imag))
+                elif line[0] == line[-1]:
+                    d = 'M' + str(line[0].real) + ',' + str(line[0].imag)
+                    for c in line[:-1]:
+                        d += ' ' + str(c.real) + ',' + str(c.imag)
+                    d += ' z'
+                    path = dwg.path(d)
+                else:
+                    d = 'M' + str(line[0].real) + ',' + str(line[0].imag)
+                    for c in line:
+                        d += ' ' + str(c.real) + ',' + str(c.imag)
+                    path = dwg.path(d)
             else:
-                path = dwg.polyline((c.real, c.imag) for c in line)
+                if len(line) == 2:
+                    path = dwg.line((line[0].real, line[0].imag), (line[1].real, line[1].imag))
+                elif line[0] == line[-1]:
+                    path = dwg.polygon((c.real, c.imag) for c in line[:-1])
+                else:
+                    path = dwg.polyline((c.real, c.imag) for c in line)
 
             if color_mode == "path":
                 path.attribs["stroke"] = _COLORS[color_idx % len(_COLORS)]
