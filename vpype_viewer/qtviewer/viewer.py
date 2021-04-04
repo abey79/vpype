@@ -214,6 +214,8 @@ class QtViewer(QWidget):
         view_mode: ViewMode = ViewMode.PREVIEW,
         show_pen_up: bool = False,
         show_points: bool = False,
+        pen_width: float = 0.3,
+        pen_opacity: float = 0.8,
         parent=None,
     ):
         super().__init__(parent)
@@ -283,16 +285,16 @@ class QtViewer(QWidget):
         act.setEnabled(False)
         # pen width
         pen_width_menu = view_mode_menu.addMenu("Pen Width")
-        act_grp = PenWidthActionGroup(0.3, parent=pen_width_menu)
+        act_grp = PenWidthActionGroup(pen_width, parent=pen_width_menu)
         act_grp.triggered.connect(self.set_pen_width_mm)
         pen_width_menu.addActions(act_grp.actions())
-        self.set_pen_width_mm(0.3)
+        self.set_pen_width_mm(pen_width)
         # pen opacity
         pen_opacity_menu = view_mode_menu.addMenu("Pen Opacity")
-        act_grp = PenOpacityActionGroup(0.8, parent=pen_opacity_menu)
+        act_grp = PenOpacityActionGroup(pen_opacity, parent=pen_opacity_menu)
         act_grp.triggered.connect(self.set_pen_opacity)
         pen_opacity_menu.addActions(act_grp.actions())
-        self.set_pen_opacity(0.8)
+        self.set_pen_opacity(pen_opacity)
         # debug view
         if _DEBUG_ENABLED:
             act = view_mode_menu.addAction("Debug View")
@@ -443,6 +445,8 @@ def show(
     view_mode: ViewMode = ViewMode.PREVIEW,
     show_pen_up: bool = False,
     show_points: bool = False,
+    pen_width: bool = 0.3,
+    pen_opacity: bool = 0.8,
     argv=None,
 ) -> int:
     """Show a viewer for the provided :class:`vpype.Document` instance.
@@ -472,7 +476,7 @@ def show(
     app.setAttribute(Qt.AA_UseHighDpiPixmaps)
 
     widget = QtViewer(
-        document, view_mode=view_mode, show_pen_up=show_pen_up, show_points=show_points
+        document, view_mode=view_mode, show_pen_up=show_pen_up, show_points=show_points, pen_width=pen_width, pen_opacity=pen_opacity
     )
     sz = app.primaryScreen().availableSize()
     widget.move(int(sz.width() * 0.05), int(sz.height() * 0.1))
