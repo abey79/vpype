@@ -13,7 +13,12 @@ from .operations import *
 from .primitives import *
 from .read import *
 from .script import *
-from .show import *
+
+try:
+    from .show import *
+except ImportError:
+    print("Warning: 'show' module not imported.")
+
 from .text import *
 from .transforms import *
 from .write import *
