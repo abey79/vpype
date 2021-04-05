@@ -502,7 +502,7 @@ shiboken2 = "5.15.2"
 
 [[package]]
 name = "pytest"
-version = "6.2.2"
+version = "6.2.3"
 description = "pytest: simple powerful testing with Python"
 category = "dev"
 optional = false
@@ -901,7 +901,7 @@ docs = ["Sphinx", "sphinx-click", "sphinx-autodoc-typehints", "sphinx-rtd-theme"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7, !=3.9.0, <3.10"
-content-hash = "5c1991eb7ef770e0cd07f23499aebf02d501491fa477cb50855236f788f24063"
+content-hash = "d381254f1a1bded24f0f535a82d0872338bd5243c46beece36c581eabc68269c"
 
 [metadata.files]
 alabaster = [
@@ -1369,8 +1369,8 @@ pyside2 = [
     {file = "PySide2-5.15.2-5.15.2-cp35.cp36.cp37.cp38.cp39-none-win_amd64.whl", hash = "sha256:1316aa22dd330df096daf7b0defe9c00297a66e0b4907f057aaa3e88c53d1aff"},
 ]
 pytest = [
-    {file = "pytest-6.2.2-py3-none-any.whl", hash = "sha256:b574b57423e818210672e07ca1fa90aaf194a4f63f3ab909a2c67ebb22913839"},
-    {file = "pytest-6.2.2.tar.gz", hash = "sha256:9d1edf9e7d0b84d72ea3dbcdfd22b35fb543a5e8f2a60092dd578936bf63d7f9"},
+    {file = "pytest-6.2.3-py3-none-any.whl", hash = "sha256:6ad9c7bdf517a808242b998ac20063c41532a570d088d77eec1ee12b0b5574bc"},
+    {file = "pytest-6.2.3.tar.gz", hash = "sha256:671238a46e4df0f3498d1c3270e5deb9b32d25134c99b7d75370a68cfbe9b634"},
 ]
 pytest-benchmark = [
     {file = "pytest-benchmark-3.2.3.tar.gz", hash = "sha256:ad4314d093a3089701b24c80a05121994c7765ce373478c8f4ba8d23c9ba9528"},
