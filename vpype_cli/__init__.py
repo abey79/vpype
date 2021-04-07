@@ -16,8 +16,10 @@ from .script import *
 
 try:
     from .show import *
+
+    show_imported = True
 except ImportError:
-    print("Warning: 'show' module not imported.")
+    pass
 
 from .text import *
 from .transforms import *

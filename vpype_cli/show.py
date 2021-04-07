@@ -6,6 +6,7 @@ import numpy as np
 import vpype as vp
 import vpype_viewer
 from vpype_viewer import ViewMode
+from vpype_cli import show_imported
 
 from .cli import cli
 
@@ -73,6 +74,10 @@ def show(
     classic viewer does not have interactive controls for display options. Use the command-line
     options to customize the display.
     """
+
+    if not show_imported:
+        logging.warning("!!! show: Command not available, skipping.")
+        return document
 
     if not classic:
         mgl_ok = _test_mgl()
