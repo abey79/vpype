@@ -13,14 +13,7 @@ from .operations import *
 from .primitives import *
 from .read import *
 from .script import *
-
-try:
-    from .show import *
-
-    show_imported = True
-except ImportError:
-    pass
-
+from .show import *
 from .text import *
 from .transforms import *
 from .write import *
