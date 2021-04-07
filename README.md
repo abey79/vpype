@@ -205,7 +205,7 @@ and much more.
 #### Filters
 
 - Support for **filtering** by line lengths or closed-ness ([`filter`](https://vpype.readthedocs.io/en/stable/reference.html#filter)).
-- **Squiggle* filter for shaky-hand or liquid-like styling ([`squiggles`](https://vpype.readthedocs.io/en/latest/reference.html#squiggles))
+- **Squiggle** filter for shaky-hand or liquid-like styling ([`squiggles`](https://vpype.readthedocs.io/en/latest/reference.html#squiggles))
 - Support for **splitting** all lines to their constituent segments ([`splitall`](https://vpype.readthedocs.io/en/stable/reference.html#splitall)).
 - Support for **reversing** order of paths within their layers ([`reverse`](https://vpype.readthedocs.io/en/latest/reference.html#reverse)).
 
