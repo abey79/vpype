@@ -161,6 +161,15 @@ Examples:
     is_flag=True,
     help="[HPGL only] Do not display the plotter configuration or paper loading information.",
 )
+@click.option(
+    "-s",
+    "--single-path",
+    is_flag=True,
+    help=(
+        "[SVG only] Write monolithic (combined) svg:path elements instead "
+        "svg:line, svg:polyline, svg:polygon elements"
+    ),
+)
 @click.pass_obj  # to obtain the command string
 @vp.global_processor
 def write(
@@ -177,6 +186,7 @@ def write(
     device: Optional[str],
     velocity: Optional[int],
     quiet: bool,
+    single_path: bool,
 ):
     """Write command."""
 
@@ -205,6 +215,7 @@ def write(
             layer_label_format=layer_label,
             show_pen_up=pen_up,
             color_mode=color_mode,
+            single_path=single_path,
         )
     elif file_format == "hpgl":
         if not page_size:
