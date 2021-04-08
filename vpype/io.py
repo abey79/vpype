@@ -336,7 +336,7 @@ def write_svg(
     layer_label_format: str = "%d",
     show_pen_up: bool = False,
     color_mode: str = "none",
-    no_basic_shapes: bool = False
+    single_path: bool = False
 ) -> None:
     """Create a SVG from a :py:class:`Document` instance.
 
@@ -365,8 +365,9 @@ def write_svg(
         show_pen_up: add paths for the pen-up trajectories
         color_mode: "none" (no formatting), "layer" (one color per layer), "path" (one color
             per path)
-        no_basic_shapes: if false we use svg:path elements to write lines. Else we use 
-            svg:line, svg:polyline and svg:polygon
+        single_path: if true, we use svg:path elements to write monolithic lines. This is useful
+            to speed up importing SVG file into InkScape and maybe other vector graphic software. 
+            If false, we use svg:line, svg:polyline and svg:polygon standard elements
     """
 
     # compute bounds
@@ -459,7 +460,7 @@ def write_svg(
             if len(line) <= 1:
                 continue
 
-            if no_basic_shapes:
+            if single_path:
                 if len(line) == 2:
                     path = dwg.path(d='M'+ str(line[0].real) + ',' + str(line[0].imag) + ' ' + str(line[1].real) + ',' + str(line[1].imag))
                 elif line[0] == line[-1]:
