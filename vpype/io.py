@@ -433,9 +433,9 @@ def write_svg(
 
         for layer in corrected_doc.layers.values():
             for line in layer.pen_up_trajectories():
-                if no_basic_shapes:
+                if single_path:
                     group.add(
-                        dwg.path(d='M'+ str(line[0].real) + ',' + str(line[0].imag) + ' ' + str(line[1].real) + ',' + str(line[1].imag))
+                        dwg.path(d='M{:1.3f},{:1.3f} {:1.3f},{:1.3f}'.format(line[0].real, line[0].imag, line[1].real, line[1].imag))
                     )
                 else:
                     group.add(
@@ -462,17 +462,18 @@ def write_svg(
 
             if single_path:
                 if len(line) == 2:
-                    path = dwg.path(d='M'+ str(line[0].real) + ',' + str(line[0].imag) + ' ' + str(line[1].real) + ',' + str(line[1].imag))
+                    path = dwg.path(d='M{:1.3f},{:1.3f} {:1.3f},{:1.3f}'.format(line[0].real, line[0].imag, line[1].real, line[1].imag))
+
                 elif line[0] == line[-1]:
-                    d = 'M' + str(line[0].real) + ',' + str(line[0].imag)
+                    d = 'M{:1.3f},{:1.3f}'.format(line[0].real, line[0].imag)
                     for c in line[:-1]:
-                        d += ' ' + str(c.real) + ',' + str(c.imag)
+                        d += ' {:1.3f},{:1.3f}'.format(c.real, c.imag)
                     d += ' z'
                     path = dwg.path(d)
                 else:
-                    d = 'M' + str(line[0].real) + ',' + str(line[0].imag)
+                    d = 'M{:1.3f},{:1.3f}'.format(line[0].real, line[0].imag)
                     for c in line:
-                        d += ' ' + str(c.real) + ',' + str(c.imag)
+                        d += ' {:1.3f},{:1.3f}'.format(c.real, c.imag)
                     path = dwg.path(d)
             else:
                 if len(line) == 2:
