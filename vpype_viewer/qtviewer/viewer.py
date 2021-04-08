@@ -458,6 +458,8 @@ def show(
         view_mode: view mode
         show_pen_up: render pen-up trajectories
         show_points: render points
+        pen_width: set width of pen lines
+        pen_opacity: set opacity of pen lines
         argv: argument passed to Qt
 
     Returns:
