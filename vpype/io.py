@@ -456,25 +456,26 @@ def write_svg(
         group.attribs["style"] = "display:inline"
         group.attribs["id"] = f"layer{layer_id}"
 
+        monolithic_path = []
         for line in layer:
             if len(line) <= 1:
                 continue
 
             if single_path:
                 if len(line) == 2:
-                    path = dwg.path(d='M{:1.3f},{:1.3f} {:1.3f},{:1.3f}'.format(line[0].real, line[0].imag, line[1].real, line[1].imag))
-
+                    monolithic_path.append('M{:1.3f},{:1.3f} {:1.3f},{:1.3f}'.format(line[0].real, line[0].imag, line[1].real, line[1].imag))
                 elif line[0] == line[-1]:
                     d = 'M{:1.3f},{:1.3f}'.format(line[0].real, line[0].imag)
                     for c in line[:-1]:
                         d += ' {:1.3f},{:1.3f}'.format(c.real, c.imag)
-                    d += ' z'
-                    path = dwg.path(d)
+                    d += ' Z'
+                    monolithic_path.append(d)
                 else:
                     d = 'M{:1.3f},{:1.3f}'.format(line[0].real, line[0].imag)
                     for c in line:
                         d += ' {:1.3f},{:1.3f}'.format(c.real, c.imag)
-                    path = dwg.path(d)
+                    monolithic_path.append(d)
+                
             else:
                 if len(line) == 2:
                     path = dwg.line((line[0].real, line[0].imag), (line[1].real, line[1].imag))
@@ -486,7 +487,11 @@ def write_svg(
             if color_mode == "path":
                 path.attribs["stroke"] = _COLORS[color_idx % len(_COLORS)]
                 color_idx += 1
-            group.add(path)
+            if not single_path:
+                group.add(path)
+
+        if single_path:
+            group.add(dwg.path(' '.join(monolithic_path)))
 
         dwg.add(group)
 
