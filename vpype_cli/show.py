@@ -9,9 +9,9 @@ try:
     import vpype_viewer
     from vpype_viewer import ViewMode
 
-    ok = True
+    _has_show = True
 except ImportError:
-    ok = False
+    _has_show = False
 
 from .cli import cli
 
@@ -80,7 +80,7 @@ def show(
     options to customize the display.
     """
 
-    if not ok:
+    if not _has_show:
         logging.warning("!!! show: Command not available, skipping.")
         return document
 

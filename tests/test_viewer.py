@@ -3,14 +3,18 @@ import os
 import pytest
 
 import vpype as vp
-from vpype_viewer import (
-    DEFAULT_SCALE_SPEC,
-    Engine,
-    ImageRenderer,
-    UnitType,
-    ViewMode,
-    render_image,
-)
+
+try:
+    from vpype_viewer import (
+        DEFAULT_SCALE_SPEC,
+        Engine,
+        ImageRenderer,
+        UnitType,
+        ViewMode,
+        render_image,
+    )
+except:
+    pytest.skip("vpype_viewer not available", allow_module_level=True)
 
 from .utils import TEST_FILE_DIRECTORY
 
