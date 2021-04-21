@@ -7,11 +7,8 @@ import vpype as vp
 
 try:
     import vpype_viewer
-    from vpype_viewer import ViewMode
-
-    _has_show = True
 except ImportError:
-    _has_show = False
+    vpype_viewer = None
 
 from .cli import cli
 
@@ -80,17 +77,21 @@ def show(
     options to customize the display.
     """
 
-    if not _has_show:
-        logging.warning("!!! show: Command not available, skipping.")
-        return document
-
     if not classic:
-        mgl_ok = _test_mgl()
-        if not mgl_ok and not force:
+        # test for vpype_viewer
+        if vpype_viewer is None:
+            logging.warning(
+                "!!! show: vpype viewer not available, reverting to classic mode. Note: use "
+                "`pip install vpype[all]` to install the vpype viewer."
+            )
             classic = True
-            logging.warning("!!! show: ModernGL not available, reverting to classic mode.")
-        elif not mgl_ok and force:
-            logging.warning("!!! show: ModernGL not available but forced to modern mode.")
+        else:
+            mgl_ok = _test_mgl()
+            if not mgl_ok and not force:
+                classic = True
+                logging.warning("!!! show: ModernGL not available, reverting to classic mode.")
+            elif not mgl_ok and force:
+                logging.warning("!!! show: ModernGL not available but forced to vpype viewer.")
 
     if classic:
         _show_mpl(
@@ -104,11 +105,11 @@ def show(
             unit,
         )
     else:
-        view_mode = ViewMode.PREVIEW
+        view_mode = vpype_viewer.ViewMode.PREVIEW
         if outline or show_points:
-            view_mode = ViewMode.OUTLINE
+            view_mode = vpype_viewer.ViewMode.OUTLINE
         if colorful:
-            view_mode = ViewMode.OUTLINE_COLORFUL
+            view_mode = vpype_viewer.ViewMode.OUTLINE_COLORFUL
 
         vpype_viewer.show(
             document, view_mode=view_mode, show_pen_up=show_pen_up, show_points=show_points
@@ -153,8 +154,15 @@ def _show_mpl(
     """
 
     # deferred import to optimise startup time
-    import matplotlib.collections
-    import matplotlib.pyplot as plt
+    try:
+        import matplotlib.collections
+        import matplotlib.pyplot as plt
+    except ImportError:
+        logging.warning(
+            "!!! show: classic viewer not available, ignore command. Note: use `pip install "
+            "matplotlib` to enable the classic viewer."
+        )
+        return
 
     scale = 1 / vp.convert_length(unit)
 

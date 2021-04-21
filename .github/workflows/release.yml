@@ -60,7 +60,7 @@ jobs:
     - name: Build and run PyInstaller
       id: build
       run: | 
-        poetry install
+        poetry install -E all
         echo ::set-output name=version::`poetry version --short`
         source $VENV
         scripts/build.bat
