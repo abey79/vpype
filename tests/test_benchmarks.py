@@ -2,11 +2,7 @@ import pytest
 
 import vpype as vp
 import vpype_cli
-
-try:
-    from vpype_viewer import ViewMode, render_image
-except:
-    pytest.skip("vpype_viewer not available", allow_module_level=True)
+from vpype_viewer import ViewMode, render_image
 
 from .utils import TEST_FILE_DIRECTORY
 

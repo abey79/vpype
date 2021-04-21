@@ -2,12 +2,8 @@ import matplotlib.pyplot as plt
 import pytest
 
 import vpype as vp
+import vpype_viewer
 from vpype_cli import cli
-
-try:
-    import vpype_viewer
-except:
-    pytest.skip("vpype_viewer not available", allow_module_level=True)
 
 TEST_COMMANDS = [
     "rect 1cm 1cm 10cm 15cm",

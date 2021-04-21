@@ -1,10 +1,7 @@
 import pytest
 
 import vpype as vp
-from vpype_cli.show import _has_show
-
-if _has_show:
-    from vpype_viewer import ImageRenderer, UnitType
+from vpype_viewer import ImageRenderer, UnitType
 
 # noinspection SpellCheckingInspection
 LOREM = (
@@ -19,7 +16,6 @@ LOREM = (
     "commodo odio aenean sed adipiscing diam. Risus nec feugiat in fermentum posuere urna nec "
     "tincidunt."
 )
-show_available = pytest.mark.skipif(not _has_show, reason="show not imported")
 
 
 def test_text_unknown_font():
@@ -42,7 +38,6 @@ def test_text_unicode_ok():
     vp.text_line("hello 😂 world")
 
 
-@show_available
 @pytest.mark.parametrize("font_name", ["timesg", "futural", "gothiceng"])
 @pytest.mark.parametrize(
     ["align", "line_spacing", "justify"],
