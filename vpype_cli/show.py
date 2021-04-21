@@ -1,16 +1,22 @@
 import logging
+from types import ModuleType
+from typing import Optional
 
 import click
 import numpy as np
 
 import vpype as vp
 
-try:
-    import vpype_viewer
-except ImportError:
-    vpype_viewer = None
-
 from .cli import cli
+
+try:
+    # noinspection PyUnresolvedReferences
+    import vpype_viewer
+
+    _vpype_viewer_ok = True
+except ImportError:
+    _vpype_viewer_ok = False
+
 
 __all__ = ["show"]
 
@@ -79,7 +85,7 @@ def show(
 
     if not classic:
         # test for vpype_viewer
-        if vpype_viewer is None:
+        if not _vpype_viewer_ok:
             logging.warning(
                 "!!! show: vpype viewer not available, reverting to classic mode. Note: use "
                 "`pip install vpype[all]` to install the vpype viewer."
