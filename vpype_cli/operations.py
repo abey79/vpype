@@ -124,8 +124,14 @@ def linemerge(lines: vp.LineCollection, tolerance: float, no_flip: bool = True):
     is_flag=True,
     help="Disable reversing stroke direction for optimization.",
 )
+@click.option(
+    "-t",
+    "--two-opt",
+    is_flag=True,
+    help="Use two-opt algorithm to perform distance minimization.",
+)
 @vp.layer_processor
-def linesort(lines: vp.LineCollection, no_flip: bool = True):
+def linesort(lines: vp.LineCollection, no_flip: bool = True, two_opt: bool = False):
     """
     Sort lines to minimize the pen-up travel distance.
 
@@ -134,6 +140,44 @@ def linesort(lines: vp.LineCollection, no_flip: bool = True):
     optimizing the overall plotting time.
     """
     if len(lines) < 2:
+        return lines
+
+    if two_opt:
+        def delta_distance(j: int, k: int) -> float:
+            distance = 0.0
+            k -= 1
+            a1 = lines[j][0]
+            b0 = lines[k][-1]
+            if k < len(lines) - 1:
+                b1 = lines[k + 1][0]
+                d = np.abs(b0 - b1)
+                distance -= d
+                d = np.abs(a1 - b1)
+                distance += d
+            if j > 0:
+                a0 = lines[j - 1][-1]
+                d = np.abs(a0 - a1)
+                distance -= d
+                d = np.abs(a0 - b0)
+                distance += d
+            return distance
+
+        original = lines.pen_up_length()
+        improved = True
+        while improved:
+            improved = False
+            for j in range(len(lines)):
+                for k in range(j + 1, len(lines)):
+                    if delta_distance(j, k) < 0:
+                        for q in range(j, k):
+                            lines.lines[q] = lines.lines[q][::-1]
+                        lines.lines[j:k] = lines.lines[j:k][::-1]
+                        improved = True
+
+        logging.info(
+            f"optimize: reduced pen-up (distance, mean, median) from {original} to "
+            f"{lines.pen_up_length()}"
+        )
         return lines
 
     index = vp.LineIndex(lines[1:], reverse=not no_flip)
