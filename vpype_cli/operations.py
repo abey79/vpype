@@ -153,7 +153,7 @@ def linesort(lines: vp.LineCollection, no_flip: bool = True, two_opt: bool = Fal
         new_lines.append(line)
 
     if two_opt:
-        
+
         def delta_distance(j: int, k: int) -> float:
             distance = 0.0
             k -= 1
@@ -183,7 +183,6 @@ def linesort(lines: vp.LineCollection, no_flip: bool = True, two_opt: bool = Fal
                             new_lines.lines[q] = new_lines.lines[q][::-1]
                         new_lines.lines[j:k] = new_lines.lines[j:k][::-1]
                         improved = True
-
 
     logging.info(
         f"optimize: reduced pen-up (distance, mean, median) from {lines.pen_up_length()} to "
