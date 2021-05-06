@@ -143,6 +143,7 @@ def linesort(lines: vp.LineCollection, no_flip: bool = True, two_opt: bool = Fal
         return lines
 
     if two_opt:
+
         def delta_distance(j: int, k: int) -> float:
             distance = 0.0
             k -= 1
