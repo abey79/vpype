@@ -130,8 +130,17 @@ def linemerge(lines: vp.LineCollection, tolerance: float, no_flip: bool = True):
     is_flag=True,
     help="Use two-opt algorithm to perform distance minimization.",
 )
+@click.option(
+    "-p",
+    "--passes",
+    type=int,
+    default=5,
+    help="How many passes is the two-opt algorithm permitted to take?",
+)
 @vp.layer_processor
-def linesort(lines: vp.LineCollection, no_flip: bool = True, two_opt: bool = False):
+def linesort(
+    lines: vp.LineCollection, no_flip: bool = True, two_opt: bool = False, passes: int = 1000
+):
     """
     Sort lines to minimize the pen-up travel distance.
 
@@ -175,14 +184,17 @@ def linesort(lines: vp.LineCollection, no_flip: bool = True, two_opt: bool = Fal
 
         improved = True
         while improved:
+            passes -= 1
             improved = False
             for j in range(len(new_lines)):
                 for k in range(j + 1, len(new_lines)):
                     if delta_distance(j, k) < 0:
                         for q in range(j, k):
-                            new_lines.lines[q] = new_lines.lines[q][::-1]
+                            np.flip(lines[q])
                         new_lines.lines[j:k] = new_lines.lines[j:k][::-1]
                         improved = True
+            if passes <= 0:
+                break
 
     logging.info(
         f"optimize: reduced pen-up (distance, mean, median) from {lines.pen_up_length()} to "
