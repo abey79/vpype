@@ -171,71 +171,75 @@ def linesort(
         endpoints = np.zeros((length, 4), dtype="complex")  # start, end, position
         for i in range(length):
             endpoints[i] = new_lines[i][0], i, ~i, new_lines[i][-1]
-        inc1 = np.arange(1, length)
-        ran0 = inc1 - 1
-        
+        indexes = np.arange(0, length - 1)
+
         improved = True
         while improved:
             passes -= 1
             improved = False
-            a1 = endpoints[0][0]
-            b0 = endpoints[ran0,-1]
-            b1 = endpoints[inc1,0]
-            delta = np.abs(a1 - b1) - np.abs(b0 - b1)
+            first = endpoints[0][0]
+            test_source = endpoints[indexes, -1]
+            test_dest = endpoints[indexes + 1, 0]
+
+            delta = np.abs(first - test_dest) - np.abs(test_source - test_dest)
             index = np.argmin(delta)
             v = delta[index]
             if v < 0:
-                print(v)
-                endpoints[:index] = np.flip(endpoints[:index], (0,1))  # top to bottom, and right to left flips.
+                endpoints[: index + 1] = np.flip(
+                    endpoints[: index + 1], (0, 1)
+                )  # top to bottom, and right to left flips.
                 improved = True
-
-            b0 = endpoints[-1, -1]
-            a1 = endpoints[inc1, 0]
-            a0 = endpoints[ran0, -1]
-            delta = np.abs(a0 - b0) - np.abs(a0 - a1)
+                test_source = endpoints[indexes, -1]
+                test_dest = endpoints[indexes + 1, 0]
+            last = endpoints[-1, -1]
+            delta = np.abs(test_source - last) - np.abs(test_source - test_dest)
             index = np.argmin(delta)
             v = delta[index]
             if v < 0:
-                print(v)
-                endpoints[:index] = np.flip(endpoints[:index], (0, 1))  # top to bottom, and right to left flips.
+                endpoints[index:] = np.flip(
+                    endpoints[index:], (0, 1)
+                )  # top to bottom, and right to left flips.
                 improved = True
+            for mid in range(1, length):
+                idxs = np.arange(mid, length - 1)
 
-            for j in range(1, length):
-                k = np.arange(j+1, length)
-                a1 = endpoints[j,0]
-                a0 = endpoints[j - 1, -1]
-                b0 = endpoints[k - 1, -1]
-                b1 = endpoints[k,0]
-                delta = np.abs(a1 - b1) - np.abs(b0 - b1) - np.abs(a0 - a1) + np.abs(a0 - b0)
-                print(delta.shape)
+                mid_source = endpoints[mid - 1, -1]
+                mid_dest = endpoints[mid, 0]
+                test_source = endpoints[idxs, -1]
+                test_dest = endpoints[idxs + 1, 0]
+                delta = (
+                    np.abs(mid_source - test_source)
+                    + np.abs(mid_dest - test_dest)
+                    - np.abs(test_source - test_dest)
+                    - np.abs(mid_source - mid_dest)
+                )
                 if len(delta) == 0:
                     continue
                 index = np.argmin(delta)
                 v = delta[index]
                 if v < 0:
-                    print(v)
-                    endpoints[j:index] = np.flip(endpoints[j:index], (0,1))
+                    endpoints[mid : mid + index + 1] = np.flip(
+                        endpoints[mid : mid + index + 1], (0, 1)
+                    )
                     improved = True
-            print(endpoints)
-            print(passes)
             if passes <= 0:
                 break
-        complex_order = endpoints[:,1]
-        order = np.zeros(len(endpoints), dtype='int')
-        for i in range(len(endpoints)):
-            pos = int(complex_order[i].real)
+        order = endpoints[:, 1]
+        reordered = [None] * length
+        for i in range(length):
+            pos = int(order[i].real)
             if pos < 0:
                 pos = ~pos
-                new_lines.lines[pos] = new_lines.lines[pos]
-            order[i] = pos
-        print(order)
-        print(new_lines)
+                new_lines.lines[pos] = np.flip(new_lines.lines[pos])
+            reordered[i] = new_lines.lines[pos]
+        new_lines.lines.clear()
+        new_lines.extend(reordered)
         # new_lines._lines = new_lines._lines[order]
         logging.info(
             f"optimize: reduced pen-up (distance, mean, median) from {lines.pen_up_length()} to "
             f"{new_lines.pen_up_length()}"
         )
-        
+
     return new_lines
 
 
