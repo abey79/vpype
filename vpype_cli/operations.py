@@ -166,7 +166,7 @@ def linesort(
         def delta_distance(j: int, k: int) -> float:
             distance = 0.0
             a1 = new_lines[j][0]
-            b0 = new_lines[k-1][-1]
+            b0 = new_lines[k - 1][-1]
             if k < len(new_lines):
                 b1 = new_lines[k][0]
                 d = np.abs(b0 - b1)
@@ -180,7 +180,7 @@ def linesort(
                 d = np.abs(a0 - b0)
                 distance += d
             return distance
-        
+
         improved = True
         while improved:
             passes -= 1
@@ -192,11 +192,6 @@ def linesort(
                             new_lines.lines[q] = np.flip(new_lines.lines[q])
                         new_lines.lines[j:k] = new_lines.lines[j:k][::-1]
                         improved = True
-            logging.info(
-                f"optimize: reduced pen-up (distance, mean, median) from {lines.pen_up_length()} to "
-                f"{new_lines.pen_up_length()}"
-            )
-            print(passes)
             if passes <= 0:
                 break
 
