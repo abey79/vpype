@@ -128,18 +128,18 @@ def linemerge(lines: vp.LineCollection, tolerance: float, no_flip: bool = True):
     "-t",
     "--two-opt",
     is_flag=True,
-    help="Use two-opt algorithm to perform distance minimization.",
+    help="Use two-opt algorithm to perform additional distance minimization.",
 )
 @click.option(
     "-p",
     "--passes",
     type=int,
-    default=5,
+    default=250,
     help="How many passes is the two-opt algorithm permitted to take?",
 )
 @vp.layer_processor
 def linesort(
-    lines: vp.LineCollection, no_flip: bool = True, two_opt: bool = False, passes: int = 1000
+    lines: vp.LineCollection, no_flip: bool = True, two_opt: bool = False, passes: int = 250
 ):
     """
     Sort lines to minimize the pen-up travel distance.
@@ -160,11 +160,6 @@ def linesort(
         if reverse:
             line = np.flip(line)
         new_lines.append(line)
-
-    logging.info(
-        f"optimize: reduced pen-up (distance, mean, median) from {lines.pen_up_length()} to "
-        f"{new_lines.pen_up_length()}"
-    )
 
     if two_opt:
         length = len(new_lines)
@@ -225,20 +220,20 @@ def linesort(
             if passes <= 0:
                 break
         order = endpoints[:, 1]
-        reordered = [None] * length
+        reordered = list()
         for i in range(length):
             pos = int(order[i].real)
             if pos < 0:
                 pos = ~pos
                 new_lines.lines[pos] = np.flip(new_lines.lines[pos])
-            reordered[i] = new_lines.lines[pos]
+            reordered.append(new_lines.lines[pos])
         new_lines.lines.clear()
         new_lines.extend(reordered)
-        # new_lines._lines = new_lines._lines[order]
-        logging.info(
-            f"optimize: reduced pen-up (distance, mean, median) from {lines.pen_up_length()} to "
-            f"{new_lines.pen_up_length()}"
-        )
+
+    logging.info(
+        f"optimize: reduced pen-up (distance, mean, median) from {lines.pen_up_length()} to "
+        f"{new_lines.pen_up_length()}"
+    )
 
     return new_lines
 
