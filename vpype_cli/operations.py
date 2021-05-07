@@ -137,9 +137,19 @@ def linemerge(lines: vp.LineCollection, tolerance: float, no_flip: bool = True):
     default=250,
     help="How many passes is the two-opt algorithm permitted to take?",
 )
+@click.option(
+    "-w",
+    "--work",
+    is_flag=True,
+    help="Show work progress within the two-opt algorithm",
+)
 @vp.layer_processor
 def linesort(
-    lines: vp.LineCollection, no_flip: bool = True, two_opt: bool = False, passes: int = 250
+    lines: vp.LineCollection,
+    no_flip: bool = True,
+    two_opt: bool = False,
+    passes: int = 250,
+    work: bool = False,
 ):
     """
     Sort lines to minimize the pen-up travel distance.
@@ -161,64 +171,96 @@ def linesort(
             line = np.flip(line)
         new_lines.append(line)
 
+    original = lines.pen_up_length()
+    replacement = new_lines.pen_up_length()
+    if original[0] < replacement[0]:
+        logging.info(
+            f"optimize: could not improve pen-up distance {original} to {replacement}"
+        )
+        new_lines = lines
+        replacement = original
+    else:
+        logging.info(
+            f"optimize: reduced pen-up (distance, mean, median) from {original} to {replacement}"
+        )
+
     if two_opt:
+        current_pass = 1
+        min_value = -1e-10  # Do not swap on rounding error.
         length = len(new_lines)
-        endpoints = np.zeros((length, 4), dtype="complex")  # start, end, position
+        endpoints = np.zeros((length, 4), dtype="complex")
+        # start, index, reverse-index, end
         for i in range(length):
             endpoints[i] = new_lines[i][0], i, ~i, new_lines[i][-1]
-        indexes = np.arange(0, length - 1)
+        indexes0 = np.arange(0, length - 1)
+        indexes1 = indexes0 + 1
+
+        def work_progress(pos):
+            starts = endpoints[indexes0, -1]
+            ends = endpoints[indexes1, 0]
+            dists = np.abs(starts - ends)
+            dist_sum = dists.sum()
+            percent = "%.02f" % (100 * pos/length)
+            print(f"pen-up distance is {dist_sum}. {percent}% done with pass {current_pass}/{passes}")
+            return dist_sum
 
         improved = True
         while improved:
-            passes -= 1
             improved = False
-            first = endpoints[0][0]
-            test_source = endpoints[indexes, -1]
-            test_dest = endpoints[indexes + 1, 0]
 
-            delta = np.abs(first - test_dest) - np.abs(test_source - test_dest)
+            first = endpoints[0][0]
+            pen_ups = endpoints[indexes0, -1]
+            pen_downs = endpoints[indexes1, 0]
+
+            delta = np.abs(first - pen_downs) - np.abs(pen_ups - pen_downs)
             index = np.argmin(delta)
-            v = delta[index]
-            if v < 0:
+            if delta[index] < min_value:
                 endpoints[: index + 1] = np.flip(
                     endpoints[: index + 1], (0, 1)
                 )  # top to bottom, and right to left flips.
                 improved = True
-                test_source = endpoints[indexes, -1]
-                test_dest = endpoints[indexes + 1, 0]
-            last = endpoints[-1, -1]
-            delta = np.abs(test_source - last) - np.abs(test_source - test_dest)
-            index = np.argmin(delta)
-            v = delta[index]
-            if v < 0:
-                endpoints[index:] = np.flip(
-                    endpoints[index:], (0, 1)
-                )  # top to bottom, and right to left flips.
-                improved = True
-            for mid in range(1, length):
+                if work:
+                    work_progress(1)
+            for mid in range(1, length-1):
                 idxs = np.arange(mid, length - 1)
 
                 mid_source = endpoints[mid - 1, -1]
                 mid_dest = endpoints[mid, 0]
-                test_source = endpoints[idxs, -1]
-                test_dest = endpoints[idxs + 1, 0]
+                pen_ups = endpoints[idxs, -1]
+                pen_downs = endpoints[idxs + 1, 0]
                 delta = (
-                    np.abs(mid_source - test_source)
-                    + np.abs(mid_dest - test_dest)
-                    - np.abs(test_source - test_dest)
+                    np.abs(mid_source - pen_ups)
+                    + np.abs(mid_dest - pen_downs)
+                    - np.abs(pen_ups - pen_downs)
                     - np.abs(mid_source - mid_dest)
                 )
-                if len(delta) == 0:
-                    continue
                 index = np.argmin(delta)
-                v = delta[index]
-                if v < 0:
+                if delta[index] < min_value:
                     endpoints[mid : mid + index + 1] = np.flip(
                         endpoints[mid : mid + index + 1], (0, 1)
                     )
                     improved = True
-            if passes <= 0:
+                    if work:
+                        work_progress(mid)
+
+            last = endpoints[-1, -1]
+            pen_ups = endpoints[indexes0, -1]
+            pen_downs = endpoints[indexes1, 0]
+
+            delta = np.abs(pen_ups - last) - np.abs(pen_ups - pen_downs)
+            index = np.argmin(delta)
+            if delta[index] < min_value:
+                endpoints[index+1:] = np.flip(
+                    endpoints[index+1:], (0, 1)
+                )  # top to bottom, and right to left flips.
+                improved = True
+                if work:
+                    work_progress(length)
+            if current_pass >= passes:
                 break
+            current_pass += 1
+
+        # Two-opt complete.
         order = endpoints[:, 1]
         reordered = list()
         for i in range(length):
@@ -229,11 +271,9 @@ def linesort(
             reordered.append(new_lines.lines[pos])
         new_lines.lines.clear()
         new_lines.extend(reordered)
-
-    logging.info(
-        f"optimize: reduced pen-up (distance, mean, median) from {lines.pen_up_length()} to "
-        f"{new_lines.pen_up_length()}"
-    )
+        logging.info(
+            f"optimize: two-op further reduced pen-up (distance, mean, median) from {replacement} to {new_lines.pen_up_length()}"
+        )
 
     return new_lines
 
