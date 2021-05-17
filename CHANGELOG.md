@@ -5,6 +5,9 @@
 New features and improvements:
 * ...
 
+Bug fixes:
+* Fixed an issue where `read` would crash with empty `<polygon>` tags and similar degenerate geometries (#260)
+
 #### 1.6 (2021-03-10)
 
 New features and improvements:
