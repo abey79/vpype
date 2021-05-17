@@ -34,7 +34,7 @@ vpype = "vpype_cli.cli:cli"
 
 [tool.poetry.dependencies]
 python = ">=3.7, !=3.9.0, <3.10"
-attrs = "~20.3.0"
+attrs = "~21.2.0"
 cachetools = "^4.2.0"
 click = "~7.1.2"
 click-plugins = "~1.1.1"
@@ -44,7 +44,7 @@ pnoise = "^0.1.0"
 Shapely = {extras = ["vectorized"], version = "~1.7.1"}
 scipy = "^1.6"
 setuptools = "^51.0.0"
-svgelements = "1.4.10"
+svgelements = "1.5.2"
 svgwrite = "~1.4"
 toml = "~0.10.2"
 

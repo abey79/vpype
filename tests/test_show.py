@@ -1,3 +1,5 @@
+import sys
+
 import matplotlib.pyplot as plt
 import pytest
 
@@ -91,3 +93,22 @@ def test_show_must_return_document(runner, monkeypatch):
 
     result = runner.invoke(cli, "line 0 0 10 10 show --classic assertdoc")
     assert result.exit_code == 0
+
+
+@pytest.fixture()
+def fail_pyside2_import(monkeypatch):
+    # noinspection PyTypeChecker
+    monkeypatch.setitem(sys.modules, "vpype_viewer", None)
+
+
+def test_show_no_pyside(runner, fail_pyside2_import):
+    runner.invoke(cli, "-v show")
+
+
+def test_show_viewer_mpl_absent(runner, monkeypatch, caplog):
+    monkeypatch.setattr(sys.modules["vpype_cli.show"], "_vpype_viewer_ok", False)
+    # noinspection PyTypeChecker
+    monkeypatch.setitem(sys.modules, "matplotlib", None)
+
+    runner.invoke(cli, "show")
+    assert "pip install vpype[all]" in caplog.text

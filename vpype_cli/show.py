@@ -14,7 +14,7 @@ try:
     import vpype_viewer
 
     _vpype_viewer_ok = True
-except ImportError:
+except ImportError:  # pragma: no cover
     _vpype_viewer_ok = False
 
 
