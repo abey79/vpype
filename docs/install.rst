@@ -27,7 +27,7 @@ Then, the preferred way to install *vpype* is in a dedicated `virtual environmen
   $ python3 -m venv vpype_venv      # create a new virtual environment
   $ source vpype_venv/bin/activate  # activate the newly created virtual environment
   $ pip install --upgrade pip
-  $ pip install vpype
+  $ pip install vpype[all]
 
 You should now be able to run *vpype*::
 
@@ -53,7 +53,7 @@ First, Python must be installed. Python 3.9 is recommended, although it is also 
 
 After installing Python, launch a terminal (by typing ``cmd`` in the Start menu) and enter the following command to install *vpype*::
 
-  > pip install vpype
+  > pip install vpype[all]
 
 You should then be able to run *vpype*::
 
@@ -74,7 +74,7 @@ This will create a ``vpype_venv`` directory which will contain everything needed
 
 You will need to activate your virtual environment each time you launch a new  terminal. With your virtual environment activated, type the following command to install *vpype*::
 
-  > pip install vpype
+  > pip install vpype[all]
 
 You should now be able to use *vpype*. Type this for a list of command::
 
@@ -101,7 +101,7 @@ The preferred way to install *vpype* is in a dedicated `virtual environment <htt
   $ python3 -m venv vpype_venv      # create a new virtual environment
   $ source vpype_venv/bin/activate  # activate the newly created virtual environment
   $ pip install --upgrade pip
-  $ pip install vpype
+  $ pip install vpype[all]
 
 You should now be able to run *vpype*::
 
@@ -119,6 +119,18 @@ Alternatively, *vpype* can be executed using the full path to the executable::
 Raspberry Pi
 ============
 
-Installation on the Raspberry Pi is no longer supported. Expert users may succeed with `pip install vpype` provided that a suitable version of the PySide2 package is available. Also, new viewer requires OpenGL 3.3, which the Raspberry Pi does not support. The classic viewer should work correctly:
+Installation on the Raspberry Pi is no longer supported. Expert users may succeed with `pip install vpype[all]` provided that a suitable version of the PySide2 package is available. Also, new viewer requires OpenGL 3.3, which the Raspberry Pi does not support. The classic viewer should work correctly:
 
   $ vpype [...] show --classic
+
+Installing the CLI-only version described in the next section is easier and should be favored whenever possible.
+
+
+CLI-only install
+================
+
+For special cases where the :ref:`cmd_show` is not needed and dependencies such as matplotlib, PySide2, or ModernGL are difficult to install, a CLI-only version of *vpype* can be installed using this command::
+
+  $ pip install vpype
+
+Note the missing ``[all]`` compared the instructions above.
