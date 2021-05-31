@@ -2,11 +2,25 @@
 
 #### 1.7 (UNRELEASED)
 
+**Important**: for a normal installation, *vpype* must now be installed/updated with the following command:
+```
+pip install -U vpype[all]
+```
+
+
 New features and improvements:
-* ...
+* The viewer (`show` command) and its dependencies is no longer required and is installed only if the `all` extra is provided to `pip`:
+  ```
+  pip install -U vpype[all]  # the viewer is fully installed
+  pip install -U vpype       # the viewer and its dependencies is NOT installed
+  ```
+  Forgoing the viewer considerably reduces the number of required dependencies and may be useful for embedded (e.g. Raspberry Pi) and server installs of *vpype*, when the `show` command is not necessary.
 
 Bug fixes:
 * Fixed an issue where `read` would crash with empty `<polygon>` tags and similar degenerate geometries (#260)
+
+Other changes:
+* Updated to Click 8.0.1 (#282) 
 
 #### 1.6 (2021-03-10)
 

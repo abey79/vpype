@@ -101,10 +101,6 @@ class LayerType(click.ParamType):
             self.name = "layer"
 
     def convert(self, value, param, ctx):
-        # comply with ParamType requirements
-        if value is None:
-            return None
-
         # accept value when already converted to final type
         if isinstance(value, int):
             if value > 0 or value in [self.ALL, self.NEW]:
