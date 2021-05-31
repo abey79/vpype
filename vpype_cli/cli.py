@@ -2,11 +2,11 @@ import logging
 import os
 import random
 import shlex
+import sys
 from typing import Any, List, Optional, TextIO, Union
 
 import click
 import numpy as np
-from click import get_os_args
 from click_plugins import with_plugins
 from pkg_resources import iter_entry_points
 from shapely.geometry import MultiLineString
@@ -70,7 +70,7 @@ class GroupedGroup(click.Group):
     def main(self, args=None, **extra):
         """Let's get a chance to pre-process the argument list for include options."""
         if args is None:
-            args = get_os_args()
+            args = sys.argv[1:]
         return super().main(args=preprocess_argument_list(args), **extra)
 
 
@@ -105,7 +105,7 @@ def cli(ctx, verbose, include, history, seed, config):
     # We use the command string as context object, mainly for the purpose of the `write`
     # command. This is a bit of a hack, and will need to be updated if we ever need more state
     # to be passed around (probably VpypeState should go in there!)
-    cmd_string = "vpype " + " ".join(shlex.quote(arg) for arg in get_os_args()) + "\n"
+    cmd_string = "vpype " + " ".join(shlex.quote(arg) for arg in sys.argv[1:]) + "\n"
     ctx.obj = cmd_string
 
     if history:
@@ -123,7 +123,7 @@ def cli(ctx, verbose, include, history, seed, config):
 
 
 # noinspection PyShadowingNames,PyUnusedLocal
-@cli.resultcallback()
+@cli.result_callback()
 def process_pipeline(processors, verbose, include, history, seed, config):
     execute_processors(processors)
 

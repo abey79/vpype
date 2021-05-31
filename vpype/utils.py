@@ -1,7 +1,7 @@
 import logging
 import math
 import re
-from typing import Callable, Dict, List, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import click
 import numpy as np
@@ -196,10 +196,13 @@ class LengthType(click.ParamType):
     name = "length"
 
     def convert(self, value, param, ctx):
-        try:
-            return convert_length(value)
-        except ValueError:
-            self.fail(f"parameter {value} is an incorrect length")
+        if isinstance(value, str):
+            try:
+                return convert_length(value)
+            except ValueError:
+                self.fail(f"parameter {value} is an incorrect length")
+        else:
+            return super().convert(value, param, ctx)
 
 
 class Length(LengthType):  # pragma: no cover
@@ -231,7 +234,10 @@ class AngleType(click.ParamType):
 
     def convert(self, value, param, ctx):
         try:
-            return convert_angle(value)
+            if isinstance(value, str):
+                return convert_angle(value)
+            else:
+                return super().convert(value, param, ctx)
         except ValueError:
             self.fail(f"parameter {value} is an incorrect angle")
 
@@ -253,11 +259,15 @@ class PageSizeType(click.ParamType):
         ...     pass
     """
 
-    name = "PAGESIZE"
+    name = "pagesize"
 
-    def convert(self, value, param, ctx) -> Tuple[float, float]:
+    def convert(self, value: Any, param, ctx) -> Optional[Tuple[float, float]]:
         try:
-            return convert_page_size(value)
+            if isinstance(value, str):
+                return convert_page_size(value)
+            else:
+                return super().convert(value, param, ctx)
+
         except ValueError:
             self.fail(f"parameter {value} is not a valid page size")
 
