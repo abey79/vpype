@@ -18,6 +18,7 @@ New features and improvements:
 
 Bug fixes:
 * Fixed an issue where `read` would crash with empty `<polygon>` tags and similar degenerate geometries (#260)
+* Fixed an issue where `linesimplify` would skip layers containing a single line (#280)
 
 Other changes:
 * Updated to Click 8.0.1 (#282) 

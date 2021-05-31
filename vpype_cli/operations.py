@@ -170,7 +170,7 @@ def linesimplify(lines: vp.LineCollection, tolerance):
     The resulting geometries' points will be at a maximum distance from the original controlled
     by the `--tolerance` parameter (0.05mm by default).
     """
-    if len(lines) < 2:
+    if len(lines) < 1:
         return lines
 
     # Note: preserve_topology must be False, otherwise non-simple (ie intersecting) MLS will
