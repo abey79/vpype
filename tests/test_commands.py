@@ -62,13 +62,13 @@ LOREM = (
 
 @pytest.mark.parametrize("args", MINIMAL_COMMANDS)
 def test_commands_empty_geometry(runner, args):
-    result = runner.invoke(cli, args)
+    result = runner.invoke(cli, args, catch_exceptions=False)
     assert result.exit_code == 0
 
 
 @pytest.mark.parametrize("args", MINIMAL_COMMANDS)
 def test_commands_single_line(runner, args):
-    result = runner.invoke(cli, "line 0 0 10 10 " + args)
+    result = runner.invoke(cli, "line 0 0 10 10 " + args, catch_exceptions=False)
     assert result.exit_code == 0
 
 

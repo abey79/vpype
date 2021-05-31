@@ -1,7 +1,7 @@
 import logging
 import math
 import re
-from typing import Callable, Dict, List, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import click
 import numpy as np
@@ -196,6 +196,9 @@ class LengthType(click.ParamType):
     name = "length"
 
     def convert(self, value, param, ctx):
+        if value is None:
+            return None
+
         try:
             return convert_length(value)
         except ValueError:
@@ -255,9 +258,15 @@ class PageSizeType(click.ParamType):
 
     name = "PAGESIZE"
 
-    def convert(self, value, param, ctx) -> Tuple[float, float]:
+    def convert(self, value: Any, param, ctx) -> Optional[Tuple[float, float]]:
         try:
-            return convert_page_size(value)
+            if value is None:
+                return None
+            elif isinstance(value, str):
+                return convert_page_size(value)
+            else:
+                return value
+
         except ValueError:
             self.fail(f"parameter {value} is not a valid page size")
 

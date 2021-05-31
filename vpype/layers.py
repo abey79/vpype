@@ -86,6 +86,8 @@ class LayerType(click.ParamType):
     None is passed through, which typically means to use the default behaviour.
     """
 
+    name = "layer ID"
+
     NEW = -1
     ALL = -2
 
@@ -103,6 +105,14 @@ class LayerType(click.ParamType):
         if value is None:
             return None
 
+        # accept value when already converted to final type
+        if isinstance(value, int):
+            if value > 0 or value in [self.ALL, self.NEW]:
+                return value
+            else:
+                self.fail(f"inconsistent converted value {value}")
+
+        value = str(value)
         if value.lower() == "all":
             if self.accept_multiple:
                 return LayerType.ALL
