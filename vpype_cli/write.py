@@ -152,7 +152,7 @@ Examples:
 @click.option(
     "-vs",
     "--velocity",
-    type=float,
+    type=int,
     help="[HPGL only] Emit a VS command with the provided value.",
 )
 @click.option(
