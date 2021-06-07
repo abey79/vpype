@@ -139,8 +139,10 @@ For other platforms, and when plug-ins are required, *vpype* can be installed fr
 using the following command:
 
 ```bash
-pip install vpype
+pip install vpype[all]
 ```
+
+**Note**: a CLI-only version of *vpype* can be installed using `pip install vpype`. This version does not include the [`show`](https://vpype.readthedocs.io/en/stable/reference.html#show) command and skips the related dependencies (notably matplotlib, PySide2, and ModernGL). 
 
 Python must previously be installed. Python version 3.9.1 or later is recommended to use *vpype*, although it is also compatible with Python 3.6 and later.
 

@@ -14,7 +14,7 @@ __all__ = ("rotate", "scale_relative", "scaleto", "skew", "translate")
 def _compute_origin(
     document: vp.Document,
     layer: Optional[Union[int, List[int]]],
-    origin_coords: Union[Tuple[()], Tuple[float, float]],
+    origin_coords: Optional[Union[Tuple[()], Tuple[float, float]]],
 ) -> Tuple[Tuple[float, float], List[int], Tuple[float, float, float, float]]:
     layer_ids = vp.multiple_to_layer_ids(layer, document)
     bounds = document.bounds(layer_ids)
@@ -23,7 +23,7 @@ def _compute_origin(
         logging.warning("no geometry available, cannot compute origin")
         raise ValueError
 
-    if len(origin_coords) == 2:
+    if origin_coords is not None and len(origin_coords) == 2:
         origin = origin_coords
     else:
         origin = (

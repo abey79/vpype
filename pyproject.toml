@@ -34,27 +34,29 @@ vpype = "vpype_cli.cli:cli"
 
 [tool.poetry.dependencies]
 python = ">=3.7, !=3.9.0, <3.10"
-attrs = "~20.3.0"
+attrs = "~21.2.0"
 cachetools = "^4.2.0"
-click = "~7.1.2"
+click = "~8.0.1"
 click-plugins = "~1.1.1"
-glcontext = ">=2.3.2"  # 2.3.2 needed to fix #200
-matplotlib = ">=3.3.2,<3.5.0"
-moderngl = "^5.6.2"
 multiprocess = "^0.70.11"
 numpy = "^1.20"
-Pillow = "^8.1.0"
 pnoise = "^0.1.0"
-PySide2 = "^5.15.2"
 Shapely = {extras = ["vectorized"], version = "~1.7.1"}
 scipy = "^1.6"
 setuptools = "^51.0.0"
-svgelements = "1.5.0"
+svgelements = "1.5.3"
 svgwrite = "~1.4"
 toml = "~0.10.2"
 
+# additional dependencies for the viewer and the `show` command
+matplotlib = { version = ">=3.3.2,<3.5.0", optional = true }
+glcontext = { version = ">=2.3.2", optional = true }  # 2.3.2 needed to fix #200
+moderngl = { version = "^5.6.2", optional = true }
+Pillow = { version = "^8.1.0", optional = true }
+PySide2 = { version = "^5.15.2", optional = true }
+
 # these needs to be there because of https://github.com/python-poetry/poetry/issues/1145
-Sphinx = { version = "^3.5.0", optional = true }
+Sphinx = { version = "^4.0.1", optional = true }
 sphinx-click = { version = ">=2.5.0", optional = true }
 sphinx-autodoc-typehints = { version = "^1.12.0", optional = true }
 sphinx-rtd-theme = { version = "^0.5.0", optional = true }
@@ -65,7 +67,7 @@ coverage = {extras = ["toml"], version = "^5.4"}
 pytest = "^6.2.3"
 pytest-cov = "^2.11.0"
 pytest-benchmark = "^3.2.3"
-black = "^20.8b1"
+black = "^21.5b1"
 isort = "^5.8.0"
 mypy = "^0.812"
 pyinstaller = "^4.3"
@@ -74,6 +76,7 @@ pytest-mpl = "^0.12"
 
 [tool.poetry.extras]
 docs = ["Sphinx", "sphinx-click", "sphinx-autodoc-typehints", "sphinx-rtd-theme", "recommonmark"]
+all = ["matplotlib", "glcontext", "moderngl", "Pillow", "PySide2"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

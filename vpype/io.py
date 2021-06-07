@@ -494,7 +494,7 @@ def write_hpgl(
     landscape: bool,
     center: bool,
     device: Optional[str],
-    velocity: Optional[float],
+    velocity: Optional[int],
     quiet: bool = False,
 ) -> None:
     """Create a HPGL file from the :class:`Document` instance.
@@ -608,7 +608,7 @@ def write_hpgl(
 
     output.write("IN;DF;")
     if velocity is not None:
-        output.write(f"VS{velocity};")
+        output.write(f"VS{int(velocity)};")
     if paper_config.set_ps is not None:
         output.write(f"PS{int(paper_config.set_ps)};")
 
