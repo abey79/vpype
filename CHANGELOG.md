@@ -17,6 +17,7 @@ New features and improvements:
   Forgoing the viewer considerably reduces the number of required dependencies and may be useful for embedded (e.g. Raspberry Pi) and server installs of *vpype*, when the `show` command is not necessary.
 
 Bug fixes:
+* Fixed systematic crash when using the Windows installer (#285)
 * Fixed an issue where `read` would crash with empty `<polygon>` tags and similar degenerate geometries (#260)
 * Fixed an issue where `linesimplify` would skip layers containing a single line (#280)
 
