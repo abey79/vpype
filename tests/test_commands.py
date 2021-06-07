@@ -33,6 +33,7 @@ MINIMAL_COMMANDS = [
     "translate 0 0",
     "crop 0 0 1 1",
     "linesort",
+    "linesort --two-opt",
     "linemerge",
     "linesimplify",
     "multipass",
@@ -353,18 +354,33 @@ def test_linesort(runner, lines):
     assert data.pen_up_length == 0
 
 
-def test_linesort_no_flip(runner):
+@pytest.mark.parametrize(
+    ["opt", "expected"],
+    {
+        ("--no-flip", 50.0),
+        ("", 20.0),
+        ("--two-opt", 0.0),
+    },
+)
+def test_linesort_result(runner, opt, expected):
     res = runner.invoke(
         cli,
-        "line 0 0 0 10 line 0 10 10 10 line 0 0 10 0 line 10 0 10 10 "
-        "linesort --no-flip dbsample dbdump",
+        "line 20 0 30 0 line 10 0 20 0 line 30 0 40 0 line 0 0 10 0 "
+        f"linesort {opt} dbsample dbdump",
     )
-    # in this situation, an optimal line sorter would have a pen up distance of only 14.14
-    # our algo doesnt "see" the second line sequence globally however, thus the added 10 units
-    # this would be solved anyway with linemerge
+
+    # test situation: four co-linear, single-segment lines in shuffled order
+    #
+    #    |
+    #  0 |  +--4--> +--2--> +--1--> +--3-->
+    #    L_____________________________________
+    #       0     10      20      30     40
+
+    # the following situation
+
     data = DebugData.load(res.output)[0]
     assert res.exit_code == 0
-    assert 24.13 < data.pen_up_length < 24.15
+    assert data.pen_up_length == pytest.approx(expected)
 
 
 def test_snap():

@@ -161,12 +161,13 @@ def linesort(
     if len(lines) < 2:
         return lines
 
-    index = vp.LineIndex(lines[1:], reverse=not no_flip)
+    line_index = vp.LineIndex(lines[1:], reverse=not no_flip)
     new_lines = vp.LineCollection([lines[0]])
 
-    while len(index) > 0:
-        idx, reverse = index.find_nearest(new_lines[-1][-1])
-        line = index.pop(idx)
+    while len(line_index) > 0:
+        # noinspection PyShadowingNames
+        idx, reverse = line_index.find_nearest(new_lines[-1][-1])
+        line = line_index.pop(idx)
         if reverse:
             line = np.flip(line)
         new_lines.append(line)
@@ -181,7 +182,8 @@ def linesort(
         replacement = original
     else:
         logging.info(
-            f"optimize: reduced pen-up (distance, mean, median) from {original} to {replacement}"
+            f"optimize: reduced pen-up (distance, mean, median) from {original} to "
+            f"{replacement}"
         )
 
     if two_opt:
@@ -195,13 +197,16 @@ def linesort(
         indexes0 = np.arange(0, length - 1)
         indexes1 = indexes0 + 1
 
+        # noinspection PyShadowingNames
         def work_progress(pos):
             starts = endpoints[indexes0, -1]
             ends = endpoints[indexes1, 0]
             dists = np.abs(starts - ends)
             dist_sum = dists.sum()
-            percent = "%.02f" % (100 * pos/length)
-            print(f"pen-up distance is {dist_sum}. {percent}% done with pass {current_pass}/{passes}")
+            logging.info(
+                f"optimize: pen-up distance is {dist_sum}. {100 * pos / length:.02f}% done "
+                f"with pass {current_pass}/{passes}"
+            )
             return dist_sum
 
         improved = True
@@ -213,7 +218,7 @@ def linesort(
             pen_downs = endpoints[indexes1, 0]
 
             delta = np.abs(first - pen_downs) - np.abs(pen_ups - pen_downs)
-            index = np.argmin(delta)
+            index = int(np.argmin(delta))
             if delta[index] < min_value:
                 endpoints[: index + 1] = np.flip(
                     endpoints[: index + 1], (0, 1)
@@ -221,7 +226,7 @@ def linesort(
                 improved = True
                 if work:
                     work_progress(1)
-            for mid in range(1, length-1):
+            for mid in range(1, length - 1):
                 idxs = np.arange(mid, length - 1)
 
                 mid_source = endpoints[mid - 1, -1]
@@ -234,7 +239,7 @@ def linesort(
                     - np.abs(pen_ups - pen_downs)
                     - np.abs(mid_source - mid_dest)
                 )
-                index = np.argmin(delta)
+                index = int(np.argmin(delta))
                 if delta[index] < min_value:
                     endpoints[mid : mid + index + 1] = np.flip(
                         endpoints[mid : mid + index + 1], (0, 1)
@@ -248,10 +253,10 @@ def linesort(
             pen_downs = endpoints[indexes1, 0]
 
             delta = np.abs(pen_ups - last) - np.abs(pen_ups - pen_downs)
-            index = np.argmin(delta)
+            index = int(np.argmin(delta))
             if delta[index] < min_value:
-                endpoints[index+1:] = np.flip(
-                    endpoints[index+1:], (0, 1)
+                endpoints[index + 1 :] = np.flip(
+                    endpoints[index + 1 :], (0, 1)
                 )  # top to bottom, and right to left flips.
                 improved = True
                 if work:
@@ -272,7 +277,8 @@ def linesort(
         new_lines.lines.clear()
         new_lines.extend(reordered)
         logging.info(
-            f"optimize: two-op further reduced pen-up (distance, mean, median) from {replacement} to {new_lines.pen_up_length()}"
+            f"optimize: two-op further reduced pen-up (distance, mean, median) from "
+            f"{replacement} to {new_lines.pen_up_length()}"
         )
 
     return new_lines
