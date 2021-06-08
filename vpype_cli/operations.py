@@ -124,32 +124,162 @@ def linemerge(lines: vp.LineCollection, tolerance: float, no_flip: bool = True):
     is_flag=True,
     help="Disable reversing stroke direction for optimization.",
 )
+@click.option(
+    "-t",
+    "--two-opt",
+    is_flag=True,
+    help="Use two-opt algorithm to perform additional distance minimization.",
+)
+@click.option(
+    "-p",
+    "--passes",
+    type=int,
+    default=250,
+    help="Number of passes the two-opt algorithm is permitted to take (default: 250)",
+)
 @vp.layer_processor
-def linesort(lines: vp.LineCollection, no_flip: bool = True):
+def linesort(lines: vp.LineCollection, no_flip: bool, two_opt: bool, passes: int):
     """
     Sort lines to minimize the pen-up travel distance.
 
-    Note: this process can be lengthy depending on the total number of line. Consider using
-    `linemerge` before `linesort` to reduce the total number of line and thus significantly
-    optimizing the overall plotting time.
+    This command reorders the paths within layers such as to minimize the total pen-up
+    distance. By default, it will also invert the path direction if it can further optimize the
+    pen-up distance. This behavior can be disabled using the `--no-flip` option.
+
+    By default, a fast, greedy algorithm is used. Although it will dramatically reduce the
+    pen-up distance in most situation, it trades execution speed for optimality. Further
+    optimization using the two-opt algorithm can be enabled using the `--two-opt` option. Since
+    this greatly increase processing time, this feature is mostly useful for special cases such
+    as when the same design must be plotted multiple times.
+
+    When using `--two-opt`, detailed progress indication are available in the debug output,
+    which is enabled using the `-vv` global option:
+
+        $ vpype -vv [...] linesort --two-opt [...]
+
+    Note: to further optimize the plotting time, consider using `linemerge` before `linesort`.
     """
     if len(lines) < 2:
         return lines
 
-    index = vp.LineIndex(lines[1:], reverse=not no_flip)
+    line_index = vp.LineIndex(lines[1:], reverse=not no_flip)
     new_lines = vp.LineCollection([lines[0]])
 
-    while len(index) > 0:
-        idx, reverse = index.find_nearest(new_lines[-1][-1])
-        line = index.pop(idx)
+    while len(line_index) > 0:
+        # noinspection PyShadowingNames
+        idx, reverse = line_index.find_nearest(new_lines[-1][-1])
+        line = line_index.pop(idx)
         if reverse:
             line = np.flip(line)
         new_lines.append(line)
 
-    logging.info(
-        f"optimize: reduced pen-up (distance, mean, median) from {lines.pen_up_length()} to "
-        f"{new_lines.pen_up_length()}"
-    )
+    original = lines.pen_up_length()
+    replacement = new_lines.pen_up_length()
+    if original[0] < replacement[0]:
+        logging.info(
+            f"optimize: could not improve pen-up distance {original} to {replacement}"
+        )
+        new_lines = lines
+        replacement = original
+    else:
+        logging.info(
+            f"optimize: reduced pen-up (distance, mean, median) from {original} to "
+            f"{replacement}"
+        )
+
+    if two_opt:
+        current_pass = 1
+        min_value = -1e-10  # Do not swap on rounding error.
+        length = len(new_lines)
+        endpoints = np.zeros((length, 4), dtype="complex")
+        # start, index, reverse-index, end
+        for i in range(length):
+            endpoints[i] = new_lines[i][0], i, ~i, new_lines[i][-1]
+        indexes0 = np.arange(0, length - 1)
+        indexes1 = indexes0 + 1
+
+        # noinspection PyShadowingNames
+        def log_progress(pos):
+            # only compute progress if debug output is enable
+            if logging.getLogger().level > logging.DEBUG:
+                return
+            starts = endpoints[indexes0, -1]
+            ends = endpoints[indexes1, 0]
+            dists = np.abs(starts - ends)
+            dist_sum = dists.sum()
+            logging.debug(
+                f"optimize: pen-up distance is {dist_sum}. {100 * pos / length:.02f}% done "
+                f"with pass {current_pass}/{passes}"
+            )
+
+        improved = True
+        while improved:
+            improved = False
+
+            first = endpoints[0][0]
+            pen_ups = endpoints[indexes0, -1]
+            pen_downs = endpoints[indexes1, 0]
+
+            delta = np.abs(first - pen_downs) - np.abs(pen_ups - pen_downs)
+            index = int(np.argmin(delta))
+            if delta[index] < min_value:
+                endpoints[: index + 1] = np.flip(
+                    endpoints[: index + 1], (0, 1)
+                )  # top to bottom, and right to left flips.
+                improved = True
+                log_progress(1)
+            for mid in range(1, length - 1):
+                idxs = np.arange(mid, length - 1)
+
+                mid_source = endpoints[mid - 1, -1]
+                mid_dest = endpoints[mid, 0]
+                pen_ups = endpoints[idxs, -1]
+                pen_downs = endpoints[idxs + 1, 0]
+                delta = (
+                    np.abs(mid_source - pen_ups)
+                    + np.abs(mid_dest - pen_downs)
+                    - np.abs(pen_ups - pen_downs)
+                    - np.abs(mid_source - mid_dest)
+                )
+                index = int(np.argmin(delta))
+                if delta[index] < min_value:
+                    endpoints[mid : mid + index + 1] = np.flip(
+                        endpoints[mid : mid + index + 1], (0, 1)
+                    )
+                    improved = True
+                    log_progress(mid)
+
+            last = endpoints[-1, -1]
+            pen_ups = endpoints[indexes0, -1]
+            pen_downs = endpoints[indexes1, 0]
+
+            delta = np.abs(pen_ups - last) - np.abs(pen_ups - pen_downs)
+            index = int(np.argmin(delta))
+            if delta[index] < min_value:
+                endpoints[index + 1 :] = np.flip(
+                    endpoints[index + 1 :], (0, 1)
+                )  # top to bottom, and right to left flips.
+                improved = True
+                log_progress(length)
+            if current_pass >= passes:
+                break
+            current_pass += 1
+
+        # Two-opt complete.
+        order = endpoints[:, 1]
+        reordered = list()
+        for i in range(length):
+            pos = int(order[i].real)
+            if pos < 0:
+                pos = ~pos
+                new_lines.lines[pos] = np.flip(new_lines.lines[pos])
+            reordered.append(new_lines.lines[pos])
+        new_lines.lines.clear()
+        new_lines.extend(reordered)
+        logging.info(
+            f"optimize: two-op further reduced pen-up (distance, mean, median) from "
+            f"{replacement} to {new_lines.pen_up_length()}"
+        )
 
     return new_lines
 
