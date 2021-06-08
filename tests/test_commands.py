@@ -383,6 +383,28 @@ def test_linesort_result(runner, opt, expected):
     assert data.pen_up_length == pytest.approx(expected)
 
 
+def test_linesort_reject_bad_opt(runner):
+    res = runner.invoke(
+        cli,
+        "line 0 0 0 10 line 0 10 10 10 line 0 0 10 0 line 10 0 10 10 "
+        f"linesort --no-flip dbsample dbdump",
+    )
+
+    # in this situation, the greedy optimizer is worse than the starting position, so its
+    # result should be discarded
+
+    data = DebugData.load(res.output)[0]
+    assert res.exit_code == 0
+    assert data.pen_up_length == pytest.approx(14.1, abs=0.1)
+
+
+def test_linesort_two_opt_debug_output(runner, caplog):
+    res = runner.invoke(cli, "-vv -s 0 random -n 100 linesort --two-opt")
+
+    assert res.exit_code == 0
+    assert "% done with pass" in caplog.text
+
+
 def test_snap():
     line = np.array([0.2, 0.8 + 1.1j, 0.5 + 2.5j])
     lc = execute_single_line("snap 1", line)

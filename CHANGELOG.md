@@ -14,6 +14,9 @@ New features and improvements:
   pip install -U vpype       # the viewer and its dependencies is NOT installed
   ```
   Forgoing the viewer considerably reduces the number of required dependencies and may be useful for embedded (e.g. Raspberry Pi) and server installs of *vpype*, when the `show` command is not necessary.
+* Added optional global optimization feature to `linemerge` (#266, thanks to @tatarize)
+
+  This feature is enabled by adding the `--two-opt` option. Since it considerably increases the processing time for complex designs, it should primarily be used for special cases, for example when the same file must be plotted multiple times.
 
 Bug fixes:
 * Fixed systematic crash when using the Windows installer (#285)
