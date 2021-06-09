@@ -51,9 +51,9 @@ jobs:
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
     - name: Lint and static analysis
       run: |
-        isort --check --diff vpype vpype_cli vpype_viewer tests
-        black --check --diff vpype vpype_cli vpype_viewer tests
-        mypy
+        poetry run isort --check --diff vpype vpype_cli vpype_viewer tests
+        poetry run black --check --diff vpype vpype_cli vpype_viewer tests
+        poetry run mypy
     # PYTEST STRATEGY
     # macOS is the only runner who has working ModernGL behaviour
     # macOS + 3.8 is used for code coverage
