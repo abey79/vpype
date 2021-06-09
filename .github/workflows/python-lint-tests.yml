@@ -93,7 +93,6 @@ jobs:
   # TESTS WINDOWS #
   #################
   tests-windows:
-    needs: linting
     strategy:
       fail-fast: true
       matrix:
@@ -130,7 +129,6 @@ jobs:
   # INSTALLER WINDOWS #
   #####################
   windows-installer:
-    needs: linting
     defaults:
       run:
         shell: bash
