@@ -49,17 +49,11 @@ jobs:
     - name: Install dependencies
       run: poetry install -E all
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-    - name: Python Code Quality and Lint
-      uses: abey79/python-lint@master
-      with:
-        python-root-list: "vpype vpype_cli vpype_viewer tests"
-        use-pylint: false
-        use-pycodestyle: false
-        use-flake8: false
-        use-black: true
-        extra-black-options: --diff
-        use-mypy: true
-        use-isort: true
+    - name: Lint and static analysis
+      run: |
+        isort --check --diff vpype vpype_cli vpype_viewer tests
+        black --check --diff vpype vpype_cli vpype_viewer tests
+        mypy
     # PYTEST STRATEGY
     # macOS is the only runner who has working ModernGL behaviour
     # macOS + 3.8 is used for code coverage
