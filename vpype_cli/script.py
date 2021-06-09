@@ -29,6 +29,8 @@ def script(file) -> LineCollection:
 
     try:
         spec = importlib.util.spec_from_file_location("<external>", file)
+        if spec is None:
+            raise FileNotFoundError(f"file {file} not found")
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)  # type: ignore
         return LineCollection(module.generate())  # type: ignore

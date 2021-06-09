@@ -35,7 +35,7 @@ vpype = "vpype_cli.cli:cli"
 [tool.poetry.dependencies]
 python = ">=3.7, !=3.9.0, <3.10"
 attrs = "~21.2.0"
-cachetools = "^4.2.0"
+cachetools = "^4.2.2"
 click = "~8.0.1"
 click-plugins = "~1.1.1"
 multiprocess = "^0.70.11"
@@ -69,10 +69,13 @@ pytest-cov = "^2.11.0"
 pytest-benchmark = "^3.2.3"
 black = "^21.5b1"
 isort = "^5.8.0"
-mypy = "^0.901"
 pyinstaller = "^4.3"
 packaging = "^20.8"
 pytest-mpl = "^0.12"
+mypy = "^0.901"
+types-cachetools = "^0.1.6"
+types-toml = "^0.1.1"
+types-pkg-resources = "^0.1.2"
 
 [tool.poetry.extras]
 docs = ["Sphinx", "sphinx-click", "sphinx-autodoc-typehints", "sphinx-rtd-theme", "recommonmark"]
@@ -84,6 +87,15 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
 addopts = "--mpl --mpl-baseline-path tests/data/baseline --benchmark-disable"
+
+[tool.mypy]
+ignore_missing_imports = true
+allow_redefinition = true
+files = "vpype,vpype_cli,vpype_viewer,tests"
+
+[[tool.mypy.overrides]]
+module = "cachetools.keys"
+ignore_missing_imports = true  # somehow needed to silence one particular error
 
 [tool.coverage.run]
 branch = true
