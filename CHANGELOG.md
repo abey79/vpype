@@ -25,7 +25,7 @@ New features and improvements:
   pip install -U vpype       # the viewer and its dependencies are NOT installed
   ```
   Forgoing the viewer considerably reduces the number of required dependencies and may be useful for embedded (e.g. Raspberry Pi) or server installs of *vpype*, when the `show` command is not necessary. Note that the Windows installer is not affected by this change.
-* Added an optional, global optimization feature to `linemerge` (#266, thanks to @tatarize)
+* Added an optional, global optimization feature to `linesort` (#266, thanks to @tatarize)
 
   This feature is enabled by adding the `--two-opt` option. Since it considerably increases the processing time, it should primarily be used for special cases such as plotting the same file multiple times.
 
