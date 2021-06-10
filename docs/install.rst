@@ -119,11 +119,25 @@ Alternatively, *vpype* can be executed using the full path to the executable::
 Raspberry Pi
 ============
 
-Installation on the Raspberry Pi is no longer supported. Expert users may succeed with `pip install vpype[all]` provided that a suitable version of the PySide2 package is available. Also, new viewer requires OpenGL 3.3, which the Raspberry Pi does not support. The classic viewer should work correctly:
+Full installation including the viewer on the Raspberry Pi is no longer supported. Expert users may succeed with ``pip install vpype[all]`` provided that a suitable version of the PySide2 package is available. Also, the new viewer requires OpenGL 3.3, which the Raspberry Pi does not support. The classic viewer should work correctly::
 
   $ vpype [...] show --classic
 
-Installing the CLI-only version described in the next section is easier and should be favored whenever possible.
+Installing the CLI-only version described in the next section is easier and should be favored whenever possible. Here are the recommended steps to do so.
+
+Some packages and their dependencies are easier to install at the system level::
+
+  $ sudo apt-get install python3-shapely python3-numpy python3-scipy
+
+Then, create a virtual environment with access to the globally installed packages::
+
+  $ python3 -m venv --system-site-package vpype_venv
+
+Finally, activate the virtual environment, install, and run *vpype*::
+
+  $ source vpype_venv/bin/activate
+  $ pip install vpype
+  $ vpype --help
 
 
 CLI-only install
