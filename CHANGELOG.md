@@ -1,25 +1,27 @@
 # Change log
 
-#### 1.7 (UNRELEASED)
+#### 1.7 (2021-06-10)
 
-**Important**: for a regular installation, *vpype* must now be installed/updated with the following command:
+**Important**: for a regular installation, *vpype* must now be installed/updated with the following command (see details below):
 ```
 pip install -U vpype[all]
 ```
 
 New features and improvements:
-* The viewer (`show` command) and its dependencies is no longer required and is installed only if the `all` extra is provided to `pip`:
+* Installing the viewer (`show` command) and its dependencies is now optional (#254)
+  
+  The `all` extra must now be provided to `pip` for a complete install:
   ```
   pip install -U vpype[all]  # the viewer is fully installed
-  pip install -U vpype       # the viewer and its dependencies is NOT installed
+  pip install -U vpype       # the viewer and its dependencies are NOT installed
   ```
-  Forgoing the viewer considerably reduces the number of required dependencies and may be useful for embedded (e.g. Raspberry Pi) and server installs of *vpype*, when the `show` command is not necessary.
-* Added optional global optimization feature to `linemerge` (#266, thanks to @tatarize)
+  Forgoing the viewer considerably reduces the number of required dependencies and may be useful for embedded (e.g. Raspberry Pi) or server installs of *vpype*, when the `show` command is not necessary. Note that the Windows installer is not affected by this change.
+* Added an optional, global optimization feature to `linemerge` (#266, thanks to @tatarize)
 
-  This feature is enabled by adding the `--two-opt` option. Since it considerably increases the processing time for complex designs, it should primarily be used for special cases, for example when the same file must be plotted multiple times.
+  This feature is enabled by adding the `--two-opt` option. Since it considerably increases the processing time, it should primarily be used for special cases such as plotting the same file multiple times.
 
 Bug fixes:
-* Fixed systematic crash when using the Windows installer (#285)
+* Fixed broken Windows installer (#285)
 * Fixed an issue where `read` would crash with empty `<polygon>` tags and similar degenerate geometries (#260)
 * Fixed an issue where `linesimplify` would skip layers containing a single line (#280)
 * Fixed an issue where floating point value could be generated for HPGL VS commands (#286)
