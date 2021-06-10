@@ -1,5 +1,14 @@
 # Change log
 
+#### 1.8 (UNRELEASED)
+
+New features and improvements:
+* ...
+
+Bug fixes:
+* ...
+
+
 #### 1.7 (2021-06-10)
 
 **Important**: for a regular installation, *vpype* must now be installed/updated with the following command (see details below):
@@ -29,6 +38,7 @@ Bug fixes:
 Other changes:
 * Updated to Click 8.0.1 (#282) 
 
+
 #### 1.6 (2021-03-10)
 
 New features and improvements:
@@ -53,11 +63,13 @@ API changes:
 Other changes:
 * Dropped support for Python 3.6 (#207)
 
+
 #### 1.5.1 (2021-02-19)
 
 Bug fixes:
 * Fixed a shader compilation issue arising on some Windows configuration (#210)
 * Fixed UI glitches when using both non-HiDPI and HiDPI (a.k.a Retina) monitors (#211)
+
 
 #### 1.5 (2021-02-16)
 
@@ -83,6 +95,7 @@ Bug fixes:
 API changes:
 * Renamed `vpype.CONFIG_MANAGER` in favour of `vpype.config_manager` (existing name kept for compatibility) (#202)
 
+
 #### 1.4 (2021-02-08)
 
 New features and improvements:
@@ -99,6 +112,7 @@ Bug fixes:
 
 API changes:
 * Added support for a sidebar in the viewer (#194)
+
 
 #### 1.3 (2021-01-27)
 
