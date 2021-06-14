@@ -874,7 +874,7 @@ python-versions = "*"
 
 [[package]]
 name = "types-cachetools"
-version = "0.1.6"
+version = "0.1.7"
 description = "Typing stubs for cachetools"
 category = "dev"
 optional = false
@@ -936,7 +936,7 @@ docs = ["Sphinx", "sphinx-click", "sphinx-autodoc-typehints", "sphinx-rtd-theme"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7, !=3.9.0, <3.10"
-content-hash = "32bb92a3adf18a04bd2401ad21736b373b27f80588a9fb65a1d281cc43e603c2"
+content-hash = "c5960016cf84b49754a4d6b333e8854ddc7c6f7acf10afc0b95aad86ab507fea"
 
 [metadata.files]
 alabaster = [
@@ -1607,7 +1607,7 @@ typed-ast = [
     {file = "typed_ast-1.4.3.tar.gz", hash = "sha256:fb1bbeac803adea29cedd70781399c99138358c26d05fcbd23c13016b7f5ec65"},
 ]
 types-cachetools = [
-    {file = "types_cachetools-0.1.6-py2.py3-none-any.whl", hash = "sha256:cc07d4bd076f94d1d3808cbb2c60b70b95d3533b92d0320b0e2c9e8228f9283e"},
+    {file = "types_cachetools-0.1.7-py2.py3-none-any.whl", hash = "sha256:51a9ca63b1ac73f7238a1836f82ea9252a15d77811da1663e94f2ee984c6485a"},
 ]
 types-pkg-resources = [
     {file = "types_pkg_resources-0.1.2-py2.py3-none-any.whl", hash = "sha256:42d640500de564f1ccc21f918117afadf78039e4fa7f513c647ccf742d609aeb"},
