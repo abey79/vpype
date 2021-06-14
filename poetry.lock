@@ -175,11 +175,11 @@ six = "*"
 
 [[package]]
 name = "dill"
-version = "0.3.3"
+version = "0.3.4"
 description = "serialize all of python"
 category = "main"
 optional = false
-python-versions = ">=2.6, !=3.0.*"
+python-versions = ">=2.7, !=3.0.*"
 
 [package.extras]
 graph = ["objgraph (>=1.7.2)"]
@@ -331,14 +331,14 @@ glcontext = ">=2,<3"
 
 [[package]]
 name = "multiprocess"
-version = "0.70.11.1"
+version = "0.70.12"
 description = "better multiprocessing and multithreading in python"
 category = "main"
 optional = false
 python-versions = "*"
 
 [package.dependencies]
-dill = ">=0.3.3"
+dill = ">=0.3.4"
 
 [[package]]
 name = "mypy"
@@ -1054,8 +1054,8 @@ cycler = [
     {file = "cycler-0.10.0.tar.gz", hash = "sha256:cd7b2d1018258d7247a71425e9f26463dfb444d411c39569972f4ce586b0c9d8"},
 ]
 dill = [
-    {file = "dill-0.3.3-py2.py3-none-any.whl", hash = "sha256:78370261be6ea49037ace8c17e0b7dd06d0393af6513cc23f9b222d9367ce389"},
-    {file = "dill-0.3.3.zip", hash = "sha256:efb7f6cb65dba7087c1e111bb5390291ba3616741f96840bfc75792a1a9b5ded"},
+    {file = "dill-0.3.4-py2.py3-none-any.whl", hash = "sha256:7e40e4a70304fd9ceab3535d36e58791d9c4a776b38ec7f7ec9afc8d3dca4d4f"},
+    {file = "dill-0.3.4.zip", hash = "sha256:9f9734205146b2b353ab3fec9af0070237b6ddae78452af83d2fca84d739e675"},
 ]
 docutils = [
     {file = "docutils-0.16-py2.py3-none-any.whl", hash = "sha256:0c5b78adfbf7762415433f5515cd5c9e762339e23369dbe8000d84a4bf4ab3af"},
@@ -1229,17 +1229,19 @@ moderngl = [
     {file = "moderngl-5.6.4.tar.gz", hash = "sha256:8c6d04559f5e3bf75a18525cd46d213c0f3a8409363718978e6de691bdb551fb"},
 ]
 multiprocess = [
-    {file = "multiprocess-0.70.11.1-cp27-cp27m-macosx_10_8_x86_64.whl", hash = "sha256:8f0d0640642acc654fe2fb5cb529ebbe116468a1dd1544d484db6e79033767c8"},
-    {file = "multiprocess-0.70.11.1-cp27-cp27m-manylinux1_i686.whl", hash = "sha256:4b33a0111e341fad5e3c6bb6dd7f592596f2974cc5ecddee06b9a999bac4cbb0"},
-    {file = "multiprocess-0.70.11.1-cp27-cp27m-manylinux1_x86_64.whl", hash = "sha256:0eab6e0e87acba9586e5d6869d21271cc865d72d74b7f6b30b6290dffca5caae"},
-    {file = "multiprocess-0.70.11.1-cp27-cp27m-win32.whl", hash = "sha256:4d97020a50a18862fbb1f84d81914a2a28f2d78bc315de9a6699459682df2a67"},
-    {file = "multiprocess-0.70.11.1-cp27-cp27m-win_amd64.whl", hash = "sha256:217e96638fbfd951a203b8dc17410839e4aea8aa3fb9cc393c37e491dcac2c65"},
-    {file = "multiprocess-0.70.11.1-py35-none-any.whl", hash = "sha256:ebb92b67a61b901bfc277c4525e86afba24a60638d192b62f8c332933da995f4"},
-    {file = "multiprocess-0.70.11.1-py36-none-any.whl", hash = "sha256:d8e87b086373fbd19c28659391e5b8888aadeaeb88f0e448e55502578bde4920"},
-    {file = "multiprocess-0.70.11.1-py37-none-any.whl", hash = "sha256:164c77448e357ebee0dc6abc7ee8c823e40e295e629a5fc6d31725109a3a7ee9"},
-    {file = "multiprocess-0.70.11.1-py38-none-any.whl", hash = "sha256:7761fed45cae123aa4b7bb918e77a5cfef6fd436c65bc87453e76bf2bdc3e29e"},
-    {file = "multiprocess-0.70.11.1-py39-none-any.whl", hash = "sha256:ae026110257fc551fc949d96d69160768810d9019786c8c84c0c28d1f88fab67"},
-    {file = "multiprocess-0.70.11.1.zip", hash = "sha256:9d5e417f3ebce4d027a3c900995840f167f316d9f73c0a7a1fbb4ac0116298d0"},
+    {file = "multiprocess-0.70.12-cp27-cp27m-macosx_10_12_x86_64.whl", hash = "sha256:19f74377786aa6be34bdee8890f7800fe141079f22257318aa30aabe8b208a98"},
+    {file = "multiprocess-0.70.12-cp27-cp27m-manylinux1_i686.whl", hash = "sha256:4f55a1468c916dd0aa37314c3126ee5a5ecf221340c097d2862ffcfa8c1c33e1"},
+    {file = "multiprocess-0.70.12-cp27-cp27m-manylinux1_x86_64.whl", hash = "sha256:fd60cc4853382937d1811945bb9cf5d2da1d030adf6fb3b84e9b84af0a49dad6"},
+    {file = "multiprocess-0.70.12-cp27-cp27m-win32.whl", hash = "sha256:ff0491b2bf8a090c007575cd953d6609301b280e45c430abce2be3c92e74ebfc"},
+    {file = "multiprocess-0.70.12-cp27-cp27m-win_amd64.whl", hash = "sha256:b5f061bd10154d5069e4f95276a1f9fab397015128c9ae2f7635ccc454e9185c"},
+    {file = "multiprocess-0.70.12-pp27-none-any.whl", hash = "sha256:a630d8441f108ad6aa973bc3f308161a4920b97fb562aea6eddf5793ce588a48"},
+    {file = "multiprocess-0.70.12-pp36-none-any.whl", hash = "sha256:4b1f2e78da216c8099b0a5edeac03c28bde6e21556699f62d4322ac1041238b8"},
+    {file = "multiprocess-0.70.12-pp37-none-any.whl", hash = "sha256:3ca559b8da9cf4060610c32d02e8c3100574005e51fa3bc4884a099ec6b33f79"},
+    {file = "multiprocess-0.70.12-py36-none-any.whl", hash = "sha256:56220afc52254e25d2698149e267247f4b39bc43e036306db138db080bfb2476"},
+    {file = "multiprocess-0.70.12-py37-none-any.whl", hash = "sha256:48f464a28546830584255f34e35efa6bd7abafe1bcbe82f5c2ed7b9a52cb817b"},
+    {file = "multiprocess-0.70.12-py38-none-any.whl", hash = "sha256:2b7d63c9efd959d288c4651261e04499d6431347797bce9dfae50a2781aa6aeb"},
+    {file = "multiprocess-0.70.12-py39-none-any.whl", hash = "sha256:c0fa97754295874627876b5195a04c338b2aff58dcb788decdc71c1a710144d0"},
+    {file = "multiprocess-0.70.12.zip", hash = "sha256:853d02581a03b3bf7872f5e997d2e2b62e177c22a9d05158dc96a675854f2b60"},
 ]
 mypy = [
     {file = "mypy-0.901-cp35-cp35m-macosx_10_9_x86_64.whl", hash = "sha256:91211acf1485a1db0b1261bc5f9ed450cba3c0dfd8da0a6680e94827591e34d7"},
