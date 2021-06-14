@@ -74,7 +74,7 @@ packaging = "^20.8"
 pytest-mpl = "^0.12"
 mypy = "^0.901"
 types-cachetools = "^0.1.6"
-types-toml = "^0.1.1"
+types-toml = "^0.1.2"
 types-pkg-resources = "^0.1.2"
 
 [tool.poetry.extras]
