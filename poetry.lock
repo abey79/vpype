@@ -890,7 +890,7 @@ python-versions = "*"
 
 [[package]]
 name = "types-toml"
-version = "0.1.1"
+version = "0.1.3"
 description = "Typing stubs for toml"
 category = "dev"
 optional = false
@@ -936,7 +936,7 @@ docs = ["Sphinx", "sphinx-click", "sphinx-autodoc-typehints", "sphinx-rtd-theme"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7, !=3.9.0, <3.10"
-content-hash = "32bb92a3adf18a04bd2401ad21736b373b27f80588a9fb65a1d281cc43e603c2"
+content-hash = "23d86232b69da8362702b87604d5acf1ee2b16ab03332e333c1cb416e6dcc986"
 
 [metadata.files]
 alabaster = [
@@ -1613,7 +1613,8 @@ types-pkg-resources = [
     {file = "types_pkg_resources-0.1.2-py2.py3-none-any.whl", hash = "sha256:42d640500de564f1ccc21f918117afadf78039e4fa7f513c647ccf742d609aeb"},
 ]
 types-toml = [
-    {file = "types_toml-0.1.1-py2.py3-none-any.whl", hash = "sha256:ccebb129f6d68f49fbeb0efd000d48098b3f62885f0dbe44ad001e8b9c0b62ff"},
+    {file = "types-toml-0.1.3.tar.gz", hash = "sha256:33ebe67bebaec55a123ecbaa2bd98fe588335d8d8dda2c7ac53502ef5a81a79a"},
+    {file = "types_toml-0.1.3-py2.py3-none-any.whl", hash = "sha256:d4add39a90993173d49ff0b069edd122c66ad4cf5c01082b590e380ca670ee1a"},
 ]
 typing-extensions = [
     {file = "typing_extensions-3.10.0.0-py2-none-any.whl", hash = "sha256:0ac0f89795dd19de6b97debb0c6af1c70987fd80a2d62d1958f7e56fcc31b497"},
