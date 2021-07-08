@@ -222,7 +222,7 @@ def lswap(
 
 @cli.command(group="Layers")
 @vp.layer_processor
-def lreverse(lc: vp.LineCollection) -> vp.Document:
+def lreverse(lc: vp.LineCollection) -> vp.LineCollection:
     """Reverse the path order within a layer.s
 
     This command reverses the order in which paths are ordered within a layer.
