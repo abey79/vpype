@@ -3,30 +3,23 @@ from typing import Optional
 
 import click
 
-from vpype import (
-    Document,
-    LayerType,
-    LineCollection,
-    global_processor,
-    multiple_to_layer_ids,
-    single_to_layer_id,
-)
+import vpype as vp
 
 from .cli import cli
 
-__all__ = ("lcopy", "lmove", "ldelete")
+__all__ = ("lcopy", "lmove", "ldelete", "lswap")
 
 
 @cli.command(group="Layers")
-@click.argument("sources", type=LayerType(accept_multiple=True))
-@click.argument("dest", type=LayerType(accept_new=True))
+@click.argument("sources", type=vp.LayerType(accept_multiple=True))
+@click.argument("dest", type=vp.LayerType(accept_new=True))
 @click.option(
     "-p",
     "--prob",
     type=click.FloatRange(0.0, 1.0),
     help="Path copy probability (default: 1.0).",
 )
-@global_processor
+@vp.global_processor
 def lcopy(document, sources, dest, prob: Optional[float]):
     """Copy the content of one or more layer(s) to another layer.
 
@@ -58,13 +51,13 @@ content is not duplicated:
             vpype [...] lcopy all 1 [...]
     """
 
-    src_lids = multiple_to_layer_ids(sources, document)
-    dest_lid = single_to_layer_id(dest, document)
+    src_lids = vp.multiple_to_layer_ids(sources, document)
+    dest_lid = vp.single_to_layer_id(dest, document)
 
     if dest_lid in src_lids:
         src_lids.remove(dest_lid)
 
-    lc = LineCollection()
+    lc = vp.LineCollection()
     for lid in src_lids:
         if prob is not None:
             for line in document[lid]:
@@ -80,15 +73,15 @@ content is not duplicated:
 
 
 @cli.command(group="Layers")
-@click.argument("sources", type=LayerType(accept_multiple=True))
-@click.argument("dest", type=LayerType(accept_new=True))
+@click.argument("sources", type=vp.LayerType(accept_multiple=True))
+@click.argument("dest", type=vp.LayerType(accept_new=True))
 @click.option(
     "-p",
     "--prob",
     type=click.FloatRange(0.0, 1.0),
     help="Path move probability (default: 1.0).",
 )
-@global_processor
+@vp.global_processor
 def lmove(document, sources, dest, prob: Optional[float]):
     """Move the content of one or more layer(s) to another layer.
 
@@ -114,8 +107,8 @@ def lmove(document, sources, dest, prob: Optional[float]):
             vpype [...] lmove 1,2 1 [...]  # merge layer 1 and 2 to layer 1
     """
 
-    src_lids = multiple_to_layer_ids(sources, document)
-    dest_lid = single_to_layer_id(dest, document)
+    src_lids = vp.multiple_to_layer_ids(sources, document)
+    dest_lid = vp.single_to_layer_id(dest, document)
 
     if dest_lid in src_lids:
         src_lids.remove(dest_lid)
@@ -123,8 +116,8 @@ def lmove(document, sources, dest, prob: Optional[float]):
     for lid in src_lids:
         if prob is not None:
             # split lines with provided probability
-            remaining_lines = LineCollection()
-            moving_lines = LineCollection()
+            remaining_lines = vp.LineCollection()
+            moving_lines = vp.LineCollection()
             for line in document.layers[lid]:
                 if random.random() < prob:
                     moving_lines.append(line)
@@ -145,15 +138,15 @@ def lmove(document, sources, dest, prob: Optional[float]):
 
 
 @cli.command(group="Layers")
-@click.argument("layers", type=LayerType(accept_multiple=True))
+@click.argument("layers", type=vp.LayerType(accept_multiple=True))
 @click.option(
     "-p",
     "--prob",
     type=click.FloatRange(0.0, 1.0),
     help="Path deletion probability (default: 1.0).",
 )
-@global_processor
-def ldelete(document: Document, layers, prob: Optional[float]) -> Document:
+@vp.global_processor
+def ldelete(document: vp.Document, layers, prob: Optional[float]) -> vp.Document:
     """Delete one or more layers.
 
     LAYERS can be a single layer ID, the string 'all' (to delete all layers), or a
@@ -163,11 +156,11 @@ def ldelete(document: Document, layers, prob: Optional[float]) -> Document:
     lower than 1.0, some paths will not be deleted.
     """
 
-    lids = set(multiple_to_layer_ids(layers, document))
+    lids = set(vp.multiple_to_layer_ids(layers, document))
 
     for lid in lids:
         if prob is not None:
-            lc = LineCollection()
+            lc = vp.LineCollection()
             for line in document[lid]:
                 if not random.random() < prob:
                     lc.append(line)
@@ -180,3 +173,63 @@ def ldelete(document: Document, layers, prob: Optional[float]) -> Document:
             document.pop(lid)
 
     return document
+
+
+@cli.command(group="Layers")
+@click.argument("first", type=vp.LayerType(accept_multiple=False, accept_new=False))
+@click.argument("second", type=vp.LayerType(accept_multiple=False, accept_new=False))
+@click.option(
+    "-p",
+    "--prob",
+    type=click.FloatRange(0.0, 1.0),
+    help="Path deletion probability (default: 1.0).",
+)
+@vp.global_processor
+def lswap(
+    document: vp.Document, first: int, second: int, prob: Optional[float]
+) -> vp.Document:
+    """Swap the content between two layers
+
+    This command swaps the content of layers FIRST and SECOND. Both FIRST and SECOND must be
+    existing layer ids.
+
+    The `--prob` option controls the probability with which each path are swapped. With a value
+    lower than 1.0, some paths will remain in their original layer.
+    """
+
+    first_lid = vp.single_to_layer_id(first, document, must_exist=True)
+    second_lid = vp.single_to_layer_id(second, document, must_exist=True)
+
+    if prob is None:
+        document.layers[first_lid], document.layers[second_lid] = (
+            document.layers[second_lid],
+            document.layers[first_lid],
+        )
+    else:
+        new_first = vp.LineCollection()
+        new_second = vp.LineCollection()
+
+        for line in document.layers[first_lid]:
+            (new_second if random.random() < prob else new_first).append(line)
+        for line in document.layers[second_lid]:
+            (new_first if random.random() < prob else new_second).append(line)
+
+        document.layers[first_lid] = new_first
+        document.layers[second_lid] = new_second
+
+    return document
+
+
+@cli.command(group="Layers")
+@vp.layer_processor
+def lreverse(lc: vp.LineCollection) -> vp.Document:
+    """Reverse the path order within a layer.s
+
+    This command reverses the order in which paths are ordered within a layer.
+    """
+
+    new_lc = vp.LineCollection()
+    for i in reversed(range(len(lc))):
+        new_lc.append(lc[i])
+
+    return new_lc

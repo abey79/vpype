@@ -1,4 +1,5 @@
 import itertools
+from dataclasses import dataclass
 
 import numpy as np
 import pytest
@@ -12,45 +13,57 @@ CM = 96 / 2.54
 
 EXAMPLE_SVG = TESTS_DIRECTORY / "data" / "test_svg" / "svg_width_height" / "percent_size.svg"
 
+
+@dataclass
+class Command:
+    command: str
+    exit_code_no_layer: int
+    exit_code_one_layer: int
+    exit_code_two_layers: int
+
+
 MINIMAL_COMMANDS = [
-    "begin grid 2 2 line 0 0 10 10 end",
-    "begin repeat 2 line 0 0 10 10 end",
-    "frame",
-    "random",
-    "line 0 0 1 1",
-    "rect 0 0 1 1",
-    "arc 0 0 1 1 0 90",
-    "circle 0 0 1",
-    "ellipse 0 0 2 4",
-    f"read '{EXAMPLE_SVG}'",
-    f"read -m '{EXAMPLE_SVG}'",
-    "write -f svg -",
-    "write -f hpgl -d hp7475a -p a4 -",
-    "rotate 0",
-    "scale 1 1",
-    "scaleto 10cm 10cm",
-    "skew 0 0",
-    "translate 0 0",
-    "crop 0 0 1 1",
-    "linesort",
-    "linesort --two-opt",
-    "linemerge",
-    "linesimplify",
-    "multipass",
-    "reloop",
-    "lmove 1 new",
-    "lcopy 1 new",
-    "ldelete 1",
-    "trim 1mm 1mm",
-    "splitall",
-    "filter --min-length 1mm",
-    "pagesize 10inx15in",
-    "stat",
-    "snap 1",
-    "reverse",
-    "layout a4",
-    "squiggles",
-    "text 'hello wold'",
+    Command("begin grid 2 2 line 0 0 10 10 end", 0, 0, 0),
+    Command("begin repeat 2 line 0 0 10 10 end", 0, 0, 0),
+    Command("frame", 0, 0, 0),
+    Command("random", 0, 0, 0),
+    Command("line 0 0 1 1", 0, 0, 0),
+    Command("rect 0 0 1 1", 0, 0, 0),
+    Command("arc 0 0 1 1 0 90", 0, 0, 0),
+    Command("circle 0 0 1", 0, 0, 0),
+    Command("ellipse 0 0 2 4", 0, 0, 0),
+    Command(f"read '{EXAMPLE_SVG}'", 0, 0, 0),
+    Command(f"read -m '{EXAMPLE_SVG}'", 0, 0, 0),
+    Command("write -f svg -", 0, 0, 0),
+    Command("write -f hpgl -d hp7475a -p a4 -", 0, 0, 0),
+    Command("rotate 0", 0, 0, 0),
+    Command("scale 1 1", 0, 0, 0),
+    Command("scaleto 10cm 10cm", 0, 0, 0),
+    Command("skew 0 0", 0, 0, 0),
+    Command("translate 0 0", 0, 0, 0),
+    Command("crop 0 0 1 1", 0, 0, 0),
+    Command("linesort", 0, 0, 0),
+    Command("linesort --two-opt", 0, 0, 0),
+    Command("linemerge", 0, 0, 0),
+    Command("linesimplify", 0, 0, 0),
+    Command("multipass", 0, 0, 0),
+    Command("reloop", 0, 0, 0),
+    Command("lmove 1 new", 0, 0, 0),
+    Command("lcopy 1 new", 0, 0, 0),
+    Command("ldelete 1", 0, 0, 0),
+    Command("lswap 1 2", 2, 2, 0),
+    Command("lreverse", 0, 0, 0),
+    Command("random -l1 random -l2 lswap 1 2", 0, 0, 0),
+    Command("trim 1mm 1mm", 0, 0, 0),
+    Command("splitall", 0, 0, 0),
+    Command("filter --min-length 1mm", 0, 0, 0),
+    Command("pagesize 10inx15in", 0, 0, 0),
+    Command("stat", 0, 0, 0),
+    Command("snap 1", 0, 0, 0),
+    Command("reverse", 0, 0, 0),
+    Command("layout a4", 0, 0, 0),
+    Command("squiggles", 0, 0, 0),
+    Command("text 'hello wold'", 0, 0, 0),
 ]
 
 # noinspection SpellCheckingInspection
@@ -61,50 +74,54 @@ LOREM = (
 )
 
 
-@pytest.mark.parametrize("args", MINIMAL_COMMANDS)
-def test_commands_empty_geometry(runner, args):
-    result = runner.invoke(cli, args, catch_exceptions=False)
-    assert result.exit_code == 0
+@pytest.mark.parametrize("cmd", MINIMAL_COMMANDS)
+def test_commands_empty_geometry(runner, cmd):
+    result = runner.invoke(cli, cmd.command, catch_exceptions=False)
+    assert result.exit_code == cmd.exit_code_no_layer
 
 
-@pytest.mark.parametrize("args", MINIMAL_COMMANDS)
-def test_commands_single_line(runner, args):
-    result = runner.invoke(cli, "line 0 0 10 10 " + args, catch_exceptions=False)
-    assert result.exit_code == 0
+@pytest.mark.parametrize("cmd", MINIMAL_COMMANDS)
+def test_commands_single_line(runner, cmd):
+    result = runner.invoke(cli, "line 0 0 10 10 " + cmd.command, catch_exceptions=False)
+    assert result.exit_code == cmd.exit_code_one_layer
 
 
-@pytest.mark.parametrize("args", MINIMAL_COMMANDS)
-def test_commands_degenerate_line(runner, args):
-    result = runner.invoke(cli, "line 0 0 0 0 " + args)
-    assert result.exit_code == 0
+@pytest.mark.parametrize("cmd", MINIMAL_COMMANDS)
+def test_commands_degenerate_line(runner, cmd):
+    result = runner.invoke(cli, "line 0 0 0 0 " + cmd.command)
+    assert result.exit_code == cmd.exit_code_one_layer
 
 
-@pytest.mark.parametrize("args", MINIMAL_COMMANDS)
-def test_commands_random_input(runner, args):
-    result = runner.invoke(cli, "random -n 100 " + args)
-    assert result.exit_code == 0
+@pytest.mark.parametrize("cmd", MINIMAL_COMMANDS)
+def test_commands_random_input(runner, cmd):
+    result = runner.invoke(cli, "random -n 100 " + cmd.command)
+    assert result.exit_code == cmd.exit_code_one_layer
 
 
 @pytest.mark.parametrize("args", MINIMAL_COMMANDS)
 def test_commands_execute(args):
-    execute(args)
+    if args.exit_code_no_layer == 0:
+        execute(args.command)
 
 
-@pytest.mark.parametrize("args", MINIMAL_COMMANDS)
-def test_commands_must_return_document(runner, args):
+@pytest.mark.parametrize("cmd", MINIMAL_COMMANDS)
+def test_commands_must_return_document(runner, cmd):
     @cli.command()
     @vp.global_processor
     def assertdoc(document):
         assert document is not None
         assert type(document) is vp.Document
 
-    result = runner.invoke(cli, "line 0 0 10 10 " + args + " assertdoc")
-    assert result.exit_code == 0
+    result = runner.invoke(cli, "line 0 0 10 10 " + cmd.command + " assertdoc")
+    assert result.exit_code == cmd.exit_code_one_layer
 
 
-@pytest.mark.parametrize("args", MINIMAL_COMMANDS)
-def test_commands_keeps_page_size(runner, args):
+@pytest.mark.parametrize("cmd", MINIMAL_COMMANDS)
+def test_commands_keeps_page_size(runner, cmd):
     """No command shall "forget" the current page size, unless its `pagesize` of course."""
+
+    args = cmd.command
+
     if args.split()[0] in ["pagesize", "layout"]:
         return
 
@@ -117,8 +134,10 @@ def test_commands_keeps_page_size(runner, args):
         page_size = doc.page_size
         return doc
 
-    result = runner.invoke(cli, "pagesize --landscape 5432x4321 " + args + " getpagesize")
-    assert result.exit_code == 0
+    result = runner.invoke(
+        cli, "random random -l2 pagesize --landscape 5432x4321 " + args + " getpagesize"
+    )
+    assert result.exit_code == cmd.exit_code_two_layers
     assert page_size == (5432, 4321)
 
 
@@ -449,7 +468,7 @@ def test_snap_no_duplicate(pitch: float):
 def test_splitall_filter_duplicates(line, expected):
     lc = execute_single_line("splitall", line)
 
-    assert np.all(l == el for l, el in zip(lc, expected))
+    assert np.all(line == expected_line for line, expected_line in zip(lc, expected))
 
 
 @pytest.mark.parametrize(
@@ -499,3 +518,10 @@ def test_text_command_wrap(font_name, options):
 def test_text_command_empty():
     doc = execute("text ''")
     assert doc.is_empty()
+
+
+def test_lreverse():
+    doc = execute("line 0 0 10 10 line 20 20 30 30 lreverse")
+
+    assert np.all(doc.layers[1][0] == np.array([20 + 20j, 30 + 30j]))
+    assert np.all(doc.layers[1][1] == np.array([0, 10 + 10j]))
