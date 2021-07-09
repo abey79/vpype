@@ -2,7 +2,7 @@
 """
 import logging
 import math
-from typing import Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Union, cast
+from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Union, cast
 
 import numpy as np
 from shapely.geometry import LinearRing, LineString, MultiLineString
@@ -88,7 +88,9 @@ class LineCollection:
     transformation, cropping, merging, etc. (see member function documentation for details).
     """
 
-    def __init__(self, lines: LineCollectionLike = ()):
+    def __init__(
+        self, lines: LineCollectionLike = (), metadata: Optional[Dict[str, Any]] = None
+    ):
         """Create a LineCollection instance from an iterable of lines.
 
         Args:
@@ -96,6 +98,7 @@ class LineCollection:
                 :func:`~LineCollection.append`).
         """
         self._lines: List[np.ndarray] = []
+        self._metadata: Dict[str, Any] = metadata or {}
 
         self.extend(lines)
 
@@ -107,6 +110,19 @@ class LineCollection:
             list of line
         """
         return self._lines
+
+    @property
+    def metadata(self):
+        """Returns the collection's metadata.
+
+        Returns:
+            metadata
+        """
+        return self._metadata
+
+    def clone(self) -> "LineCollection":
+        """Creates an empty :class:`LineCollection` with the same metadata."""
+        return LineCollection(metadata=self.metadata)
 
     def append(self, line: LineLike) -> None:
         """Append a single line.

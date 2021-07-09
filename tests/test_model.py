@@ -141,6 +141,14 @@ def test_line_collection_reverse():
         assert np.all(lc[i] == np.array(line))
 
 
+def test_line_collection_clone():
+    metadata = {"line_width": 0.3}
+    lc = LineCollection(([0, 1, 10 + 10j], [0, 10]), metadata=metadata)
+    cloned = lc.clone()
+    assert len(cloned) == 0
+    assert cloned.metadata == metadata
+
+
 def test_document_lid_iteration():
     lc = LineCollection([(0, 1 + 1j)])
     doc = Document()
