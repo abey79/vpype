@@ -248,10 +248,6 @@ def lreverse(document: vp.Document, layers) -> vp.Document:
     lids = set(vp.multiple_to_layer_ids(layers, document))
 
     for layer_id in lids:
-        lc = document.layers[layer_id]
-        new_lc = vp.LineCollection()
-        for i in reversed(range(len(lc))):
-            new_lc.append(lc[i])
-        document.layers[layer_id] = new_lc
+        document.layers[layer_id].reverse()
 
     return document
