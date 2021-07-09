@@ -4,7 +4,7 @@
 
 New features and improvements:
 * Added `lswap` command to swap the content of two layers (#300)
-* Added `lreverse` command to reverse the path order within a layer (#300)
+* Added `lreverse` command to reverse the order of paths within a layer (#300)
 
 Bug fixes:
 * ...

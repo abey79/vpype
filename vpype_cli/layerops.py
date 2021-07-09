@@ -221,15 +221,37 @@ def lswap(
 
 
 @cli.command(group="Layers")
-@vp.layer_processor
-def lreverse(lc: vp.LineCollection) -> vp.LineCollection:
-    """Reverse the path order within a layer.s
+@click.argument("layers", type=vp.LayerType(accept_multiple=True, accept_new=False))
+@vp.global_processor
+def lreverse(document: vp.Document, layers) -> vp.Document:
+    """Reverse the path order within one or more layers.
 
-    This command reverses the order in which paths are ordered within a layer.
+    This command reverses the order in which paths are ordered within layer(s) LAYERS. LAYERS
+    may be a single layer ID, multiple layer IDs (coma-separated without whitespace) or `all`
+    (to refer to every exising layers).
+
+    Examples:
+
+        Delete layer one:
+
+            $ vpype [...] ldelete 1 [...]
+
+        Delete layers 1 and 2:
+
+            $ vpype [...] ldelete 1,2 [...]
+
+        Delete all layers:
+
+            $ vpype [...] ldelete all [...]
     """
 
-    new_lc = vp.LineCollection()
-    for i in reversed(range(len(lc))):
-        new_lc.append(lc[i])
+    lids = set(vp.multiple_to_layer_ids(layers, document))
 
-    return new_lc
+    for layer_id in lids:
+        lc = document.layers[layer_id]
+        new_lc = vp.LineCollection()
+        for i in reversed(range(len(lc))):
+            new_lc.append(lc[i])
+        document.layers[layer_id] = new_lc
+
+    return document

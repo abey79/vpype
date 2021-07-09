@@ -2,6 +2,8 @@ import copy
 import math
 import random
 
+import click
+import numpy as np
 import pytest
 
 import vpype as vp
@@ -28,6 +30,9 @@ from vpype_cli.debug import DebugData
         ("line 0 0 1 1 lmove all new", [2]),
         ("line 0 0 1 1 line -l new 0 0 1 1 lmove all 2", [2]),
         ("line 0 0 1 1 line -l new 0 0 1 1 lmove all 3", [3]),
+        ("line 0 0 1 1 lreverse 1", [1]),
+        ("lreverse 1", []),  # lreverse doesnt create phantom layers
+        ("line -l2 0 0 1 1 lreverse 1", [2]),
     ],
 )
 def test_layer_creation(runner, command, layers):
@@ -81,6 +86,12 @@ def big_doc():
         )
     )
     return doc
+
+
+def test_layer_not_new():
+    with pytest.raises(click.exceptions.BadParameter) as exc:
+        execute("ldelete new")
+    assert "existing" in exc.value.message
 
 
 def test_lmove(big_doc):
@@ -176,3 +187,17 @@ def test_lcopy_prob_zero(big_doc):
 
     assert len(doc.layers[1]) == 1000
     assert 2 not in doc.layers
+
+
+def test_lswap():
+    doc = execute("line -l1 0 0 10 10 line -l2 20 20 30 30 lswap 1 2")
+
+    assert np.all(doc.layers[1][0] == np.array([20 + 20j, 30 + 30j]))
+    assert np.all(doc.layers[2][0] == np.array([0, 10 + 10j]))
+
+
+def test_lreverse():
+    doc = execute("line 0 0 10 10 line 20 20 30 30 lreverse 1")
+
+    assert np.all(doc.layers[1][0] == np.array([20 + 20j, 30 + 30j]))
+    assert np.all(doc.layers[1][1] == np.array([0, 10 + 10j]))

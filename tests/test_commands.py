@@ -52,7 +52,8 @@ MINIMAL_COMMANDS = [
     Command("lcopy 1 new", 0, 0, 0),
     Command("ldelete 1", 0, 0, 0),
     Command("lswap 1 2", 2, 2, 0),
-    Command("lreverse", 0, 0, 0),
+    Command("lreverse 1", 0, 0, 0),
+    Command("line 0 0 10 10 lreverse 1", 0, 0, 0),
     Command("random -l1 random -l2 lswap 1 2", 0, 0, 0),
     Command("trim 1mm 1mm", 0, 0, 0),
     Command("splitall", 0, 0, 0),
@@ -518,10 +519,3 @@ def test_text_command_wrap(font_name, options):
 def test_text_command_empty():
     doc = execute("text ''")
     assert doc.is_empty()
-
-
-def test_lreverse():
-    doc = execute("line 0 0 10 10 line 20 20 30 30 lreverse")
-
-    assert np.all(doc.layers[1][0] == np.array([20 + 20j, 30 + 30j]))
-    assert np.all(doc.layers[1][1] == np.array([0, 10 + 10j]))
