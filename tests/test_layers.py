@@ -196,6 +196,13 @@ def test_lswap():
     assert np.all(doc.layers[2][0] == np.array([0, 10 + 10j]))
 
 
+def test_lswap_prob_zero():
+    doc = execute("line -l1 0 0 10 10 line -l2 20 20 30 30 lswap --prob 0. 1 2")
+
+    assert np.all(doc.layers[2][0] == np.array([20 + 20j, 30 + 30j]))
+    assert np.all(doc.layers[1][0] == np.array([0, 10 + 10j]))
+
+
 def test_lreverse():
     doc = execute("line 0 0 10 10 line 20 20 30 30 lreverse 1")
 
