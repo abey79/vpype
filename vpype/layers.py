@@ -51,13 +51,16 @@ def multiple_to_layer_ids(
         return []
 
 
-def single_to_layer_id(layer: Optional[int], document: Document) -> int:
+def single_to_layer_id(
+    layer: Optional[int], document: Document, must_exist: bool = False
+) -> int:
     """Convert single-layer CLI argument to layer ID, accounting for the existence of a current
     a current target layer and dealing with default behavior.
 
     Arg:
         layer: value from a :class:`LayerType` argument
         document: target :class:`Document` instance (for new layer ID)
+        must_exists: if True, the function
 
     Returns:
         Target layer ID
@@ -70,6 +73,9 @@ def single_to_layer_id(layer: Optional[int], document: Document) -> int:
         lid = VpypeState.get_current().target_layer
     else:
         lid = layer
+
+    if must_exist and lid not in document.layers:
+        raise click.BadParameter(f"layer {layer} does not exist")
 
     return lid
 
@@ -113,12 +119,22 @@ class LayerType(click.ParamType):
             if self.accept_multiple:
                 return LayerType.ALL
             else:
-                self.fail("'all' was not expected", param, ctx)
+                self.fail(
+                    f"parameter {param.human_readable_name} must be a single layer and does "
+                    "not accept `all`",
+                    param,
+                    ctx,
+                )
         elif value.lower() == "new":
             if self.accept_new:
                 return LayerType.NEW
             else:
-                self.fail("'new' was not expected", param, ctx)
+                self.fail(
+                    f"parameter {param.human_readable_name} must be an existing layer and "
+                    "does not accept `new`",
+                    param,
+                    ctx,
+                )
 
         try:
             if self.accept_multiple:
@@ -132,4 +148,8 @@ class LayerType(click.ParamType):
         except TypeError:
             self.fail(f"unexpected {value!r} of type {type(value).__name__}", param, ctx)
         except ValueError:
-            self.fail(f"{value!r} is not a valid value", param, ctx)
+            self.fail(
+                f"{value!r} is not a valid value for parameter {param.human_readable_name}",
+                param,
+                ctx,
+            )
