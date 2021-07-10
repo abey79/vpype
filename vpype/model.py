@@ -6,6 +6,7 @@ from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tupl
 
 import numpy as np
 from shapely.geometry import LinearRing, LineString, MultiLineString
+from svgelements import svgelements
 
 from .geometry import crop, reloop
 from .line_index import LineIndex
@@ -33,6 +34,13 @@ LineCollectionLike = Union[
 def as_vector(a: np.ndarray):
     """Return a view of a complex line array that behaves as an Nx2 real array"""
     return a.view(dtype=float).reshape(len(a), 2)
+
+
+METADATA_SYSTEM_FIELD_TYPES = {
+    "vp:name": str,
+    "vp:color": svgelements.Color,
+    "vp:pen_width": float,
+}
 
 
 # noinspection PyShadowingNames
@@ -120,9 +128,44 @@ class LineCollection:
         """
         return self._metadata
 
-    def clone(self) -> "LineCollection":
-        """Creates an empty :class:`LineCollection` with the same metadata."""
-        return LineCollection(metadata=self.metadata)
+    @metadata.setter
+    def metadata(self, metadata: Dict[str, Any]) -> None:
+        """Sets the metadata structure."""
+        self._metadata = metadata
+
+    def clone(self, lines: LineCollectionLike = ()) -> "LineCollection":
+        """Creates a new :class:`LineCollection` with the same metadata.
+
+        If ``lines``is provided, its content is added to the new :class:`LineCollection`
+        instance.
+
+        Args:
+            lines: path to add to the new :class:`LineCollection` instance
+
+        Returns:
+            the new :class:`LineCollection` instance
+        """
+        return LineCollection(lines=lines, metadata=self.metadata)
+
+    def property(self, prop: str) -> Optional[Any]:
+        """Returns the value of a metadata property or None if it does not exist.
+
+        Args:
+            prop: the property to read
+        """
+        return self._metadata.get(prop, None)
+
+    def set_property(self, prop: str, value: Any) -> None:
+        """Sets the value of a metadata property. For system properties, this function casts
+        the value to the proper type and throw an exception if this fails.
+
+        Args:
+            prop: property to set
+            value: value to assign
+        """
+        if prop in METADATA_SYSTEM_FIELD_TYPES:
+            value = METADATA_SYSTEM_FIELD_TYPES[prop](value)
+        self._metadata[prop] = value
 
     def append(self, line: LineLike) -> None:
         """Append a single line.
@@ -566,21 +609,64 @@ class Document:
             vid += 1
         return vid
 
-    def add(self, lc: LineCollection, layer_id: Union[None, int] = None) -> None:
+    def add(self, lines: LineCollectionLike, layer_id: Union[None, int] = None) -> None:
         """Add a the content of a :py:class:`LineCollection` to a given layer.
 
-        If the given layer is None, the input LineCollection is used to create a new layer
-        using the lowest available layer ID.
+        If the given layer is None, a new layer with the lowest available layer ID is created
+        (with emtpy metadata) and initialized with the content of ``lc``.
         """
         if layer_id is None:
             layer_id = 1
             while layer_id in self._layers:
                 layer_id += 1
 
-        if layer_id in self._layers:
-            self._layers[layer_id].extend(lc)
-        else:
-            self._layers[layer_id] = lc
+        if layer_id not in self._layers:
+            self._layers[layer_id] = LineCollection()
+
+        self._layers[layer_id].extend(lines)
+
+    def replace(self, lines: LineCollectionLike, layer_id: int) -> None:
+        """Replaces the content of a layer.
+
+        This method replaces the content of layer ``layer_id`` with ``lines``. The layer must
+        exist, otherwise a :class:`ValueError` exception is raised.
+
+        The destination layer retains its meta data
+
+        Args:
+            lines: line data to assign to the layer
+            layer_id: layer ID of the layer whose content is to be replaced
+        """
+
+        if layer_id not in self._layers:
+            raise ValueError(f"layer {layer_id} doesn't exist")
+
+        self._layers[layer_id] = self._layers[layer_id].clone(lines)
+
+    def swap_content(self, lid1: int, lid2: int) -> None:
+        """Swap the content of two layers.
+
+        This method swaps the content between two layers. Each layer retains its original
+        metadata.
+
+        A :class:`ValueError` is raised if either of the layer ID do not exist.
+
+        Args:
+            lid1: first layer
+            lid2: second layer
+        """
+
+        if lid1 not in self._layers:
+            raise ValueError(f"layer {lid1} does not exist")
+        if lid2 not in self._layers:
+            raise ValueError(f"layer {lid2} does not exist")
+
+        self._layers[lid1].metadata, self._layers[lid2].metadata = (
+            self._layers[lid2].metadata,
+            self._layers[lid1].metadata,
+        )
+
+        self._layers[lid1], self._layers[lid2] = self._layers[lid2], self._layers[lid1]
 
     def extend(self, doc: "Document") -> None:
         """Extend a Document with the content of another Document.
@@ -591,6 +677,9 @@ class Document:
 
         The :py:attr:`page_size` attribute is adjusted using :meth:`extend_page_size`.
 
+        The source's metadata is copied over to the destination, overriding any existing
+        property. Properties existing in the destination but not in the source are preserved.
+
         Args:
             doc: source Document
         """
@@ -599,6 +688,7 @@ class Document:
 
         for layer_id, layer in doc.layers.items():
             self.add(layer, layer_id)
+            self.layers[layer_id].metadata.update(layer.metadata)
 
     def is_empty(self) -> bool:
         """Returns True if all layers are empty.

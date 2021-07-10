@@ -6,7 +6,7 @@ from vpype import LineCollection, generator
 
 from .cli import cli
 
-__all__ = ("script",)
+__all__ = ()
 
 
 @cli.command(group="Input")

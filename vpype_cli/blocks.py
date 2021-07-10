@@ -6,7 +6,7 @@ from vpype import Document, LengthType, block_processor
 
 from .cli import BlockProcessor, cli, execute_processors
 
-__all__ = ("GridBlockProcessor", "RepeatBlockProcessor")
+__all__ = ()
 
 
 @cli.command("grid", group="Block processors")

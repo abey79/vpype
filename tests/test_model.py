@@ -149,6 +149,83 @@ def test_line_collection_clone():
     assert cloned.metadata == metadata
 
 
+def test_line_collection_clone_with_data():
+    metadata = {"line_width": 0.3}
+    lc = LineCollection(([0, 1, 10 + 10j], [0, 10]), metadata=metadata)
+    cloned = lc.clone([(100, 100j + 200)])
+    assert len(cloned) == 1
+    assert np.all(cloned[0] == np.array((100, 100j + 200)))
+    assert cloned.metadata == metadata
+
+
+def test_line_collection_property():
+    lc = LineCollection()
+
+    lc.metadata["name"] = "Hello world"
+    assert lc.property("name") == "Hello world"
+    assert lc.property("missing") is None
+
+
+def test_line_collection_set_property():
+    lc = LineCollection()
+
+    lc.set_property("vp:pen_width", 0.1)
+    assert lc.metadata["vp:pen_width"] == 0.1
+
+    lc.set_property("vp:pen_width", "0.2")
+    assert lc.metadata["vp:pen_width"] == 0.2
+
+    with pytest.raises(ValueError):
+        lc.set_property("vp:pen_width", "should fail")
+
+
+def test_document_replace():
+    doc = Document()
+    doc.add([(0, 10 + 10j)], 1)
+    doc.layers[1].set_property("vp:name", "test value")
+
+    doc.replace([(10, 100j)], 1)
+
+    assert np.all(doc.layers[1][0] == np.array([10, 100j]))
+    assert doc.layers[1].metadata == {"vp:name": "test value"}
+
+
+def test_document_replace_bad_layer_id():
+    doc = Document()
+    with pytest.raises(ValueError):
+        doc.replace([(0, 10j)], 1)
+
+
+def test_document_swap_content():
+    doc = Document()
+    doc.add([(0, 1)], 1)
+    doc.add([(0, 10)], 2)
+    doc.layers[1].set_property("vp:name", "hello")
+    doc.layers[2].set_property("vp:pen_width", 0.15)
+
+    doc.swap_content(1, 2)
+
+    assert np.all(doc.layers[1][0] == np.array([0, 10]))
+    assert np.all(doc.layers[2][0] == np.array([0, 1]))
+    assert doc.layers[1].metadata == {"vp:name": "hello"}
+    assert doc.layers[2].metadata == {"vp:pen_width": 0.15}
+
+
+def test_document_swap_content_bad_layer_id():
+    doc = Document()
+
+    with pytest.raises(ValueError):
+        doc.swap_content(1, 2)
+
+    doc.add([(0, 1)], 1)
+
+    with pytest.raises(ValueError):
+        doc.swap_content(1, 2)
+
+    with pytest.raises(ValueError):
+        doc.swap_content(2, 1)
+
+
 def test_document_lid_iteration():
     lc = LineCollection([(0, 1 + 1j)])
     doc = Document()

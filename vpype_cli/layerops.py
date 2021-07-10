@@ -125,7 +125,7 @@ def lmove(document, sources, dest, prob: Optional[float]):
                     remaining_lines.append(line)
 
             if len(remaining_lines) > 0:
-                document.layers[lid] = remaining_lines
+                document.replace(remaining_lines, lid)
             else:
                 document.pop(lid)
 
@@ -160,7 +160,7 @@ def ldelete(document: vp.Document, layers, prob: Optional[float]) -> vp.Document
 
     for lid in lids:
         if prob is not None:
-            lc = vp.LineCollection()
+            lc = document.layers[lid].clone()
             for line in document[lid]:
                 if not random.random() < prob:
                     lc.append(line)
@@ -201,10 +201,7 @@ def lswap(
     second_lid = vp.single_to_layer_id(second, document, must_exist=True)
 
     if prob is None:
-        document.layers[first_lid], document.layers[second_lid] = (
-            document.layers[second_lid],
-            document.layers[first_lid],
-        )
+        document.swap_content(first_lid, second_lid)
     else:
         new_first = vp.LineCollection()
         new_second = vp.LineCollection()
@@ -214,8 +211,8 @@ def lswap(
         for line in document.layers[second_lid]:
             (new_first if random.random() < prob else new_second).append(line)
 
-        document.layers[first_lid] = new_first
-        document.layers[second_lid] = new_second
+        document.replace(new_first, first_lid)
+        document.replace(new_second, second_lid)
 
     return document
 

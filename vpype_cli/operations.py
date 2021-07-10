@@ -8,21 +8,7 @@ import vpype as vp
 
 from .cli import cli
 
-__all__ = (
-    "crop",
-    "filter_command",
-    "layout",
-    "linemerge",
-    "linesimplify",
-    "linesort",
-    "multipass",
-    "pagesize",
-    "reloop",
-    "reverse",
-    "snap",
-    "splitall",
-    "trim",
-)
+__all__ = ()
 
 
 @cli.command(group="Operations")
@@ -306,7 +292,7 @@ def linesimplify(lines: vp.LineCollection, tolerance):
     # Note: preserve_topology must be False, otherwise non-simple (ie intersecting) MLS will
     # not be simplified (see https://github.com/Toblerity/Shapely/issues/911)
     mls = lines.as_mls().simplify(tolerance=tolerance, preserve_topology=False)
-    new_lines = vp.LineCollection(mls)
+    new_lines = lines.clone(mls)
 
     logging.info(
         f"simplify: reduced segment count from {lines.segment_count()} to "
@@ -356,7 +342,7 @@ def multipass(lines: vp.LineCollection, count: int):
     if count < 2:
         return lines
 
-    new_lines = vp.LineCollection()
+    new_lines = lines.clone()
     for line in lines:
         new_lines.append(
             np.hstack(
@@ -381,7 +367,7 @@ def splitall(lines: vp.LineCollection) -> vp.LineCollection:
     segments, this command may significantly increase the processing time of the pipeline.
     """
 
-    new_lines = vp.LineCollection()
+    new_lines = lines.clone()
     for line in lines:
         new_lines.extend(
             [line[i : i + 2] for i in range(len(line) - 1) if line[i] != line[i + 1]]
@@ -622,7 +608,7 @@ def snap(line_collection: vp.LineCollection, pitch: float) -> vp.LineCollection:
 
     line_collection.scale(1 / pitch)
 
-    new_lines = vp.LineCollection()
+    new_lines = line_collection.clone()
     for line in line_collection:
         new_line = np.round(line)
         idx = np.ones(len(new_line), dtype=bool)

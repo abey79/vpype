@@ -17,7 +17,7 @@ from vpype import (
 
 from .cli import cli
 
-__all__ = ("read",)
+__all__ = ()
 
 
 @cli.command(group="Input")

@@ -9,6 +9,7 @@ from .filters import *
 from .frames import *
 from .generators import *
 from .layerops import *
+from .metadata import *
 from .operations import *
 from .primitives import *
 from .read import *

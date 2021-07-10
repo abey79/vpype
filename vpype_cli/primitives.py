@@ -6,7 +6,7 @@ import vpype as vp
 
 from .cli import cli
 
-__all__ = ("arc", "circle", "ellipse", "line", "rect")
+__all__ = ()
 
 
 @cli.command(group="Primitives")

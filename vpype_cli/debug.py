@@ -12,7 +12,7 @@ from .cli import cli
 
 debug_data: List[Dict[str, Any]] = []
 
-__all__ = ("dbsample", "dbdump", "stat", "DebugData")
+__all__ = ("DebugData",)
 
 
 @cli.command(hidden=True)
@@ -154,6 +154,12 @@ def stat(document: Document):
             str(length / layer.segment_count() if layer.segment_count() else "n/a"),
         )
         print(f"  Bounds: {layer.bounds()}")
+        print("  Metadata:")
+        if layer.metadata:
+            for key, value in layer.metadata.items():
+                print(f"    {key}: {value!r}")
+        else:
+            print(f"    n/a")
     print(f"Totals")
     print(f"  Layer count: {len(document.layers)}")
     print(f"  Length: {length_tot}")
