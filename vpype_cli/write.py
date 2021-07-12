@@ -8,7 +8,7 @@ import vpype as vp
 
 from .cli import cli
 
-__all__ = ()
+__all__ = ("write",)
 
 WRITE_HELP = f"""Save geometries to a file.
 

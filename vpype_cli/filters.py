@@ -4,8 +4,6 @@ import vpype as vp
 
 from .cli import cli
 
-__all__ = ()
-
 
 @cli.command(group="Filters")
 @click.option(

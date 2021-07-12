@@ -6,8 +6,6 @@ import vpype as vp
 
 from .cli import cli
 
-__all__ = ()
-
 
 @cli.command(group="Text")
 @click.argument("string", type=str)

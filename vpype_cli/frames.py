@@ -4,7 +4,7 @@ from vpype import LengthType, LineCollection, VpypeState, generator, pass_state
 
 from .cli import cli
 
-__all__ = ()
+__all__ = ("frame",)
 
 
 @cli.command(group="Generators")

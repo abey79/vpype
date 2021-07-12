@@ -8,7 +8,21 @@ import vpype as vp
 
 from .cli import cli
 
-__all__ = ()
+__all__ = (
+    "crop",
+    "filter_command",
+    "layout",
+    "linemerge",
+    "linesimplify",
+    "linesort",
+    "multipass",
+    "pagesize",
+    "reloop",
+    "reverse",
+    "snap",
+    "splitall",
+    "trim",
+)
 
 
 @cli.command(group="Operations")

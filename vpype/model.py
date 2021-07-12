@@ -136,7 +136,7 @@ class LineCollection:
     def clone(self, lines: LineCollectionLike = ()) -> "LineCollection":
         """Creates a new :class:`LineCollection` with the same metadata.
 
-        If ``lines``is provided, its content is added to the new :class:`LineCollection`
+        If ``lines`` is provided, its content is added to the new :class:`LineCollection`
         instance.
 
         Args:

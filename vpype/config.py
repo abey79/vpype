@@ -252,7 +252,7 @@ CONFIG_MANAGER = config_manager
 
 
 def _init():
-    config_manager.load_config_file(str(pathlib.Path(__file__).parent / "hpgl_devices.toml"))
+    config_manager.load_config_file(str(pathlib.Path(__file__).parent / "vpype_config.toml"))
     path = os.path.expanduser("~/.vpype.toml")
     if os.path.exists(path):
         config_manager.load_config_file(str(path))

@@ -12,7 +12,7 @@ from .cli import cli
 
 debug_data: List[Dict[str, Any]] = []
 
-__all__ = ("DebugData",)
+__all__ = ("dbsample", "dbdump", "stat", "DebugData")
 
 
 @cli.command(hidden=True)

@@ -7,7 +7,7 @@ import vpype as vp
 
 from .cli import cli
 
-__all__ = ()
+__all__ = ("metadata", "penwidth", "color", "name", "pens")
 
 
 _STR_TO_TYPE = {
@@ -44,8 +44,8 @@ def metadata(
 def penwidth(layer: vp.LineCollection, pen_width: float) -> vp.LineCollection:
     """Set the pen width for one or more layers.
 
-    By default, this commands sets the pen width for all layers. Use the `--layer` option to set
-    the pen width of one (or more) specific layer(s).
+    By default, this commands sets the pen width for all layers. Use the `--layer` option to
+    set the pen width of one (or more) specific layer(s).
 
     Examples:
 
@@ -109,32 +109,57 @@ def name(layer: vp.LineCollection, name: str) -> vp.LineCollection:
     return layer
 
 
-@cli.command(group="Metadata")
+COLORMAP_HELP_STRING = f"""Apply a pen configuration.
+
+This command applies given names, pen colors and/or pen widths to one or more layers, as
+defined by the pen configuration CONF. This pen configuration just be defined in either the
+bundled or a user-provided config file (such as ~/.vpype.toml).
+
+The following pen configurations are defined in the default config and the ~/.vpype.toml file:
+
+    {", ".join(vp.config_manager.config.get("pen_config", {}).keys()) or "n/a"}
+
+For example, the bundled pen configuration `cmyk` applies `cyan`,`magenta`, `yellow`, resp.
+`black` to the name and color of layers 1 to 4 while leaving pen widths unchanged.
+
+In details, for each of the layers defined in a pen configuration, this command performs the
+following tasks:
+- create the corresponding layer if it does not exist
+- set the name of the layer as specified by the pen configuration (if specified)
+- set the color of the layer as specified by the pen configuration (if specified)
+- set the pen width of the layer as specified by the pen configuration (if specified)
+
+Existing layers whose ID are not included in the pen configuration are not affected by this
+command. Check the documentation for more information on creating custom pen configurations.
+"""
+
+
+@cli.command(group="Metadata", help=COLORMAP_HELP_STRING)
+@click.argument("pen_config", metavar="CONF")
 @vp.global_processor
-def cmyk(document: vp.Document) -> vp.Document:
-    """Sets the metadata for the first 4 layers for CMYK.
+def pens(document: vp.Document, pen_config: str) -> vp.Document:
 
-    This convenience command performs the following tasks:
-    - create layers 1 to 4 if they don't exist
-    - set the names of layers 1 to 4 to 'cyan', 'magenta', 'yellow', resp. 'black'
-    - set layers 1 to 4 to the correct color
+    # the CONF parameter must be checked explicitly (instead of using click.Choice()) because
+    # additional config file (potentially containing pen configs) may be added at runtime
+    config = vp.config_manager.config.get("pen_config", {})
 
-    Layers with ID of 5 or more are ignore by this command.
-    """
+    if pen_config not in config:
+        click.secho(
+            f"pens: pen configuration '{pen_config}' not found, no pen configuration applied",
+            fg="red",
+        )
+        return document
 
-    document.add([], 1)
-    document.add([], 2)
-    document.add([], 3)
-    document.add([], 4)
-
-    document.layers[1].set_property("vp:name", "cyan")
-    document.layers[2].set_property("vp:name", "magenta")
-    document.layers[3].set_property("vp:name", "yellow")
-    document.layers[4].set_property("vp:name", "black")
-
-    document.layers[1].set_property("vp:color", "cyan")
-    document.layers[2].set_property("vp:color", "magenta")
-    document.layers[3].set_property("vp:color", "yellow")
-    document.layers[4].set_property("vp:color", "black")
+    for layer_data in config[pen_config]["layers"]:
+        lid = layer_data["layer_id"]
+        document.add([], lid)
+        if "name" in layer_data:
+            document.layers[lid].set_property("vp:name", layer_data["name"])
+        if "color" in layer_data:
+            document.layers[lid].set_property("vp:color", layer_data["color"])
+        if "pen_width" in layer_data:
+            document.layers[lid].set_property(
+                "vp:pen_width", vp.convert_length(layer_data["pen_width"])
+            )
 
     return document

@@ -18,7 +18,7 @@ except ImportError:  # pragma: no cover
     _vpype_viewer_ok = False
 
 
-__all__ = ()
+__all__ = ("show",)
 
 COLORS = [
     (0, 0, 1),

@@ -7,7 +7,7 @@ from vpype import LengthType, LineCollection, generator
 
 from .cli import cli
 
-__all__ = ()
+__all__ = ("random",)
 
 
 @cli.command(group="Generators")

@@ -12,4 +12,5 @@ _to be completed_
     - [ ] command docstring and option/argument `help`
     - [ ] README.md updated (Feature Overview)
     - [ ] CHANGELOG.md updated
+    - [ ] added new command to doc
     - [ ] RTD doc updated and building with no error (`make clean && make html` in `docs/`)

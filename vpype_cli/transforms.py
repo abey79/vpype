@@ -8,7 +8,7 @@ import vpype as vp
 
 from .cli import cli
 
-__all__ = ()
+__all__ = ("rotate", "scale_relative", "scaleto", "skew", "translate")
 
 
 def _compute_origin(
