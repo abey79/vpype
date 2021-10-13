@@ -619,13 +619,13 @@ def write_hpgl(
         for line in document.layers[layer_id]:
             if len(line) < 2:
                 continue
-            output.write(f"PU{complex_to_str(line[0])};")
-            output.write(f"PD")
-            output.write(",".join(complex_to_str(p) for p in line[1:]))
+            output.write(f"PA;PU{complex_to_str(line[0])};")
+            output.write(f"PR;PD")
+            output.write(",".join(complex_to_str(p) for p in np.diff(line)))
             output.write(";")
 
         output.write(
-            f"PU{paper_config.final_pu_params if paper_config.final_pu_params else ''};"
+            f"PA;PU{paper_config.final_pu_params if paper_config.final_pu_params else ''};"
         )
 
     output.write("SP0;IN;\n")
