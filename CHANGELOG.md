@@ -5,6 +5,10 @@
 New features and improvements:
 * Added `lswap` command to swap the content of two layers (#300)
 * Added `lreverse` command to reverse the order of paths within a layer (#300)
+* Improved HPGL export (#253, #310, #316)
+
+  * Relative coordinates are now used by default to reduce file size. If absolute coordinates are needed, they a new `--absolute` option for the `write` command.
+  * A homing command (as defined by the `final_pu_params` configuration parameter) is no longer emitted between layers.
 
 Bug fixes:
 * ...

@@ -73,6 +73,9 @@ displayed as a reminder and can be hidden using the `--quiet` option.
 
 The `--landscape` and `--center` options are accepted and honored in HPGL.
 
+By default, relative coordinates are used whenever possible in the HPGL output in order to
+reduce file size. If `--absolute` is used, absolute coordinate are used instead.
+
 Optionally, the HPGL-only `--velocity` can be provided, in which case a `VS` command will be
 emitted with the provided value.
 
@@ -150,6 +153,9 @@ Examples:
 )
 @click.option("-d", "--device", type=str, help="[HPGL only] Type of the plotter device.")
 @click.option(
+    "-a", "--absolute", is_flag=True, help="[HPGL only] Use absolute coordinates exclusively."
+)
+@click.option(
     "-vs",
     "--velocity",
     type=int,
@@ -175,6 +181,7 @@ def write(
     pen_up: bool,
     color_mode: str,
     device: Optional[str],
+    absolute: bool,
     velocity: Optional[int],
     quiet: bool,
 ):
@@ -231,6 +238,7 @@ def write(
             center=center,
             device=device,
             page_size=page_size,
+            absolute=absolute,
             velocity=velocity,
             quiet=quiet,
         )

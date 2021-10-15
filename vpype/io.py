@@ -495,6 +495,7 @@ def write_hpgl(
     center: bool,
     device: Optional[str],
     velocity: Optional[int],
+    absolute: bool = False,
     quiet: bool = False,
 ) -> None:
     """Create a HPGL file from the :class:`Document` instance.
@@ -516,6 +517,7 @@ def write_hpgl(
         device: name of the device to use (the corresponding config must exists). If not
             provided, a default device must be configured, which will be used.
         velocity: if provided, a VS command will be generated with the corresponding value
+        absolute: if True, only use absolute coordinates
         quiet: if True, do not print the plotter/paper info strings
     """
 
@@ -612,21 +614,39 @@ def write_hpgl(
     if paper_config.set_ps is not None:
         output.write(f"PS{int(paper_config.set_ps)};")
 
+    first_layer = True
+    last_point: Optional[complex] = None
     for layer_id in sorted(document.layers.keys()):
         pen_id = 1 + (layer_id - 1) % plotter_config.pen_count
+
+        # As per #310, we emit a single PU; between layers
+        if not first_layer:
+            output.write(f"PU;")
+        else:
+            first_layer = False
         output.write(f"SP{pen_id};")
 
         for line in document.layers[layer_id]:
             if len(line) < 2:
                 continue
-            output.write(f"PA;PU{complex_to_str(line[0])};")
-            output.write(f"PR;PD")
-            output.write(",".join(complex_to_str(p) for p in np.diff(line)))
-            output.write(";")
 
-        output.write(
-            f"PA;PU{paper_config.final_pu_params if paper_config.final_pu_params else ''};"
-        )
+            if absolute:
+                output.write(
+                    f"PU{complex_to_str(line[0])};PD"
+                    + ",".join(complex_to_str(p) for p in line[1:])
+                    + ";"
+                )
+            else:
+                if last_point is None:
+                    output.write(f"PU{complex_to_str(line[0])};PR;")
+                else:
+                    output.write(f"PU{complex_to_str(line[0] - last_point)};")
 
+                output.write("PD" + ",".join(complex_to_str(p) for p in np.diff(line)) + ";")
+                last_point = line[-1]
+
+    if not absolute:
+        output.write("PA;")
+    output.write(f"PU{paper_config.final_pu_params if paper_config.final_pu_params else ''};")
     output.write("SP0;IN;\n")
     output.flush()
