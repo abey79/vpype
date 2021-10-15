@@ -1,6 +1,6 @@
 import os
 import pathlib
-from typing import Optional, Tuple
+from typing import Any, Dict, Optional, Tuple, cast
 
 import cachetools
 import cachetools.keys
@@ -12,7 +12,7 @@ ColorType = Tuple[float, float, float, float]
 
 
 @cachetools.cached(
-    cache={},  # type: ignore
+    cache=cast(Dict[Any, Any], {}),
     key=lambda name, ctx: cachetools.keys.hashkey((name, id(ctx))),
 )
 def load_program(name: str, ctx: mgl.Context) -> mgl.Program:
@@ -48,7 +48,7 @@ def load_program(name: str, ctx: mgl.Context) -> mgl.Program:
 
 
 @cachetools.cached(
-    cache={},  # type: ignore
+    cache=cast(Dict[Any, Any], {}),
     key=lambda name, ctx, size, components: cachetools.keys.hashkey(
         (name, id(ctx), size, components)
     ),
