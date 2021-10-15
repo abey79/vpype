@@ -6,43 +6,75 @@ import vpype as vp
 from vpype_cli import cli
 
 HPGL_TEST_CASES = [
-    ("line 2 3 6 4", "-d simple -p simple", "IN;DF;SP1;PU2,3;PD6,4;PU;SP0;IN;"),
-    ("line 2 3 50 3", "-d simple -p simple", "IN;DF;SP1;PU2,3;PD10,3;PU;SP0;IN;"),
-    ("line 2 3 6 4", "-d simple -p aka_simple", "IN;DF;SP1;PU2,3;PD6,4;PU;SP0;IN;"),
-    ("line 2 3 6 4", "-d simple -p simple_ps10", "IN;DF;PS10;SP1;PU2,3;PD6,4;PU;SP0;IN;"),
-    (
-        "line 2 3 6 4 line -l 2 4 5 2 3",
-        "-d simple -p simple",
-        "IN;DF;SP1;PU2,3;PD6,4;PU;SP2;PU4,5;PD2,3;PU;SP0;IN;",
-    ),
-    ("line 2 3 6 4", "-d simple -p simple_landscape", "IN;DF;SP1;PU3,8;PD4,4;PU;SP0;IN;"),
-    ("line 2 3 6 4", "-d simple -p simple_y_up", "IN;DF;SP1;PU2,12;PD6,11;PU;SP0;IN;"),
+    ("line 2 3 6 4", "--absolute -d simple -p simple", "IN;DF;SP1;PU2,3;PD6,4;PU;SP0;IN;"),
+    ("line 2 3 6 4", "-d simple -p simple", "IN;DF;SP1;PU2,3;PR;PD4,1;PA;PU;SP0;IN;"),
+    ("line 2 3 50 3", "--absolute -d simple -p simple", "IN;DF;SP1;PU2,3;PD10,3;PU;SP0;IN;"),
+    ("line 2 3 6 4", "--absolute -d simple -p aka_simple", "IN;DF;SP1;PU2,3;PD6,4;PU;SP0;IN;"),
     (
         "line 2 3 6 4",
-        "-d simple -p simple_rotate_180",
+        "--absolute -d simple -p simple_ps10",
+        "IN;DF;PS10;SP1;PU2,3;PD6,4;PU;SP0;IN;",
+    ),
+    (
+        "line 2 3 6 4",
+        "-d simple -p simple_ps10",
+        "IN;DF;PS10;SP1;PU2,3;PR;PD4,1;PA;PU;SP0;IN;",
+    ),
+    (
+        "line 2 3 6 4 line -l 2 4 5 2 3",
+        "--absolute -d simple -p simple",
+        "IN;DF;SP1;PU2,3;PD6,4;PU;SP2;PU4,5;PD2,3;PU;SP0;IN;",
+    ),
+    (
+        "line 2 3 6 4",
+        "--absolute -d simple -p simple_landscape",
+        "IN;DF;SP1;PU3,8;PD4,4;PU;SP0;IN;",
+    ),
+    (
+        "line 2 3 6 4",
+        "--absolute -d simple -p simple_y_up",
+        "IN;DF;SP1;PU2,12;PD6,11;PU;SP0;IN;",
+    ),
+    (
+        "line 2 3 6 4",
+        "--absolute -d simple -p simple_rotate_180",
         "IN;DF;SP1;PU8,12;PD4,11;PU;SP0;IN;",
     ),
     (
         "line 2 3 6 4",
-        "-d simple -p simple_final_pu",
+        "--absolute -d simple -p simple_final_pu",
         "IN;DF;SP1;PU2,3;PD6,4;PU0,0;SP0;IN;",
     ),
-    ("line 3 5 4 6", "-d double -p simple", "IN;DF;SP1;PU6,10;PD8,12;PU;SP0;IN;"),
-    ("line 1 1 2 4", "-d simple -p simple_botleft", "IN;DF;SP1;PU0,13;PD1,10;PU;SP0;IN;"),
+    ("line 3 5 4 6", "--absolute -d double -p simple", "IN;DF;SP1;PU6,10;PD8,12;PU;SP0;IN;"),
     (
-        "line 1 1 2 4 pagesize 10x15",
-        "-d simple -p simple_flex_portrait",
+        "line 1 1 2 4",
+        "--absolute -d simple -p simple_botleft",
         "IN;DF;SP1;PU0,13;PD1,10;PU;SP0;IN;",
     ),
     (
         "line 1 1 2 4 pagesize 10x15",
-        "-d simple -p simple_flex_portrait_implicit",
+        "--absolute -d simple -p simple_flex_portrait",
         "IN;DF;SP1;PU0,13;PD1,10;PU;SP0;IN;",
     ),
     (
         "line 1 1 2 4 pagesize 10x15",
-        "-d simple -p simple_flex_landscape",
+        "--absolute -d simple -p simple_flex_portrait_implicit",
+        "IN;DF;SP1;PU0,13;PD1,10;PU;SP0;IN;",
+    ),
+    (
+        "line 1 1 2 4 pagesize 10x15",
+        "--absolute -d simple -p simple_flex_landscape",
         "IN;DF;SP1;PU0,0;PD3,1;PU;SP0;IN;",
+    ),
+    (
+        "line 0 0 2 3 line -l2 5 5 2 3",
+        "--absolute -d simple -p simple",
+        "IN;DF;SP1;PU0,0;PD2,3;PU;SP2;PU5,5;PD2,3;PU;SP0;IN;",
+    ),
+    (
+        "line 0 0 2 3 line -l2 5 5 2 3",
+        "-d simple -p simple",
+        "IN;DF;SP1;PU0,0;PR;PD2,3;PU;SP2;PU3,2;PD-3,-2;PA;PU;SP0;IN;",
     ),
 ]
 
@@ -269,7 +301,9 @@ def test_hpgl_paper_config(simple_printer_config):
 
 
 def test_hpgl_paper_size_inference(runner):
-    res = runner.invoke(cli, "rect 5cm 5cm 5cm 5cm pagesize a4 write -f hpgl -d hp7475a -")
+    res = runner.invoke(
+        cli, "rect 5cm 5cm 5cm 5cm pagesize a4 write --absolute -f hpgl -d hp7475a -"
+    )
 
     assert res.exit_code == 0
     assert res.stdout.strip() == (
