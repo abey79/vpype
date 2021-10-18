@@ -1,5 +1,10 @@
 import os
+import signal
+import socket
+from contextlib import contextmanager
+from typing import Callable
 
+from PySide2 import QtNetwork
 from PySide2.QtCore import QCoreApplication
 from PySide2.QtGui import QIcon, QPalette
 from PySide2.QtWidgets import QAction, QActionGroup
@@ -73,3 +78,38 @@ class PenOpacityActionGroup(QActionGroup):
             act.setCheckable(True)
             act.setChecked(w == current)
             act.setData(w)
+
+
+class SignalWatchdog(QtNetwork.QAbstractSocket):
+    """This object notify PySide2's event loop of an incoming signal and makes it process it.
+
+    The python interpreter flags incoming signals and triggers the handler only upon the next
+    bytecode is processed. Since PySide2's C++ event loop function never/rarely returns when
+    the UX is in the background, the Python interpreter doesn't have a chance to run and call
+    the handler.
+
+    From: https://stackoverflow.com/a/65802260/229511 and
+    https://stackoverflow.com/a/37229299/229511
+    """
+
+    def __init__(self):
+        # noinspection PyTypeChecker
+        super().__init__(QtNetwork.QAbstractSocket.SctpSocket, None)  # type: ignore
+        self.writer, self.reader = socket.socketpair()
+        self.writer.setblocking(False)
+        signal.set_wakeup_fd(self.writer.fileno())
+        self.setSocketDescriptor(self.reader.fileno())
+        self.readyRead.connect(lambda: None)
+
+
+@contextmanager
+def set_sigint_handler(handler: Callable):
+    original_handler = signal.getsignal(signal.SIGINT)
+    signal.signal(signal.SIGINT, handler)
+    # noinspection PyUnusedLocal
+    watchdog = SignalWatchdog()
+    try:
+        yield
+    finally:
+        signal.signal(signal.SIGINT, original_handler)
+        del watchdog
