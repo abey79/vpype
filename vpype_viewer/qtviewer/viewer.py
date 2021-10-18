@@ -30,7 +30,7 @@ import vpype as vp
 
 from .._scales import UnitType
 from ..engine import Engine, ViewMode
-from .utils import PenOpacityActionGroup, PenWidthActionGroup, load_icon
+from .utils import PenOpacityActionGroup, PenWidthActionGroup, load_icon, set_sigint_handler
 
 __all__ = ["QtViewerWidget", "QtViewer", "show"]
 
@@ -480,4 +480,11 @@ def show(
 
     widget.show()
 
-    return app.exec_()
+    # noinspection PyUnusedLocal
+    def sigint_handler(signum, frame):
+        QApplication.quit()
+
+    with set_sigint_handler(sigint_handler):
+        res = app.exec_()
+
+    return res
