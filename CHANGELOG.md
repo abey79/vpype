@@ -10,6 +10,7 @@ New features and improvements:
   * Relative coordinates are now used by default to reduce file size. If absolute coordinates are needed, they a new `--absolute` option for the `write` command.
   * A homing command (as defined by the `final_pu_params` configuration parameter) is no longer emitted between layers.
 * The viewer (`show` command) now catches interruptions from the terminal (ctrl-C) and closes itself (#321)
+* The `read` command now accepts `-` as file path to read from the standard input (#322)
 
 Bug fixes:
 * ...

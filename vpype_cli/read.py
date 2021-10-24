@@ -89,6 +89,8 @@ def read(
 ) -> Document:
     """Extract geometries from a SVG file.
 
+    FILE may be a file path path or a dash (-) to read from the standard input instead.
+
     By default, the `read` command attempts to preserve the layer structure of the SVG. In this
     context, top-level groups (<svg:g>) are each considered a layer. If any, all non-group,
     top-level SVG elements are imported into layer 1.
