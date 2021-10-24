@@ -1,5 +1,6 @@
 import logging
-from typing import Optional, Tuple, cast
+import sys
+from typing import Optional, Tuple
 
 import click
 
@@ -7,7 +8,6 @@ from vpype import (
     Document,
     LayerType,
     LengthType,
-    LineCollection,
     PageSizeType,
     global_processor,
     read_multilayer_svg,
@@ -21,7 +21,7 @@ __all__ = ("read",)
 
 
 @cli.command(group="Input")
-@click.argument("file", type=click.Path(exists=True, dir_okay=False))
+@click.argument("file", type=click.Path(exists=True, dir_okay=False, allow_dash=True))
 @click.option("-m", "--single-layer", is_flag=True, help="Single layer mode.")
 @click.option(
     "-l",
@@ -161,6 +161,9 @@ layer is used default and can be specified with the `--layer` option.
     width, height = display_size
     if display_landscape:
         width, height = height, width
+
+    if file == "-":
+        file = sys.stdin
 
     if single_layer:
         lc, width, height = read_svg(

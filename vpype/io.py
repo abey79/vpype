@@ -200,7 +200,7 @@ def _extract_paths(group: svgelements.Group, recursive) -> _PathListType:
 
 
 def read_svg(
-    filename: str,
+    file: Union[str, TextIO],
     quantization: float,
     crop: bool = True,
     simplify: bool = False,
@@ -215,7 +215,7 @@ def read_svg(
     as tolerance.
 
     Args:
-        filename: path of the SVG file
+        file: path of the SVG file or stream object
         quantization: maximum size of segment used to approximate curved geometries
         crop: crop the geometries to the SVG boundaries
         simplify: run Shapely's simplify on loaded geometry
@@ -231,7 +231,7 @@ def read_svg(
     """
 
     # default width is for SVG with % width/height
-    svg = svgelements.SVG.parse(filename, width=default_width, height=default_height)
+    svg = svgelements.SVG.parse(file, width=default_width, height=default_height)
     paths = _extract_paths(svg, recursive=True)
     lc = _convert_flattened_paths(paths, quantization, simplify, parallel)
 
@@ -242,7 +242,7 @@ def read_svg(
 
 
 def read_multilayer_svg(
-    filename: str,
+    file: Union[str, TextIO],
     quantization: float,
     crop: bool = True,
     simplify: bool = False,
@@ -266,7 +266,7 @@ def read_multilayer_svg(
     as tolerance.
 
     Args:
-        filename: path of the SVG file
+        file: path of the SVG file or stream object
         quantization: maximum size of segment used to approximate curved geometries
         crop: crop the geometries to the SVG boundaries
         simplify: run Shapely's simplify on loaded geometry
@@ -281,7 +281,7 @@ def read_multilayer_svg(
          SVG dimensions
     """
 
-    svg = svgelements.SVG.parse(filename, width=default_width, height=default_height)
+    svg = svgelements.SVG.parse(file, width=default_width, height=default_height)
 
     document = Document()
 
