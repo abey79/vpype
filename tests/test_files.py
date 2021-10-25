@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 
 import vpype as vp
-from vpype_cli import cli
+from vpype_cli import DebugData, cli
 
 from .utils import TEST_FILE_DIRECTORY
 
@@ -150,3 +150,18 @@ def test_read_with_viewbox(tmp_path):
     assert height == 100
     assert len(lc) == 1
     assert np.all(np.isclose(lc[0], np.array([0, 100 + 100j])))
+
+
+def test_read_stdin(runner):
+    svg = f"""<?xml version="1.0"?>
+    <svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"
+        width="1000" height="1000">
+      <circle cx="500" cy="500" r="40"/>      
+    </svg>
+    """
+
+    result = runner.invoke(cli, "read - dbsample dbdump", input=svg)
+    data = DebugData.load(result.output)
+
+    assert result.exit_code == 0
+    assert data[0].count == 1
