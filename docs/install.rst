@@ -27,7 +27,7 @@ Then, the preferred way to install *vpype* is in a dedicated `virtual environmen
   $ python3 -m venv vpype_venv      # create a new virtual environment
   $ source vpype_venv/bin/activate  # activate the newly created virtual environment
   $ pip install --upgrade pip
-  $ pip install vpype[all]
+  $ pip install 'vpype[all]'
 
 You should now be able to run *vpype*::
 
@@ -101,7 +101,7 @@ The preferred way to install *vpype* is in a dedicated `virtual environment <htt
   $ python3 -m venv vpype_venv      # create a new virtual environment
   $ source vpype_venv/bin/activate  # activate the newly created virtual environment
   $ pip install --upgrade pip
-  $ pip install vpype[all]
+  $ pip install 'vpype[all]'
 
 You should now be able to run *vpype*::
 
