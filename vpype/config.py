@@ -203,18 +203,26 @@ class ConfigManager:
         """
         return list(self.config.get("device", {}).keys())
 
-    def get_plotter_config(self, name: Optional[str]) -> Optional[PlotterConfig]:
-        """Returns a :class:`PlotterConfig` instance for plotter ``name``.
+    def get_plotter_config(self, device: Optional[str]) -> Optional[PlotterConfig]:
+        """Returns a :class:`PlotterConfig` instance for plotter ``device``.
+
+        If ``None`` is passed, this function attempts to use the default device if one is
+        configured, or the function returns None.
 
         Args:
-            name: name of desired plotter (may be ``None``, in which case ``None`` is returned)
+            device: name of desired plotter (or ``None`` to use the default device if
+                configured)
 
         Returns:
             :class:`PlotterConfig` instance or None if not found
         """
         devices = self.config.get("device", {})
-        if name in devices:
-            return PlotterConfig.from_config(devices[name])
+        if device is None:
+            device = config_manager.get_command_config("write").get(
+                "default_hpgl_device", None
+            )
+        if device in devices:
+            return PlotterConfig.from_config(devices[device])
         else:
             return None
 

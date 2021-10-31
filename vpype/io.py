@@ -472,9 +472,7 @@ def write_svg(
 def _get_hpgl_config(
     device: Optional[str], page_size: str
 ) -> Tuple[PlotterConfig, PaperConfig]:
-    if device is None:
-        device = config_manager.get_command_config("write").get("default_hpgl_device", None)
-    plotter_config = config_manager.get_plotter_config(str(device))
+    plotter_config = config_manager.get_plotter_config(device)
     if plotter_config is None:
         raise ValueError(f"no configuration available for plotter '{device}'")
     paper_config = plotter_config.paper_config(page_size)
