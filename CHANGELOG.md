@@ -13,7 +13,7 @@ New features and improvements:
 * The `read` command now accepts `-` as file path to read from the standard input (#322)
 
 Bug fixes:
-* Fixed issue with HPGL export where page size auto-detection would fail when using the default device from the config file (instead of specifying the device with `--device`) (#XXX)
+* Fixed issue with HPGL export where page size auto-detection would fail when using the default device from the config file (instead of specifying the device with `--device`) (#328)
 
 
 #### 1.7 (2021-06-10)
