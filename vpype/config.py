@@ -218,9 +218,7 @@ class ConfigManager:
         """
         devices = self.config.get("device", {})
         if device is None:
-            device = config_manager.get_command_config("write").get(
-                "default_hpgl_device", None
-            )
+            device = self.get_command_config("write").get("default_hpgl_device", None)
         if device in devices:
             return PlotterConfig.from_config(devices[device])
         else:

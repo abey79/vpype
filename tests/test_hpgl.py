@@ -312,6 +312,21 @@ def test_hpgl_paper_size_inference(runner):
     )
 
 
+def test_hpgl_paper_size_inference_default_device(runner, tmp_path):
+    config_file = tmp_path / "config.toml"
+    config_file.write_text("[command.write]\ndefault_hpgl_device = 'hp7475a'\n")
+
+    res = runner.invoke(
+        cli, f"-c {config_file} rect 5cm 5cm 5cm 5cm pagesize a4 write --absolute -f hpgl -"
+    )
+
+    assert res.exit_code == 0
+    assert res.stdout.strip() == (
+        "IN;DF;PS4;SP1;PU1608,1849;PD3617,1849,3617,3859,1608,3859,1608,1849;PU11040,7721;"
+        "SP0;IN;"
+    )
+
+
 def test_hpgl_paper_size_inference_fail(runner):
     res = runner.invoke(cli, "rect 5cm 5cm 5cm 5cm pagesize a6 write -f hpgl -d hp7475a -")
 
@@ -350,3 +365,25 @@ def test_hpgl_wrong_ref(simple_printer_config):
             page_size="wrong_ref",
             velocity=None,
         )
+
+
+def test_hpgl_config_manager(config_manager, simple_printer_config, config_file_factory):
+    config_manager.load_config_file(simple_printer_config)
+
+    # WITHOUT DEFAULT CONFIG
+    assert config_manager.get_plotter_config("simple") is not None
+    assert config_manager.get_plotter_config(None) is None
+    assert config_manager.get_plotter_config("doesntexist") is None
+
+    # WITH DEFAULT CONFIG
+    default_device_config = config_file_factory(
+        """
+        [command.write]
+        default_hpgl_device = "simple"
+        """
+    )
+    config_manager.load_config_file(default_device_config)
+
+    assert config_manager.get_plotter_config("simple") is not None
+    assert config_manager.get_plotter_config(None) is not None
+    assert config_manager.get_plotter_config("doesntexist") is None
