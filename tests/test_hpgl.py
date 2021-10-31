@@ -317,7 +317,7 @@ def test_hpgl_paper_size_inference_default_device(runner, tmp_path):
     config_file.write_text("[command.write]\ndefault_hpgl_device = 'hp7475a'\n")
 
     res = runner.invoke(
-        cli, f"-c {config_file} rect 5cm 5cm 5cm 5cm pagesize a4 write --absolute -f hpgl -"
+        cli, f"-c '{config_file}' rect 5cm 5cm 5cm 5cm pagesize a4 write --absolute -f hpgl -"
     )
 
     assert res.exit_code == 0
