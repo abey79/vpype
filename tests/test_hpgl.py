@@ -334,6 +334,31 @@ def test_hpgl_paper_size_inference_fail(runner):
     assert res.stdout.strip() == ""
 
 
+def test_hpgl_relative_no_aliasing(runner):
+    # This generates two lines of the same length, one split in small bits. Relative export
+    # is expected to avoid aliasing when differentiating subsequent point position.
+    res = runner.invoke(
+        cli,
+        "begin grid -o 0 0.11mm 1 1200 line 0 0 0 0.11mm end linemerge translate 0.1cm 0 "
+        "line 0 0 0 13.2cm linemerge layout a4  write -f hpgl -d hp7475a -",
+    )
+
+    cmds = res.stdout.strip().split(";")
+
+    # Note: the following indices depends on the weird bug that a `line` command after a
+    # `begin`/`end` block is using a new layer (i.e. layer 2) instead of the same layer as
+    # before
+    line1_pd = cmds[6]
+    assert line1_pd.startswith("PD")
+    line2_pd = cmds[10]
+    assert line2_pd.startswith("PD")
+
+    line1_length = sum(map(int, line1_pd.lstrip("PD").split(",")[0::2]))
+    line2_length = int(line2_pd.lstrip("PD").split(",")[0])
+
+    assert abs(line1_length) == abs(line2_length)
+
+
 def test_hpgl_flex_no_pagesize(simple_printer_config):
     doc = vp.Document()
     doc.add(vp.LineCollection([(1 + 1j, 2 + 4j)]))

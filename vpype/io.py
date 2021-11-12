@@ -635,6 +635,10 @@ def write_hpgl(
                     + ";"
                 )
             else:
+                # snap all points of the line to the HPGL grid, such as to avoid any aliasing
+                # when computing the diff between points
+                line = np.round(line)
+
                 if last_point is None:
                     output.write(f"PU{complex_to_str(line[0])};PR;")
                 else:
