@@ -14,6 +14,7 @@ New features and improvements:
 
 Bug fixes:
 * Fixed issue with HPGL export where page size auto-detection would fail when using the default device from the config file (instead of specifying the device with `--device`) (#328)
+* Fixed issue where the viewer would crash with empty layers (#339) 
 
 
 #### 1.7 (2021-06-10)
