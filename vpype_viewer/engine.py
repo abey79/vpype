@@ -427,7 +427,11 @@ class Engine:
             color_index = 0
             for layer_id in sorted(self._document.layers):
                 layer_color: ColorType = _COLORS[color_index % len(_COLORS)]
+                color_index += 1
+
                 lc = self._document.layers[layer_id]
+                if lc.is_empty():
+                    continue
 
                 if self.view_mode == ViewMode.OUTLINE:
                     self._layer_painters[layer_id].append(
@@ -462,8 +466,6 @@ class Engine:
                     self._layer_painters[layer_id].append(
                         LineCollectionPointsPainter(self._ctx, lc=lc, color=layer_color)
                     )
-
-                color_index += 1
 
             page_size = self._document.page_size
             if page_size is not None:
