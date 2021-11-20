@@ -108,7 +108,8 @@ def test_viewer(assert_image_similarity, file, render_kwargs):
 
 
 @pytest.mark.parametrize("render_kwargs", RENDER_KWARGS)
-def test_viewer_empty_layer(render_kwargs):
+def test_viewer_empty_layer(assert_image_similarity, render_kwargs):
+    # Note: assert_image_similarity added to avoid running CI tests on Linux
     doc = vp.Document()
     doc.add(vp.LineCollection(), 1)
     render_image(doc, (1024, 1024), **render_kwargs)
