@@ -14,6 +14,38 @@ from vpype_viewer import (
 
 from .utils import TEST_FILE_DIRECTORY
 
+RENDER_KWARGS = [
+    pytest.param({"view_mode": ViewMode.OUTLINE}, id="outline"),
+    pytest.param({"view_mode": ViewMode.OUTLINE_COLORFUL}, id="outline_colorful"),
+    pytest.param({"view_mode": ViewMode.PREVIEW}, id="preview"),
+    pytest.param({"view_mode": ViewMode.OUTLINE, "show_points": True}, id="points"),
+    pytest.param(
+        {"view_mode": ViewMode.OUTLINE_COLORFUL, "show_points": True}, id="colorful_points"
+    ),
+    pytest.param({"view_mode": ViewMode.OUTLINE, "show_pen_up": True}, id="outline_pen_up"),
+    pytest.param({"view_mode": ViewMode.PREVIEW, "show_pen_up": True}, id="preview_pen_up"),
+    pytest.param(
+        {"view_mode": ViewMode.PREVIEW, "pen_opacity": 0.3}, id="preview_transparent"
+    ),
+    pytest.param({"view_mode": ViewMode.PREVIEW, "pen_width": 4.0}, id="preview_thick"),
+    pytest.param(
+        {"view_mode": ViewMode.OUTLINE, "show_ruler": True, "unit_type": UnitType.PIXELS},
+        id="outline_pixels",
+    ),
+    pytest.param(
+        {"view_mode": ViewMode.OUTLINE, "show_ruler": True, "unit_type": UnitType.METRIC},
+        id="outline_metric",
+    ),
+    pytest.param(
+        {
+            "view_mode": ViewMode.OUTLINE,
+            "show_ruler": True,
+            "unit_type": UnitType.IMPERIAL,
+        },
+        id="outline_imperial",
+    ),
+]
+
 
 # assert_image_similarity fixture added for automated exclusion on unsupported runner
 def test_viewer_engine_properties(assert_image_similarity):
@@ -67,49 +99,19 @@ def test_viewer_engine_properties(assert_image_similarity):
     ["misc/empty.svg", "misc/multilayer.svg", "issue_124/plotter.svg"],
     ids=lambda s: os.path.splitext(s)[0],
 )
-@pytest.mark.parametrize(
-    "render_kwargs",
-    [
-        pytest.param({"view_mode": ViewMode.OUTLINE}, id="outline"),
-        pytest.param({"view_mode": ViewMode.OUTLINE_COLORFUL}, id="outline_colorful"),
-        pytest.param({"view_mode": ViewMode.PREVIEW}, id="preview"),
-        pytest.param({"view_mode": ViewMode.OUTLINE, "show_points": True}, id="points"),
-        pytest.param(
-            {"view_mode": ViewMode.OUTLINE_COLORFUL, "show_points": True}, id="colorful_points"
-        ),
-        pytest.param(
-            {"view_mode": ViewMode.OUTLINE, "show_pen_up": True}, id="outline_pen_up"
-        ),
-        pytest.param(
-            {"view_mode": ViewMode.PREVIEW, "show_pen_up": True}, id="preview_pen_up"
-        ),
-        pytest.param(
-            {"view_mode": ViewMode.PREVIEW, "pen_opacity": 0.3}, id="preview_transparent"
-        ),
-        pytest.param({"view_mode": ViewMode.PREVIEW, "pen_width": 4.0}, id="preview_thick"),
-        pytest.param(
-            {"view_mode": ViewMode.OUTLINE, "show_ruler": True, "unit_type": UnitType.PIXELS},
-            id="outline_pixels",
-        ),
-        pytest.param(
-            {"view_mode": ViewMode.OUTLINE, "show_ruler": True, "unit_type": UnitType.METRIC},
-            id="outline_metric",
-        ),
-        pytest.param(
-            {
-                "view_mode": ViewMode.OUTLINE,
-                "show_ruler": True,
-                "unit_type": UnitType.IMPERIAL,
-            },
-            id="outline_imperial",
-        ),
-    ],
-)
+@pytest.mark.parametrize("render_kwargs", RENDER_KWARGS)
 def test_viewer(assert_image_similarity, file, render_kwargs):
     doc = vp.read_multilayer_svg(str(TEST_FILE_DIRECTORY / file), 0.4)
 
     # noinspection PyArgumentList
     assert_image_similarity(render_image(doc, (1024, 1024), **render_kwargs))
+
+
+@pytest.mark.parametrize("render_kwargs", RENDER_KWARGS)
+def test_viewer_empty_layer(render_kwargs):
+    doc = vp.Document()
+    doc.add(vp.LineCollection(), 1)
+    render_image(doc, (1024, 1024))
 
 
 def test_viewer_zoom_scale(assert_image_similarity):
