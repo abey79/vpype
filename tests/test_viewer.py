@@ -111,7 +111,7 @@ def test_viewer(assert_image_similarity, file, render_kwargs):
 def test_viewer_empty_layer(render_kwargs):
     doc = vp.Document()
     doc.add(vp.LineCollection(), 1)
-    render_image(doc, (1024, 1024))
+    render_image(doc, (1024, 1024), **render_kwargs)
 
 
 def test_viewer_zoom_scale(assert_image_similarity):
