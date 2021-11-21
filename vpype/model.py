@@ -117,9 +117,9 @@ class LineCollection:
         Args:
             line (LineLike): line to append
         """
-        if isinstance(line, LineString) or isinstance(line, LinearRing):
+        if isinstance(line, (LineString, LinearRing)):
             # noinspection PyTypeChecker
-            self._lines.append(np.array(line).view(dtype=complex).reshape(-1))
+            self._lines.append(np.array(line.coords).view(dtype=complex).reshape(-1))
         else:
             line = np.array(line, dtype=complex).reshape(-1)
             if len(line) > 1:
@@ -143,8 +143,10 @@ class LineCollection:
         if hasattr(lines, "geom_type") and lines.is_empty:  # type: ignore
             return
 
-        # sometimes, mls end up actually being ls
-        if isinstance(lines, LineString) or isinstance(lines, LinearRing):
+        # handle shapely objects
+        if isinstance(lines, MultiLineString):
+            lines = lines.geoms
+        elif isinstance(lines, (LineString, LinearRing)):
             lines = [lines]
 
         for line in lines:
