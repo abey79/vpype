@@ -16,6 +16,9 @@ Bug fixes:
 * Fixed issue with HPGL export where page size auto-detection would fail when using the default device from the config file (instead of specifying the device with `--device`) (#328)
 * Fixed issue where the viewer would crash with empty layers (#339) 
 
+Other changes:
+* Updated to Shapely 1.8 (transition release toward 2.0) and fixed deprecation warnings (#325, #342)
+
 
 #### 1.7 (2021-06-10)
 
