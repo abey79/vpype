@@ -117,7 +117,7 @@ class LineCollection:
         Args:
             line (LineLike): line to append
         """
-        if hasattr(line, "coords"):  # LineString or LinearRing
+        if isinstance(line, (LineString, LinearRing)):
             # noinspection PyTypeChecker
             self._lines.append(np.array(line.coords).view(dtype=complex).reshape(-1))
         else:
@@ -144,9 +144,9 @@ class LineCollection:
             return
 
         # handle shapely objects
-        if hasattr(lines, "geoms"):  # MultiLineString
+        if isinstance(lines, MultiLineString):
             lines = lines.geoms
-        elif hasattr(lines, "coords"):  # LineString or LinearRing
+        elif isinstance(lines, (LineString, LinearRing)):
             lines = [lines]
 
         for line in lines:
