@@ -852,7 +852,7 @@ test = ["pytest"]
 
 [[package]]
 name = "svgelements"
-version = "1.6.3"
+version = "1.6.4"
 description = "Svg Elements Parsing"
 category = "main"
 optional = false
@@ -954,7 +954,7 @@ docs = ["Sphinx", "sphinx-click", "sphinx-autodoc-typehints", "sphinx-rtd-theme"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7, !=3.9.0, <3.10"
-content-hash = "e8ae0bcd82d657654bcc67e608663ce8cf0daebdc02acb8754ab8569aba6367b"
+content-hash = "fd3a7523881018d5d1657e88bc7ebe9b0b928bd4c51f54201cf36bded4321493"
 
 [metadata.files]
 alabaster = [
@@ -1667,8 +1667,8 @@ sphinxcontrib-serializinghtml = [
     {file = "sphinxcontrib_serializinghtml-1.1.5-py2.py3-none-any.whl", hash = "sha256:352a9a00ae864471d3a7ead8d7d79f5fc0b57e8b3f95e9867eb9eb28999b92fd"},
 ]
 svgelements = [
-    {file = "svgelements-1.6.3-py2.py3-none-any.whl", hash = "sha256:22f942f339dd4cda0a932c06a59aa3d1eadbc2d8a73d8776b1862dfaa4c58e8d"},
-    {file = "svgelements-1.6.3.tar.gz", hash = "sha256:ea0255aa675574da6197541294950e01c05945518a498db7d0e78014c68d2ec4"},
+    {file = "svgelements-1.6.4-py2.py3-none-any.whl", hash = "sha256:22853ca653e9618fef573fcf7c9f8fcdd47295a8354df33967ad3e3a5cca1110"},
+    {file = "svgelements-1.6.4.tar.gz", hash = "sha256:ed02ea1ba0af8265e731675d7e81c077c35c87c82a5e788ffa9ecfa494fdc578"},
 ]
 svgwrite = [
     {file = "svgwrite-1.4.1-py3-none-any.whl", hash = "sha256:4b21652a1d9c543a6bf4f9f2a54146b214519b7540ca60cb99968ad09ef631d0"},
