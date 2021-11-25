@@ -1,6 +1,6 @@
 # Change log
 
-#### 1.8 (UNRELEASED)
+#### 1.8 (2021-11-25)
 
 New features and improvements:
 * Added `lswap` command to swap the content of two layers (#300)
