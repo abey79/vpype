@@ -931,7 +931,7 @@ python-versions = "*"
 
 [[package]]
 name = "types-cachetools"
-version = "4.2.6"
+version = "4.2.7"
 description = "Typing stubs for cachetools"
 category = "dev"
 optional = false
@@ -1803,8 +1803,8 @@ typed-ast = [
     {file = "typed_ast-1.4.3.tar.gz", hash = "sha256:fb1bbeac803adea29cedd70781399c99138358c26d05fcbd23c13016b7f5ec65"},
 ]
 types-cachetools = [
-    {file = "types-cachetools-4.2.6.tar.gz", hash = "sha256:4492f47ab2d95243449bb5474be8956afc33e87a3ae70e43b170f168410c199c"},
-    {file = "types_cachetools-4.2.6-py3-none-any.whl", hash = "sha256:1b562fe589d78fc4ec702996d5c42eecf3fd4e3b5aa9ae1be95a0fc28c390ec7"},
+    {file = "types-cachetools-4.2.7.tar.gz", hash = "sha256:2b1b42d8a888df1d058814bfb75dd21b5762d31b0777fc0d9749f26fe8f90b39"},
+    {file = "types_cachetools-4.2.7-py3-none-any.whl", hash = "sha256:f73dcb26a0c75dc0e037e46580a8ece6c5a391a61523cc7783b04eed2834c7d7"},
 ]
 types-pkg-resources = [
     {file = "types-pkg_resources-0.1.3.tar.gz", hash = "sha256:834a9b8d3dbea343562fd99d5d3359a726f6bf9d3733bccd2b4f3096fbab9dae"},
