@@ -11,6 +11,15 @@ from vpype_cli import DebugData, cli
 
 from .utils import TEST_FILE_DIRECTORY
 
+
+def _write_svg_file(tmp_path, svg) -> str:
+    path = str(tmp_path / "file.svg")
+    with open(path, "w") as fp:
+        fp.write(svg)
+
+    return path
+
+
 TEST_FILES = [
     os.path.join(directory, file)
     for directory, _, filenames in os.walk(TEST_FILE_DIRECTORY)
@@ -95,10 +104,7 @@ def test_read_svg_visibility(svg_content, line_count, tmp_path):
         {svg_content}
 </svg>
 """
-    path = str(tmp_path / "file.svg")
-    with open(path, "w") as fp:
-        fp.write(svg)
-
+    path = _write_svg_file(tmp_path, svg)
     lc, _, _ = vp.read_svg(path, 1.0)
     assert len(lc) == line_count
 
@@ -116,15 +122,14 @@ DEFAULT_HEIGHT = 999
     ],
 )
 def test_read_svg_width_height(params, expected, tmp_path):
-    path = str(tmp_path / "file.svg")
-    with open(path, "w") as fp:
-        fp.write(
-            f"""<?xml version="1.0"?>
+    path = _write_svg_file(
+        tmp_path,
+        f"""<?xml version="1.0"?>
 <svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"
    {params}>
 </svg>
-"""
-        )
+""",
+    )
 
     lc, width, height = vp.read_svg(
         path, quantization=0.1, default_width=DEFAULT_WIDTH, default_height=DEFAULT_HEIGHT
@@ -134,16 +139,15 @@ def test_read_svg_width_height(params, expected, tmp_path):
 
 
 def test_read_with_viewbox(tmp_path):
-    path = str(tmp_path / "file.svg")
-    with open(path, "w") as fp:
-        fp.write(
-            f"""<?xml version="1.0"?>
+    path = _write_svg_file(
+        tmp_path,
+        f"""<?xml version="1.0"?>
     <svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"
        width="100" height="100" viewBox="50 50 10 10">
        <line x1="50" y1="50" x2="60" y2="60" />
     </svg>
-    """
-        )
+    """,
+    )
 
     lc, width, height = vp.read_svg(path, quantization=0.1)
     assert width == 100
