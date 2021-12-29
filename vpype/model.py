@@ -631,7 +631,7 @@ class Document:
         This method replaces the content of layer ``layer_id`` with ``lines``. The layer must
         exist, otherwise a :class:`ValueError` exception is raised.
 
-        The destination layer retains its meta data
+        The destination layer retains its metadata
 
         Args:
             lines: line data to assign to the layer
