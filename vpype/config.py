@@ -14,14 +14,14 @@ HPGL plotter have specific config support::
     PaperConfig(name='a4', paper_size=(1122.5196850393702, 793.7007874015749), ...)
 """
 
+import dataclasses
 import logging
 import math
 import os
 import pathlib
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
-import attr
-import toml
+import tomli
 
 from .utils import convert_length
 
@@ -38,7 +38,7 @@ def _convert_length_pair(data: Sequence[Union[float, str]]) -> Tuple[float, floa
     return convert_length(data[0]), convert_length(data[1])
 
 
-@attr.s(auto_attribs=True, frozen=True)
+@dataclasses.dataclass(frozen=True)
 class PaperConfig:
     """Data class containing configuration for a give plotter type/paper size combinations."""
 
@@ -62,9 +62,9 @@ class PaperConfig:
     final_pu_params: Optional[
         str
     ] = None  #: if not None, these params are added to the final PU command
-    aka_names: List[
-        str
-    ] = []  #: alternative paper names (will be found by :func:`paper_config`
+    aka_names: List[str] = dataclasses.field(
+        default_factory=list
+    )  #: alternative paper names (will be found by :func:`paper_config`
 
     @classmethod
     def from_config(cls, data: Dict[str, Any]) -> "PaperConfig":
@@ -87,7 +87,7 @@ class PaperConfig:
         )
 
 
-@attr.s(auto_attribs=True, frozen=True)
+@dataclasses.dataclass(frozen=True)
 class PlotterConfig:
     """Data class containing configuration for a given plotter type."""
 
@@ -193,7 +193,8 @@ class ConfigManager:
             return d
 
         logging.info(f"loading config file at {path}")
-        self._config = _update(self._config, toml.load(path))
+        with open(path, "rb") as fp:
+            self._config = _update(self._config, tomli.load(fp))
 
     def get_plotter_list(self) -> List[str]:
         """Returns a list of plotter names whose configuration is available.
