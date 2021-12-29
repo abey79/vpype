@@ -13,7 +13,8 @@ from shapely.geometry import MultiLineString
 
 import vpype as vp
 
-__all__ = ("cli", "execute", "begin", "end")
+# Note: BlockProcessor added to the list for the purpose of building the documentation
+__all__ = ("BlockProcessor", "cli", "execute", "begin", "end")
 
 
 class GroupedGroup(click.Group):
