@@ -78,6 +78,14 @@ CLI reference
 .. _cmd_lmove:
 .. click:: vpype_cli:lmove
    :prog: lmove
+   
+.. _cmd_lreverse:
+.. click:: vpype_cli:lreverse
+   :prog: lreverse
+   
+.. _cmd_lswap:
+.. click:: vpype_cli:lswap
+   :prog: lswap
 
 .. _cmd_multipass:
 .. click:: vpype_cli:multipass
