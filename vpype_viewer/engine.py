@@ -432,7 +432,7 @@ class Engine:
                 lc = self._document.layers[layer_id]
                 if lc.is_empty():
                     continue
-                    
+
                 if "vp:color" in lc.metadata:
                     color = lc.metadata["vp:color"]
                     layer_color = color.red, color.green, color.blue, color.alpha
