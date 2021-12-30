@@ -7,6 +7,7 @@ New features and improvements:
 
 Other changes:
 * Changed dependencies to dataclasses (instead of attrs) and tomli (instead of toml) (#362)
+* Various documentation improvements (#363)
 
 
 #### 1.8 (2021-11-25)
