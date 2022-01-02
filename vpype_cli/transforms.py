@@ -93,6 +93,9 @@ def scale_relative(
     option, only these layers will be affected. In this case, the bounding box is that of the
     listed layers.
 
+    Note: negative scale factors are possible, but the end-of-options marker `--` must be used
+    to disambiguate the minus sign, which would normally be interpreted as a command option.
+
     Example:
 
         Double the size of the geometries in layer 1, using (0, 0) as origin:
@@ -226,6 +229,9 @@ def rotate(
     By default, act on all layers. If one or more layer IDs are provided with the `--layer`
     option, only these layers will be affected. In this case, the bounding box is that of the
     listed layers.
+
+    Note: negative angles are possible, but the end-of-options marker `--` must be used
+    to disambiguate the minus sign, which would normally be interpreted as a command option.
     """
 
     try:
@@ -275,6 +281,9 @@ def skew(
 
     The origin used in the bounding box center, unless the `--centroid` or `--origin` options
     are used.
+
+    Note: negative angles are possible, but the end-of-options marker `--` must be used
+    to disambiguate the minus sign, which would normally be interpreted as a command option.
     """
 
     try:
