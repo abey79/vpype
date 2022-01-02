@@ -85,7 +85,7 @@ class GroupedGroup(click.Group):
     "-H",
     "--history",
     is_flag=True,
-    help="Record this command in a `vpype_history.txt` in the current directory.",
+    help="Record this command in a `vpype_history.txt` file in the current directory.",
 )
 @click.option("-s", "--seed", type=int, help="Specify the RNG seed.")
 @click.option(
@@ -93,7 +93,43 @@ class GroupedGroup(click.Group):
 )
 @click.pass_context
 def cli(ctx, verbose, include, history, seed, config):
-    """Execute the vector processing pipeline passed as argument."""
+    """Execute the sequence of commands passed in argument.
+
+    The available commands are listed below. Information on each command may be obtained using:
+
+        vpype COMMAND --help
+
+    Some of vpype's commands or plug-ins may rely on a random number generator (RNG). By
+    default, vpype's RNG is seeded with the current time, such as to produce
+    pseudo-random behaviour. The seed can instead be set to a specific value (using
+    the `--seed` option) when reproducible behaviour is needed. For example, the following
+    always yields the exact same result:
+
+        vpype -s 0 random show
+
+    Include files (commonly named with the `.vpy` extension) can be used instead passing
+    commands in the command line, e.g.:
+
+        vpype read input.svg -I my_post_processing.vpy write.output.svg
+
+    Some commands and plug-in can be customized via a TOML configuration file. If a file named
+    `.vpype.toml` exists at the root of the user directory, vpype will automatically load it.
+    Alternatively, a custom configuration file may be loaded with the `--config` option, e.g.:
+
+        vpype -c my_plotter_config.toml read input.svg write -d my_plotter output.hpgl
+
+    When using the `--history` option, vpype will append its invocation (i.e. the full command
+    line) in a `vpype_history.txt` file in the current directory (creating it if necessary).
+    This may be useful to easily keep a trace of how project might have been created or
+    post-processed with vpype.
+
+    By default, vpype verbosity is low. It may be increased by using the `-v` option once or
+    twice to increase verbosity to info, respectively debug level, e.g.:
+
+        vpype -vv [...]
+
+    Refer to the documentation at https://vpype.readthedocs.io/ for more information.
+    """
 
     logging.basicConfig()
     if verbose == 0:

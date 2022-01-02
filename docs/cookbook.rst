@@ -125,6 +125,40 @@ removed thanks to the :ref:`cmd_filter` command::
   $ vpype read input.svg filter --min-length 0.5mm write output.svg
 
 
+.. _faq_custom_config_file:
+
+Creating a custom configuration file
+====================================
+
+Some of *vpype*'s features (such as HPGL export) or plug-in (such as `vpype-gcode <https://github.com/plottertools/vpype-gcode>`_) can be customized using a configuration file using the `TOML <https://toml.io/en/>`_ format. The documentation of the features or plug-in using such a configuration file explains what it should contain. This section focuses on how a custom config file is made available to *vpype*.
+
+The most common way is to create a `.vpype.toml` file at the root of your user directory, e.g.:
+
+- ``C:\Users\username\.vpype.toml`` on Windows
+- ``/Users/username/.vpype.toml`` on Mac
+- ``/home/username/.vpype.toml`` on Linux
+
+If such a file exists, it will be automatically loaded by *vpype* whenever it is used.
+
+.. note::
+
+   The ``.`` prefix in the file name will make the file **hidden** on most systems. This naming is typical for configuration files in the Unix world.
+
+
+Alternatively, a configuration file may be provided upon invocation of *vpype* using the ``--confg`` option (or ``-c`` for short), e.g.::
+
+  (vpype_venv) $ vpype --config my_config_file.toml [...]
+
+Note that *vpype* does not "remember" of such configuration file and the ``--config`` option and it must be specified on each invocation.
+
+.. note::
+
+   *vpype* is bundled with a `configuration file <https://github.com/abey79/vpype/blob/master/vpype/hpgl_devices.toml>`_. It is strongly discouraged to edit this file as it will be overwritten each time *vpype* is installed or updated.
+
+
+
+
+
 Converting a SVG to HPGL
 ========================
 
@@ -155,8 +189,8 @@ Defining a default HPGL plotter device
 ======================================
 
 If you are using the same type of plotter regularly, it may be cumbersome to systematically add the :option:`--device
-<write --device>` option to the :ref:`cmd_write` command. The default device can be set in the ``~/.vpype.toml``
-configuration file by adding the following section:
+<write --device>` option to the :ref:`cmd_write` command. The default device can be set in a configuration file (see
+:ref:`faq_custom_config_file`) by adding the following section:
 
   .. code-block:: toml
 
@@ -169,12 +203,9 @@ configuration file by adding the following section:
 Creating a custom configuration file for a HPGL plotter
 =======================================================
 
-The configuration for a number of HPGL plotter is bundled with vpype (run ``vpype write --help`` for a list). If your
-plotter is not included, it is possible to define your own plotter configuration either in `~/.vpype.toml` or any other
-file. In the latter case, you must instruct vpype to load the configuration using the :option:`--config <vpype
---config>` global option::
-
-  $ vpype --config my_config_file.toml read input.svg [...] write --device my_plotter --page-size a4 output.hpgl
+The configuration for a number of HPGL plotter is bundled with *vpype* (run ``vpype write --help`` for a list). If your
+plotter is not included, it is possible to define your own plotter configuration in a custom configuration file
+(see :ref:`faq_custom_config_file`).
 
 The configuration file must first include a plotter section with the following format:
 
@@ -258,7 +289,7 @@ Using arbitrary paper size with HPGL output
 ===========================================
 
 Some plotters such as the Calcomp Designmate support arbitrary paper sizes. Exporting HPGL with arbitrary paper size
-requires a specific paper configuration. vpype ships with the ``flex`` and ``flexl`` configurations for the
+requires a specific paper configuration. *vpype* ships with the ``flex`` and ``flexl`` configurations for the
 Designmate, which can serve as examples to create configurations for other plotters.
 
 For arbitrary paper size, the paper configuration must omit the ``paper_size`` parameter and specify a value for
@@ -292,7 +323,7 @@ Batch processing many SVG with bash scripts and ``parallel``
 ============================================================
 
 Computers offer endless avenues for automation, which depend on OS and the type of task at hand. Here is one way to
-easily process a large number of SVG with the same vpype pipeline. This approach relies on the
+easily process a large number of SVG with the same *vpype* pipeline. This approach relies on the
 `GNU Parallel <https://www.gnu.org/software/parallel/>`_ software and is best suited to Unix/Linux/macOS computers.
 Thanks to ``parallel``, this approach takes advantage of all available processing cores.
 
