@@ -6,40 +6,127 @@ Installation
 
 This page explain how to install *vpype* for end-users. If you intend to develop on *vpype*, refer to the the :ref:`contributing` section.
 
+.. caution::
 
-macOS
-=====
+    *vpype* is currently **not compatible with Python 3.10**. The recommended version is Python 3.9.9 (or later in the 3.9 series). *vpype* is
+    also compatible with Python 3.8 and 3.7.
+
+.. note::
+
+   The preferred way to install *vpype* is in a dedicated `virtual environment <https://docs.python.org/3/tutorial/venv.html>`_. The present installation instructions always include this step.
+
+
+macOS (Apple Silicon/M1)
+========================
 
 .. highlight:: bash
 
-While macOS ships with a version of Python, this has been deprecated by Apple and may change in future version. Instead, you should install Python (3.9.1 or newer recommended, 3.6 minimum), either from `MacPorts <https://www.macports.org>`_ or from `Homebrew <https://brew.sh>`_. For macOS Big Sur, Python 3.9.1 or newer is required.
+Installing *vpype* on Macs with Apple Silicon is possible but requires specific steps because some its dependencies are not yet fully supported on this architecture. As a result, the Python interpreter *must* be installed from `MacPorts <https://www.macports.org>`_.
 
-Use the following commands for Homebrew::
+After `installing MacPorts <https://www.macports.org/install.php>`_, make sure its port database is up-to-date::
 
-  $ brew install python@3.9
+  $ sudo port selfupdate
+  $ sudo port upgrade outdated
 
-And for MacPorts::
+Then, install the required ports::
 
-  $ sudo port install python39
+  $ sudo port install python39 py39-shapely py39-scipy py39-numpy py39-pyside2
 
-Then, the preferred way to install *vpype* is in a dedicated `virtual environment <https://docs.python.org/3/tutorial/venv.html>`_. Follow these steps to do so::
+Optionally, you may make Python 3.9 the default interpreter::
 
-  $ python3 -m venv vpype_venv      # create a new virtual environment
-  $ source vpype_venv/bin/activate  # activate the newly created virtual environment
-  $ pip install --upgrade pip
-  $ pip install 'vpype[all]'
+  $ sudo port select --set python python39
 
-You should now be able to run *vpype*::
+Then, create the virtual environment::
 
-  $ vpype --help
+  $ /opt/local/bin/python3.9 -m venv vpype_venv --system-site-packages
 
-Each time a new terminal window is opened, the virtual environment must be activated using::
+A virtual environment named ``vpype_venv`` will be created in the current directory. There are two import points to note in the command above.
+First, we use a full path (``/opt/local/bin/python3.9``) to ascertain that the virtual environment will use the right Python interpreter (i.e. MacPorts'). Second, we allow the virtual environment to use the global environment's packages (``--system-site-packages``). This is important because *vpype* needs MacPorts' version of PySide2 (``pip`` is unable to install PySide2 on Apple Silicon hardware).
+
+Now that the virtual environment is created, it may be activated::
 
   $ source vpype_venv/bin/activate
 
-Alternatively, *vpype* can be executed using the full path to the executable::
+Finally, *vpype* may be installed (note the prompt now reflecting the activated virtual environment)::
+
+  (vpype_venv) $ pip install "vpype[all]"
+
+You can test that *vpype* is fully functional by checking its version and displaying some random lines::
+
+  (vpype_venv) $ vpype --version
+  vpype 1.8.0
+  (vpype_venv) $ vpype random show
+
+Since *vpype* is installed within a virtual environment, it must be activated each time a new terminal window is opened::
+
+  $ source vpype_venv/bin/activate
+
+Alternatively, *vpype* can be executed without activating the virtual environment by using the full path to the executable::
 
   $ /path/to/vpype_venv/bin/vpype --help
+
+
+macOS (Intel)
+=============
+
+The instructions above also apply but, since dependencies have better support for Intel-based Macs, some steps may be simplified.
+
+Firstly, the `official Python distribution <https://www.python.org/downloads/>`_ may be used instead of MacPorts' (again, install Python 3.9 and avoid Python 3.10 as *vpype* is not yet compatible). Secondly, ``pip`` will successfully install all dependencies so using system packages is not required.
+
+Using MacPorts
+--------------
+
+After `installing MacPorts <https://www.macports.org/install.php>`_, make sure its port database is up-to-date::
+
+  $ sudo port selfupdate
+  $ sudo port upgrade outdated
+
+Then, install the required ports::
+
+  $ sudo port install python39
+
+Optionally, you may make Python 3.9 the default interpreter::
+
+  $ sudo port select --set python python39
+
+Create the virtual environment using the full path to the python interpreter::
+
+  $ /opt/local/bin/python3.9 -m venv vpype_venv
+
+
+Using the official Python distribution
+--------------------------------------
+
+After running the Python installer, the virtual environment can readily be created::
+
+  $ /Library/Frameworks/Python.framework/Versions/3.9/bin/python3 -m venv vpype_venv
+
+
+Activating the virtual environment and installing *vpype*
+---------------------------------------------------------
+
+Activate the virtual environment::
+
+  $ source vpype_venv/bin/activate
+
+Install *vpype* (note the prompt now reflecting the activated virtual environment)::
+
+  (vpype_venv) $ pip install "vpype[all]"
+
+You can test that *vpype* is fully functional by checking its version and displaying some random lines::
+
+  (vpype_venv) $ vpype --version
+  vpype 1.8.0
+  (vpype_venv) $ vpype random show
+
+Since *vpype* is installed within a virtual environment, it must be activated each time a new terminal window is opened::
+
+  $ source vpype_venv/bin/activate
+
+Alternatively, *vpype* can be executed without activating the virtual environment by using the full path to the executable::
+
+  $ /path/to/vpype_venv/bin/vpype --help
+
 
 
 Windows
@@ -47,24 +134,11 @@ Windows
 
 .. highlight:: bat
 
-A Windows installer is available `here <https://github.com/abey79/vpype/releases>`__. Although this installation method is easier, it does not allow plug-ins to be installed. If plug-ins are required, a manual installation is recommended.
+A Windows installer is `available here <https://github.com/abey79/vpype/releases>`__. Although this installation method is easier, it does not allow plug-ins to be installed. If plug-ins are required, a manual installation is recommended.
 
-First, Python must be installed. Python 3.9 is recommended, although it is also compatible with Python 3.6 and later. The official Python distribution for Windows can be downloaded `here <https://www.python.org/downloads/>`__.
+First, Python must be installed. Python 3.9 is recommended, although it is also compatible with Python 3.7 and later. The official Python distribution for Windows can be `downloaded here <https://www.python.org/downloads/>`__.
 
-After installing Python, launch a terminal (by typing ``cmd`` in the Start menu) and enter the following command to install *vpype*::
-
-  > pip install vpype[all]
-
-You should then be able to run *vpype*::
-
-  > vpype --help
-
-Installing in a virtual environment
------------------------------------
-
-`Virtual environment <https://docs.python.org/3/tutorial/venv.html>`_ are used to isolate the dependencies of one project from the the rest of your Python installation. Unless your Python installation is essentially dedicated to *vpype*, installing it in a virtual environment rather than in the global scope is preferable to avoid interferences.
-
-To create a virtual environment for your *vpype* installation, launch the ``cmd`` terminal and enter the following commands::
+First, create a virtual environment for your *vpype* installation, launch the ``cmd`` terminal and enter the following commands::
 
   > python -m venv vpype_venv
 
@@ -74,15 +148,17 @@ This will create a ``vpype_venv`` directory which will contain everything needed
 
 You will need to activate your virtual environment each time you launch a new  terminal. With your virtual environment activated, type the following command to install *vpype*::
 
-  > pip install vpype[all]
+  (vpype_venv) > pip install vpype[all]
+
+Note how the prompt now reflect the fact that the ``vpype_venv`` virtual environment is currently active.
 
 You should now be able to use *vpype*. Type this for a list of command::
 
-  > vpype --help
+  (vpype_venv) > vpype --help
 
 This command should open a window showing a circle::
 
-  > vpype circle 0 0 10cm show
+  (vpype_venv) > vpype circle 0 0 10cm show
 
 If you can see it, your installation is up and running!
 
@@ -92,7 +168,7 @@ Linux
 
 .. highlight:: bash
 
-*vpype* requires Python 3.6 or later. On Debian/ubuntu flavored installation, installing Python is a matter of::
+First, you must ensure that a Python interpreter with compatible version (3.7 to 3.9) is installed on your system. This is best done using your system's package manager. On Debian/ubuntu flavored installation, this is typically done as follows::
 
   $ sudo apt-get install python3 python3-pip
 
@@ -100,8 +176,8 @@ The preferred way to install *vpype* is in a dedicated `virtual environment <htt
 
   $ python3 -m venv vpype_venv      # create a new virtual environment
   $ source vpype_venv/bin/activate  # activate the newly created virtual environment
-  $ pip install --upgrade pip
-  $ pip install 'vpype[all]'
+  (vpype_venv) $ pip install --upgrade pip
+  (vpype_venv) $ pip install 'vpype[all]'
 
 You should now be able to run *vpype*::
 
@@ -136,8 +212,8 @@ Then, create a virtual environment with access to the globally installed package
 Finally, activate the virtual environment, install, and run *vpype*::
 
   $ source vpype_venv/bin/activate
-  $ pip install vpype
-  $ vpype --help
+  (vpype_venv) $ pip install vpype
+  (vpype_venv) $ vpype --help
 
 
 CLI-only install

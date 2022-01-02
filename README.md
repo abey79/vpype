@@ -132,25 +132,21 @@ set, but makes its use for, e.g., printed media limited.
  
 ## Installation
 
-For Windows, an installer is available [here](https://github.com/abey79/vpype/releases) (note: plug-ins cannot be installed
+Detailed installation instructions are available in the [latest documentation](https://vpype.readthedocs.io/en/latest/install.html).
+
+TL;DR:
+- Python 3.9 is recommended, but *vpype* is also compatible with Python 3.7 and 3.8. *vpype* is **not** compatible with Python 3.10 yet. 
+- *vpype* is published on the [Python Package Index](https://pypi.org) and can be installed with the following command (preferably in a virtual environment):
+  ```bash
+  pip install "vpype[all]"
+  ```
+- A Windows installer is available [here](https://github.com/abey79/vpype/releases) (plug-ins cannot be installed
 when using this installation method).
-
-For other platforms, and when plug-ins are required, *vpype* can be installed from the [Python Package Index](https://pypi.org)
-using the following command:
-
-```bash
-pip install vpype[all]
-```
-
-**Note**: a CLI-only version of *vpype* can be installed using `pip install vpype`. This version does not include the [`show`](https://vpype.readthedocs.io/en/stable/reference.html#show) command and skips the related dependencies (notably matplotlib, PySide2, and ModernGL). 
-
-Python must previously be installed. Python version 3.9.1 or later is recommended to use *vpype*, although it is also compatible with Python 3.6 and later.
-
-For Linux, install Python with your OS's default package manager. For macOS, Python is best installed from either
-[MacPorts](https://www.macports.org) or [Homebrew](https://brew.sh). For Windows, use the
-[official installer](https://www.python.org/downloads/).
-
-Check [the documentation](https://vpype.readthedocs.io/en/stable/install.html) for more details, in particular on how to use a virtual environment (recommended).
+- A CLI-only version of *vpype* can be installed using the following command:
+  ```bash
+  pip install vpype
+  ```
+  This version does not include the [`show`](https://vpype.readthedocs.io/en/stable/reference.html#show) command but does not require some of the dependencies which are more difficult or impossible to install on some platforms (such as matplotlib, PySide2, and ModernGL).
 
 
 ## Documentation

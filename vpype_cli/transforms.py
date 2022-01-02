@@ -41,6 +41,20 @@ def translate(lc: vp.LineCollection, offset: Tuple[float, float]):
     """
     Translate the geometries. X and Y offsets must be provided. These arguments understand
     supported units.
+
+    Note: negative offsets are possible, but the end-of-options marker `--` must be used to
+    disambiguate the minus sign, which would normally be interpreted as a command option (see
+    example below).
+
+    Examples:
+
+        Translate layer 2 by 2cm rightward and 3cm downward:
+
+            vpype [...] translate -l 2 2cm 3cm [...]
+
+        The end-of-options marker must be used for negative lateral offsets:
+
+            vpype [...] translate -- -2cm 3cm [...]
     """
     lc.translate(offset[0], offset[1])
     return lc
@@ -78,6 +92,9 @@ def scale_relative(
     By default, act on all layers. If one or more layer IDs are provided with the `--layer`
     option, only these layers will be affected. In this case, the bounding box is that of the
     listed layers.
+
+    Note: negative scale factors are possible, but the end-of-options marker `--` must be used
+    to disambiguate the minus sign, which would normally be interpreted as a command option.
 
     Example:
 
@@ -212,6 +229,9 @@ def rotate(
     By default, act on all layers. If one or more layer IDs are provided with the `--layer`
     option, only these layers will be affected. In this case, the bounding box is that of the
     listed layers.
+
+    Note: negative angles are possible, but the end-of-options marker `--` must be used
+    to disambiguate the minus sign, which would normally be interpreted as a command option.
     """
 
     try:
@@ -261,6 +281,9 @@ def skew(
 
     The origin used in the bounding box center, unless the `--centroid` or `--origin` options
     are used.
+
+    Note: negative angles are possible, but the end-of-options marker `--` must be used
+    to disambiguate the minus sign, which would normally be interpreted as a command option.
     """
 
     try:
