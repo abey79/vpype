@@ -547,6 +547,11 @@ class Document:
             else:
                 self.page_size = page_size
 
+    def clear_metadata(self) -> None:
+        """Clear all metadata from the document."""
+        for layer in self._layers.values():
+            layer.metadata = {}
+
     def ids(self) -> Iterable[int]:
         """Returns the list of layer IDs"""
         return self._layers.keys()

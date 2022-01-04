@@ -6,7 +6,7 @@ import vpype as vp
 
 from .cli import cli
 
-__all__ = ("metadata", "penwidth", "color", "name", "pens")
+__all__ = ("metadata", "penwidth", "color", "name", "pens", "clearprops")
 
 
 _STR_TO_TYPE = {
@@ -162,3 +162,12 @@ def pens(document: vp.Document, pen_config: str) -> vp.Document:
             )
 
     return document
+
+
+@cli.command(group="Metadata")
+@vp.layer_processor
+def clearprops(lc: vp.LineCollection) -> vp.LineCollection:
+    """Remove all metadata properties."""
+
+    lc.metadata = {}
+    return lc

@@ -23,6 +23,10 @@ CLI reference
 .. click:: vpype_cli:circle
    :prog: circle
 
+.. _cmd_clearprops:
+.. click:: vpype_cli:clearprops
+   :prog: clearprops
+
 .. _cmd_color:
 .. click:: vpype_cli:color
    :prog: color

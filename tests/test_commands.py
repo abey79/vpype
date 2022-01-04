@@ -72,6 +72,7 @@ MINIMAL_COMMANDS = [
     Command("metadata vp:name my_name", preserves_metadata=False),
     Command("color red", preserves_metadata=False),
     Command("name my_name", preserves_metadata=False),
+    Command("clearprops", preserves_metadata=False),
 ]
 
 # noinspection SpellCheckingInspection
