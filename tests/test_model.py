@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 from shapely.geometry import LinearRing, LineString, MultiLineString, Point
 
+import vpype as vp
 from vpype import Document, LineCollection
 
 from .utils import line_collection_contains
@@ -169,25 +170,25 @@ def test_line_collection_property():
 def test_line_collection_set_property():
     lc = LineCollection()
 
-    lc.set_property("vp:pen_width", 0.1)
-    assert lc.metadata["vp:pen_width"] == 0.1
+    lc.set_property(vp.METADATA_FIELD_PEN_WIDTH, 0.1)
+    assert lc.metadata[vp.METADATA_FIELD_PEN_WIDTH] == 0.1
 
-    lc.set_property("vp:pen_width", "0.2")
-    assert lc.metadata["vp:pen_width"] == 0.2
+    lc.set_property(vp.METADATA_FIELD_PEN_WIDTH, "0.2")
+    assert lc.metadata[vp.METADATA_FIELD_PEN_WIDTH] == 0.2
 
     with pytest.raises(ValueError):
-        lc.set_property("vp:pen_width", "should fail")
+        lc.set_property(vp.METADATA_FIELD_PEN_WIDTH, "should fail")
 
 
 def test_document_replace():
     doc = Document()
     doc.add([(0, 10 + 10j)], 1)
-    doc.layers[1].set_property("vp:name", "test value")
+    doc.layers[1].set_property(vp.METADATA_FIELD_NAME, "test value")
 
     doc.replace([(10, 100j)], 1)
 
     assert np.all(doc.layers[1][0] == np.array([10, 100j]))
-    assert doc.layers[1].metadata == {"vp:name": "test value"}
+    assert doc.layers[1].metadata == {vp.METADATA_FIELD_NAME: "test value"}
 
 
 def test_document_replace_bad_layer_id():
@@ -200,15 +201,15 @@ def test_document_swap_content():
     doc = Document()
     doc.add([(0, 1)], 1)
     doc.add([(0, 10)], 2)
-    doc.layers[1].set_property("vp:name", "hello")
-    doc.layers[2].set_property("vp:pen_width", 0.15)
+    doc.layers[1].set_property(vp.METADATA_FIELD_NAME, "hello")
+    doc.layers[2].set_property(vp.METADATA_FIELD_PEN_WIDTH, 0.15)
 
     doc.swap_content(1, 2)
 
     assert np.all(doc.layers[1][0] == np.array([0, 10]))
     assert np.all(doc.layers[2][0] == np.array([0, 1]))
-    assert doc.layers[1].metadata == {"vp:name": "hello"}
-    assert doc.layers[2].metadata == {"vp:pen_width": 0.15}
+    assert doc.layers[1].metadata == {vp.METADATA_FIELD_NAME: "hello"}
+    assert doc.layers[2].metadata == {vp.METADATA_FIELD_PEN_WIDTH: 0.15}
 
 
 def test_document_swap_content_bad_layer_id():

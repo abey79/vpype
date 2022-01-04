@@ -56,7 +56,7 @@ def penwidth(layer: vp.LineCollection, pen_width: float) -> vp.LineCollection:
 
             $ vpype [...] penwidth --layer 2 0.15mm [...]
     """
-    layer.set_property("vp:pen_width", pen_width)
+    layer.set_property(vp.METADATA_FIELD_PEN_WIDTH, pen_width)
     return layer
 
 
@@ -83,7 +83,7 @@ def color(layer: vp.LineCollection, color: str) -> vp.LineCollection:
             $ vpype [...] color --layer 2 #0f0 [...]
     """
 
-    layer.set_property("vp:color", vp.Color(color))
+    layer.set_property(vp.METADATA_FIELD_COLOR, vp.Color(color))
     return layer
 
 
@@ -104,7 +104,7 @@ def name(layer: vp.LineCollection, name: str) -> vp.LineCollection:
             $ vpype [...] name --layer 4 black [...]
     """
 
-    layer.set_property("vp:name", name)
+    layer.set_property(vp.METADATA_FIELD_NAME, name)
     return layer
 
 
@@ -153,12 +153,12 @@ def pens(document: vp.Document, pen_config: str) -> vp.Document:
         lid = layer_data["layer_id"]
         document.add([], lid)
         if "name" in layer_data:
-            document.layers[lid].set_property("vp:name", layer_data["name"])
+            document.layers[lid].set_property(vp.METADATA_FIELD_NAME, layer_data["name"])
         if "color" in layer_data:
-            document.layers[lid].set_property("vp:color", layer_data["color"])
+            document.layers[lid].set_property(vp.METADATA_FIELD_COLOR, layer_data["color"])
         if "pen_width" in layer_data:
             document.layers[lid].set_property(
-                "vp:pen_width", vp.convert_length(layer_data["pen_width"])
+                vp.METADATA_FIELD_PEN_WIDTH, vp.convert_length(layer_data["pen_width"])
             )
 
     return document

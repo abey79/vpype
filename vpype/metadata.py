@@ -54,10 +54,14 @@ class Color:
         return self.red / 255, self.green / 255, self.blue / 255, self.alpha / 255
 
 
+METADATA_FIELD_NAME = "vp:name"
+METADATA_FIELD_COLOR = "vp:color"
+METADATA_FIELD_PEN_WIDTH = "vp:pen_width"
+
 METADATA_SYSTEM_FIELD_TYPES = {
-    "vp:name": str,
-    "vp:color": Color,
-    "vp:pen_width": float,
+    METADATA_FIELD_NAME: str,
+    METADATA_FIELD_COLOR: Color,
+    METADATA_FIELD_PEN_WIDTH: float,
 }
 
 # noinspection HttpUrlsUsage

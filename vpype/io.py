@@ -16,7 +16,12 @@ from shapely.geometry import LineString
 from svgwrite.extensions import Inkscape
 
 from .config import PaperConfig, PlotterConfig, config_manager
-from .metadata import METADATA_SVG_NAMESPACES, Color
+from .metadata import (
+    METADATA_FIELD_COLOR,
+    METADATA_FIELD_PEN_WIDTH,
+    METADATA_SVG_NAMESPACES,
+    Color,
+)
 from .model import Document, LineCollection
 from .utils import UNITS
 
@@ -171,8 +176,8 @@ def _extract_metadata_from_element(elem: svgelements.Shape) -> Dict[str, Any]:
 
     # system metadata
     metadata: Dict[str, Any] = {
-        "vp:color": Color(elem.stroke),
-        "vp:pen_width": elem.stroke_width,
+        METADATA_FIELD_COLOR: Color(elem.stroke),
+        METADATA_FIELD_PEN_WIDTH: elem.stroke_width,
     }
 
     # white-listed root SVG properties

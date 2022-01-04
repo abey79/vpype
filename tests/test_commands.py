@@ -161,16 +161,16 @@ def test_command_must_preserve_metadata(cmd):
     doc.add([], 1)
     doc.add([], 2)
 
-    doc.layers[1].set_property("vp:name", "test_name")
-    doc.layers[2].set_property("vp:pen_width", 0.15)
+    doc.layers[1].set_property(vp.METADATA_FIELD_NAME, "test_name")
+    doc.layers[2].set_property(vp.METADATA_FIELD_PEN_WIDTH, 0.15)
 
     new_doc = execute(
         "line -l1 0 0 10 10 name -l1 hello line -l2 20 20 30 30 penwidth -l2 0.15 "
         + cmd.command
     )
 
-    assert new_doc.layers[1].metadata == {"vp:name": "hello"}
-    assert new_doc.layers[2].metadata == {"vp:pen_width": 0.15}
+    assert new_doc.layers[1].metadata == {vp.METADATA_FIELD_NAME: "hello"}
+    assert new_doc.layers[2].metadata == {vp.METADATA_FIELD_PEN_WIDTH: 0.15}
 
 
 def test_frame(runner):

@@ -433,8 +433,8 @@ class Engine:
                 if lc.is_empty():
                     continue
 
-                if "vp:color" in lc.metadata:
-                    color = lc.metadata["vp:color"]
+                if vp.METADATA_FIELD_COLOR in lc.metadata:
+                    color = lc.metadata[vp.METADATA_FIELD_COLOR]
                     layer_color = color.as_floats()
 
                 if self.view_mode == ViewMode.OUTLINE:
