@@ -45,7 +45,7 @@ class Color:
         if svgc is not None:
             red, green, blue, alpha = svgc.red, svgc.green, svgc.blue, svgc.alpha
 
-        object.__setattr__(self, "red", int(red or 0))
+        object.__setattr__(self, "red", int(red or 0))  # type: ignore
         object.__setattr__(self, "green", int(green or 0))
         object.__setattr__(self, "blue", int(blue or 0))
         object.__setattr__(self, "alpha", int(alpha or 255))
