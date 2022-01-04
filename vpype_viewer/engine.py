@@ -69,7 +69,7 @@ class Engine:
             show_pen_up: render pen-up trajectories if True
             show_points: render points if True
             show_rulers: display the rulers
-            pen_width: pen width (preview only)
+            default_pen_width: pen width (preview only)
             pen_opacity: pen opacity (preview only)
             render_cb: callback that will be called when rendering is required
         """
@@ -435,7 +435,7 @@ class Engine:
 
                 if "vp:color" in lc.metadata:
                     color = lc.metadata["vp:color"]
-                    layer_color = color.red, color.green, color.blue, color.alpha
+                    layer_color = color.as_floats()
 
                 if self.view_mode == ViewMode.OUTLINE:
                     self._layer_painters[layer_id].append(

@@ -155,11 +155,8 @@ def stat(document: Document):
         )
         print(f"  Bounds: {layer.bounds()}")
         print("  Metadata:")
-        if layer.metadata:
-            for key, value in layer.metadata.items():
-                print(f"    {key}: {value!r}")
-        else:
-            print(f"    n/a")
+        for key, value in layer.metadata.items():
+            print(f"    {key}: {value!r}")
     print(f"Totals")
     print(f"  Layer count: {len(document.layers)}")
     print(f"  Length: {length_tot}")

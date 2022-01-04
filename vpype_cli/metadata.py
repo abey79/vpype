@@ -1,7 +1,6 @@
 from typing import Optional
 
 import click
-import svgelements
 
 import vpype as vp
 
@@ -84,7 +83,7 @@ def color(layer: vp.LineCollection, color: str) -> vp.LineCollection:
             $ vpype [...] color --layer 2 #0f0 [...]
     """
 
-    layer.set_property("vp:color", svgelements.Color(color))
+    layer.set_property("vp:color", vp.Color(color))
     return layer
 
 

@@ -6,10 +6,10 @@ from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tupl
 
 import numpy as np
 from shapely.geometry import LinearRing, LineString, MultiLineString
-from svgelements import svgelements
 
 from .geometry import crop, reloop
 from .line_index import LineIndex
+from .metadata import METADATA_SYSTEM_FIELD_TYPES
 
 # REMINDER: anything added here must be added to docs/api.rst
 __all__ = [
@@ -34,13 +34,6 @@ LineCollectionLike = Union[
 def as_vector(a: np.ndarray):
     """Return a view of a complex line array that behaves as an Nx2 real array"""
     return a.view(dtype=float).reshape(len(a), 2)
-
-
-METADATA_SYSTEM_FIELD_TYPES = {
-    "vp:name": str,
-    "vp:color": svgelements.Color,
-    "vp:pen_width": float,
-}
 
 
 # noinspection PyShadowingNames

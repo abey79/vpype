@@ -7,6 +7,7 @@ from .geometry import *
 from .io import *
 from .layers import *
 from .line_index import *
+from .metadata import *
 from .model import *
 from .primitives import *
 from .text import *
