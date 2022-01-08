@@ -9,7 +9,7 @@ from shapely.geometry import LinearRing, LineString, MultiLineString
 
 from .geometry import crop, reloop
 from .line_index import LineIndex
-from .metadata import METADATA_SYSTEM_FIELD_TYPES
+from .metadata import METADATA_FIELD_PAGE_SIZE, METADATA_SYSTEM_FIELD_TYPES
 
 # REMINDER: anything added here must be added to docs/api.rst
 __all__ = [
@@ -36,8 +36,63 @@ def as_vector(a: np.ndarray):
     return a.view(dtype=float).reshape(len(a), 2)
 
 
+class _MetadataMixin:
+    def __init__(self, metadata: Optional[Dict[str, Any]] = None):
+        self._metadata: Dict[str, Any] = metadata or {}
+
+    @property
+    def metadata(self):
+        """Returns the collection's metadata.
+
+        Returns:
+            metadata
+        """
+        return self._metadata
+
+    @metadata.setter
+    def metadata(self, metadata: Dict[str, Any]) -> None:
+        """Sets the metadata structure."""
+        self._metadata = metadata
+
+    def property_exists(self, prop: str) -> bool:
+        """Check if a given property is set.
+
+        Args:
+            prop: the property whose existence to check
+        """
+        return prop in self._metadata
+
+    def property(self, prop: str) -> Optional[Any]:
+        """Returns the value of a metadata property or None if it does not exist.
+
+        Args:
+            prop: the property to read
+        """
+        return self._metadata.get(prop, None)
+
+    def set_property(self, prop: str, value: Optional[Any]) -> None:
+        """Sets the value of a metadata property. For system properties, this function casts
+        the value to the proper type and throw an exception if this fails. If the value is
+        None, the property is removed.
+
+        Args:
+            prop: property to set
+            value: value to assign
+        """
+        if value is None:
+            self._metadata.pop(prop, None)
+        else:
+            if prop in METADATA_SYSTEM_FIELD_TYPES:
+                value = METADATA_SYSTEM_FIELD_TYPES[prop](value)
+            self._metadata[prop] = value
+
+    def clear_metadata(self) -> None:
+        """Remove all properties."""
+        self._metadata = {}
+
+
 # noinspection PyShadowingNames
-class LineCollection:
+class LineCollection(_MetadataMixin):
     """
     :py:class:`LineCollection` encapsulate a list of piecewise linear lines (or paths). Lines
     are implemented as 1D numpy arrays of complex numbers whose real and imaginary parts
@@ -98,9 +153,9 @@ class LineCollection:
             lines (LineCollectionLike): iterable of line (accepts the same input as
                 :func:`~LineCollection.append`).
         """
-        self._lines: List[np.ndarray] = []
-        self._metadata: Dict[str, Any] = metadata or {}
+        super().__init__(metadata)
 
+        self._lines: List[np.ndarray] = []
         self.extend(lines)
 
     @property
@@ -111,20 +166,6 @@ class LineCollection:
             list of line
         """
         return self._lines
-
-    @property
-    def metadata(self):
-        """Returns the collection's metadata.
-
-        Returns:
-            metadata
-        """
-        return self._metadata
-
-    @metadata.setter
-    def metadata(self, metadata: Dict[str, Any]) -> None:
-        """Sets the metadata structure."""
-        self._metadata = metadata
 
     def clone(self, lines: LineCollectionLike = ()) -> "LineCollection":
         """Creates a new :class:`LineCollection` with the same metadata.
@@ -139,26 +180,6 @@ class LineCollection:
             the new :class:`LineCollection` instance
         """
         return LineCollection(lines=lines, metadata=self.metadata)
-
-    def property(self, prop: str) -> Optional[Any]:
-        """Returns the value of a metadata property or None if it does not exist.
-
-        Args:
-            prop: the property to read
-        """
-        return self._metadata.get(prop, None)
-
-    def set_property(self, prop: str, value: Any) -> None:
-        """Sets the value of a metadata property. For system properties, this function casts
-        the value to the proper type and throw an exception if this fails.
-
-        Args:
-            prop: property to set
-            value: value to assign
-        """
-        if prop in METADATA_SYSTEM_FIELD_TYPES:
-            value = METADATA_SYSTEM_FIELD_TYPES[prop](value)
-        self._metadata[prop] = value
 
     def append(self, line: LineLike) -> None:
         """Append a single line.
@@ -479,7 +500,7 @@ class LineCollection:
         return sum(max(0, len(line) - 1) for line in self._lines)
 
 
-class Document:
+class Document(_MetadataMixin):
     """This class is the core data model of vpype and represent the data that is passed from
     one command to the other. At its core, a Document is a collection of layers identified
     by non-zero positive integers and each represented by a :py:class:`LineCollection`.
@@ -492,6 +513,7 @@ class Document:
     def __init__(
         self,
         line_collection: LineCollection = None,
+        metadata: Optional[Dict[str, Any]] = None,
         page_size: Optional[Tuple[float, float]] = None,
     ):
         """Create a Document, optionally providing a :py:class:`LayerCollection` for layer 1.
@@ -499,15 +521,19 @@ class Document:
         Args:
             line_collection: if provided, used as layer 1
         """
+        super().__init__(metadata)
+
         self._layers: Dict[int, LineCollection] = {}
-        self._page_size: Optional[Tuple[float, float]] = page_size
+
+        if page_size is not None:
+            self.page_size = page_size
 
         if line_collection:
             self.add(line_collection, 1)
 
-    def empty_copy(self) -> "Document":
-        """Create an empty copy of this document with the same page size."""
-        return Document(page_size=self.page_size)
+    def clone(self) -> "Document":
+        """Create an empty copy of this document with the same metadata"""
+        return Document(metadata=self.metadata)
 
     @property
     def layers(self) -> Dict[int, LineCollection]:
@@ -520,12 +546,12 @@ class Document:
     @property
     def page_size(self) -> Optional[Tuple[float, float]]:
         """Returns the page size or None if it hasn't been set."""
-        return self._page_size
+        return self.property(METADATA_FIELD_PAGE_SIZE)
 
     @page_size.setter
     def page_size(self, page_size=Optional[Tuple[float, float]]) -> None:
         """Sets the page size to a new value."""
-        self._page_size = page_size
+        self.set_property(METADATA_FIELD_PAGE_SIZE, page_size)
 
     def extend_page_size(self, page_size: Optional[Tuple[float, float]]) -> None:
         """Adjust the  page sized according to the following logic:
@@ -547,10 +573,10 @@ class Document:
             else:
                 self.page_size = page_size
 
-    def clear_metadata(self) -> None:
+    def clear_layer_metadata(self) -> None:
         """Clear all metadata from the document."""
         for layer in self._layers.values():
-            layer.metadata = {}
+            layer.clear_metadata()
 
     def ids(self) -> Iterable[int]:
         """Returns the list of layer IDs"""

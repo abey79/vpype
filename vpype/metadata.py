@@ -51,17 +51,27 @@ class Color:
         object.__setattr__(self, "alpha", int(alpha or 255))
 
     def as_floats(self) -> Tuple[float, float, float, float]:
+        """Returns a float representation of the instance."""
         return self.red / 255, self.green / 255, self.blue / 255, self.alpha / 255
 
+    def as_hex(self) -> str:
+        """Return a standard, hexadecimal representation of the instance."""
+        return svgelements.Color(self.red, self.green, self.blue, self.alpha).hex
 
+
+# layer metadata field names
 METADATA_FIELD_NAME = "vp:name"
 METADATA_FIELD_COLOR = "vp:color"
 METADATA_FIELD_PEN_WIDTH = "vp:pen_width"
+
+# global metadata field names
+METADATA_FIELD_PAGE_SIZE = "vp:page_size"
 
 METADATA_SYSTEM_FIELD_TYPES = {
     METADATA_FIELD_NAME: str,
     METADATA_FIELD_COLOR: Color,
     METADATA_FIELD_PEN_WIDTH: float,
+    METADATA_FIELD_PAGE_SIZE: tuple,
 }
 
 # noinspection HttpUrlsUsage

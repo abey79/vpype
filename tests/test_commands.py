@@ -69,10 +69,18 @@ MINIMAL_COMMANDS = [
     Command("squiggles"),
     Command("text 'hello wold'"),
     Command("penwidth 0.15mm", preserves_metadata=False),
-    Command("metadata vp:name my_name", preserves_metadata=False),
     Command("color red", preserves_metadata=False),
     Command("name my_name", preserves_metadata=False),
-    Command("clearprops", preserves_metadata=False),
+    Command("propset -g prop:global hello", preserves_metadata=False),
+    Command("propset -l 1 prop:local hello", preserves_metadata=False),
+    Command("propget -g prop:global"),
+    Command("propget -l 1 prop:global"),
+    Command("proplist -g"),
+    Command("proplist -l 1"),
+    Command("propdel -g prop:global", preserves_metadata=False),
+    Command("propdel -l 1 prop:layer", preserves_metadata=False),
+    Command("propclear -g", preserves_metadata=False),
+    Command("propclear -l 1", preserves_metadata=False),
 ]
 
 # noinspection SpellCheckingInspection
@@ -131,8 +139,8 @@ def test_commands_keeps_page_size(runner, cmd):
 
     args = cmd.command
 
-    if args.split()[0] in ["pagesize", "layout"]:
-        return
+    if args.split()[0] in ["pagesize", "layout"] or args.startswith("propclear -g"):
+        pytest.skip(f"command {args.split()[0]} fail this test by design")
 
     page_size = None
 
@@ -551,3 +559,94 @@ def test_text_command_wrap(font_name, options):
 def test_text_command_empty():
     doc = execute("text ''")
     assert doc.is_empty()
+
+
+@pytest.mark.parametrize(
+    ("cmd", "expected_output"),
+    [
+        ("propset -l1 prop val", ""),
+        ("propset -g prop val", ""),
+        ("propget -g prop", "global property prop: n/a"),
+        ("line 0 0 1 1 propget -l1 prop", "layer 1 property prop: n/a"),
+        (
+            "line 0 0 1 1 propset -l1 -t int prop 10 propget -l1 prop",
+            "layer 1 property prop: (int) 10",
+        ),
+        (
+            "line 0 0 1 1 propset -l1 -t str prop hello propget -l1 prop",
+            "layer 1 property prop: (str) hello",
+        ),
+        (
+            "line 0 0 1 1 propset -l1 -t float prop 10.2 propget -l1 prop",
+            "layer 1 property prop: (float) 10.2",
+        ),
+        (
+            "line 0 0 1 1 propset -l1 -t color prop red propget -l1 prop",
+            "layer 1 property prop: (color) #ff0000",
+        ),
+        (
+            "pens rgb proplist -l all",
+            "listing 2 properties for layer 1\n"
+            "  vp:color: (color) #ff0000\n"
+            "  vp:name: (str) red\n"
+            "listing 2 properties for layer 2\n"
+            "  vp:color: (color) #008000\n"
+            "  vp:name: (str) green\n"
+            "listing 2 properties for layer 3\n"
+            "  vp:color: (color) #0000ff\n"
+            "  vp:name: (str) blue",
+        ),
+        (
+            "pens rgb propdel -l1 vp:color proplist -l all",
+            "listing 1 properties for layer 1\n  vp:name: (str) red\n"
+            "listing 2 properties for layer 2\n"
+            "  vp:color: (color) #008000\n"
+            "  vp:name: (str) green\n"
+            "listing 2 properties for layer 3\n"
+            "  vp:color: (color) #0000ff\n"
+            "  vp:name: (str) blue",
+        ),
+        (
+            "pens rgb propdel -l all vp:color proplist -l all",
+            "listing 1 properties for layer 1\n  vp:name: (str) red\n"
+            "listing 1 properties for layer 2\n  vp:name: (str) green\n"
+            "listing 1 properties for layer 3\n  vp:name: (str) blue",
+        ),
+        (
+            "pens rgb propdel -l all vp:color proplist -l 2",
+            "listing 1 properties for layer 2\n  vp:name: (str) green",
+        ),
+        (
+            "pens rgb propclear -l all proplist",
+            "listing 0 properties for layer 1\n"
+            "listing 0 properties for layer 2\n"
+            "listing 0 properties for layer 3\n",
+        ),
+        (
+            "pagesize 400x1200 proplist -g",
+            "listing 1 global properties\n  vp:page_size: (tuple) (400.0, 1200.0)",
+        ),
+        (
+            "pagesize 400x1200 propdel -g vp:page_size proplist -g",
+            "listing 0 global properties",
+        ),
+        ("propset -g -t int prop 10 propget -g prop", "global property prop: (int) 10"),
+        (
+            "propset -g -t float prop 11.2 propget -g prop",
+            "global property prop: (float) 11.2",
+        ),
+        ("propset -g -t str prop hello propget -g prop", "global property prop: (str) hello"),
+        (
+            "propset -g -t color prop blue propget -g prop",
+            "global property prop: (color) #0000ff",
+        ),
+        (
+            "pagesize a4 propset -g prop val propclear -g proplist -g",
+            "listing 0 global properties",
+        ),
+    ],
+)
+def test_property_commands(runner, cmd, expected_output):
+    res = runner.invoke(cli, cmd)
+    assert res.exit_code == 0
+    assert res.stdout.strip() == expected_output.strip()

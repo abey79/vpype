@@ -154,7 +154,7 @@ def stat(document: Document):
             str(length / layer.segment_count() if layer.segment_count() else "n/a"),
         )
         print(f"  Bounds: {layer.bounds()}")
-        print("  Metadata:")
+        print("  Properties:")
         for key, value in layer.metadata.items():
             print(f"    {key}: {value!r}")
     print(f"Totals")
@@ -164,12 +164,14 @@ def stat(document: Document):
     print(f"  Total length: {length_tot + pen_up_length_tot}")
     print(f"  Path count: {sum(len(layer) for layer in document.layers.values())}")
     print(f"  Segment count: {document.segment_count()}")
-
     print(
         f"  Mean segment length:",
         str(length_tot / document.segment_count() if document.segment_count() else "n/a"),
     )
     print(f"  Bounds: {document.bounds()}")
+    print(f"  Global properties:")
+    for key, value in document.metadata.items():
+        print(f"    {key}: {value!r}")
     print("========================= ")
 
     return document

@@ -103,7 +103,7 @@ def test_viewer_engine_properties(assert_image_similarity):
 def test_viewer(assert_image_similarity, file, render_kwargs):
     # Note: this test relies on lack of metadata
     doc = vp.read_multilayer_svg(str(TEST_FILE_DIRECTORY / file), 0.4)
-    doc.clear_metadata()
+    doc.clear_layer_metadata()
 
     # noinspection PyArgumentList
     assert_image_similarity(render_image(doc, (1024, 1024), **render_kwargs))
@@ -120,7 +120,7 @@ def test_viewer_empty_layer(assert_image_similarity, render_kwargs):
 def test_viewer_zoom_scale(assert_image_similarity):
     # Note: this test relies on lack of metadata
     doc = vp.read_multilayer_svg(str(TEST_FILE_DIRECTORY / "issue_124/plotter.svg"), 0.4)
-    doc.clear_metadata()
+    doc.clear_layer_metadata()
     renderer = ImageRenderer((1024, 1024))
     renderer.engine.document = doc
     renderer.engine.fit_to_viewport()
@@ -133,7 +133,7 @@ def test_viewer_zoom_scale(assert_image_similarity):
 def test_viewer_scale_origin(assert_image_similarity):
     # Note: this test relies on lack of metadata
     doc = vp.read_multilayer_svg(str(TEST_FILE_DIRECTORY / "issue_124/plotter.svg"), 0.4)
-    doc.clear_metadata()
+    doc.clear_layer_metadata()
 
     assert_image_similarity(
         render_image(doc, view_mode=ViewMode.OUTLINE, origin=(600, 400), scale=4)
@@ -143,7 +143,7 @@ def test_viewer_scale_origin(assert_image_similarity):
 def test_viewer_debug(assert_image_similarity):
     # Note: this test relies on lack of metadata
     doc = vp.read_multilayer_svg(str(TEST_FILE_DIRECTORY / "issue_124/plotter.svg"), 0.4)
-    doc.clear_metadata()
+    doc.clear_layer_metadata()
     renderer = ImageRenderer((1024, 1024))
     renderer.engine.document = doc
     renderer.engine.origin = (600, 400)

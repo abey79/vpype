@@ -23,10 +23,6 @@ CLI reference
 .. click:: vpype_cli:circle
    :prog: circle
 
-.. _cmd_clearprops:
-.. click:: vpype_cli:clearprops
-   :prog: clearprops
-
 .. _cmd_color:
 .. click:: vpype_cli:color
    :prog: color
@@ -95,10 +91,6 @@ CLI reference
 .. click:: vpype_cli:lswap
    :prog: lswap
 
-.. _cmd_metadata:
-.. click:: vpype_cli:metadata
-   :prog: metadata
-
 .. _cmd_multipass:
 .. click:: vpype_cli:multipass
    :prog: multipass
@@ -118,6 +110,26 @@ CLI reference
 .. _cmd_penwidth:
 .. click:: vpype_cli:penwidth
    :prog: penwidth
+
+.. _cmd_propclear:
+.. click:: vpype_cli:propclear
+   :prog: propclear
+
+.. _cmd_propdel:
+.. click:: vpype_cli:propdel
+   :prog: propdel
+
+.. _cmd_propget:
+.. click:: vpype_cli:propget
+   :prog: propget
+
+.. _cmd_proplist:
+.. click:: vpype_cli:proplist
+   :prog: proplist
+
+.. _cmd_propset:
+.. click:: vpype_cli:propset
+   :prog: propset
 
 .. _cmd_random:
 .. click:: vpype_cli:random

@@ -1,4 +1,5 @@
-from typing import Optional
+import logging
+from typing import Any, List, Optional, Tuple, Union
 
 import click
 
@@ -6,35 +7,259 @@ import vpype as vp
 
 from .cli import cli
 
-__all__ = ("metadata", "penwidth", "color", "name", "pens", "clearprops")
+__all__ = (
+    "propset",
+    "proplist",
+    "propget",
+    "propdel",
+    "propclear",
+    "penwidth",
+    "color",
+    "name",
+    "pens",
+)
 
 
 _STR_TO_TYPE = {
     "str": str,
     "int": int,
     "float": float,
+    "color": vp.Color,
 }
+
+
+def _check_scope(
+    global_flag: bool, layer: Optional[Union[int, List[int]]]
+) -> Tuple[bool, Optional[Union[int, List[int]]]]:
+    if global_flag and layer is not None:
+        logging.warning(
+            "incompatible `--global` and `--layer` options were provided, assuming `--global`"
+        )
+        layer = None
+    elif not global_flag and layer is None:
+        logging.warning(
+            "neither `--global` nor `--layer` options were provide, assuming `--layer all`"
+        )
+        layer = vp.LayerType.ALL
+
+    return global_flag, layer
 
 
 @cli.command(group="Metadata")
 @click.argument("prop")
 @click.argument("value")
+@click.option("--global", "-g", "global_flag", is_flag=True, help="Global mode.")
 @click.option(
-    "-type",
-    "--t",
+    "-l", "--layer", type=vp.LayerType(accept_multiple=True), help="Target layer(s)."
+)
+@click.option(
+    "--type",
+    "-t",
     "prop_type",
     type=click.Choice(list(_STR_TO_TYPE.keys())),
-    help="specify type for property",
+    default="str",
+    help="Property type.",
 )
-@vp.layer_processor
-def metadata(
-    layer: vp.LineCollection, prop: str, value: str, prop_type: Optional[str]
-) -> vp.LineCollection:
-    """Set the value of a metadata property."""
+@vp.global_processor
+def propset(
+    document: vp.Document,
+    global_flag: bool,
+    layer: Optional[Union[int, List[int]]],
+    prop: str,
+    value: str,
+    prop_type: str,
+):
+    """Set the value of a global or layer property.
 
-    converted_value = _STR_TO_TYPE[prop_type](value) if prop_type is not None else value
-    layer.set_property(prop, converted_value)
-    return layer
+    Either the `--global` or `--layer` option must be used to specify whether a global or
+    layer property should be set. When using `--layer`, either a single layer ID, a
+    coma-separated list of layer ID, or `all` may be used.
+
+    By default, the value is stored as a string. Alternative types may be specified with the
+    `--type` option. The following types are available:
+
+        \b
+        str: text string
+        int: integer number
+        float: floating-point number
+        color: color
+
+    When using the `color` type, any SVG-compatible string may be used for VALUE, including
+    16-bit RGB (#ff0000), 16-bit RGBA (#ff0000ff), 8-bit variants (#f00 or #f00f), or color
+    names (red).
+
+    Examples:
+
+        Set a global property of type `int`:
+
+            vpype [...] propset --global --type int my_prop 10 [...]
+
+        Set a layer property of type `color`:
+
+            vpype [...] propset --layer 1 --type color my_prop red [...]
+    """
+
+    global_flag, layer = _check_scope(global_flag, layer)
+
+    if global_flag:
+        document.set_property(prop, _STR_TO_TYPE[prop_type](value))
+    else:
+        for lid in vp.multiple_to_layer_ids(layer, document):
+            document.layers[lid].set_property(prop, _STR_TO_TYPE[prop_type](value))
+
+    return document
+
+
+def _value_to_str(value: Any) -> str:
+    if value is None:
+        return "n/a"
+    elif isinstance(value, vp.Color):
+        value_str = value.as_hex()
+        value_type = "color"
+    else:
+        value_str = str(value)
+        value_type = type(value).__name__
+    return f"({value_type}) {value_str}"
+
+
+@cli.command(group="Metadata")
+@click.option("--global", "-g", "global_flag", is_flag=True, help="Global mode.")
+@click.option(
+    "-l", "--layer", type=vp.LayerType(accept_multiple=True), help="Target layer(s)."
+)
+@vp.global_processor
+def proplist(document: vp.Document, global_flag: bool, layer: Optional[Union[int, List[int]]]):
+    """Print a list the existing global or layer properties and their values.
+
+    Either the `--global` or `--layer` option must be used to specify whether global or
+    layer properties should be listed. When using `--layer`, either a single layer ID, a
+    coma-separated list of layer ID, or `all` may be used.
+
+    Examples:
+
+        Print a list of global properties:
+
+            vpype pagesize a4 proplist -g
+    """
+    global_flag, layer = _check_scope(global_flag, layer)
+
+    if global_flag:
+        print(f"listing {len(document.metadata)} global properties")
+        for prop in sorted(document.metadata.keys()):
+            print(f"  {prop}: {_value_to_str(document.property(prop))}")
+    else:
+        for lid in vp.multiple_to_layer_ids(layer, document):
+            lc = document.layers[lid]
+            print(f"listing {len(lc.metadata)} properties for layer {lid}")
+            for prop in sorted(lc.metadata.keys()):
+                print(f"  {prop}: {_value_to_str(lc.property(prop))}")
+
+    return document
+
+
+@cli.command(group="Metadata")
+@click.argument("prop")
+@click.option("--global", "-g", "global_flag", is_flag=True, help="Global mode.")
+@click.option(
+    "-l", "--layer", type=vp.LayerType(accept_multiple=True), help="Target layer(s)."
+)
+@vp.global_processor
+def propget(
+    document: vp.Document, global_flag: bool, layer: Optional[Union[int, List[int]]], prop: str
+):
+    """Print the value of a global or layer property.
+
+    Either the `--global` or `--layer` option must be used to specify whether a global or
+    layer property should be displayed. When using `--layer`, either a single layer ID, a
+    coma-separated list of layer ID, or `all` may be used.
+
+    Examples:
+
+        Print the value of property `vp:color` for all layers:
+
+            vpype [...] pens cmyk propget --layer all vp:color [...]
+    """
+    global_flag, layer = _check_scope(global_flag, layer)
+
+    if global_flag:
+        print(f"global property {prop}: {_value_to_str(document.property(prop))}")
+    else:
+        for lid in vp.multiple_to_layer_ids(layer, document):
+            print(
+                f"layer {lid} property {prop}: "
+                f"{_value_to_str(document.layers[lid].property(prop))}"
+            )
+
+    return document
+
+
+@cli.command(group="Metadata")
+@click.argument("prop")
+@click.option("--global", "-g", "global_flag", is_flag=True, help="Global mode.")
+@click.option(
+    "-l", "--layer", type=vp.LayerType(accept_multiple=True), help="Target layer(s)."
+)
+@vp.global_processor
+def propdel(
+    document: vp.Document, global_flag: bool, layer: Optional[Union[int, List[int]]], prop: str
+):
+    """Remove a global or layer property.
+
+    Either the `--global` or `--layer` option must be used to specify whether a global or
+    layer property should be removed. When using `--layer`, either a single layer ID, a
+    coma-separated list of layer ID, or `all` may be used.
+
+    Examples:
+
+        Remove a property from a layer:
+
+            vpype [...] pens cmyk propdel --layer 1 vp:name [...]
+    """
+    global_flag, layer = _check_scope(global_flag, layer)
+
+    if global_flag:
+        document.set_property(prop, None)
+    else:
+        for lid in vp.multiple_to_layer_ids(layer, document):
+            document.layers[lid].set_property(prop, None)
+
+    return document
+
+
+@cli.command(group="Metadata")
+@click.option("--global", "-g", "global_flag", is_flag=True, help="Global mode.")
+@click.option(
+    "-l", "--layer", type=vp.LayerType(accept_multiple=True), help="Target layer(s)."
+)
+@vp.global_processor
+def propclear(
+    document: vp.Document, global_flag: bool, layer: Optional[Union[int, List[int]]]
+):
+    """Remove all global or layer properties.
+
+    Either the `--global` or `--layer` option must be used to specify whether global or
+    layer properties should be cleared. When using `--layer`, either a single layer ID, a
+    coma-separated list of layer ID, or `all` may be used.
+
+    Examples:
+
+        Remove all global properties:
+
+            vpype [...] propclear --global [...]
+
+        Remove all properties from layer 1 and 2:
+
+            vpype [...] propclear --layer 1,2 [...]
+    """
+    global_flag, layer = _check_scope(global_flag, layer)
+
+    if global_flag:
+        document.clear_metadata()
+    else:
+        for lid in vp.multiple_to_layer_ids(layer, document):
+            document.layers[lid].clear_metadata()
+
+    return document
 
 
 @cli.command(group="Metadata")
@@ -162,12 +387,3 @@ def pens(document: vp.Document, pen_config: str) -> vp.Document:
             )
 
     return document
-
-
-@cli.command(group="Metadata")
-@vp.layer_processor
-def clearprops(lc: vp.LineCollection) -> vp.LineCollection:
-    """Remove all metadata properties."""
-
-    lc.metadata = {}
-    return lc

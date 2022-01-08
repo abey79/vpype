@@ -1,3 +1,4 @@
+import logging
 from contextlib import contextmanager
 from typing import List, Optional, Union
 
@@ -46,7 +47,13 @@ def multiple_to_layer_ids(
     if layers is None or layers is LayerType.ALL:
         return sorted(document.ids())
     elif isinstance(layers, list):
-        return sorted(vid for vid in layers if document.exists(vid))
+        lids = []
+        for lid in sorted(layers):
+            if document.exists(lid):
+                lids.append(lid)
+            else:
+                logging.warning(f"layer {lid} does not exist")
+        return lids
     else:
         return []
 
