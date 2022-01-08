@@ -153,7 +153,7 @@ Note that *vpype* does not "remember" of such configuration file and the ``--con
 
 .. note::
 
-   *vpype* is bundled with a `configuration file <https://github.com/abey79/vpype/blob/master/vpype/hpgl_devices.toml>`_. It is strongly discouraged to edit this file as it will be overwritten each time *vpype* is installed or updated.
+   *vpype* is bundled with a `configuration file <https://github.com/abey79/vpype/blob/master/vpype/vpype_config.toml>`_. It is strongly discouraged to edit this file as it will be overwritten each time *vpype* is installed or updated.
 
 
 Creating a custom pen configuration

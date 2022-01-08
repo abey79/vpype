@@ -232,6 +232,24 @@ def test_read_stdin(runner):
             {1: {"svg:fill": None}},
             id="inconsistent_group1",
         ),
+        pytest.param(
+            """<?xml version="1.0"?><svg fill="blue">
+                <g id="1">
+                    <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+                    <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+                </g>
+                <g fill="blue">
+                    <circle cx="0" cy="0" r="10" />
+                    <circle cx="0" cy="0" r="10" />
+                </g>
+                <g fill="green">
+                    <circle cx="0" cy="0" r="10" fill="#666"/>
+                    <circle cx="0" cy="0" r="10" fill="#666" />
+                </g>
+            </svg>""",
+            {1: {"svg:fill": "red"}, 2: {"svg:fill": "blue"}, 3: {"svg:fill": "#666"}},
+            id="multi_layer",
+        ),
     ],
 )
 def test_read_multilayer_metadata(tmp_path, svg, expected_metadata):
@@ -248,3 +266,80 @@ def test_read_multilayer_metadata(tmp_path, svg, expected_metadata):
             else:
                 assert k in layer.metadata
                 assert layer.metadata[k] == v
+
+
+@pytest.mark.parametrize(
+    ["svg", "expected_metadata"],
+    [
+        pytest.param(
+            """<?xml version="1.0"?><svg>
+                <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+            </svg>""",
+            {"svg:fill": "red"},
+            id="lone_line",
+        ),
+        pytest.param(
+            """<?xml version="1.0"?><svg stroke="#f00">
+                <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+            </svg>""",
+            {"svg:fill": "red", "svg:stroke": "#f00"},
+            id="lone_line_svg_attrib",
+        ),
+        pytest.param(
+            """<?xml version="1.0"?><svg fill="blue">
+                <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+            </svg>""",
+            {"svg:fill": "red"},
+            id="lone_line_svg_attrib_conflict",
+        ),
+        pytest.param(
+            """<?xml version="1.0"?><svg fill="blue">
+                <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+                <line x1="0" y1="0" x2="10" y2="10" fill="green" />
+            </svg>""",
+            {"svg:fill": None},
+            id="two_line_inconsistent",
+        ),
+        pytest.param(
+            """<?xml version="1.0"?><svg fill="blue">
+                <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+                <g id="1">
+                    <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+                </g>
+            </svg>""",
+            {"svg:fill": "red"},
+            id="group_1_with_lone_line_svg_attrib_conflict",
+        ),
+        pytest.param(
+            """<?xml version="1.0"?><svg fill="blue">
+                <g id="1">
+                    <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+                </g>
+            </svg>""",
+            {"svg:fill": "red"},
+            id="group_1_svg_attrib_conflict",
+        ),
+        pytest.param(
+            """<?xml version="1.0"?><svg fill="blue">
+                <g id="1">
+                    <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+                    <line x1="0" y1="0" x2="10" y2="10" fill="green" />
+                </g>
+            </svg>""",
+            {"svg:fill": None},
+            id="inconsistent_group1",
+        ),
+    ],
+)
+def test_read_metadata(tmp_path, svg, expected_metadata):
+    path = _write_svg_file(tmp_path, svg)
+    lc, _, _ = vp.read_svg(path, quantization=0.1, crop=False)
+
+    assert lc.metadata
+
+    for k, v in expected_metadata.items():
+        if v is None:
+            assert k not in lc.metadata
+        else:
+            assert k in lc.metadata
+            assert lc.metadata[k] == v
