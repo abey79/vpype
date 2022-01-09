@@ -18,7 +18,9 @@ from svgwrite.extensions import Inkscape
 from .config import PaperConfig, PlotterConfig, config_manager
 from .metadata import (
     METADATA_FIELD_COLOR,
+    METADATA_FIELD_NAME,
     METADATA_FIELD_PEN_WIDTH,
+    METADATA_SVG_ATTRIBUTES_WHITELIST,
     METADATA_SVG_NAMESPACES,
     Color,
 )
@@ -91,67 +93,6 @@ _PathListType = List[
     ]
 ]
 
-_SVG_ATTRIBUTES_WHITELIST = {
-    # list based on https://css-tricks.com/svg-properties-and-css/
-    # font properties
-    "font",
-    "font-family",
-    "font-size",
-    "font-size-adjust",
-    "font-stretch",
-    "font-style",
-    "font-variant",
-    "font-weight",
-    # text properties
-    "direction",
-    "letter-spacing",
-    "text-decoration",
-    "unicode-bidi",
-    "word-spacing",
-    "writing-mode",
-    "alignment-baseline",
-    "baseline-shift",
-    "dominant-baseline",
-    "glyph-orientation-horizontal",
-    "glyph-orientation-vertical",
-    "kerning",
-    "text-anchor",
-    # masking properties
-    "overflow",
-    "mask",
-    "opacity",
-    # filter effect
-    "enable-background",
-    "filter",
-    # interactivity properties
-    "cursor",
-    "pointer-events",
-    # visibility properties
-    "display",
-    "visibility",
-    # painting properties
-    "color-interpolation",
-    "color-interpolation-filters",
-    "color-rendering",
-    "fill",
-    "fill-rule",
-    "fill-opacity",
-    "image-rendering",
-    "marker",
-    "marker-start",
-    "marker-mid",
-    "marker-end",
-    "shape-rendering",
-    "stroke",
-    "stroke-dasharray",
-    "stroke-dashoffset",
-    "stroke-linecap",
-    "stroke-linejoin",
-    "stroke-miterlimit",
-    "stroke-opacity",
-    "stroke-width",
-    "text-rendering",
-}
 
 _NAMESPACED_PROPERTY_RE = re.compile(r"{([-a-zA-Z0-9@:%._+~#=/]+)}([a-zA-Z0-9]+)")
 
@@ -182,7 +123,11 @@ def _extract_metadata_from_element(elem: svgelements.Shape) -> Dict[str, Any]:
 
     # white-listed root SVG properties
     metadata.update(
-        {"svg:" + k: v for k, v in elem.values.items() if k in _SVG_ATTRIBUTES_WHITELIST}
+        {
+            "svg:" + k: v
+            for k, v in elem.values.items()
+            if k in METADATA_SVG_ATTRIBUTES_WHITELIST
+        }
     )
 
     # name-spaced XML properties
@@ -436,13 +381,11 @@ def read_multilayer_svg(
                 yield elem
 
     for i, g in enumerate(_find_groups(svg)):
-        # compute a decent layer ID
         # noinspection HttpUrlsUsage
-        lid_str = re.sub(
-            "[^0-9]",
-            "",
-            g.values.get("{http://www.inkscape.org/namespaces/inkscape}label") or "",
-        )
+        layer_name = g.values.get("{http://www.inkscape.org/namespaces/inkscape}label", None)
+
+        # compute a decent layer ID
+        lid_str = re.sub("[^0-9]", "", layer_name or "")
         if not lid_str:
             lid_str = re.sub("[^0-9]", "", g.values.get("id") or "")
         if lid_str:
@@ -464,6 +407,7 @@ def read_multilayer_svg(
 
             document.add(lc, lid)
             document.layers[lid].metadata = metadata
+            document.layers[lid].set_property(METADATA_FIELD_NAME, layer_name)
 
     document.page_size = (svg.width, svg.height)
 

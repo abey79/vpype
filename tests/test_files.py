@@ -343,3 +343,19 @@ def test_read_metadata(tmp_path, svg, expected_metadata):
         else:
             assert k in lc.metadata
             assert lc.metadata[k] == v
+
+
+def test_read_layer_name(runner):
+    res = runner.invoke(
+        cli,
+        f"read {str(TEST_FILE_DIRECTORY/'misc'/'multilayer_named_layers.svg')} propget -l all {vp.METADATA_FIELD_NAME}",
+    )
+
+    assert res.exit_code == 0
+    assert (
+        res.stdout
+        == """layer 1 property vp:name: (str) my layer 1
+layer 2 property vp:name: (str) my layer 2
+layer 3 property vp:name: (str) my layer 3
+"""
+    )

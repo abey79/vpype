@@ -82,3 +82,65 @@ METADATA_SVG_NAMESPACES = {
     "http://creativecommons.org/ns": "cc",
     "http://www.w3.org/1999/02/22-rdf-syntax-ns": "rdf",
 }
+
+METADATA_SVG_ATTRIBUTES_WHITELIST = {
+    # list based on https://css-tricks.com/svg-properties-and-css/
+    # font properties
+    "font",
+    "font-family",
+    "font-size",
+    "font-size-adjust",
+    "font-stretch",
+    "font-style",
+    "font-variant",
+    "font-weight",
+    # text properties
+    "direction",
+    "letter-spacing",
+    "text-decoration",
+    "unicode-bidi",
+    "word-spacing",
+    "writing-mode",
+    "alignment-baseline",
+    "baseline-shift",
+    "dominant-baseline",
+    "glyph-orientation-horizontal",
+    "glyph-orientation-vertical",
+    "kerning",
+    "text-anchor",
+    # masking properties
+    "overflow",
+    "mask",
+    "opacity",
+    # filter effect
+    "enable-background",
+    "filter",
+    # interactivity properties
+    "cursor",
+    "pointer-events",
+    # visibility properties
+    "display",
+    "visibility",
+    # painting properties
+    "color-interpolation",
+    "color-interpolation-filters",
+    "color-rendering",
+    "fill",
+    "fill-rule",
+    "fill-opacity",
+    "image-rendering",
+    "marker",
+    "marker-start",
+    "marker-mid",
+    "marker-end",
+    "shape-rendering",
+    "stroke",
+    "stroke-dasharray",
+    "stroke-dashoffset",
+    "stroke-linecap",
+    "stroke-linejoin",
+    "stroke-miterlimit",
+    "stroke-opacity",
+    "stroke-width",
+    "text-rendering",
+}
