@@ -58,6 +58,9 @@ class Color:
         """Return a standard, hexadecimal representation of the instance."""
         return svgelements.Color(self.red, self.green, self.blue, self.alpha).hex
 
+    def __str__(self) -> str:
+        return self.as_hex()
+
 
 # layer metadata field names
 METADATA_FIELD_NAME = "vp:name"
@@ -119,8 +122,8 @@ METADATA_SVG_ATTRIBUTES_WHITELIST = {
     "cursor",
     "pointer-events",
     # visibility properties
-    "display",
-    "visibility",
+    # "display",
+    # "visibility",
     # painting properties
     "color-interpolation",
     "color-interpolation-filters",
@@ -134,13 +137,13 @@ METADATA_SVG_ATTRIBUTES_WHITELIST = {
     "marker-mid",
     "marker-end",
     "shape-rendering",
-    "stroke",
+    # "stroke",  # covered by system properties
     "stroke-dasharray",
     "stroke-dashoffset",
     "stroke-linecap",
     "stroke-linejoin",
     "stroke-miterlimit",
     "stroke-opacity",
-    "stroke-width",
+    # "stroke-width",  # covered by system properties
     "text-rendering",
 }

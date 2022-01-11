@@ -137,6 +137,13 @@ layer is used default and can be specified with the `--layer` option.
     orientation. The options `--display-size FORMAT` and `--display-landscape` can be used
     to specify a different format.
 
+    When importing the SVG, the `read` commands attempts to extract the SVG attributes that
+    are common to all paths within a layer. The "stroke", "stroke-width" and "inkscape:label"
+    attributes are used to set the layer color, pen width and, respectively, name. The other
+    attributes (e.g. "stroke-dasharray", etc.) are stored as layer properties with a "svg:"
+    prefix. These properties are ignored by vpype but may be used by plug-ins. Also, the
+    `write` command can optionally restore them in the exported SVG.
+
     Examples:
 
         Multi-layer import:

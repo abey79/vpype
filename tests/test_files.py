@@ -348,7 +348,8 @@ def test_read_metadata(tmp_path, svg, expected_metadata):
 def test_read_layer_name(runner):
     res = runner.invoke(
         cli,
-        f"read {str(TEST_FILE_DIRECTORY/'misc'/'multilayer_named_layers.svg')} propget -l all {vp.METADATA_FIELD_NAME}",
+        ["read", str(TEST_FILE_DIRECTORY / "misc" / "multilayer_named_layers.svg")]
+        + f"propget -l all {vp.METADATA_FIELD_NAME}".split(),
     )
 
     assert res.exit_code == 0

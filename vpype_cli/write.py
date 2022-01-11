@@ -47,13 +47,23 @@ Layers are labelled with their numbers by default. If an alternative naming is r
 template pattern can be provided using the `--layer-label` option. The provided pattern must
 contain a C-style format specifier such as `%d` which will be replaced by the layer number.
 
-For previsualization purposes, paths are colored by layer in the SVG. This can be controlled
-with the `--color-mode` option. Setting it "none" disables coloring and black paths are
-generated. Setting it to "path" gives a different color to each path (with a rotation),
-which makes it easier to visualize line optimization. Finally, pen-up trajectories can be
-generated with the `--pen-up` flag. As most plotting tools will include these paths in the
-output, this option should be used for previsualisation only. The Axidraw tools will however
-ignore them.
+By default, paths are colored according to the corresponding layer property (as set by the 
+`color` or `read` commands). If the color property is not set, a default, per-layer color
+scheme is used. Alternative behaviours are available with the `--color-mode` option. Setting it
+to "none" disables coloring and black paths are generated. Setting it to "layer" applies the
+default color scheme to each layer. Setting it to "path" gives a different color to each path
+(with a rotation), which makes it possible to visualize line optimization.
+
+Stroke widths are set according to the corresponding property (as et by the `penwdith`, `pen`,
+or `read` commands). If the property is missing, a 1px default is used.
+
+Pen-up trajectories can be generated with the `--pen-up` flag. As most plotting tools will
+include these paths in the output, this option should be used for previsualisation only. The
+Axidraw tools will however ignore them.
+
+If the `--restore-attribs` option is used, the SVG attributes extracted by the `read` command
+are restored in the output SVG. (Note that this is an experimental feature which is unable to
+fully recreate an input SVG in all but the simplest cases.)
 
 When writing to HPGL, a device name must be provided with the `--device` option. The
 corresponding device must be configured in the built-in or a user-provided configuration file
@@ -140,16 +150,22 @@ Examples:
     "-ll",
     "--layer-label",
     type=str,
-    default="%d",
     help="[SVG only] Pattern used to for naming layers.",
 )
 @click.option("-pu", "--pen-up", is_flag=True, help="[SVG only] Generate pen-up trajectories.")
 @click.option(
     "-m",
     "--color-mode",
-    type=click.Choice(["none", "layer", "path"]),
-    default="layer",
-    help="[SVG only] Color mode for paths (default: layer).",
+    type=click.Choice(["default", "none", "layer", "path"]),
+    default="default",
+    help="[SVG only] Color mode for paths (default: default).",
+)
+@click.option(
+    "-r",
+    "--restore-attribs",
+    is_flag=True,
+    default=False,
+    help="[SVG only] attempt to restore SVG attributes from properties",
 )
 @click.option("-d", "--device", type=str, help="[HPGL only] Type of the plotter device.")
 @click.option(
@@ -177,7 +193,8 @@ def write(
     page_size: str,
     landscape: bool,
     center: bool,
-    layer_label: str,
+    layer_label: Optional[str],
+    restore_attribs: bool,
     pen_up: bool,
     color_mode: str,
     device: Optional[str],
@@ -212,6 +229,7 @@ def write(
             layer_label_format=layer_label,
             show_pen_up=pen_up,
             color_mode=color_mode,
+            use_svg_metadata=restore_attribs,
         )
     elif file_format == "hpgl":
         if not page_size:

@@ -708,7 +708,11 @@ class Document(_MetadataMixin):
             doc: source Document
         """
 
+        # special treatment for page size
         self.extend_page_size(doc.page_size)
+        self.metadata.update(
+            {k: v for k, v in doc.metadata.items() if k != METADATA_FIELD_PAGE_SIZE}
+        )
 
         for layer_id, layer in doc.layers.items():
             self.add(layer, layer_id)

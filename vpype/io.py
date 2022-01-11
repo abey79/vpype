@@ -4,7 +4,7 @@ import copy
 import datetime
 import math
 import re
-from typing import Any, Dict, Iterator, List, Optional, TextIO, Tuple, Union
+from typing import Any, Dict, Iterator, List, Optional, TextIO, Tuple, Union, cast
 from xml.etree import ElementTree
 
 import click
@@ -97,7 +97,9 @@ _PathListType = List[
 _NAMESPACED_PROPERTY_RE = re.compile(r"{([-a-zA-Z0-9@:%._+~#=/]+)}([a-zA-Z0-9]+)")
 
 
-def _extract_metadata_from_element(elem: svgelements.Shape) -> Dict[str, Any]:
+def _extract_metadata_from_element(
+    elem: svgelements.Shape, layer_system_props: bool = True
+) -> Dict[str, Any]:
     """Extracts the metadata from a svgelements element.
 
     svgelements offers 3 levels of metadata:
@@ -115,11 +117,16 @@ def _extract_metadata_from_element(elem: svgelements.Shape) -> Dict[str, Any]:
     - SVG attributes are disregarded
     """
 
-    # system metadata
-    metadata: Dict[str, Any] = {
-        METADATA_FIELD_COLOR: Color(elem.stroke),
-        METADATA_FIELD_PEN_WIDTH: elem.stroke_width,
-    }
+    metadata: Dict[str, Any] = {}
+
+    # layer-level system properties
+    if layer_system_props:
+        metadata.update(
+            {
+                METADATA_FIELD_COLOR: Color(elem.stroke),
+                METADATA_FIELD_PEN_WIDTH: elem.stroke_width,
+            }
+        )
 
     # white-listed root SVG properties
     metadata.update(
@@ -367,7 +374,7 @@ def read_multilayer_svg(
     """
 
     svg = svgelements.SVG.parse(file, width=default_width, height=default_height)
-    document = Document()
+    document = Document(metadata=_extract_metadata_from_element(svg, False))
 
     # non-group top level elements are loaded in layer 1
     lc = _convert_flattened_paths(svg, False, quantization, simplify, parallel)
@@ -414,6 +421,11 @@ def read_multilayer_svg(
     if crop:
         document.crop(0, 0, svg.width, svg.height)
 
+    # Because of how svgelements works, all the <svg> level metadata is propagated to every
+    # nested tag. As a result, we need to subtract global properties from the layer ones.
+    for layer in document.layers.values():
+        layer.metadata = dict(layer.metadata.items() - document.metadata.items())
+
     return document
 
 
@@ -424,9 +436,10 @@ def write_svg(
     page_size: Optional[Tuple[float, float]] = None,
     center: bool = False,
     source_string: str = "",
-    layer_label_format: str = "%d",
+    layer_label_format: Optional[str] = None,
     show_pen_up: bool = False,
-    color_mode: str = "none",
+    color_mode: str = "default",
+    use_svg_metadata: bool = False,
 ) -> None:
     """Create a SVG from a :py:class:`Document` instance.
 
@@ -439,11 +452,26 @@ def write_svg(
 
     No scaling or rotation is applied to geometries.
 
-    Layers are named after `layer_label_format`, which may contain a C-style format specifier
-    such as `%d` which will be replaced by the layer number.
+    Layers are named after the `vp:name` system property if it exists, or with their layer ID
+    otherwise. This can be overridden with the  ``layer_label_format`` parameter, which may
+    contain a C-style format specifier such as `%d` which will be replaced by the layer number.
 
-    For previsualisation purposes, pen-up trajectories can be added to the SVG and path can
-    be colored individually (``color_mode="path"``) or layer-by-layer (``color_mode="layer"``).
+    Optionally, metadata properties prefixed with ``svg:`` (typically extracted from an input
+    SVG with the :ref:`cmd_read` command) may be used as group attributes with
+    ``use_svg_metadata=True``.
+
+    The color of the layer is determined by the ``color_mode`` parameter.
+
+        - ``"default"``: use ``vp:color`` system property and reverts to the default coloring
+          scheme
+        - ``"none"``: no formatting (black)
+        - ``"layer"``: one color per layer based on the default coloring scheme
+        - ``"path"``: one color per path based on the default coloring scheme
+
+    The pen width is set to the `vp:pen_width` system property if it exists.
+
+    For previsualisation purposes, pen-up trajectories can be added to the SVG using the
+    ``show pen_up`` argument.
 
     Args:
         output: text-mode IO stream where SVG code will be written
@@ -453,8 +481,9 @@ def write_svg(
         source_string: value of the `source` metadata
         layer_label_format: format string for layer label naming
         show_pen_up: add paths for the pen-up trajectories
-        color_mode: "none" (no formatting), "layer" (one color per layer), "path" (one color
-            per path)
+        color_mode: "default" (system property), "none" (no formatting), "layer" (one color per
+            layer), "path" (one color per path)
+        use_svg_metadata: apply ``svg:``-prefixed properties as SVG attributes
     """
 
     # compute bounds
@@ -490,14 +519,13 @@ def write_svg(
     size_cm = tuple(f"{round(s / UNITS['cm'], 8)}cm" for s in capped_size)
     dwg = svgwrite.Drawing(size=size_cm, profile="tiny", debug=False)
     inkscape = Inkscape(dwg)
-    dwg.attribs.update(
-        {
-            "viewBox": f"0 0 {capped_size[0]} {capped_size[1]}",
-            "xmlns:dc": "http://purl.org/dc/elements/1.1/",
-            "xmlns:cc": "http://creativecommons.org/ns#",
-            "xmlns:rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-        }
-    )
+    dwg.attribs.update({"viewBox": f"0 0 {capped_size[0]} {capped_size[1]}"})
+    dwg.attribs.update({f"xmlns:{v}": k for k, v in METADATA_SVG_NAMESPACES.items()})
+
+    if use_svg_metadata:
+        for prop, val in document.metadata.items():
+            if prop.startswith("svg:"):
+                dwg.attribs[prop[4:]] = str(val)
 
     # add metadata
     metadata = ElementTree.Element("rdf:RDF")
@@ -529,15 +557,37 @@ def write_svg(
     for layer_id in sorted(corrected_doc.layers.keys()):
         layer = corrected_doc.layers[layer_id]
 
-        group = inkscape.layer(label=str(layer_label_format % layer_id))
+        if layer_label_format is not None:
+            label = layer_label_format % layer_id
+        elif layer.property_exists(METADATA_FIELD_NAME):
+            label = str(layer.property(METADATA_FIELD_NAME))
+        else:
+            label = str(layer_id)
+
+        group = inkscape.layer(label=label)
         group.attribs["fill"] = "none"
-        if color_mode == "layer":
+
+        if color_mode == "layer" or (
+            color_mode == "default" and not layer.property_exists(METADATA_FIELD_COLOR)
+        ):
             group.attribs["stroke"] = _COLORS[color_idx % len(_COLORS)]
             color_idx += 1
-        else:
+        elif color_mode == "default":
+            group.attribs["stroke"] = str(layer.property(METADATA_FIELD_COLOR))
+        elif color_mode == "none":
             group.attribs["stroke"] = "black"
         group.attribs["style"] = "display:inline"
         group.attribs["id"] = f"layer{layer_id}"
+        if layer.property_exists(METADATA_FIELD_PEN_WIDTH):
+            group.attribs["stroke-width"] = float(
+                cast(float, layer.property(METADATA_FIELD_PEN_WIDTH))
+            )
+
+        # dump all svg properties as attribute
+        if use_svg_metadata:
+            for prop, val in layer.metadata.items():
+                if prop.startswith("svg:"):
+                    group.attribs[prop[4:]] = str(val)
 
         for line in layer:
             if len(line) <= 1:
