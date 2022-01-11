@@ -182,10 +182,10 @@ def test_read_stdin(runner):
             id="lone_line",
         ),
         pytest.param(
-            """<?xml version="1.0"?><svg stroke="#f00">
+            """<?xml version="1.0"?><svg font="#f00">
                 <line x1="0" y1="0" x2="10" y2="10" fill="red" />
             </svg>""",
-            {1: {"svg:fill": "red", "svg:stroke": "#f00"}},
+            {0: {"svg:font": "#f00"}, 1: {"svg:fill": "red"}},
             id="lone_line_svg_attrib",
         ),
         pytest.param(
@@ -247,7 +247,7 @@ def test_read_stdin(runner):
                     <circle cx="0" cy="0" r="10" fill="#666" />
                 </g>
             </svg>""",
-            {1: {"svg:fill": "red"}, 2: {"svg:fill": "blue"}, 3: {"svg:fill": "#666"}},
+            {0: {"svg:fill": "blue"}, 1: {"svg:fill": "red"}, 2: {}, 3: {"svg:fill": "#666"}},
             id="multi_layer",
         ),
     ],
@@ -255,6 +255,13 @@ def test_read_stdin(runner):
 def test_read_multilayer_metadata(tmp_path, svg, expected_metadata):
     path = _write_svg_file(tmp_path, svg)
     doc = vp.read_multilayer_svg(path, quantization=0.1, crop=False)
+
+    for k, v in expected_metadata.get(0, {}).items():
+        if v is None:
+            assert k not in doc.metadata
+        else:
+            assert k in doc.metadata
+            assert doc.metadata[k] == v
 
     for lid in doc.layers:
         layer = doc.layers[lid]

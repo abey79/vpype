@@ -11,6 +11,7 @@ import click
 import numpy as np
 import svgelements
 import svgwrite
+import svgwrite.base
 from multiprocess import Pool
 from shapely.geometry import LineString
 from svgwrite.extensions import Inkscape
@@ -429,6 +430,20 @@ def read_multilayer_svg(
     return document
 
 
+_WRITE_SVG_RESTORE_EXCLUDE_LIST = (
+    "svg:display",
+    "svg:visibility",
+    "svg:stroke",
+    "svg:stroke-width",
+)
+
+
+def _restore_metadata(elem: svgwrite.base.BaseElement, metadata: Dict[str, Any]) -> None:
+    for prop, val in metadata.items():
+        if prop.startswith("svg:") and prop not in _WRITE_SVG_RESTORE_EXCLUDE_LIST:
+            elem.attribs[prop[4:]] = str(val)
+
+
 # noinspection HttpUrlsUsage
 def write_svg(
     output: TextIO,
@@ -523,9 +538,7 @@ def write_svg(
     dwg.attribs.update({f"xmlns:{v}": k for k, v in METADATA_SVG_NAMESPACES.items()})
 
     if use_svg_metadata:
-        for prop, val in document.metadata.items():
-            if prop.startswith("svg:"):
-                dwg.attribs[prop[4:]] = str(val)
+        _restore_metadata(dwg, document.metadata)
 
     # add metadata
     metadata = ElementTree.Element("rdf:RDF")
@@ -585,9 +598,7 @@ def write_svg(
 
         # dump all svg properties as attribute
         if use_svg_metadata:
-            for prop, val in layer.metadata.items():
-                if prop.startswith("svg:"):
-                    group.attribs[prop[4:]] = str(val)
+            _restore_metadata(group, layer.metadata)
 
         for line in layer:
             if len(line) <= 1:

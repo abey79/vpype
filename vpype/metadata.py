@@ -122,8 +122,8 @@ METADATA_SVG_ATTRIBUTES_WHITELIST = {
     "cursor",
     "pointer-events",
     # visibility properties
-    # "display",
-    # "visibility",
+    "display",
+    "visibility",
     # painting properties
     "color-interpolation",
     "color-interpolation-filters",
@@ -137,13 +137,13 @@ METADATA_SVG_ATTRIBUTES_WHITELIST = {
     "marker-mid",
     "marker-end",
     "shape-rendering",
-    # "stroke",  # covered by system properties
+    "stroke",
     "stroke-dasharray",
     "stroke-dashoffset",
     "stroke-linecap",
     "stroke-linejoin",
     "stroke-miterlimit",
     "stroke-opacity",
-    # "stroke-width",  # covered by system properties
+    "stroke-width",
     "text-rendering",
 }
