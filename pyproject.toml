@@ -34,7 +34,7 @@ vpype = "vpype_cli.cli:cli"
 
 [tool.poetry.dependencies]
 python = ">=3.7, !=3.9.0, <3.10"
-cachetools = "^4.2.2"
+cachetools = ">=4.2.2,<6.0.0"
 click = "~8.0.1"
 click-plugins = "~1.1.1"
 multiprocess = "^0.70.11"
