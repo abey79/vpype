@@ -10,6 +10,12 @@ Other changes:
 * Various documentation improvements (#363)
 
 
+#### 1.8.1 (2022-01-13)
+
+Security fix:
+* Updated Pillow to 9.0.0 due to vulnerabilities in previous versions (CVE-2022-22815, CVE-2022-22817, CVE-2022-22816)
+
+
 #### 1.8 (2021-11-25)
 
 New features and improvements:

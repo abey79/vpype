@@ -1,14 +1,14 @@
 from setuptools import setup
 
 setup(
-    name='star',
-    version='0.1',
-    py_modules=['star'],
+    name="star",
+    version="0.1",
+    py_modules=["star"],
     install_requires=[
-        'vpype',
+        "vpype",
     ],
-    entry_points='''
+    entry_points="""
         [vpype.plugins]
         star=star.star:star
-    ''',
+    """,
 )
