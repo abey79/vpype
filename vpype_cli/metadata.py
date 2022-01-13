@@ -333,7 +333,7 @@ def name(layer: vp.LineCollection, name: str) -> vp.LineCollection:
     return layer
 
 
-COLORMAP_HELP_STRING = f"""Apply a pen configuration.
+PENS_HELP_STRING = f"""Apply a pen configuration.
 
 This command applies given names, pen colors and/or pen widths to one or more layers, as
 defined by the pen configuration CONF. This pen configuration just be defined in either the
@@ -358,7 +358,7 @@ command. Check the documentation for more information on creating custom pen con
 """
 
 
-@cli.command(group="Metadata", help=COLORMAP_HELP_STRING)
+@cli.command(group="Metadata", help=PENS_HELP_STRING)
 @click.argument("pen_config", metavar="CONF")
 @vp.global_processor
 def pens(document: vp.Document, pen_config: str) -> vp.Document:

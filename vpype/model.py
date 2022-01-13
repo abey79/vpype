@@ -18,6 +18,7 @@ __all__ = [
     "LineLike",
     "LineCollectionLike",
     "as_vector",
+    "_MetadataMixin",  # for documentation
     # deprecated:
     "VectorData",
 ]

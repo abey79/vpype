@@ -192,6 +192,13 @@ and much more.
 - Arbitrary **page size** definition ([`pagesize`](https://vpype.readthedocs.io/en/stable/reference.html#pagesize)). 
 
 
+#### Metadata
+
+- Adjust layer **color**, **pen width** and **name** ([`color`](https://vpype.readthedocs.io/en/stable/reference.html#color), [`penwidth`](https://vpype.readthedocs.io/en/stable/reference.html#penwidth), [`name`](https://vpype.readthedocs.io/en/stable/reference.html#name)).
+- Apply provided or fully customisable **pen configurations** ([`pens`](https://vpype.readthedocs.io/en/stable/reference.html#pens)).
+- Manipulate global and per-layer **properties** ([`propset`](https://vpype.readthedocs.io/en/stable/reference.html#propset), [`propget`](https://vpype.readthedocs.io/en/stable/reference.html#propget), [`proplist`](https://vpype.readthedocs.io/en/stable/reference.html#proplist), [`propdel`](https://vpype.readthedocs.io/en/stable/reference.html#propdel), [`propclear`](https://vpype.readthedocs.io/en/stable/reference.html#propclear)).
+
+
 #### Plotting optimization
 
 - **Line merging** with optional path reversal and configurable merging threshold ([`linemerge`](https://vpype.readthedocs.io/en/stable/reference.html#linemerge)).

@@ -54,10 +54,14 @@ MINIMAL_COMMANDS = [
     Command("lcopy 1 new"),
     Command("ldelete 1", preserves_metadata=False),
     Command("ldelete --prob 0 1"),
-    Command("lswap 1 2", exit_code_no_layer=2, exit_code_one_layer=2),
+    Command(
+        "lswap 1 2", preserves_metadata=False, exit_code_no_layer=2, exit_code_one_layer=2
+    ),
+    Command("lswap --prob 0.5 1 2", exit_code_no_layer=2, exit_code_one_layer=2),
     Command("lreverse 1"),
     Command("line 0 0 10 10 lreverse 1"),
-    Command("random -l1 random -l2 lswap 1 2"),
+    Command("random -l1 random -l2 lswap 1 2", preserves_metadata=False),
+    Command("random -l1 -n100 random -l2 -n100 lswap --prob 0.5 1 2"),
     Command("trim 1mm 1mm"),
     Command("splitall"),
     Command("filter --min-length 1mm"),

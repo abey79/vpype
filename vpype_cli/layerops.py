@@ -19,8 +19,9 @@ __all__ = ("lcopy", "lmove", "ldelete", "lreverse", "lswap")
     type=click.FloatRange(0.0, 1.0),
     help="Path copy probability (default: 1.0).",
 )
+@click.option("-m", "--no-prop", is_flag=True, help="Do not copy metadata.")
 @vp.global_processor
-def lcopy(document, sources, dest, prob: Optional[float]):
+def lcopy(document, sources, dest, prob: Optional[float], no_prop: bool):
     """Copy the content of one or more layer(s) to another layer.
 
     SOURCES can be a single layer ID, the string 'all' (to copy all non-empty layers,
@@ -34,6 +35,10 @@ def lcopy(document, sources, dest, prob: Optional[float]):
     The `--prob` option controls the probability with which each path is copied. With a value
     lower than 1.0, some paths will not be copied to DEST, which may be used to achieve random
     coloring effects.
+
+    If a single source layer is specified and the `--prob` option is not used, the properties
+    of the source layer are copied to the destination layer, overwriting any existing
+    properties with the same name. This behaviour can be disabled with the `--no-prop` option.
 
     Examples:
 
@@ -69,6 +74,9 @@ content is not duplicated:
     if len(lc) > 0:
         document.add(lc, dest_lid)
 
+    if len(src_lids) == 1 and prob is None and not no_prop:
+        document.layers[dest_lid].metadata.update(document.layers[src_lids[0]].metadata)
+
     return document
 
 
@@ -81,8 +89,9 @@ content is not duplicated:
     type=click.FloatRange(0.0, 1.0),
     help="Path move probability (default: 1.0).",
 )
+@click.option("-m", "--no-prop", is_flag=True, help="Do not move metadata.")
 @vp.global_processor
-def lmove(document, sources, dest, prob: Optional[float]):
+def lmove(document, sources, dest, prob: Optional[float], no_prop: bool):
     """Move the content of one or more layer(s) to another layer.
 
     SOURCES can be a single layer ID, the string 'all' (to copy all non-empty layers,
@@ -100,6 +109,10 @@ def lmove(document, sources, dest, prob: Optional[float]):
 
     If a layer is both in the source and destination, its content is not duplicated.
 
+    If a single source layer is specified and the `--prob` option is not used, the properties
+    of the source layer are moved to the destination layer, overwriting any existing
+    properties with the same name. This behaviour can be disabled with the `--no-prop` option.
+
     Examples:
 
         Merge layer 1 and 2 to layer 1 (the content of layer 1 is not duplicated):
@@ -112,6 +125,9 @@ def lmove(document, sources, dest, prob: Optional[float]):
 
     if dest_lid in src_lids:
         src_lids.remove(dest_lid)
+
+    move_metadata = len(src_lids) == 1 and prob is None and not no_prop
+    source_metadata = document.layers[src_lids[0]].metadata if move_metadata else {}
 
     for lid in src_lids:
         if prob is not None:
@@ -133,6 +149,8 @@ def lmove(document, sources, dest, prob: Optional[float]):
                 document.add(moving_lines, dest_lid)
         else:
             document.add(document.pop(lid), dest_lid)
+            if move_metadata:
+                document.layers[dest_lid].metadata.update(source_metadata)
 
     return document
 
@@ -184,9 +202,10 @@ def ldelete(document: vp.Document, layers, prob: Optional[float]) -> vp.Document
     type=click.FloatRange(0.0, 1.0),
     help="Path deletion probability (default: 1.0).",
 )
+@click.option("-m", "--no-prop", is_flag=True, help="Do not move metadata.")
 @vp.global_processor
 def lswap(
-    document: vp.Document, first: int, second: int, prob: Optional[float]
+    document: vp.Document, first: int, second: int, prob: Optional[float], no_prop: bool
 ) -> vp.Document:
     """Swap the content between two layers
 
@@ -195,6 +214,9 @@ def lswap(
 
     The `--prob` option controls the probability with which each path are swapped. With a value
     lower than 1.0, some paths will remain in their original layer.
+
+    If  the `--prob` option is not used, the layer properties are swapped between layers as
+    well. This behaviour can be disabled with the `--no-prop` option.
     """
 
     first_lid = vp.single_to_layer_id(first, document, must_exist=True)
@@ -202,6 +224,11 @@ def lswap(
 
     if prob is None:
         document.swap_content(first_lid, second_lid)
+        if not no_prop:
+            document.layers[first_lid].metadata, document.layers[second_lid].metadata = (
+                document.layers[second_lid].metadata,
+                document.layers[first_lid].metadata,
+            )
     else:
         new_first = vp.LineCollection()
         new_second = vp.LineCollection()
