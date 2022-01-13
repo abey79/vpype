@@ -336,6 +336,7 @@ def write_svg(
     layer_label_format: str = "%d",
     show_pen_up: bool = False,
     color_mode: str = "none",
+    single_path: bool = False
 ) -> None:
     """Create a SVG from a :py:class:`Document` instance.
 
@@ -364,6 +365,9 @@ def write_svg(
         show_pen_up: add paths for the pen-up trajectories
         color_mode: "none" (no formatting), "layer" (one color per layer), "path" (one color
             per path)
+        single_path: if true, we use svg:path elements to write monolithic lines. This is useful
+            to speed up importing SVG file into InkScape and maybe other vector graphic software. 
+            If false, we use svg:line, svg:polyline and svg:polygon standard elements
     """
 
     # compute bounds
@@ -429,10 +433,14 @@ def write_svg(
 
         for layer in corrected_doc.layers.values():
             for line in layer.pen_up_trajectories():
-                group.add(
-                    dwg.line((line[0].real, line[0].imag), (line[-1].real, line[-1].imag))
-                )
-
+                if single_path:
+                    group.add(
+                        dwg.path(d='M{:1.3f},{:1.3f} {:1.3f},{:1.3f}'.format(line[0].real, line[0].imag, line[1].real, line[1].imag))
+                    )
+                else:
+                    group.add(
+                        dwg.line((line[0].real, line[0].imag), (line[-1].real, line[-1].imag))
+                    )
         dwg.add(group)
 
     for layer_id in sorted(corrected_doc.layers.keys()):
@@ -448,21 +456,42 @@ def write_svg(
         group.attribs["style"] = "display:inline"
         group.attribs["id"] = f"layer{layer_id}"
 
+        monolithic_path = []
         for line in layer:
             if len(line) <= 1:
                 continue
 
-            if len(line) == 2:
-                path = dwg.line((line[0].real, line[0].imag), (line[1].real, line[1].imag))
-            elif line[0] == line[-1]:
-                path = dwg.polygon((c.real, c.imag) for c in line[:-1])
+            if single_path:
+                if len(line) == 2:
+                    monolithic_path.append('M{:1.3f},{:1.3f} {:1.3f},{:1.3f}'.format(line[0].real, line[0].imag, line[1].real, line[1].imag))
+                elif line[0] == line[-1]:
+                    d = 'M{:1.3f},{:1.3f}'.format(line[0].real, line[0].imag)
+                    for c in line[:-1]:
+                        d += ' {:1.3f},{:1.3f}'.format(c.real, c.imag)
+                    d += ' Z'
+                    monolithic_path.append(d)
+                else:
+                    d = 'M{:1.3f},{:1.3f}'.format(line[0].real, line[0].imag)
+                    for c in line:
+                        d += ' {:1.3f},{:1.3f}'.format(c.real, c.imag)
+                    monolithic_path.append(d)
+                
             else:
-                path = dwg.polyline((c.real, c.imag) for c in line)
+                if len(line) == 2:
+                    path = dwg.line((line[0].real, line[0].imag), (line[1].real, line[1].imag))
+                elif line[0] == line[-1]:
+                    path = dwg.polygon((c.real, c.imag) for c in line[:-1])
+                else:
+                    path = dwg.polyline((c.real, c.imag) for c in line)
 
             if color_mode == "path":
                 path.attribs["stroke"] = _COLORS[color_idx % len(_COLORS)]
                 color_idx += 1
-            group.add(path)
+            if not single_path:
+                group.add(path)
+
+        if single_path:
+            group.add(dwg.path(' '.join(monolithic_path)))
 
         dwg.add(group)
 
