@@ -216,6 +216,12 @@ def test_lcopy_metadata():
     assert len(doc.layers[2]) == 1
     assert ("test", "value") in doc.layers[2].metadata.items()
 
+    doc = execute("line 0 0 10 10 propset -l1 test value lcopy --no-prop 1 2")
+    assert len(doc.layers[1]) == 1
+    assert len(doc.layers[2]) == 1
+    assert "test" in doc.layers[1].metadata
+    assert "test" not in doc.layers[2].metadata
+
     doc = execute("random -n 100 propset -l1 test value lcopy --prob 0.5 1 2")
     assert len(doc.layers[1]) == 100
     assert len(doc.layers[2]) > 0
@@ -233,6 +239,11 @@ def test_lmove_metadata():
     assert 1 not in doc.layers
     assert len(doc.layers[2]) == 1
     assert ("test", "value") in doc.layers[2].metadata.items()
+
+    doc = execute("line 0 0 10 10 propset -l1 test value lmove --no-prop 1 2")
+    assert 1 not in doc.layers
+    assert len(doc.layers[2]) == 1
+    assert "test" not in doc.layers[2].metadata
 
     doc = execute("random -n 100 propset -l1 test value lmove --prob 0.5 1 2")
     assert len(doc.layers[1]) > 0
@@ -260,6 +271,20 @@ def test_lswap_metadata():
     assert ("test2", "val2") in doc.layers[1].metadata.items()
     assert ("test", "val1") in doc.layers[2].metadata.items()
     assert ("test1", "val1") in doc.layers[2].metadata.items()
+
+    doc = execute(
+        "random -l1 -n10 random -l2 -n20 "
+        "propset -l1 test val1 propset -l2 test val2 "
+        "propset -l1 test1 val1 propset -l2 test2 val2 "
+        "lswap --no-prop 1 2"
+    )
+
+    assert len(doc.layers[1]) == 20
+    assert len(doc.layers[2]) == 10
+    assert ("test", "val1") in doc.layers[1].metadata.items()
+    assert ("test1", "val1") in doc.layers[1].metadata.items()
+    assert ("test", "val2") in doc.layers[2].metadata.items()
+    assert ("test2", "val2") in doc.layers[2].metadata.items()
 
     doc = execute(
         "random -l1 -n100 random -l2 -n100 "
