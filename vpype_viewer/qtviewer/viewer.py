@@ -352,7 +352,7 @@ class QtViewer(QWidget):
         # TODO: not implemented yet
         # self._toolbar.addAction(load_icon("ruler-square.svg"), "Units")
 
-        # MOUSE COORDINATES>
+        # MOUSE COORDINATES
         self._mouse_coord_lbl = QLabel("")
         self._mouse_coord_lbl.setMargin(6)
         self._mouse_coord_lbl.setAlignment(Qt.AlignVCenter | Qt.AlignRight)
@@ -392,7 +392,11 @@ class QtViewer(QWidget):
         doc = self._viewer_widget.document()
         if doc is not None:
             for layer_id in sorted(doc.layers):
-                action = layer_menu.addAction(f"Layer {layer_id}")
+                item_name = f"Layer {layer_id}"
+                layer_name = doc.layers[layer_id].property(vp.METADATA_FIELD_NAME)
+                if layer_name:
+                    item_name += ": " + layer_name
+                action = layer_menu.addAction(item_name)
                 action.setCheckable(True)
                 action.setChecked(True)
                 # TODO: set color icon

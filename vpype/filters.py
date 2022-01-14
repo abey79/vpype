@@ -36,7 +36,7 @@ def squiggles(
     noise.seed(random.randint(0, 2 ** 16))
 
     freq = 1.0 / period
-    new_lines = LineCollection()
+    new_lines = lines.clone()
     for line in lines:
         line = interpolate(line, step=quantization)
         perlin_x = noise.perlin(

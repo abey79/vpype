@@ -2,12 +2,46 @@
 
 #### 1.9 (UNRELEASED)
 
+**Note**: This is the last version of *vpype* to support Python 3.7.
+
 New features and improvements:
-* ...
+* Updated the internal data model to support global and per-layer metadata (#359)
+  
+  This feature is intended as a generic mechanism whereby a set of properties may be attached to specific layers (layer property) or all of them (global property). Properties are identified by a name and may be of arbitrary type (e.g. integer, floating point, color, etc.). This new infrastructure is used by several of the features introduced in this release, paves the way for future features, and further empowers plug-in writers. See the [documentation](https://vpype.readthedocs.io/en/latest/metadata) for more background information on metadata.
+
+* Layer color, pen width, and name are now customizable (#359)
+  * The `read` commands now sets layer color, pen width, and name based on the input SVG if possible.
+  * The new `color`, `penwdith`, and `name` commands can be used to modify layer color, pen width, and name.
+  * The new `pens` command can apply a predefined or custom scheme on multiple layers at once. Two schemes, `rgb` and `cmyk`, are included and others may be defined in the configuration file.
+  * The `show` and `write` commands were updated to take into account these new layer properties.
+
+* The `read` and `write` commands now preserve a sub-set of SVG attributes (experimental) (#359)
+  
+  The `read` command now seeks for SVG attributes (e.g. `stroke-dasharray`) which are shared by all geometries in each layer. When found, such attributes are saved as layer properties (with their name prefixed with `svg:`, e.g. `svg:stroke-dasharray`). The `write` command can optionally restore these attributes in the output SVG (using the `--restore-attribs`), thereby maintaining some of the visual aspects of the original SVG (e.g. dashed lines).
+
+* Introduced new commands for low-level inspection and modification of metadata (#359)
+
+  * `propget`: gets the value of a given global or layer property
+  * `proplist`: lists all global and/or layer properties and their value
+  * `propset`: sets the value of a given global or layer property
+  * `propdel`: deletes a given global or layer property
+  * `propclear`: removes all global and/or layer properties
+
+* Updated layer operation commands to handle metadata (#359)
+
+  * When a single source layer is specified and `--prob` is not used, the `lcopy` and `lmove` commands now copy the source layer's properties to the destination layer (possibly overwriting existing properties).
+  * When `--prob` is not used, the `lswap` command now swaps the layer properties as well.
+  * These behaviors can be disabled with the `--no-prop` option.
+
+* Providing a non-existent layer ID to any `--layer` parameter now generates a warning (#359)
+
+API changes:
+* `vpype.Document` and `vpype.LineCollection` have additional members to manage properties through the `vpype._MetadataMixin` mix-in class (#359)
 
 Other changes:
+* Renamed the bundled config file to `vpype_config.toml` (#359)
 * Changed dependencies to dataclasses (instead of attrs) and tomli (instead of toml) (#362)
-* Various documentation improvements (#363)
+* Various documentation improvements (#359, #363)
 
 
 #### 1.8.1 (2022-01-13)

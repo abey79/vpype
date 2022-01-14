@@ -17,54 +17,74 @@ EXAMPLE_SVG = TESTS_DIRECTORY / "data" / "test_svg" / "svg_width_height" / "perc
 @dataclass
 class Command:
     command: str
-    exit_code_no_layer: int
-    exit_code_one_layer: int
-    exit_code_two_layers: int
+    exit_code_no_layer: int = 0
+    exit_code_one_layer: int = 0
+    exit_code_two_layers: int = 0
+    preserves_metadata: bool = True
 
 
 MINIMAL_COMMANDS = [
-    Command("begin grid 2 2 line 0 0 10 10 end", 0, 0, 0),
-    Command("begin repeat 2 line 0 0 10 10 end", 0, 0, 0),
-    Command("frame", 0, 0, 0),
-    Command("random", 0, 0, 0),
-    Command("line 0 0 1 1", 0, 0, 0),
-    Command("rect 0 0 1 1", 0, 0, 0),
-    Command("arc 0 0 1 1 0 90", 0, 0, 0),
-    Command("circle 0 0 1", 0, 0, 0),
-    Command("ellipse 0 0 2 4", 0, 0, 0),
-    Command(f"read '{EXAMPLE_SVG}'", 0, 0, 0),
-    Command(f"read -m '{EXAMPLE_SVG}'", 0, 0, 0),
-    Command("write -f svg -", 0, 0, 0),
-    Command("write -f hpgl -d hp7475a -p a4 -", 0, 0, 0),
-    Command("rotate 0", 0, 0, 0),
-    Command("scale 1 1", 0, 0, 0),
-    Command("scaleto 10cm 10cm", 0, 0, 0),
-    Command("skew 0 0", 0, 0, 0),
-    Command("translate 0 0", 0, 0, 0),
-    Command("crop 0 0 1 1", 0, 0, 0),
-    Command("linesort", 0, 0, 0),
-    Command("linesort --two-opt", 0, 0, 0),
-    Command("linemerge", 0, 0, 0),
-    Command("linesimplify", 0, 0, 0),
-    Command("multipass", 0, 0, 0),
-    Command("reloop", 0, 0, 0),
-    Command("lmove 1 new", 0, 0, 0),
-    Command("lcopy 1 new", 0, 0, 0),
-    Command("ldelete 1", 0, 0, 0),
-    Command("lswap 1 2", 2, 2, 0),
-    Command("lreverse 1", 0, 0, 0),
-    Command("line 0 0 10 10 lreverse 1", 0, 0, 0),
-    Command("random -l1 random -l2 lswap 1 2", 0, 0, 0),
-    Command("trim 1mm 1mm", 0, 0, 0),
-    Command("splitall", 0, 0, 0),
-    Command("filter --min-length 1mm", 0, 0, 0),
-    Command("pagesize 10inx15in", 0, 0, 0),
-    Command("stat", 0, 0, 0),
-    Command("snap 1", 0, 0, 0),
-    Command("reverse", 0, 0, 0),
-    Command("layout a4", 0, 0, 0),
-    Command("squiggles", 0, 0, 0),
-    Command("text 'hello wold'", 0, 0, 0),
+    Command("begin grid 2 2 line 0 0 10 10 end"),
+    Command("begin repeat 2 line 0 0 10 10 end"),
+    Command("frame"),
+    Command("random"),
+    Command("line 0 0 1 1"),
+    Command("rect 0 0 1 1"),
+    Command("arc 0 0 1 1 0 90"),
+    Command("circle 0 0 1"),
+    Command("ellipse 0 0 2 4"),
+    Command(f"read '{EXAMPLE_SVG}'", preserves_metadata=False),
+    Command(f"read -m '{EXAMPLE_SVG}'", preserves_metadata=False),
+    Command("write -f svg -"),
+    Command("write -f hpgl -d hp7475a -p a4 -"),
+    Command("rotate 0"),
+    Command("scale 1 1"),
+    Command("scaleto 10cm 10cm"),
+    Command("skew 0 0"),
+    Command("translate 0 0"),
+    Command("crop 0 0 1 1"),
+    Command("linesort"),
+    Command("linesort --two-opt"),
+    Command("linemerge"),
+    Command("linesimplify"),
+    Command("multipass"),
+    Command("reloop"),
+    Command("lmove 1 new", preserves_metadata=False),
+    Command("lmove --prob 0. 1 new"),
+    Command("lcopy 1 new"),
+    Command("ldelete 1", preserves_metadata=False),
+    Command("ldelete --prob 0 1"),
+    Command(
+        "lswap 1 2", preserves_metadata=False, exit_code_no_layer=2, exit_code_one_layer=2
+    ),
+    Command("lswap --prob 0.5 1 2", exit_code_no_layer=2, exit_code_one_layer=2),
+    Command("lreverse 1"),
+    Command("line 0 0 10 10 lreverse 1"),
+    Command("random -l1 random -l2 lswap 1 2", preserves_metadata=False),
+    Command("random -l1 -n100 random -l2 -n100 lswap --prob 0.5 1 2"),
+    Command("trim 1mm 1mm"),
+    Command("splitall"),
+    Command("filter --min-length 1mm"),
+    Command("pagesize 10inx15in"),
+    Command("stat"),
+    Command("snap 1"),
+    Command("reverse"),
+    Command("layout a4"),
+    Command("squiggles"),
+    Command("text 'hello wold'"),
+    Command("penwidth 0.15mm", preserves_metadata=False),
+    Command("color red", preserves_metadata=False),
+    Command("name my_name", preserves_metadata=False),
+    Command("propset -g prop:global hello", preserves_metadata=False),
+    Command("propset -l 1 prop:local hello", preserves_metadata=False),
+    Command("propget -g prop:global"),
+    Command("propget -l 1 prop:global"),
+    Command("proplist -g"),
+    Command("proplist -l 1"),
+    Command("propdel -g prop:global", preserves_metadata=False),
+    Command("propdel -l 1 prop:layer", preserves_metadata=False),
+    Command("propclear -g", preserves_metadata=False),
+    Command("propclear -l 1", preserves_metadata=False),
 ]
 
 # noinspection SpellCheckingInspection
@@ -123,8 +143,8 @@ def test_commands_keeps_page_size(runner, cmd):
 
     args = cmd.command
 
-    if args.split()[0] in ["pagesize", "layout"]:
-        return
+    if args.split()[0] in ["pagesize", "layout"] or args.startswith("propclear -g"):
+        pytest.skip(f"command {args.split()[0]} fail this test by design")
 
     page_size = None
 
@@ -140,6 +160,30 @@ def test_commands_keeps_page_size(runner, cmd):
     )
     assert result.exit_code == cmd.exit_code_two_layers
     assert page_size == (5432, 4321)
+
+
+@pytest.mark.parametrize("cmd", MINIMAL_COMMANDS)
+def test_command_must_preserve_metadata(cmd):
+    if cmd.exit_code_two_layers != 0:
+        pytest.skip("command must be compatible with 2-layer pipeline")
+
+    if not cmd.preserves_metadata:
+        pytest.skip("command is flagged as not meta-data preserving")
+
+    doc = vp.Document()
+    doc.add([], 1)
+    doc.add([], 2)
+
+    doc.layers[1].set_property(vp.METADATA_FIELD_NAME, "test_name")
+    doc.layers[2].set_property(vp.METADATA_FIELD_PEN_WIDTH, 0.15)
+
+    new_doc = execute(
+        "line -l1 0 0 10 10 name -l1 hello line -l2 20 20 30 30 penwidth -l2 0.15 "
+        + cmd.command
+    )
+
+    assert new_doc.layers[1].metadata == {vp.METADATA_FIELD_NAME: "hello"}
+    assert new_doc.layers[2].metadata == {vp.METADATA_FIELD_PEN_WIDTH: 0.15}
 
 
 def test_frame(runner):
@@ -519,3 +563,98 @@ def test_text_command_wrap(font_name, options):
 def test_text_command_empty():
     doc = execute("text ''")
     assert doc.is_empty()
+
+
+@pytest.mark.parametrize(
+    ("cmd", "expected_output"),
+    [
+        ("propset -l1 prop val", ""),
+        (
+            "random propset -l1 -t int prop 1cm propget -l1 prop",
+            "layer 1 property prop: (int) 37",
+        ),
+        ("propset -g prop val", ""),
+        ("propget -g prop", "global property prop: n/a"),
+        ("line 0 0 1 1 propget -l1 prop", "layer 1 property prop: n/a"),
+        (
+            "line 0 0 1 1 propset -l1 -t int prop 10 propget -l1 prop",
+            "layer 1 property prop: (int) 10",
+        ),
+        (
+            "line 0 0 1 1 propset -l1 -t str prop hello propget -l1 prop",
+            "layer 1 property prop: (str) hello",
+        ),
+        (
+            "line 0 0 1 1 propset -l1 -t float prop 10.2 propget -l1 prop",
+            "layer 1 property prop: (float) 10.2",
+        ),
+        (
+            "line 0 0 1 1 propset -l1 -t color prop red propget -l1 prop",
+            "layer 1 property prop: (color) #ff0000",
+        ),
+        (
+            "pens rgb proplist -l all",
+            "listing 2 properties for layer 1\n"
+            "  vp:color: (color) #ff0000\n"
+            "  vp:name: (str) red\n"
+            "listing 2 properties for layer 2\n"
+            "  vp:color: (color) #008000\n"
+            "  vp:name: (str) green\n"
+            "listing 2 properties for layer 3\n"
+            "  vp:color: (color) #0000ff\n"
+            "  vp:name: (str) blue",
+        ),
+        (
+            "pens rgb propdel -l1 vp:color proplist -l all",
+            "listing 1 properties for layer 1\n  vp:name: (str) red\n"
+            "listing 2 properties for layer 2\n"
+            "  vp:color: (color) #008000\n"
+            "  vp:name: (str) green\n"
+            "listing 2 properties for layer 3\n"
+            "  vp:color: (color) #0000ff\n"
+            "  vp:name: (str) blue",
+        ),
+        (
+            "pens rgb propdel -l all vp:color proplist -l all",
+            "listing 1 properties for layer 1\n  vp:name: (str) red\n"
+            "listing 1 properties for layer 2\n  vp:name: (str) green\n"
+            "listing 1 properties for layer 3\n  vp:name: (str) blue",
+        ),
+        (
+            "pens rgb propdel -l all vp:color proplist -l 2",
+            "listing 1 properties for layer 2\n  vp:name: (str) green",
+        ),
+        (
+            "pens rgb propclear -l all proplist",
+            "listing 0 properties for layer 1\n"
+            "listing 0 properties for layer 2\n"
+            "listing 0 properties for layer 3\n",
+        ),
+        (
+            "pagesize 400x1200 proplist -g",
+            "listing 1 global properties\n  vp:page_size: (tuple) (400.0, 1200.0)",
+        ),
+        (
+            "pagesize 400x1200 propdel -g vp:page_size proplist -g",
+            "listing 0 global properties",
+        ),
+        ("propset -g -t int prop 10 propget -g prop", "global property prop: (int) 10"),
+        (
+            "propset -g -t float prop 11.2 propget -g prop",
+            "global property prop: (float) 11.2",
+        ),
+        ("propset -g -t str prop hello propget -g prop", "global property prop: (str) hello"),
+        (
+            "propset -g -t color prop blue propget -g prop",
+            "global property prop: (color) #0000ff",
+        ),
+        (
+            "pagesize a4 propset -g prop val propclear -g proplist -g",
+            "listing 0 global properties",
+        ),
+    ],
+)
+def test_property_commands(runner, cmd, expected_output):
+    res = runner.invoke(cli, cmd)
+    assert res.exit_code == 0
+    assert res.stdout.strip() == expected_output.strip()

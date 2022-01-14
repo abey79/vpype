@@ -20,7 +20,7 @@ from recommonmark.parser import CommonMarkParser
 
 project = "vpype"
 # noinspection PyShadowingBuiltins
-copyright = "2020, Antoine Beyeler"
+copyright = "2020-2022, Antoine Beyeler"
 author = "Antoine Beyeler"
 
 # -- General configuration ---------------------------------------------------
@@ -108,6 +108,11 @@ def autodoc_skip_member(app, what, name, obj, skip, options):
         "__doc__",
         "__module__",
         "__weakref__",
+        "__init__",
+        "__getitem__",
+        "__iter__",
+        "__len__",
+        "__repr__",
     )
     exclude = name in exclusions
     return skip or exclude

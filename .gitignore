@@ -146,3 +146,5 @@ cython_debug/
 /my_work
 /pip-wheel-metadata
 /test_report_img_sim/
+/*.svg
+

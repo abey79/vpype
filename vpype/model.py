@@ -2,13 +2,14 @@
 """
 import logging
 import math
-from typing import Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Union, cast
+from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Union, cast
 
 import numpy as np
 from shapely.geometry import LinearRing, LineString, MultiLineString
 
 from .geometry import crop, reloop
 from .line_index import LineIndex
+from .metadata import METADATA_FIELD_PAGE_SIZE, METADATA_SYSTEM_FIELD_TYPES
 
 # REMINDER: anything added here must be added to docs/api.rst
 __all__ = [
@@ -17,6 +18,7 @@ __all__ = [
     "LineLike",
     "LineCollectionLike",
     "as_vector",
+    "_MetadataMixin",  # for documentation
     # deprecated:
     "VectorData",
 ]
@@ -35,8 +37,63 @@ def as_vector(a: np.ndarray):
     return a.view(dtype=float).reshape(len(a), 2)
 
 
+class _MetadataMixin:
+    def __init__(self, metadata: Optional[Dict[str, Any]] = None):
+        self._metadata: Dict[str, Any] = metadata or {}
+
+    @property
+    def metadata(self):
+        """Returns the collection's metadata.
+
+        Returns:
+            metadata
+        """
+        return self._metadata
+
+    @metadata.setter
+    def metadata(self, metadata: Dict[str, Any]) -> None:
+        """Sets the metadata structure."""
+        self._metadata = metadata
+
+    def property_exists(self, prop: str) -> bool:
+        """Check if a given property is set.
+
+        Args:
+            prop: the property whose existence to check
+        """
+        return prop in self._metadata
+
+    def property(self, prop: str) -> Optional[Any]:
+        """Returns the value of a metadata property or None if it does not exist.
+
+        Args:
+            prop: the property to read
+        """
+        return self._metadata.get(prop, None)
+
+    def set_property(self, prop: str, value: Optional[Any]) -> None:
+        """Sets the value of a metadata property. For system properties, this function casts
+        the value to the proper type and throw an exception if this fails. If the value is
+        None, the property is removed.
+
+        Args:
+            prop: property to set
+            value: value to assign
+        """
+        if value is None:
+            self._metadata.pop(prop, None)
+        else:
+            if prop in METADATA_SYSTEM_FIELD_TYPES:
+                value = METADATA_SYSTEM_FIELD_TYPES[prop](value)
+            self._metadata[prop] = value
+
+    def clear_metadata(self) -> None:
+        """Remove all properties."""
+        self._metadata = {}
+
+
 # noinspection PyShadowingNames
-class LineCollection:
+class LineCollection(_MetadataMixin):
     """
     :py:class:`LineCollection` encapsulate a list of piecewise linear lines (or paths). Lines
     are implemented as 1D numpy arrays of complex numbers whose real and imaginary parts
@@ -88,15 +145,18 @@ class LineCollection:
     transformation, cropping, merging, etc. (see member function documentation for details).
     """
 
-    def __init__(self, lines: LineCollectionLike = ()):
+    def __init__(
+        self, lines: LineCollectionLike = (), metadata: Optional[Dict[str, Any]] = None
+    ):
         """Create a LineCollection instance from an iterable of lines.
 
         Args:
             lines (LineCollectionLike): iterable of line (accepts the same input as
                 :func:`~LineCollection.append`).
         """
-        self._lines: List[np.ndarray] = []
+        super().__init__(metadata)
 
+        self._lines: List[np.ndarray] = []
         self.extend(lines)
 
     @property
@@ -107,6 +167,20 @@ class LineCollection:
             list of line
         """
         return self._lines
+
+    def clone(self, lines: LineCollectionLike = ()) -> "LineCollection":
+        """Creates a new :class:`LineCollection` with the same metadata.
+
+        If ``lines`` is provided, its content is added to the new :class:`LineCollection`
+        instance.
+
+        Args:
+            lines: path to add to the new :class:`LineCollection` instance
+
+        Returns:
+            the new :class:`LineCollection` instance
+        """
+        return LineCollection(lines=lines, metadata=self.metadata)
 
     def append(self, line: LineLike) -> None:
         """Append a single line.
@@ -427,7 +501,7 @@ class LineCollection:
         return sum(max(0, len(line) - 1) for line in self._lines)
 
 
-class Document:
+class Document(_MetadataMixin):
     """This class is the core data model of vpype and represent the data that is passed from
     one command to the other. At its core, a Document is a collection of layers identified
     by non-zero positive integers and each represented by a :py:class:`LineCollection`.
@@ -440,6 +514,7 @@ class Document:
     def __init__(
         self,
         line_collection: LineCollection = None,
+        metadata: Optional[Dict[str, Any]] = None,
         page_size: Optional[Tuple[float, float]] = None,
     ):
         """Create a Document, optionally providing a :py:class:`LayerCollection` for layer 1.
@@ -447,15 +522,19 @@ class Document:
         Args:
             line_collection: if provided, used as layer 1
         """
+        super().__init__(metadata)
+
         self._layers: Dict[int, LineCollection] = {}
-        self._page_size: Optional[Tuple[float, float]] = page_size
+
+        if page_size is not None:
+            self.page_size = page_size
 
         if line_collection:
             self.add(line_collection, 1)
 
-    def empty_copy(self) -> "Document":
-        """Create an empty copy of this document with the same page size."""
-        return Document(page_size=self.page_size)
+    def clone(self) -> "Document":
+        """Create an empty copy of this document with the same metadata"""
+        return Document(metadata=self.metadata)
 
     @property
     def layers(self) -> Dict[int, LineCollection]:
@@ -468,12 +547,12 @@ class Document:
     @property
     def page_size(self) -> Optional[Tuple[float, float]]:
         """Returns the page size or None if it hasn't been set."""
-        return self._page_size
+        return self.property(METADATA_FIELD_PAGE_SIZE)
 
     @page_size.setter
     def page_size(self, page_size=Optional[Tuple[float, float]]) -> None:
         """Sets the page size to a new value."""
-        self._page_size = page_size
+        self.set_property(METADATA_FIELD_PAGE_SIZE, page_size)
 
     def extend_page_size(self, page_size: Optional[Tuple[float, float]]) -> None:
         """Adjust the  page sized according to the following logic:
@@ -494,6 +573,11 @@ class Document:
                 )
             else:
                 self.page_size = page_size
+
+    def clear_layer_metadata(self) -> None:
+        """Clear all metadata from the document."""
+        for layer in self._layers.values():
+            layer.clear_metadata()
 
     def ids(self) -> Iterable[int]:
         """Returns the list of layer IDs"""
@@ -550,21 +634,64 @@ class Document:
             vid += 1
         return vid
 
-    def add(self, lc: LineCollection, layer_id: Union[None, int] = None) -> None:
+    def add(self, lines: LineCollectionLike, layer_id: Union[None, int] = None) -> None:
         """Add a the content of a :py:class:`LineCollection` to a given layer.
 
-        If the given layer is None, the input LineCollection is used to create a new layer
-        using the lowest available layer ID.
+        If the given layer is None, a new layer with the lowest available layer ID is created
+        (with emtpy metadata) and initialized with the content of ``lc``.
         """
         if layer_id is None:
             layer_id = 1
             while layer_id in self._layers:
                 layer_id += 1
 
-        if layer_id in self._layers:
-            self._layers[layer_id].extend(lc)
-        else:
-            self._layers[layer_id] = lc
+        if layer_id not in self._layers:
+            self._layers[layer_id] = LineCollection()
+
+        self._layers[layer_id].extend(lines)
+
+    def replace(self, lines: LineCollectionLike, layer_id: int) -> None:
+        """Replaces the content of a layer.
+
+        This method replaces the content of layer ``layer_id`` with ``lines``. The layer must
+        exist, otherwise a :class:`ValueError` exception is raised.
+
+        The destination layer retains its metadata
+
+        Args:
+            lines: line data to assign to the layer
+            layer_id: layer ID of the layer whose content is to be replaced
+        """
+
+        if layer_id not in self._layers:
+            raise ValueError(f"layer {layer_id} doesn't exist")
+
+        self._layers[layer_id] = self._layers[layer_id].clone(lines)
+
+    def swap_content(self, lid1: int, lid2: int) -> None:
+        """Swap the content of two layers.
+
+        This method swaps the content between two layers. Each layer retains its original
+        metadata.
+
+        A :class:`ValueError` is raised if either of the layer ID do not exist.
+
+        Args:
+            lid1: first layer
+            lid2: second layer
+        """
+
+        if lid1 not in self._layers:
+            raise ValueError(f"layer {lid1} does not exist")
+        if lid2 not in self._layers:
+            raise ValueError(f"layer {lid2} does not exist")
+
+        self._layers[lid1].metadata, self._layers[lid2].metadata = (
+            self._layers[lid2].metadata,
+            self._layers[lid1].metadata,
+        )
+
+        self._layers[lid1], self._layers[lid2] = self._layers[lid2], self._layers[lid1]
 
     def extend(self, doc: "Document") -> None:
         """Extend a Document with the content of another Document.
@@ -575,14 +702,22 @@ class Document:
 
         The :py:attr:`page_size` attribute is adjusted using :meth:`extend_page_size`.
 
+        The source's metadata is copied over to the destination, overriding any existing
+        property. Properties existing in the destination but not in the source are preserved.
+
         Args:
             doc: source Document
         """
 
+        # special treatment for page size
         self.extend_page_size(doc.page_size)
+        self.metadata.update(
+            {k: v for k, v in doc.metadata.items() if k != METADATA_FIELD_PAGE_SIZE}
+        )
 
         for layer_id, layer in doc.layers.items():
             self.add(layer, layer_id)
+            self.layers[layer_id].metadata.update(layer.metadata)
 
     def is_empty(self) -> bool:
         """Returns True if all layers are empty.

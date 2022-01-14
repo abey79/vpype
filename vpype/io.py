@@ -4,18 +4,27 @@ import copy
 import datetime
 import math
 import re
-from typing import Iterator, List, Optional, TextIO, Tuple, Union
+from typing import Any, Dict, Iterator, List, Optional, TextIO, Tuple, Union, cast
 from xml.etree import ElementTree
 
 import click
 import numpy as np
 import svgelements
 import svgwrite
+import svgwrite.base
 from multiprocess import Pool
 from shapely.geometry import LineString
 from svgwrite.extensions import Inkscape
 
 from .config import PaperConfig, PlotterConfig, config_manager
+from .metadata import (
+    METADATA_FIELD_COLOR,
+    METADATA_FIELD_NAME,
+    METADATA_FIELD_PEN_WIDTH,
+    METADATA_SVG_ATTRIBUTES_WHITELIST,
+    METADATA_SVG_NAMESPACES,
+    Color,
+)
 from .model import Document, LineCollection
 from .utils import UNITS
 
@@ -86,13 +95,130 @@ _PathListType = List[
 ]
 
 
+_NAMESPACED_PROPERTY_RE = re.compile(r"{([-a-zA-Z0-9@:%._+~#=/]+)}([a-zA-Z0-9]+)")
+
+
+def _extract_metadata_from_element(
+    elem: svgelements.Shape, layer_system_props: bool = True
+) -> Dict[str, Any]:
+    """Extracts the metadata from a svgelements element.
+
+    svgelements offers 3 levels of metadata:
+    - object attributes (e.g. `elem.stroke`) which are guaranteed to exist and are typed
+      (e.g. `svgelements.Color` for `elem.stroke`).
+    - values (e.g. `elem.values`) which are computed from the group hierarchy (e.g. they are
+      inherited from enclosing `<g>` elements)
+    - SVG attributes (e.g. `elem.values["attributes"]`) which are
+
+    The strategy is as follows:
+    - attributes are mapped directly to system metadata (i.e. "vp.color" and "vp.pen_width" --
+      "vp.name" is handled by read_multilayer_svg())
+    - values are whitelisted and added as `"svg:"` namespace
+    - XML-namespaced values are also added as `svg:` namespace (e.g. `"svg:inkscape:label"`
+    - SVG attributes are disregarded
+    """
+
+    metadata: Dict[str, Any] = {}
+
+    # layer-level system properties
+    if layer_system_props:
+        metadata.update(
+            {
+                METADATA_FIELD_COLOR: Color(elem.stroke),
+                METADATA_FIELD_PEN_WIDTH: elem.stroke_width,
+            }
+        )
+
+    # white-listed root SVG properties
+    metadata.update(
+        {
+            "svg:" + k: v
+            for k, v in elem.values.items()
+            if k in METADATA_SVG_ATTRIBUTES_WHITELIST
+        }
+    )
+
+    # name-spaced XML properties
+    for k, v in elem.values.items():
+        mo = _NAMESPACED_PROPERTY_RE.match(k)
+        if mo:
+            ns = mo[1]
+            if ns in METADATA_SVG_NAMESPACES:
+                metadata[f"svg:{METADATA_SVG_NAMESPACES[ns]}:{mo[2]}"] = v
+            else:
+                metadata["svg:" + k] = v
+
+    return metadata
+
+
+def _intersect_dict(a: Dict[str, Any], b: Dict[str, Any]) -> Dict[str, Any]:
+    return dict(a.items() & b.items())
+
+
+def _extract_paths(
+    group: svgelements.Group, recursive
+) -> Tuple[_PathListType, Optional[Dict[str, str]]]:
+    """Extract everything from the provided SVG group."""
+
+    if recursive:
+        everything = group.select()
+    else:
+        everything = group
+    paths = []
+    metadata: Optional[Dict[str, str]] = None
+    for elem in everything:
+        if hasattr(elem, "values") and elem.values.get("visibility", "") in (
+            "hidden",
+            "collapse",
+        ):
+            continue
+
+        if isinstance(elem, svgelements.Path):
+            if len(elem) != 0:
+                paths.append(elem)
+        elif isinstance(elem, (svgelements.Polyline, svgelements.Polygon)):
+            # Here we add a "fake" path containing just the Polyline/Polygon,
+            # to be treated specifically by _convert_flattened_paths.
+            path = [svgelements.Move(elem.points[0]), elem]
+            if isinstance(elem, svgelements.Polygon):
+                path.append(svgelements.Close(elem.points[-1], elem.points[0]))
+            paths.append(path)
+        elif isinstance(elem, svgelements.Shape):
+            e = svgelements.Path(elem)
+            e.reify()  # In some cases the shape could not have reified, the path must.
+            if len(e) != 0:
+                paths.append(e)
+        else:
+            continue
+
+        # apply union on metadata
+        if metadata is None:
+            metadata = _extract_metadata_from_element(elem)
+        else:
+            metadata = _intersect_dict(metadata, _extract_metadata_from_element(elem))
+
+    return paths, metadata
+
+
 def _convert_flattened_paths(
-    paths: _PathListType, quantization: float, simplify: bool, parallel: bool
-) -> "LineCollection":
-    """Convert a list of FlattenedPaths to a :class:`LineCollection`.
+    group: svgelements.Group,
+    recursive: bool,
+    quantization: float,
+    simplify: bool,
+    parallel: bool,
+) -> LineCollection:
+    """Convert a list of SVG group to a :class:`LineCollection`.
+
+    The resulting :class:`vpype.LineCollection` instance's metadata contains all properties
+    (as extracted with :func:`_extract_metadata_from_element`) whose value is identical for
+    every single item within the group.
+
+    Note: group-level properties are not explicitly added to the metadata since they are
+    propagated to enclosed elements by svgelements.
 
     Args:
-        paths: list of FlattenedPaths
+        group: SVG group to process
+        recursive: defines whether the group should be parsed recursively or not
         quantization: maximum length of linear elements to approximate curve paths
         simplify: should Shapely's simplify be run on curved elements after quantization
         parallel: enable multiprocessing
@@ -100,6 +226,8 @@ def _convert_flattened_paths(
     Returns:
         new :class:`LineCollection` instance containing the converted geometries
     """
+
+    paths, metadata = _extract_paths(group, recursive)
 
     def _process_path(path):
         if len(path) == 0:
@@ -159,44 +287,10 @@ def _convert_flattened_paths(
     else:
         results = map(_process_path, paths)
 
-    lc = LineCollection()
+    lc = LineCollection(metadata=metadata)
     for res in results:
         lc.extend(res)
     return lc
-
-
-def _extract_paths(group: svgelements.Group, recursive) -> _PathListType:
-    """Extract everything from the provided SVG group."""
-
-    if recursive:
-        everything = group.select()
-    else:
-        everything = group
-    paths = []
-    for elem in everything:
-        if hasattr(elem, "values") and elem.values.get("visibility", "") in (
-            "hidden",
-            "collapse",
-        ):
-            continue
-
-        if isinstance(elem, svgelements.Path):
-            if len(elem) != 0:
-                paths.append(elem)
-        elif isinstance(elem, (svgelements.Polyline, svgelements.Polygon)):
-            # Here we add a "fake" path containing just the Polyline/Polygon,
-            # to be treated specifically by _convert_flattened_paths.
-            path = [svgelements.Move(elem.points[0]), elem]
-            if isinstance(elem, svgelements.Polygon):
-                path.append(svgelements.Close(elem.points[-1], elem.points[0]))
-            paths.append(path)
-        elif isinstance(elem, svgelements.Shape):
-            e = svgelements.Path(elem)
-            e.reify()  # In some cases the shape could not have reified, the path must.
-            if len(e) != 0:
-                paths.append(e)
-
-    return paths
 
 
 def read_svg(
@@ -232,8 +326,7 @@ def read_svg(
 
     # default width is for SVG with % width/height
     svg = svgelements.SVG.parse(file, width=default_width, height=default_height)
-    paths = _extract_paths(svg, recursive=True)
-    lc = _convert_flattened_paths(paths, quantization, simplify, parallel)
+    lc = _convert_flattened_paths(svg, True, quantization, simplify, parallel)
 
     if crop:
         lc.crop(0, 0, svg.width, svg.height)
@@ -282,15 +375,13 @@ def read_multilayer_svg(
     """
 
     svg = svgelements.SVG.parse(file, width=default_width, height=default_height)
-
-    document = Document()
+    document = Document(metadata=_extract_metadata_from_element(svg, False))
 
     # non-group top level elements are loaded in layer 1
-    lc = _convert_flattened_paths(
-        _extract_paths(svg, recursive=False), quantization, simplify, parallel
-    )
+    lc = _convert_flattened_paths(svg, False, quantization, simplify, parallel)
     if not lc.is_empty():
         document.add(lc, 1)
+        document.layers[1].metadata = lc.metadata
 
     def _find_groups(group: svgelements.Group) -> Iterator[svgelements.Group]:
         for elem in group:
@@ -298,12 +389,11 @@ def read_multilayer_svg(
                 yield elem
 
     for i, g in enumerate(_find_groups(svg)):
+        # noinspection HttpUrlsUsage
+        layer_name = g.values.get("{http://www.inkscape.org/namespaces/inkscape}label", None)
+
         # compute a decent layer ID
-        lid_str = re.sub(
-            "[^0-9]",
-            "",
-            g.values.get("{http://www.inkscape.org/namespaces/inkscape}label") or "",
-        )
+        lid_str = re.sub("[^0-9]", "", layer_name or "")
         if not lid_str:
             lid_str = re.sub("[^0-9]", "", g.values.get("id") or "")
         if lid_str:
@@ -313,29 +403,58 @@ def read_multilayer_svg(
         else:
             lid = i + 1
 
-        lc = _convert_flattened_paths(
-            _extract_paths(g, recursive=True), quantization, simplify, parallel
-        )
+        lc = _convert_flattened_paths(g, True, quantization, simplify, parallel)
+
         if not lc.is_empty():
+            # deal with the case of layer 1, which may already be initialized with top-level
+            # paths
+            if lid in document.layers:
+                metadata = _intersect_dict(document.layers[lid].metadata, lc.metadata)
+            else:
+                metadata = lc.metadata
+
             document.add(lc, lid)
+            document.layers[lid].metadata = metadata
+            document.layers[lid].set_property(METADATA_FIELD_NAME, layer_name)
 
     document.page_size = (svg.width, svg.height)
 
     if crop:
         document.crop(0, 0, svg.width, svg.height)
 
+    # Because of how svgelements works, all the <svg> level metadata is propagated to every
+    # nested tag. As a result, we need to subtract global properties from the layer ones.
+    for layer in document.layers.values():
+        layer.metadata = dict(layer.metadata.items() - document.metadata.items())
+
     return document
 
 
+_WRITE_SVG_RESTORE_EXCLUDE_LIST = (
+    "svg:display",
+    "svg:visibility",
+    "svg:stroke",
+    "svg:stroke-width",
+)
+
+
+def _restore_metadata(elem: svgwrite.base.BaseElement, metadata: Dict[str, Any]) -> None:
+    for prop, val in metadata.items():
+        if prop.startswith("svg:") and prop not in _WRITE_SVG_RESTORE_EXCLUDE_LIST:
+            elem.attribs[prop[4:]] = str(val)
+
+
+# noinspection HttpUrlsUsage
 def write_svg(
     output: TextIO,
     document: Document,
     page_size: Optional[Tuple[float, float]] = None,
     center: bool = False,
     source_string: str = "",
-    layer_label_format: str = "%d",
+    layer_label_format: Optional[str] = None,
     show_pen_up: bool = False,
-    color_mode: str = "none",
+    color_mode: str = "default",
+    use_svg_metadata: bool = False,
 ) -> None:
     """Create a SVG from a :py:class:`Document` instance.
 
@@ -348,11 +467,26 @@ def write_svg(
 
     No scaling or rotation is applied to geometries.
 
-    Layers are named after `layer_label_format`, which may contain a C-style format specifier
-    such as `%d` which will be replaced by the layer number.
+    Layers are named after the `vp:name` system property if it exists, or with their layer ID
+    otherwise. This can be overridden with the  ``layer_label_format`` parameter, which may
+    contain a C-style format specifier such as `%d` which will be replaced by the layer number.
 
-    For previsualisation purposes, pen-up trajectories can be added to the SVG and path can
-    be colored individually (``color_mode="path"``) or layer-by-layer (``color_mode="layer"``).
+    Optionally, metadata properties prefixed with ``svg:`` (typically extracted from an input
+    SVG with the :ref:`cmd_read` command) may be used as group attributes with
+    ``use_svg_metadata=True``.
+
+    The color of the layer is determined by the ``color_mode`` parameter.
+
+        - ``"default"``: use ``vp:color`` system property and reverts to the default coloring
+          scheme
+        - ``"none"``: no formatting (black)
+        - ``"layer"``: one color per layer based on the default coloring scheme
+        - ``"path"``: one color per path based on the default coloring scheme
+
+    The pen width is set to the `vp:pen_width` system property if it exists.
+
+    For previsualisation purposes, pen-up trajectories can be added to the SVG using the
+    ``show pen_up`` argument.
 
     Args:
         output: text-mode IO stream where SVG code will be written
@@ -362,8 +496,9 @@ def write_svg(
         source_string: value of the `source` metadata
         layer_label_format: format string for layer label naming
         show_pen_up: add paths for the pen-up trajectories
-        color_mode: "none" (no formatting), "layer" (one color per layer), "path" (one color
-            per path)
+        color_mode: "default" (system property), "none" (no formatting), "layer" (one color per
+            layer), "path" (one color per path)
+        use_svg_metadata: apply ``svg:``-prefixed properties as SVG attributes
     """
 
     # compute bounds
@@ -399,14 +534,11 @@ def write_svg(
     size_cm = tuple(f"{round(s / UNITS['cm'], 8)}cm" for s in capped_size)
     dwg = svgwrite.Drawing(size=size_cm, profile="tiny", debug=False)
     inkscape = Inkscape(dwg)
-    dwg.attribs.update(
-        {
-            "viewBox": f"0 0 {capped_size[0]} {capped_size[1]}",
-            "xmlns:dc": "http://purl.org/dc/elements/1.1/",
-            "xmlns:cc": "http://creativecommons.org/ns#",
-            "xmlns:rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-        }
-    )
+    dwg.attribs.update({"viewBox": f"0 0 {capped_size[0]} {capped_size[1]}"})
+    dwg.attribs.update({f"xmlns:{v}": k for k, v in METADATA_SVG_NAMESPACES.items()})
+
+    if use_svg_metadata:
+        _restore_metadata(dwg, document.metadata)
 
     # add metadata
     metadata = ElementTree.Element("rdf:RDF")
@@ -438,15 +570,35 @@ def write_svg(
     for layer_id in sorted(corrected_doc.layers.keys()):
         layer = corrected_doc.layers[layer_id]
 
-        group = inkscape.layer(label=str(layer_label_format % layer_id))
+        if layer_label_format is not None:
+            label = layer_label_format % layer_id
+        elif layer.property_exists(METADATA_FIELD_NAME):
+            label = str(layer.property(METADATA_FIELD_NAME))
+        else:
+            label = str(layer_id)
+
+        group = inkscape.layer(label=label)
         group.attribs["fill"] = "none"
-        if color_mode == "layer":
+
+        if color_mode == "layer" or (
+            color_mode == "default" and not layer.property_exists(METADATA_FIELD_COLOR)
+        ):
             group.attribs["stroke"] = _COLORS[color_idx % len(_COLORS)]
             color_idx += 1
-        else:
+        elif color_mode == "default":
+            group.attribs["stroke"] = str(layer.property(METADATA_FIELD_COLOR))
+        elif color_mode == "none":
             group.attribs["stroke"] = "black"
         group.attribs["style"] = "display:inline"
         group.attribs["id"] = f"layer{layer_id}"
+        if layer.property_exists(METADATA_FIELD_PEN_WIDTH):
+            group.attribs["stroke-width"] = float(
+                cast(float, layer.property(METADATA_FIELD_PEN_WIDTH))
+            )
+
+        # dump all svg properties as attribute
+        if use_svg_metadata:
+            _restore_metadata(group, layer.metadata)
 
         for line in layer:
             if len(line) <= 1:

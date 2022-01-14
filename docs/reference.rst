@@ -23,6 +23,10 @@ CLI reference
 .. click:: vpype_cli:circle
    :prog: circle
 
+.. _cmd_color:
+.. click:: vpype_cli:color
+   :prog: color
+
 .. _cmd_crop:
 .. click:: vpype_cli:crop
    :prog: crop
@@ -78,11 +82,11 @@ CLI reference
 .. _cmd_lmove:
 .. click:: vpype_cli:lmove
    :prog: lmove
-   
+
 .. _cmd_lreverse:
 .. click:: vpype_cli:lreverse
    :prog: lreverse
-   
+
 .. _cmd_lswap:
 .. click:: vpype_cli:lswap
    :prog: lswap
@@ -91,9 +95,41 @@ CLI reference
 .. click:: vpype_cli:multipass
    :prog: multipass
 
+.. _cmd_name:
+.. click:: vpype_cli:name
+   :prog: name
+
 .. _cmd_pagesize:
 .. click:: vpype_cli:pagesize
    :prog: pagesize
+
+.. _cmd_pens:
+.. click:: vpype_cli:pens
+   :prog: pens
+
+.. _cmd_penwidth:
+.. click:: vpype_cli:penwidth
+   :prog: penwidth
+
+.. _cmd_propclear:
+.. click:: vpype_cli:propclear
+   :prog: propclear
+
+.. _cmd_propdel:
+.. click:: vpype_cli:propdel
+   :prog: propdel
+
+.. _cmd_propget:
+.. click:: vpype_cli:propget
+   :prog: propget
+
+.. _cmd_proplist:
+.. click:: vpype_cli:proplist
+   :prog: proplist
+
+.. _cmd_propset:
+.. click:: vpype_cli:propset
+   :prog: propset
 
 .. _cmd_random:
 .. click:: vpype_cli:random

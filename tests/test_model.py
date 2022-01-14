@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 from shapely.geometry import LinearRing, LineString, MultiLineString, Point
 
+import vpype as vp
 from vpype import Document, LineCollection
 
 from .utils import line_collection_contains
@@ -141,6 +142,91 @@ def test_line_collection_reverse():
         assert np.all(lc[i] == np.array(line))
 
 
+def test_line_collection_clone():
+    metadata = {"line_width": 0.3}
+    lc = LineCollection(([0, 1, 10 + 10j], [0, 10]), metadata=metadata)
+    cloned = lc.clone()
+    assert len(cloned) == 0
+    assert cloned.metadata == metadata
+
+
+def test_line_collection_clone_with_data():
+    metadata = {"line_width": 0.3}
+    lc = LineCollection(([0, 1, 10 + 10j], [0, 10]), metadata=metadata)
+    cloned = lc.clone([(100, 100j + 200)])
+    assert len(cloned) == 1
+    assert np.all(cloned[0] == np.array((100, 100j + 200)))
+    assert cloned.metadata == metadata
+
+
+def test_line_collection_property():
+    lc = LineCollection()
+
+    lc.metadata["name"] = "Hello world"
+    assert lc.property("name") == "Hello world"
+    assert lc.property("missing") is None
+
+
+def test_line_collection_set_property():
+    lc = LineCollection()
+
+    lc.set_property(vp.METADATA_FIELD_PEN_WIDTH, 0.1)
+    assert lc.metadata[vp.METADATA_FIELD_PEN_WIDTH] == 0.1
+
+    lc.set_property(vp.METADATA_FIELD_PEN_WIDTH, "0.2")
+    assert lc.metadata[vp.METADATA_FIELD_PEN_WIDTH] == 0.2
+
+    with pytest.raises(ValueError):
+        lc.set_property(vp.METADATA_FIELD_PEN_WIDTH, "should fail")
+
+
+def test_document_replace():
+    doc = Document()
+    doc.add([(0, 10 + 10j)], 1)
+    doc.layers[1].set_property(vp.METADATA_FIELD_NAME, "test value")
+
+    doc.replace([(10, 100j)], 1)
+
+    assert np.all(doc.layers[1][0] == np.array([10, 100j]))
+    assert doc.layers[1].metadata == {vp.METADATA_FIELD_NAME: "test value"}
+
+
+def test_document_replace_bad_layer_id():
+    doc = Document()
+    with pytest.raises(ValueError):
+        doc.replace([(0, 10j)], 1)
+
+
+def test_document_swap_content():
+    doc = Document()
+    doc.add([(0, 1)], 1)
+    doc.add([(0, 10)], 2)
+    doc.layers[1].set_property(vp.METADATA_FIELD_NAME, "hello")
+    doc.layers[2].set_property(vp.METADATA_FIELD_PEN_WIDTH, 0.15)
+
+    doc.swap_content(1, 2)
+
+    assert np.all(doc.layers[1][0] == np.array([0, 10]))
+    assert np.all(doc.layers[2][0] == np.array([0, 1]))
+    assert doc.layers[1].metadata == {vp.METADATA_FIELD_NAME: "hello"}
+    assert doc.layers[2].metadata == {vp.METADATA_FIELD_PEN_WIDTH: 0.15}
+
+
+def test_document_swap_content_bad_layer_id():
+    doc = Document()
+
+    with pytest.raises(ValueError):
+        doc.swap_content(1, 2)
+
+    doc.add([(0, 1)], 1)
+
+    with pytest.raises(ValueError):
+        doc.swap_content(1, 2)
+
+    with pytest.raises(ValueError):
+        doc.swap_content(2, 1)
+
+
 def test_document_lid_iteration():
     lc = LineCollection([(0, 1 + 1j)])
     doc = Document()
@@ -227,11 +313,11 @@ def test_line_collection_merge(lines, merge_lines):
     assert _line_set(lc) == _line_set(merge_lines)
 
 
-def test_document_empty_copy():
+def test_document_clone():
     doc = Document()
     doc.add(LineCollection([(0, 1)]), 1)
     doc.page_size = 3, 4
 
-    new_doc = doc.empty_copy()
+    new_doc = doc.clone()
     assert len(new_doc.layers) == 0
     assert new_doc.page_size == (3, 4)

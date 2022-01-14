@@ -4,12 +4,14 @@
 # _vpype_
 
 [![PyPI](https://img.shields.io/pypi/v/vpype?label=PyPI&logo=pypi)](https://pypi.org/project/vpype/)
-![python](https://img.shields.io/github/languages/top/abey79/vpype)
+[![python](https://img.shields.io/github/languages/top/abey79/vpype)](https://www.python.org)
+[![Downloads](https://pepy.tech/badge/vpype)](https://pepy.tech/project/vpype)
 [![license](https://img.shields.io/github/license/abey79/vpype)](https://vpype.readthedocs.io/en/stable/license.html)
 ![Test](https://img.shields.io/github/workflow/status/abey79/vpype/Lint%20and%20Tests?label=Tests&logo=github)
 [![codecov](https://codecov.io/gh/abey79/vpype/branch/master/graph/badge.svg?token=CE7FD9D6XO)](https://codecov.io/gh/abey79/vpype)
 [![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=abey79_vpype&metric=alert_status)](https://sonarcloud.io/dashboard?id=abey79_vpype)
 [![Documentation Status](https://img.shields.io/readthedocs/vpype?label=Read%20the%20Docs&logo=read-the-docs)](https://vpype.readthedocs.io/en/latest/?badge=latest)
+[![Code style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 _vpype_ is the Swiss-Army-knife command-line tool for plotter vector graphics.
 
@@ -190,6 +192,13 @@ and much more.
 - Support for **scaling** and **cropping** to arbitrary dimensions ([`scaleto`](https://vpype.readthedocs.io/en/stable/reference.html#scaleto), [`crop`](https://vpype.readthedocs.io/en/stable/reference.html#crop)).
 - Support for **trimming** geometries by an arbitrary amount ([`trim`](https://vpype.readthedocs.io/en/stable/reference.html#trim)).
 - Arbitrary **page size** definition ([`pagesize`](https://vpype.readthedocs.io/en/stable/reference.html#pagesize)). 
+
+
+#### Metadata
+
+- Adjust layer **color**, **pen width** and **name** ([`color`](https://vpype.readthedocs.io/en/stable/reference.html#color), [`penwidth`](https://vpype.readthedocs.io/en/stable/reference.html#penwidth), [`name`](https://vpype.readthedocs.io/en/stable/reference.html#name)).
+- Apply provided or fully customisable **pen configurations** ([`pens`](https://vpype.readthedocs.io/en/stable/reference.html#pens)).
+- Manipulate global and per-layer **properties** ([`propset`](https://vpype.readthedocs.io/en/stable/reference.html#propset), [`propget`](https://vpype.readthedocs.io/en/stable/reference.html#propget), [`proplist`](https://vpype.readthedocs.io/en/stable/reference.html#proplist), [`propdel`](https://vpype.readthedocs.io/en/stable/reference.html#propdel), [`propclear`](https://vpype.readthedocs.io/en/stable/reference.html#propclear)).
 
 
 #### Plotting optimization

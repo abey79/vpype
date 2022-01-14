@@ -11,6 +11,15 @@ from vpype_cli import DebugData, cli
 
 from .utils import TEST_FILE_DIRECTORY
 
+
+def _write_svg_file(tmp_path, svg) -> str:
+    path = str(tmp_path / "file.svg")
+    with open(path, "w") as fp:
+        fp.write(svg)
+
+    return path
+
+
 TEST_FILES = [
     os.path.join(directory, file)
     for directory, _, filenames in os.walk(TEST_FILE_DIRECTORY)
@@ -95,10 +104,7 @@ def test_read_svg_visibility(svg_content, line_count, tmp_path):
         {svg_content}
 </svg>
 """
-    path = str(tmp_path / "file.svg")
-    with open(path, "w") as fp:
-        fp.write(svg)
-
+    path = _write_svg_file(tmp_path, svg)
     lc, _, _ = vp.read_svg(path, 1.0)
     assert len(lc) == line_count
 
@@ -116,15 +122,14 @@ DEFAULT_HEIGHT = 999
     ],
 )
 def test_read_svg_width_height(params, expected, tmp_path):
-    path = str(tmp_path / "file.svg")
-    with open(path, "w") as fp:
-        fp.write(
-            f"""<?xml version="1.0"?>
+    path = _write_svg_file(
+        tmp_path,
+        f"""<?xml version="1.0"?>
 <svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"
    {params}>
 </svg>
-"""
-        )
+""",
+    )
 
     lc, width, height = vp.read_svg(
         path, quantization=0.1, default_width=DEFAULT_WIDTH, default_height=DEFAULT_HEIGHT
@@ -134,16 +139,15 @@ def test_read_svg_width_height(params, expected, tmp_path):
 
 
 def test_read_with_viewbox(tmp_path):
-    path = str(tmp_path / "file.svg")
-    with open(path, "w") as fp:
-        fp.write(
-            f"""<?xml version="1.0"?>
+    path = _write_svg_file(
+        tmp_path,
+        f"""<?xml version="1.0"?>
     <svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"
        width="100" height="100" viewBox="50 50 10 10">
        <line x1="50" y1="50" x2="60" y2="60" />
     </svg>
-    """
-        )
+    """,
+    )
 
     lc, width, height = vp.read_svg(path, quantization=0.1)
     assert width == 100
@@ -165,3 +169,201 @@ def test_read_stdin(runner):
 
     assert result.exit_code == 0
     assert data[0].count == 1
+
+
+@pytest.mark.parametrize(
+    ["svg", "expected_metadata"],
+    [
+        pytest.param(
+            """<?xml version="1.0"?><svg>
+                <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+            </svg>""",
+            {1: {"svg:fill": "red"}},
+            id="lone_line",
+        ),
+        pytest.param(
+            """<?xml version="1.0"?><svg font="#f00">
+                <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+            </svg>""",
+            {0: {"svg:font": "#f00"}, 1: {"svg:fill": "red"}},
+            id="lone_line_svg_attrib",
+        ),
+        pytest.param(
+            """<?xml version="1.0"?><svg fill="blue">
+                <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+            </svg>""",
+            {1: {"svg:fill": "red"}},
+            id="lone_line_svg_attrib_conflict",
+        ),
+        pytest.param(
+            """<?xml version="1.0"?><svg fill="blue">
+                <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+                <line x1="0" y1="0" x2="10" y2="10" fill="green" />
+            </svg>""",
+            {1: {"svg:fill": None}},
+            id="two_line_inconsistent",
+        ),
+        pytest.param(
+            """<?xml version="1.0"?><svg fill="blue">
+                <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+                <g id="1">
+                    <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+                </g>
+            </svg>""",
+            {1: {"svg:fill": "red"}},
+            id="group_1_with_lone_line_svg_attrib_conflict",
+        ),
+        pytest.param(
+            """<?xml version="1.0"?><svg fill="blue">
+                <g id="1">
+                    <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+                </g>
+            </svg>""",
+            {1: {"svg:fill": "red"}},
+            id="group_1_svg_attrib_conflict",
+        ),
+        pytest.param(
+            """<?xml version="1.0"?><svg fill="blue">
+                <g id="1">
+                    <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+                    <line x1="0" y1="0" x2="10" y2="10" fill="green" />
+                </g>
+            </svg>""",
+            {1: {"svg:fill": None}},
+            id="inconsistent_group1",
+        ),
+        pytest.param(
+            """<?xml version="1.0"?><svg fill="blue">
+                <g id="1">
+                    <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+                    <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+                </g>
+                <g fill="blue">
+                    <circle cx="0" cy="0" r="10" />
+                    <circle cx="0" cy="0" r="10" />
+                </g>
+                <g fill="green">
+                    <circle cx="0" cy="0" r="10" fill="#666"/>
+                    <circle cx="0" cy="0" r="10" fill="#666" />
+                </g>
+            </svg>""",
+            {0: {"svg:fill": "blue"}, 1: {"svg:fill": "red"}, 2: {}, 3: {"svg:fill": "#666"}},
+            id="multi_layer",
+        ),
+    ],
+)
+def test_read_multilayer_metadata(tmp_path, svg, expected_metadata):
+    path = _write_svg_file(tmp_path, svg)
+    doc = vp.read_multilayer_svg(path, quantization=0.1, crop=False)
+
+    for k, v in expected_metadata.get(0, {}).items():
+        if v is None:
+            assert k not in doc.metadata
+        else:
+            assert k in doc.metadata
+            assert doc.metadata[k] == v
+
+    for lid in doc.layers:
+        layer = doc.layers[lid]
+
+        assert lid in expected_metadata
+        for k, v in expected_metadata[lid].items():
+            if v is None:
+                assert k not in layer.metadata
+            else:
+                assert k in layer.metadata
+                assert layer.metadata[k] == v
+
+
+@pytest.mark.parametrize(
+    ["svg", "expected_metadata"],
+    [
+        pytest.param(
+            """<?xml version="1.0"?><svg>
+                <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+            </svg>""",
+            {"svg:fill": "red"},
+            id="lone_line",
+        ),
+        pytest.param(
+            """<?xml version="1.0"?><svg stroke="#f00">
+                <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+            </svg>""",
+            {"svg:fill": "red", "svg:stroke": "#f00"},
+            id="lone_line_svg_attrib",
+        ),
+        pytest.param(
+            """<?xml version="1.0"?><svg fill="blue">
+                <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+            </svg>""",
+            {"svg:fill": "red"},
+            id="lone_line_svg_attrib_conflict",
+        ),
+        pytest.param(
+            """<?xml version="1.0"?><svg fill="blue">
+                <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+                <line x1="0" y1="0" x2="10" y2="10" fill="green" />
+            </svg>""",
+            {"svg:fill": None},
+            id="two_line_inconsistent",
+        ),
+        pytest.param(
+            """<?xml version="1.0"?><svg fill="blue">
+                <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+                <g id="1">
+                    <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+                </g>
+            </svg>""",
+            {"svg:fill": "red"},
+            id="group_1_with_lone_line_svg_attrib_conflict",
+        ),
+        pytest.param(
+            """<?xml version="1.0"?><svg fill="blue">
+                <g id="1">
+                    <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+                </g>
+            </svg>""",
+            {"svg:fill": "red"},
+            id="group_1_svg_attrib_conflict",
+        ),
+        pytest.param(
+            """<?xml version="1.0"?><svg fill="blue">
+                <g id="1">
+                    <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+                    <line x1="0" y1="0" x2="10" y2="10" fill="green" />
+                </g>
+            </svg>""",
+            {"svg:fill": None},
+            id="inconsistent_group1",
+        ),
+    ],
+)
+def test_read_metadata(tmp_path, svg, expected_metadata):
+    path = _write_svg_file(tmp_path, svg)
+    lc, _, _ = vp.read_svg(path, quantization=0.1, crop=False)
+
+    assert lc.metadata
+
+    for k, v in expected_metadata.items():
+        if v is None:
+            assert k not in lc.metadata
+        else:
+            assert k in lc.metadata
+            assert lc.metadata[k] == v
+
+
+def test_read_layer_name(runner):
+    res = runner.invoke(
+        cli,
+        ["read", str(TEST_FILE_DIRECTORY / "misc" / "multilayer_named_layers.svg")]
+        + f"propget -l all {vp.METADATA_FIELD_NAME}".split(),
+    )
+
+    assert res.exit_code == 0
+    assert (
+        res.stdout
+        == """layer 1 property vp:name: (str) my layer 1
+layer 2 property vp:name: (str) my layer 2
+layer 3 property vp:name: (str) my layer 3
+"""
+    )

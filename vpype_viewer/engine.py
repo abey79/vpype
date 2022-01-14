@@ -58,7 +58,7 @@ class Engine:
         show_pen_up: bool = False,
         show_points: bool = False,
         show_rulers: bool = True,
-        pen_width: float = DEFAULT_PEN_WIDTH,
+        default_pen_width: float = DEFAULT_PEN_WIDTH,
         pen_opacity: float = DEFAULT_PEN_OPACITY,
         render_cb: Callable[[], None] = lambda: None,
     ):
@@ -69,7 +69,7 @@ class Engine:
             show_pen_up: render pen-up trajectories if True
             show_points: render points if True
             show_rulers: display the rulers
-            pen_width: pen width (preview only)
+            default_pen_width: pen width (preview only)
             pen_opacity: pen opacity (preview only)
             render_cb: callback that will be called when rendering is required
         """
@@ -80,7 +80,7 @@ class Engine:
         self._show_pen_up = show_pen_up
         self._show_points = show_points
         self._show_rulers = show_rulers
-        self._pen_width = pen_width
+        self._default_pen_width = default_pen_width
         self._pen_opacity = pen_opacity
         self._render_cb = render_cb
         self._unit_type = UnitType.METRIC
@@ -228,11 +228,11 @@ class Engine:
     @property
     def pen_width(self) -> float:
         """Pen width used for rendering (preview only)."""
-        return self._pen_width
+        return self._default_pen_width
 
     @pen_width.setter
     def pen_width(self, pen_width: float):
-        self._pen_width = pen_width
+        self._default_pen_width = pen_width
         self._update()
 
     @property
@@ -433,6 +433,10 @@ class Engine:
                 if lc.is_empty():
                     continue
 
+                if vp.METADATA_FIELD_COLOR in lc.metadata:
+                    color = lc.metadata[vp.METADATA_FIELD_COLOR]
+                    layer_color = color.as_floats()
+
                 if self.view_mode == ViewMode.OUTLINE:
                     self._layer_painters[layer_id].append(
                         LineCollectionFastPainter(self._ctx, lc=lc, color=layer_color)
@@ -444,11 +448,12 @@ class Engine:
                         )
                     )
                 elif self.view_mode == ViewMode.PREVIEW:
+                    pen_width = lc.metadata.get("vp:pen_width", self._default_pen_width)
                     self._layer_painters[layer_id].append(
                         LineCollectionPreviewPainter(
                             self._ctx,
                             lc=lc,
-                            pen_width=self._pen_width,
+                            pen_width=pen_width,
                             color=(
                                 layer_color[0],
                                 layer_color[1],
