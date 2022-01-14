@@ -1,5 +1,5 @@
 import logging
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import click
 
@@ -20,10 +20,10 @@ __all__ = (
 )
 
 
-_STR_TO_TYPE = {
+_STR_TO_TYPE: Dict[str, Callable] = {
     "str": str,
-    "int": int,
-    "float": float,
+    "int": lambda x: int(vp.convert_length(x)),
+    "float": vp.convert_length,
     "color": vp.Color,
 }
 
@@ -84,6 +84,9 @@ def propset(
         float: floating-point number
         color: color
 
+    When using the `int` and `float` types, units may be used and the value will be converted
+    to pixels.
+
     When using the `color` type, any SVG-compatible string may be used for VALUE, including
     16-bit RGB (#ff0000), 16-bit RGBA (#ff0000ff), 8-bit variants (#f00 or #f00f), or color
     names (red).
@@ -93,6 +96,11 @@ def propset(
         Set a global property of type `int`:
 
             vpype [...] propset --global --type int my_prop 10 [...]
+
+        Set the layer property of type `float` (this is equivalent to using the `penwidth`
+        command:
+
+            vpype [...] propset --layer 1 --type float vp:pen_width 0.5mm [...]
 
         Set a layer property of type `color`:
 
@@ -292,7 +300,8 @@ def penwidth(layer: vp.LineCollection, pen_width: float) -> vp.LineCollection:
 def color(layer: vp.LineCollection, color: str) -> vp.LineCollection:
     """Set the color for one or more layers.
 
-    All CSS ways of specifying color are valid for COLOR.
+    Any SVG-compatible string may be used for VALUE, including 16-bit RGB (#ff0000),
+    16-bit RGBA (#ff0000ff), 8-bit variants (#f00 or #f00f), or color names (red).
 
     By default, this commands sets the color for all layers. Use the `--layer` option to set
     the color of one (or more) specific layer(s).

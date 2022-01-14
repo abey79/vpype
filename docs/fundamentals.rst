@@ -156,6 +156,49 @@ Likewise, angles are interpreted as degrees by default but alternative units may
   $ vpype rect 0 0 50 100 rotate 0.785398rad
 
 
+.. _fundamentals_metadata:
+
+Metadata
+========
+
+Metadata is data which provides information about other data. In the case of *vpype*, metadata takes the form of *properties* that are either attached to a given layer, or global. Properties are identified by a name and their value can be of arbitrary type (e.g. integer, floating point, color, etc.). There can be any number of global and/or layer properties and it is up to commands (and plug-ins) how they act based (or upon) these properties.
+
+
+System properties
+-----------------
+
+Some properties are referred to as *system properties*. Their name is prefixed with ``vp:`` and they are widely used throughout *vpype*. Currently, the following system properties are defined:
+
+  * ``vp:color``: the color of a layer (layer property)
+  * ``vp:pen_width``: the pen width of a layer (layer property)
+  * ``vp:name``: the name of a layer (layer property)
+  * ``vp:page_size``: the page size (global property)
+
+Many commands acts on these properties. For example, the :ref:`cmd_read` command sets these properties according to the imported SVG file's content. The :ref:`cmd_color`, :ref:`cmd_penwidth`, :ref:`cmd_name`, and :ref:`cmd_pens` commands can set these properties to arbitrary values. In particular, the :ref:`cmd_pens` commands can apply a predefined set of values on multiple layers at once, for example to apply a CMYK color scheme (see :ref:`faq_custom_pen_config` for more information). The page size global property is set by the :ref:`cmd_pagesize` and :ref:`cmd_layout` commands.
+
+
+SVG attributes properties
+-------------------------
+
+The :ref:`cmd_read` command identifies SVG attributes common to all geometries in a given layer and store their value as layer property with a ``svg:`` prefix. For example, if all geometries in a given layer share a ``stroke-dasharray="3 1"`` SVG attribute (either because it is set at the level of the group element, or because it is set in every single geometry elements), a property named ``svg:stroke-dasharray`` with a value of ``"3 1"`` is added to the layer.
+
+These properties are set for informational and extension purposes, and are mostly ignored by *vpype* commands. One exception is the :ref:`cmd_write` command, which can optionally restore these attributes in the exported SVG file.
+
+An example of future extension could be a plug-in which detects the ``svg:stroke-dasharray`` property and turns the corresponding layer's lines into their dashed equivalent. Another example would be a plug-in looking for a ``svg:fill`` property and adding the corresponding hatching patterns to reproduce the filled area.
+
+
+Interacting with properties
+---------------------------
+
+High-level commands such as :ref:`cmd_penwidth` are not the only means of interacting with properties. *vpype* includes a set of low-level commands to inspect and modify global and layer properties:
+
+  * :ref:`cmd_propget`: reads the value of a single global or layer property
+  * :ref:`cmd_proplist`: lists all the global or layer properties
+  * :ref:`cmd_propset`: sets the value of a given global or layer property
+  * :ref:`cmd_propdel`: deletes a given global or layer property
+  * :ref:`cmd_propclear`: deletes all global or layer properties
+
+
 .. _fundamentals_blocks:
 
 Blocks

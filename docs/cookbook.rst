@@ -156,6 +156,8 @@ Note that *vpype* does not "remember" of such configuration file and the ``--con
    *vpype* is bundled with a `configuration file <https://github.com/abey79/vpype/blob/master/vpype/vpype_config.toml>`_. It is strongly discouraged to edit this file as it will be overwritten each time *vpype* is installed or updated.
 
 
+.. _faq_custom_pen_config:
+
 Creating a custom pen configuration
 ===================================
 

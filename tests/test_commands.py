@@ -569,6 +569,10 @@ def test_text_command_empty():
     ("cmd", "expected_output"),
     [
         ("propset -l1 prop val", ""),
+        (
+            "random propset -l1 -t int prop 1cm propget -l1 prop",
+            "layer 1 property prop: (int) 37",
+        ),
         ("propset -g prop val", ""),
         ("propget -g prop", "global property prop: n/a"),
         ("line 0 0 1 1 propget -l1 prop", "layer 1 property prop: n/a"),
