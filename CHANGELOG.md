@@ -2,6 +2,8 @@
 
 #### 1.9 (UNRELEASED)
 
+**Note**: This is the last version of *vpype* to support Python 3.7.
+
 New features and improvements:
 * Updated the internal data model to support global and per-layer metadata (#359)
   
