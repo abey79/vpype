@@ -2,11 +2,13 @@
 import difflib
 import os
 import re
+from typing import Set
 
 import numpy as np
 import pytest
 
 import vpype as vp
+import vpype_cli
 from vpype_cli import DebugData, cli
 
 from .utils import TEST_FILE_DIRECTORY
@@ -367,3 +369,36 @@ layer 2 property vp:name: (str) my layer 2
 layer 3 property vp:name: (str) my layer 3
 """
     )
+
+
+def test_read_by_attribute():
+    def _prop_set(document: vp.Document, prop: str) -> Set:
+        return {layer.property(prop) for layer in document.layers.values()}
+
+    file = TEST_FILE_DIRECTORY / "misc" / "multilayer_by_attributes.svg"
+    doc = vp.read_svg_by_attributes(str(file), ["stroke"], 0.1)
+    assert len(doc.layers) == 2
+    assert _prop_set(doc, "vp:color") == {vp.Color("#906"), vp.Color("#00f")}
+
+    doc = vp.read_svg_by_attributes(str(file), ["stroke", "stroke-width"], 0.1)
+    assert len(doc.layers) == 3
+    assert _prop_set(doc, "vp:color") == {vp.Color("#906"), vp.Color("#00f")}
+    assert _prop_set(doc, "vp:pen_width") == pytest.approx({1, 4})
+
+
+def test_read_layer_assumes_single_layer(runner, caplog):
+    test_file = TEST_FILE_DIRECTORY / "misc" / "multilayer.svg"
+    doc = vpype_cli.execute(f"read --layer 2 '{test_file}'", global_opt="-v")
+
+    assert "assuming single-layer mode" in caplog.text
+    assert len(doc.layers) == 1
+    assert 2 in doc.layers
+
+
+def test_read_single_layer_attr_warning(runner, caplog):
+    test_file = TEST_FILE_DIRECTORY / "misc" / "multilayer_by_attributes.svg"
+    doc = vpype_cli.execute(f"read -m -a stroke '{test_file}'")
+
+    assert "`--attr` is ignored in single-layer mode" in caplog.text
+    assert len(doc.layers) == 1
+    assert 1 in doc.layers

@@ -1,19 +1,10 @@
 import logging
 import sys
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 import click
 
-from vpype import (
-    Document,
-    LayerType,
-    LengthType,
-    PageSizeType,
-    global_processor,
-    read_multilayer_svg,
-    read_svg,
-    single_to_layer_id,
-)
+import vpype as vp
 
 from .cli import cli
 
@@ -26,13 +17,20 @@ __all__ = ("read",)
 @click.option(
     "-l",
     "--layer",
-    type=LayerType(accept_new=True),
+    type=vp.LayerType(accept_new=True),
     help="Target layer or 'new' (single layer mode only).",
+)
+@click.option(
+    "-a",
+    "--attr",
+    type=str,
+    multiple=True,
+    help="Attribute by which geometries should be grouped",
 )
 @click.option(
     "-q",
     "--quantization",
-    type=LengthType(),
+    type=vp.LengthType(),
     default="0.1mm",
     help="Maximum length of segments approximating curved elements (default: 0.1mm).",
 )
@@ -60,7 +58,7 @@ __all__ = ("read",)
 @click.option(
     "-ds",
     "--display-size",
-    type=PageSizeType(),
+    type=vp.PageSizeType(),
     default="a4",
     help=(
         "Display size to use for SVG with width/height expressed as percentage or missing "
@@ -74,19 +72,20 @@ __all__ = ("read",)
     default=False,
     help="Use landscape orientation ofr display size.",
 )
-@global_processor
+@vp.global_processor
 def read(
-    document: Document,
+    document: vp.Document,
     file,
     single_layer: bool,
     layer: Optional[int],
+    attr: List[str],
     quantization: float,
     simplify: bool,
     parallel: bool,
     no_crop: bool,
     display_size: Tuple[float, float],
     display_landscape: bool,
-) -> Document:
+) -> vp.Document:
     """Extract geometries from a SVG file.
 
     FILE may be a file path path or a dash (-) to read from the standard input instead.
@@ -107,9 +106,15 @@ resulting number is 0, layer 1 is used instead.
         - If both previous steps fail, the target layer matches the top-level group's order \
 of appearance.
 
-    Using `--single-layer`, the `read` command operates in single-layer mode. In this mode, \
-all geometries are in a single layer regardless of the group structure. The current target \
-layer is used default and can be specified with the `--layer` option.
+    Alternatively, geometries may be sorted into layers based on their attributes, such as
+    color or stroke width. This is enabled by using the `--attr` option with the attribute
+    to be considered. Multiple `--attr` options may be passed with different attributes. In
+    this case, layers will be created for each unique combination of the provided attributes.
+
+    Using `--single-layer`, the `read` command operates in single-layer mode. In this mode,
+    all geometries are in a single layer regardless of the group structure. The current target
+    layer is used default and can be specified with the `--layer` option. If the `--layer`
+    option is used, `--single-layer` is assumed even if not explicitly provided.
 
     This command only extracts path elements as well as primitives (rectangles, ellipses,
     lines, polylines, polygons). Other elements such as text and bitmap images are discarded,
@@ -146,9 +151,17 @@ layer is used default and can be specified with the `--layer` option.
 
     Examples:
 
-        Multi-layer import:
+        Multi-layer SVG import:
 
             vpype read input_file.svg [...]
+
+        Import SVG, sorting geometries by stroke color:
+
+            vpype read --attr stroke input_file.svg [...]
+
+        Import SVG, sorting geometries by stroke color and width:
+
+            vpype read --attr stroke --attr stroke-width input_file.svg [...]
 
         Single-layer import:
 
@@ -174,8 +187,15 @@ layer is used default and can be specified with the `--layer` option.
     if file == "-":
         file = sys.stdin
 
+    if layer is not None and not single_layer:
+        single_layer = True
+        logging.info("read: `--layer` provided, assuming single-layer mode")
+
     if single_layer:
-        lc, width, height = read_svg(
+        if len(attr) > 0:
+            logging.warning("read: `--attr` is ignored in single-layer mode")
+
+        lc, width, height = vp.read_svg(
             file,
             quantization=quantization,
             crop=not no_crop,
@@ -185,13 +205,11 @@ layer is used default and can be specified with the `--layer` option.
             default_height=height,
         )
 
-        document.add(lc, single_to_layer_id(layer, document))
+        document.add(lc, vp.single_to_layer_id(layer, document))
         document.extend_page_size((width, height))
     else:
-        if layer is not None:
-            logging.warning("read: target layer is ignored in multi-layer mode")
-        document.extend(
-            read_multilayer_svg(
+        if len(attr) == 0:
+            doc = vp.read_multilayer_svg(
                 file,
                 quantization=quantization,
                 crop=not no_crop,
@@ -200,6 +218,17 @@ layer is used default and can be specified with the `--layer` option.
                 default_width=width,
                 default_height=height,
             )
-        )
+        else:
+            doc = vp.read_svg_by_attributes(
+                file,
+                attributes=attr,
+                quantization=quantization,
+                crop=not no_crop,
+                simplify=simplify,
+                parallel=parallel,
+                default_width=width,
+                default_height=height,
+            )
+        document.extend(doc)
 
     return document

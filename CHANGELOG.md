@@ -15,6 +15,8 @@ New features and improvements:
   * The new `pens` command can apply a predefined or custom scheme on multiple layers at once. Two schemes, `rgb` and `cmyk`, are included and others may be defined in the configuration file.
   * The `show` and `write` commands were updated to take into account these new layer properties.
 
+* The `read` command can now optionally sort geometries by attributes (e.g. stroke color, stroke width, etc.) instead of by SVG layer (#378)
+
 * The `read` and `write` commands now preserve a sub-set of SVG attributes (experimental) (#359)
   
   The `read` command now seeks for SVG attributes (e.g. `stroke-dasharray`) which are shared by all geometries in each layer. When found, such attributes are saved as layer properties (with their name prefixed with `svg:`, e.g. `svg:stroke-dasharray`). The `write` command can optionally restore these attributes in the output SVG (using the `--restore-attribs`), thereby maintaining some of the visual aspects of the original SVG (e.g. dashed lines).
@@ -37,6 +39,8 @@ New features and improvements:
 
 API changes:
 * `vpype.Document` and `vpype.LineCollection` have additional members to manage properties through the `vpype._MetadataMixin` mix-in class (#359)
+* Added `vpype.read_svg_by_attribute()` to read SVG while sorting geometries by arbitrary attributes (#378)
+* Added an argument to `vpype_cli.execute()` to pass global option such as `--verbose` (#378)
 
 Other changes:
 * Renamed the bundled config file to `vpype_config.toml` (#359)

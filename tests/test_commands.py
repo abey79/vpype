@@ -35,6 +35,7 @@ MINIMAL_COMMANDS = [
     Command("ellipse 0 0 2 4"),
     Command(f"read '{EXAMPLE_SVG}'", preserves_metadata=False),
     Command(f"read -m '{EXAMPLE_SVG}'", preserves_metadata=False),
+    Command(f"read -a stroke '{EXAMPLE_SVG}'", preserves_metadata=False),
     Command("write -f svg -"),
     Command("write -f hpgl -d hp7475a -p a4 -"),
     Command("rotate 0"),
