@@ -23,17 +23,6 @@ from ._painters import (
 from ._scales import DEFAULT_SCALE_SPEC, SCALES_MAP, ScaleSpec, UnitType
 from ._utils import ColorType, orthogonal_projection_matrix
 
-_COLORS: List[ColorType] = [
-    (0, 0, 1, 1),
-    (0, 0.5, 0, 1),
-    (1, 0, 0, 1),
-    (0, 0.75, 0.75, 1),
-    (0, 1, 0, 1),
-    (0.75, 0, 0.75, 1),
-    (0.75, 0.75, 0, 1),
-    (0, 0, 0, 1),
-]
-
 __all__ = ["DEFAULT_PEN_WIDTH", "DEFAULT_PEN_OPACITY", "ViewMode", "Engine"]
 
 DEFAULT_PEN_WIDTH = 1.1  # about 0.3mm
@@ -426,7 +415,9 @@ class Engine:
         if self._document is not None:
             color_index = 0
             for layer_id in sorted(self._document.layers):
-                layer_color: ColorType = _COLORS[color_index % len(_COLORS)]
+                layer_color: ColorType = vp.METADATA_DEFAULT_COLOR_SCHEME[
+                    color_index % len(vp.METADATA_DEFAULT_COLOR_SCHEME)
+                ].as_floats()
                 color_index += 1
 
                 lc = self._document.layers[layer_id]

@@ -18,6 +18,7 @@ from svgwrite.extensions import Inkscape
 
 from .config import PaperConfig, PlotterConfig, config_manager
 from .metadata import (
+    METADATA_DEFAULT_COLOR_SCHEME,
     METADATA_FIELD_COLOR,
     METADATA_FIELD_NAME,
     METADATA_FIELD_PEN_WIDTH,
@@ -30,17 +31,6 @@ from .utils import UNITS
 
 __all__ = ["read_svg", "read_multilayer_svg", "write_svg", "write_hpgl"]
 
-
-_COLORS = [
-    "#00f",
-    "#080",
-    "#f00",
-    "#0cc",
-    "#0f0",
-    "#c0c",
-    "#cc0",
-    "black",
-]
 
 _DEFAULT_WIDTH = 1000
 _DEFAULT_HEIGHT = 1000
@@ -583,10 +573,16 @@ def write_svg(
         if color_mode == "layer" or (
             color_mode == "default" and not layer.property_exists(METADATA_FIELD_COLOR)
         ):
-            group.attribs["stroke"] = _COLORS[color_idx % len(_COLORS)]
+            group.attribs["stroke"] = METADATA_DEFAULT_COLOR_SCHEME[
+                color_idx % len(METADATA_DEFAULT_COLOR_SCHEME)
+            ]
             color_idx += 1
         elif color_mode == "default":
             group.attribs["stroke"] = str(layer.property(METADATA_FIELD_COLOR))
+
+            # we want to avoid a subsequent layer whose color is undefined to have its color
+            # affected by whether or not previous layer have their color defined
+            color_idx += 1
         elif color_mode == "none":
             group.attribs["stroke"] = "black"
         group.attribs["style"] = "display:inline"
@@ -612,7 +608,9 @@ def write_svg(
                 path = dwg.polyline((c.real, c.imag) for c in line)
 
             if color_mode == "path":
-                path.attribs["stroke"] = _COLORS[color_idx % len(_COLORS)]
+                path.attribs["stroke"] = METADATA_DEFAULT_COLOR_SCHEME[
+                    color_idx % len(METADATA_DEFAULT_COLOR_SCHEME)
+                ]
                 color_idx += 1
             group.add(path)
 
