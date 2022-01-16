@@ -346,7 +346,9 @@ def preprocess_argument_list(args: List[str], cwd: Union[str, None] = None) -> L
     return result
 
 
-def execute(pipeline: str, document: Optional[vp.Document] = None) -> vp.Document:
+def execute(
+    pipeline: str, document: Optional[vp.Document] = None, global_opt: str = ""
+) -> vp.Document:
     """Execute a vpype pipeline.
 
     This function serves as a Python API to vpype's pipeline. It can be used from a regular
@@ -373,6 +375,7 @@ def execute(pipeline: str, document: Optional[vp.Document] = None) -> vp.Documen
     Args:
         pipeline: vpype pipeline as would be used with ``vpype`` CLI
         document: if provided, is perloaded in the pipeline before the first command executes
+        global_opt: global CLI option (e.g. "--verbose")
 
     Returns:
         pipeline's content after the last command executes
@@ -394,6 +397,8 @@ def execute(pipeline: str, document: Optional[vp.Document] = None) -> vp.Documen
         out_doc.extend(doc)
         return doc
 
-    args = ("vsketchinput " if document else "") + pipeline + " vsketchoutput"
+    args = " ".join(
+        [global_opt, ("vsketchinput " if document else ""), pipeline, "vsketchoutput"]
+    )
     cli.main(prog_name="vpype", args=shlex.split(args), standalone_mode=False)
     return out_doc

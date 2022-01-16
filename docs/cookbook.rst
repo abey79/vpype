@@ -50,6 +50,27 @@ This command will :ref:`cmd_read` a SVG file, add a single-line :ref:`cmd_frame`
   $ vpype read input.svg frame --offset 5cm write output.svg
 
 
+
+Preserve color (or other attributes) when reading SVG
+=====================================================
+
+By default, the :ref:`cmd_read` command sorts geometries into layers based on the input SVG's top-level groups, akin to Inkscape's layers. Stroke color is preserved *only* if it is identical for every geometries within a layer.
+
+When preserving the color is desirable, the :ref:`cmd_read` command can sort geometries by colors instead of by top-level groups. This is achieved by using the :option:`--attr <read --attr>` option::
+
+  $ vpype read --attr stroke input.svg [...]
+
+Here, we tell the :ref:`cmd_read` command to sort geometry by ``stroke``, which is the SVG attribute that defines the color of an element. As a result, a layer will be created for each different color encountered in the input SVG file.
+
+The same applies for any SVG attributes, even those not explicitly supported by *vpype*. For example, ``--attr stroke-width`` will sort layers by stroke width and ``--attr stroke-dasharray`` by type of stroke dash pattern.
+
+Multiple attributes can even be provided::
+
+  $ vpype read --attr stroke --attr stroke-width input.svg [...]
+
+In this case, a layer will be created for each unique combination of color and stroke width.
+
+
 Make a previsualisation SVG
 ===========================
 
