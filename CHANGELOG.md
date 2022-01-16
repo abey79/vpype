@@ -9,7 +9,7 @@ New features and improvements:
   
   This feature is intended as a generic mechanism whereby a set of properties may be attached to specific layers (layer property) or all of them (global property). Properties are identified by a name and may be of arbitrary type (e.g. integer, floating point, color, etc.). This new infrastructure is used by several of the features introduced in this release, paves the way for future features, and further empowers plug-in writers. See the [documentation](https://vpype.readthedocs.io/en/latest/metadata) for more background information on metadata.
 
-* Layer color, pen width, and name are now customizable (#359)
+* Layer color, pen width, and name are now customizable (#359, #376)
   * The `read` commands now sets layer color, pen width, and name based on the input SVG if possible.
   * The new `color`, `penwdith`, and `name` commands can be used to modify layer color, pen width, and name.
   * The new `pens` command can apply a predefined or custom scheme on multiple layers at once. Two schemes, `rgb` and `cmyk`, are included and others may be defined in the configuration file.

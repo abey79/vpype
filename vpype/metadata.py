@@ -147,3 +147,15 @@ METADATA_SVG_ATTRIBUTES_WHITELIST = {
     "stroke-width",
     "text-rendering",
 }
+
+
+METADATA_DEFAULT_COLOR_SCHEME = [
+    Color("#00f"),
+    Color("#080"),
+    Color("#f00"),
+    Color("#0cc"),
+    Color("#0f0"),
+    Color("#c0c"),
+    Color("#cc0"),
+    Color("black"),
+]
