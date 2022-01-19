@@ -39,6 +39,7 @@ New features and improvements:
 
 API changes:
 * `vpype.Document` and `vpype.LineCollection` have additional members to manage properties through the `vpype._MetadataMixin` mix-in class (#359)
+* Renamed `vpype.Document.empty_copy()` to `vpype.Document.clone()` for coherence with `vpype.LineCollection` (the old name remains for backward compatibility) (#359, #380) 
 * Added `vpype.read_svg_by_attribute()` to read SVG while sorting geometries by arbitrary attributes (#378)
 * Added an argument to `vpype_cli.execute()` to pass global option such as `--verbose` (#378)
 

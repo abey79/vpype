@@ -536,6 +536,9 @@ class Document(_MetadataMixin):
         """Create an empty copy of this document with the same metadata"""
         return Document(metadata=self.metadata)
 
+    # backward compatibility
+    empty_copy = clone
+
     @property
     def layers(self) -> Dict[int, LineCollection]:
         """Returns a reference to the layer dictionary.
