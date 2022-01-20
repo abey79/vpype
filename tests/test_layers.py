@@ -133,6 +133,25 @@ def test_ldelete(big_doc):
     assert len(doc.layers) == 0
 
 
+@pytest.mark.parametrize(
+    ["cmd", "resulting_layers"],
+    [
+        ("random random -l2 ldelete 1", {2}),
+        ("random random -l2 ldelete --keep 1", {1}),
+        ("random random -l2 ldelete --keep 3", {}),
+        ("random random -l2 random -l3 ldelete --keep 1", {1}),
+        ("random random -l2 random -l3 ldelete --keep 1,3", {1, 3}),
+        ("random random -l2 random -l3 ldelete --keep 1,4,5", {1}),
+        ("random random -l2 random -l3 ldelete 1", {2, 3}),
+        ("random random -l2 random -l3 ldelete 1,3", {2}),
+        ("random random -l2 random -l3 ldelete 1,4,5", {2, 3}),
+    ],
+)
+def test_ldelete_keep(cmd, resulting_layers):
+    doc = execute(cmd)
+    assert doc.layers.keys() == set(resulting_layers)
+
+
 def test_ldelete_prob_one(big_doc):
     doc = execute("ldelete --prob 1. 1", big_doc)
 
