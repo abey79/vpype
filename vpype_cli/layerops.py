@@ -158,23 +158,32 @@ def lmove(document, sources, dest, prob: Optional[float], no_prop: bool):
 @cli.command(group="Layers")
 @click.argument("layers", type=vp.LayerType(accept_multiple=True))
 @click.option(
+    "-k", "--keep", is_flag=True, help="Specified layers must be kept instead of deleted."
+)
+@click.option(
     "-p",
     "--prob",
     type=click.FloatRange(0.0, 1.0),
     help="Path deletion probability (default: 1.0).",
 )
 @vp.global_processor
-def ldelete(document: vp.Document, layers, prob: Optional[float]) -> vp.Document:
+def ldelete(document: vp.Document, layers, keep: bool, prob: Optional[float]) -> vp.Document:
     """Delete one or more layers.
 
     LAYERS can be a single layer ID, the string 'all' (to delete all layers), or a
     coma-separated, whitespace-free list of layer IDs.
+
+    If the `--keep` option is used, the specified layers are kept and, instead, all other
+    layers deleted.
 
     The `--prob` option controls the probability with which each path is deleted. With a value
     lower than 1.0, some paths will not be deleted.
     """
 
     lids = set(vp.multiple_to_layer_ids(layers, document))
+
+    if keep:
+        lids = document.layers.keys() - lids
 
     for lid in lids:
         if prob is not None:
