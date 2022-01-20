@@ -35,7 +35,7 @@ New features and improvements:
   * When `--prob` is not used, the `lswap` command now swaps the layer properties as well.
   * These behaviors can be disabled with the `--no-prop` option.
 
-* Providing a non-existent layer ID to any `--layer` parameter now generates a warning (#359)
+* Providing a non-existent layer ID to any `--layer` parameter now generates a note (visible with `--verbose`) (#359, #382)
 
 API changes:
 * `vpype.Document` and `vpype.LineCollection` have additional members to manage properties through the `vpype._MetadataMixin` mix-in class (#359)

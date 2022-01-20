@@ -52,7 +52,7 @@ def multiple_to_layer_ids(
             if document.exists(lid):
                 lids.append(lid)
             else:
-                logging.warning(f"layer {lid} does not exist")
+                logging.info(f"layer {lid} does not exist")
         return lids
     else:
         return []
