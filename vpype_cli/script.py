@@ -2,9 +2,10 @@ import importlib.util
 
 import click
 
-from vpype import LineCollection, generator
+import vpype as vp
 
 from .cli import cli
+from .decorators import generator
 
 __all__ = ("script",)
 
@@ -12,7 +13,7 @@ __all__ = ("script",)
 @cli.command(group="Input")
 @click.argument("file", type=click.Path(exists=True, dir_okay=False))
 @generator
-def script(file) -> LineCollection:
+def script(file) -> vp.LineCollection:
     """
     Call an external python script to generate geometries.
 

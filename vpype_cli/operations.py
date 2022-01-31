@@ -7,6 +7,8 @@ import numpy as np
 import vpype as vp
 
 from .cli import cli
+from .decorators import global_processor, layer_processor
+from .types import LayerType, LengthType, PageSizeType, multiple_to_layer_ids
 
 __all__ = (
     "crop",
@@ -26,11 +28,11 @@ __all__ = (
 
 
 @cli.command(group="Operations")
-@click.argument("x", type=vp.LengthType(), required=True)
-@click.argument("y", type=vp.LengthType(), required=True)
-@click.argument("width", type=vp.LengthType(), required=True)
-@click.argument("height", type=vp.LengthType(), required=True)
-@vp.layer_processor
+@click.argument("x", type=LengthType(), required=True)
+@click.argument("y", type=LengthType(), required=True)
+@click.argument("width", type=LengthType(), required=True)
+@click.argument("height", type=LengthType(), required=True)
+@layer_processor
 def crop(lines: vp.LineCollection, x: float, y: float, width: float, height: float):
     """Crop the geometries.
 
@@ -43,16 +45,16 @@ def crop(lines: vp.LineCollection, x: float, y: float, width: float, height: flo
 
 
 @cli.command(group="Operations")
-@click.argument("margin_x", type=vp.LengthType(), required=True)
-@click.argument("margin_y", type=vp.LengthType(), required=True)
+@click.argument("margin_x", type=LengthType(), required=True)
+@click.argument("margin_y", type=LengthType(), required=True)
 @click.option(
     "-l",
     "--layer",
-    type=vp.LayerType(accept_multiple=True),
+    type=LayerType(accept_multiple=True),
     default="all",
     help="Target layer(s).",
 )
-@vp.global_processor
+@global_processor
 def trim(
     document: vp.Document, margin_x: float, margin_y: float, layer: Union[int, List[int]]
 ) -> vp.Document:
@@ -66,7 +68,7 @@ def trim(
     that of the listed layers.
     """
 
-    layer_ids = vp.multiple_to_layer_ids(layer, document)
+    layer_ids = multiple_to_layer_ids(layer, document)
     bounds = document.bounds(layer_ids)
 
     if not bounds:
@@ -92,14 +94,14 @@ def trim(
 @click.option(
     "-t",
     "--tolerance",
-    type=vp.LengthType(),
+    type=LengthType(),
     default="0.05mm",
     help="Maximum distance between two line endings that should be merged.",
 )
 @click.option(
     "-f", "--no-flip", is_flag=True, help="Disable reversing stroke direction for merging."
 )
-@vp.layer_processor
+@layer_processor
 def linemerge(lines: vp.LineCollection, tolerance: float, no_flip: bool = True):
     """
     Merge lines whose endings and starts overlap or are very close.
@@ -137,7 +139,7 @@ def linemerge(lines: vp.LineCollection, tolerance: float, no_flip: bool = True):
     default=250,
     help="Number of passes the two-opt algorithm is permitted to take (default: 250)",
 )
-@vp.layer_processor
+@layer_processor
 def linesort(lines: vp.LineCollection, no_flip: bool, two_opt: bool, passes: int):
     """
     Sort lines to minimize the pen-up travel distance.
@@ -288,11 +290,11 @@ def linesort(lines: vp.LineCollection, no_flip: bool, two_opt: bool, passes: int
 @click.option(
     "-t",
     "--tolerance",
-    type=vp.LengthType(),
+    type=LengthType(),
     default="0.05mm",
     help="Controls how far from the original geometry simplified points may lie.",
 )
-@vp.layer_processor
+@layer_processor
 def linesimplify(lines: vp.LineCollection, tolerance):
     """
     Reduce the number of segments in the geometries.
@@ -320,12 +322,12 @@ def linesimplify(lines: vp.LineCollection, tolerance):
 @click.option(
     "-t",
     "--tolerance",
-    type=vp.LengthType(),
+    type=LengthType(),
     default="0.05mm",
     help="Controls how close the path beginning and end must be to consider it closed ("
     "default: 0.05mm).",
 )
-@vp.layer_processor
+@layer_processor
 def reloop(lines: vp.LineCollection, tolerance):
     """Randomize the seam location of closed paths.
 
@@ -345,7 +347,7 @@ def reloop(lines: vp.LineCollection, tolerance):
 @click.option(
     "-n", "--count", type=int, default=2, help="How many pass for each line (default: 2)."
 )
-@vp.layer_processor
+@layer_processor
 def multipass(lines: vp.LineCollection, count: int):
     """
     Add multiple passes to each line
@@ -368,7 +370,7 @@ def multipass(lines: vp.LineCollection, count: int):
 
 
 @cli.command(group="Operations")
-@vp.layer_processor
+@layer_processor
 def splitall(lines: vp.LineCollection) -> vp.LineCollection:
     """
     Split all paths into their constituent segments.
@@ -393,13 +395,13 @@ def splitall(lines: vp.LineCollection) -> vp.LineCollection:
 @click.option(
     "--min-length",
     "-m",
-    type=vp.LengthType(),
+    type=LengthType(),
     help="keep lines whose length is no shorter than value",
 )
 @click.option(
     "--max-length",
     "-M",
-    type=vp.LengthType(),
+    type=LengthType(),
     help="keep lines whose length is no greater than value",
 )
 @click.option("--closed", "-c", is_flag=True, help="keep closed lines")
@@ -407,11 +409,11 @@ def splitall(lines: vp.LineCollection) -> vp.LineCollection:
 @click.option(
     "--tolerance",
     "-t",
-    type=vp.LengthType(),
+    type=LengthType(),
     default="0.05mm",
     help="tolerance used to determined if a line is closed or not (default: 0.05mm)",
 )
-@vp.layer_processor
+@layer_processor
 def filter_command(
     lines: vp.LineCollection,
     min_length: Optional[float],
@@ -459,9 +461,9 @@ def _normalize_page_size(
 
 
 @cli.command(group="Operations")
-@click.argument("size", type=vp.PageSizeType(), required=True)
+@click.argument("size", type=PageSizeType(), required=True)
 @click.option("-l", "--landscape", is_flag=True, default=False, help="Landscape orientation.")
-@vp.global_processor
+@global_processor
 def pagesize(document: vp.Document, size, landscape) -> vp.Document:
     """Change the current page size.
 
@@ -529,13 +531,13 @@ Examples:
 
 # noinspection PyShadowingNames
 @cli.command(group="Operations", help=LAYOUT_HELP)
-@click.argument("size", type=vp.PageSizeType(), required=True)
+@click.argument("size", type=PageSizeType(), required=True)
 @click.option("-l", "--landscape", is_flag=True, default=False, help="Landscape orientation.")
 @click.option(
     "-m",
     "--fit-to-margins",
     "margin",
-    type=vp.LengthType(),
+    type=LengthType(),
     help="Fit the geometries to page size with the specified margin.",
 )
 @click.option(
@@ -552,7 +554,7 @@ Examples:
     default="center",
     help="Vertical alignment",
 )
-@vp.global_processor
+@global_processor
 def layout(
     document: vp.Document,
     size: Tuple[float, float],
@@ -604,8 +606,8 @@ def layout(
 
 
 @cli.command(group="Operations")
-@click.argument("pitch", type=vp.LengthType(), required=True)
-@vp.layer_processor
+@click.argument("pitch", type=LengthType(), required=True)
+@layer_processor
 def snap(line_collection: vp.LineCollection, pitch: float) -> vp.LineCollection:
     """Snap all points to a grid with with a spacing of PITCH.
 
@@ -635,7 +637,7 @@ def snap(line_collection: vp.LineCollection, pitch: float) -> vp.LineCollection:
 
 
 @cli.command(group="Operations")
-@vp.layer_processor
+@layer_processor
 def reverse(line_collection: vp.LineCollection) -> vp.LineCollection:
     """Reverse order of lines.
 

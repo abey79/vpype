@@ -91,14 +91,16 @@ napoleon_include_init_with_doc = True
 
 # noinspection PyUnusedLocal
 def autodoc_skip_member(app, what, name, obj, skip, options):
+    # noinspection PyBroadException
+    try:
+        deprecated = "_deprecated" in str(obj.__module__)
+    except:
+        deprecated = False
+
+    # print("!!! ", what, name, str(obj.__module__))
     exclusions = (
-        # vpype/model.py
-        "VectorData",
-        # vpype/utils.py
-        "PAGE_FORMATS",
-        "convert",
-        "convert_page_format",
-        "Length",
+        # vpype/__init__.py
+        "_get_version",
         # vpype/config.py
         "CONFIG_MANAGER",
         # vpype_cli/debug.py
@@ -115,7 +117,7 @@ def autodoc_skip_member(app, what, name, obj, skip, options):
         "__repr__",
     )
     exclude = name in exclusions
-    return skip or exclude
+    return skip or exclude or deprecated
 
 
 # RECOMMONMARK WORKAROUND

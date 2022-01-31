@@ -1,8 +1,11 @@
 import click
 
-from vpype import LengthType, LineCollection, VpypeState, generator, pass_state
+import vpype as vp
 
 from .cli import cli
+from .decorators import generator, pass_state
+from .state import State
+from .types import LengthType
 
 __all__ = ("frame",)
 
@@ -17,7 +20,7 @@ __all__ = ("frame",)
 )
 @generator
 @pass_state
-def frame(state: VpypeState, offset: float):
+def frame(state: State, offset: float):
     """
     Add a single-line frame around the geometry.
 
@@ -25,10 +28,10 @@ def frame(state: VpypeState, offset: float):
     be provided.
     """
     if state.document.is_empty():
-        return LineCollection()
+        return vp.LineCollection()
 
     bounds = state.document.bounds() or (0, 0, 0, 0)
-    return LineCollection(
+    return vp.LineCollection(
         [
             (
                 bounds[0] - offset + 1j * (bounds[1] - offset),

@@ -7,6 +7,8 @@ import click
 import vpype as vp
 
 from .cli import cli
+from .decorators import global_processor
+from .types import LayerType, LengthType, PageSizeType, single_to_layer_id
 
 __all__ = ("read",)
 
@@ -17,7 +19,7 @@ __all__ = ("read",)
 @click.option(
     "-l",
     "--layer",
-    type=vp.LayerType(accept_new=True),
+    type=LayerType(accept_new=True),
     help="Target layer or 'new' (single layer mode only).",
 )
 @click.option(
@@ -30,7 +32,7 @@ __all__ = ("read",)
 @click.option(
     "-q",
     "--quantization",
-    type=vp.LengthType(),
+    type=LengthType(),
     default="0.1mm",
     help="Maximum length of segments approximating curved elements (default: 0.1mm).",
 )
@@ -58,7 +60,7 @@ __all__ = ("read",)
 @click.option(
     "-ds",
     "--display-size",
-    type=vp.PageSizeType(),
+    type=PageSizeType(),
     default="a4",
     help=(
         "Display size to use for SVG with width/height expressed as percentage or missing "
@@ -72,7 +74,7 @@ __all__ = ("read",)
     default=False,
     help="Use landscape orientation ofr display size.",
 )
-@vp.global_processor
+@global_processor
 def read(
     document: vp.Document,
     file,
@@ -205,7 +207,7 @@ of appearance.
             default_height=height,
         )
 
-        document.add(lc, vp.single_to_layer_id(layer, document))
+        document.add(lc, single_to_layer_id(layer, document))
         document.extend_page_size((width, height))
     else:
         if len(attr) == 0:

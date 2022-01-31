@@ -1,9 +1,7 @@
-import logging
 import math
 import re
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Callable, Dict, List, Tuple, Union
 
-import click
 import numpy as np
 
 # REMINDER: anything added here must be added to docs/api.rst
@@ -11,18 +9,10 @@ __all__ = [
     "UNITS",
     "ANGLE_UNITS",
     "PAGE_SIZES",
-    "LengthType",
-    "AngleType",
-    "PageSizeType",
     "convert_length",
     "convert_angle",
     "convert_page_size",
     "union",
-    # deprecated:
-    "PAGE_FORMATS",
-    "convert",
-    "convert_page_format",
-    "Length",
 ]
 
 
@@ -62,9 +52,6 @@ PAGE_SIZES = {
     "tabloid": _mm_to_px(279.4, 431.8),
 }
 
-# deprecated
-PAGE_FORMATS = PAGE_SIZES
-
 
 def _convert_unit(value: Union[str, float], units: Dict[str, float]) -> float:
     """Converts a string with unit to a value"""
@@ -91,14 +78,6 @@ def convert_length(value: Union[str, float]) -> float:
         :class:`ValueError`
     """
     return _convert_unit(value, UNITS)
-
-
-def convert(value: Union[str, float]) -> float:  # pragma: no cover
-    """Deprecated, use convert_length."""
-    logging.warning(
-        "!!! `vpype.convert()` is deprecated, use `vpype.convert_length()` instead."
-    )
-    return convert_length(value)
 
 
 def convert_angle(value: Union[str, float]) -> float:
@@ -164,112 +143,6 @@ def convert_page_size(value: str) -> Tuple[float, float]:
         y_unit = x_unit
 
     return float(x) * convert_length(x_unit), float(y) * convert_length(y_unit)
-
-
-def convert_page_format(value: str) -> Tuple[float, float]:  # pragma: no cover
-    """Deprecated, use convert_page_size."""
-    logging.warning(
-        "!!! `vpype.convert_page_format()` is deprecated, use `vpype.convert_page_size()` "
-        "instead."
-    )
-    return convert_page_size(value)
-
-
-class LengthType(click.ParamType):
-    """:class:`click.ParamType` sub-class to automatically converts a user-provided length
-    string (which may contain units) into a value in CSS pixel units. This class uses
-    :func:`convert_length` internally.
-
-    Example::
-
-        >>> import click
-        >>> import vpype_cli
-        >>> import vpype
-        >>> @vpype_cli.cli.command(group="my commands")
-        ... @click.argument("x", type=vpype.LengthType())
-        ... @click.option("-o", "--option", type=vpype.LengthType(), default="1mm")
-        ... @vpype.generator
-        ... def my_command(x: float, option: float):
-        ...     pass
-    """
-
-    name = "length"
-
-    def convert(self, value, param, ctx):
-        if isinstance(value, str):
-            try:
-                return convert_length(value)
-            except ValueError:
-                self.fail(f"parameter {value} is an incorrect length")
-        else:
-            return super().convert(value, param, ctx)
-
-
-class Length(LengthType):  # pragma: no cover
-    """Deprecated, use LengthType."""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        logging.warning("!!! `vpype.Length` is deprecated, use `vpype.LengthType` instead.")
-
-
-class AngleType(click.ParamType):
-    """:class:`click.ParamType` sub-class to automatically converts a user-provided angle
-    string (which may contain units) into a value in degrees. This class uses
-    :func:`convert_angle` internally.
-
-    Example::
-
-        >>> import click
-        >>> import vpype_cli
-        >>> import vpype
-        >>> @vpype_cli.cli.command(group="my commands")
-        ... @click.argument("angle", type=vpype.AngleType())
-        ... @vpype.generator
-        ... def my_command(angle: float):
-        ...     pass
-    """
-
-    name = "angle"
-
-    def convert(self, value, param, ctx):
-        try:
-            if isinstance(value, str):
-                return convert_angle(value)
-            else:
-                return super().convert(value, param, ctx)
-        except ValueError:
-            self.fail(f"parameter {value} is an incorrect angle")
-
-
-class PageSizeType(click.ParamType):
-    """:class:`click.ParamType` sub-class to automatically converts a user-provided page size
-    string into a tuple of float in CSS pixel units. See :func:`convert_page_size` for
-    information on the page size descriptor syntax.
-
-    Example::
-
-        >>> import click
-        >>> import vpype_cli
-        >>> import vpype
-        >>> @vpype_cli.cli.command(group="my commands")
-        ... @click.argument("fmt", type=vpype.PageSizeType())
-        ... @vpype.generator
-        ... def my_command(fmt: Tuple[float, float]):
-        ...     pass
-    """
-
-    name = "pagesize"
-
-    def convert(self, value: Any, param, ctx) -> Optional[Tuple[float, float]]:
-        try:
-            if isinstance(value, str):
-                return convert_page_size(value)
-            else:
-                return super().convert(value, param, ctx)
-
-        except ValueError:
-            self.fail(f"parameter {value} is not a valid page size")
 
 
 def union(line: np.ndarray, keys: List[Callable[[np.ndarray], bool]]) -> bool:

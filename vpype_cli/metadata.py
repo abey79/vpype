@@ -6,6 +6,8 @@ import click
 import vpype as vp
 
 from .cli import cli
+from .decorators import global_processor, layer_processor
+from .types import LayerType, LengthType, multiple_to_layer_ids
 
 __all__ = (
     "propset",
@@ -40,7 +42,7 @@ def _check_scope(
         logging.warning(
             "neither `--global` nor `--layer` options were provide, assuming `--layer all`"
         )
-        layer = vp.LayerType.ALL
+        layer = LayerType.ALL
 
     return global_flag, layer
 
@@ -49,9 +51,7 @@ def _check_scope(
 @click.argument("prop")
 @click.argument("value")
 @click.option("--global", "-g", "global_flag", is_flag=True, help="Global mode.")
-@click.option(
-    "-l", "--layer", type=vp.LayerType(accept_multiple=True), help="Target layer(s)."
-)
+@click.option("-l", "--layer", type=LayerType(accept_multiple=True), help="Target layer(s).")
 @click.option(
     "--type",
     "-t",
@@ -60,7 +60,7 @@ def _check_scope(
     default="str",
     help="Property type.",
 )
-@vp.global_processor
+@global_processor
 def propset(
     document: vp.Document,
     global_flag: bool,
@@ -112,7 +112,7 @@ def propset(
     if global_flag:
         document.set_property(prop, _STR_TO_TYPE[prop_type](value))
     else:
-        for lid in vp.multiple_to_layer_ids(layer, document):
+        for lid in multiple_to_layer_ids(layer, document):
             document.layers[lid].set_property(prop, _STR_TO_TYPE[prop_type](value))
 
     return document
@@ -132,10 +132,8 @@ def _value_to_str(value: Any) -> str:
 
 @cli.command(group="Metadata")
 @click.option("--global", "-g", "global_flag", is_flag=True, help="Global mode.")
-@click.option(
-    "-l", "--layer", type=vp.LayerType(accept_multiple=True), help="Target layer(s)."
-)
-@vp.global_processor
+@click.option("-l", "--layer", type=LayerType(accept_multiple=True), help="Target layer(s).")
+@global_processor
 def proplist(document: vp.Document, global_flag: bool, layer: Optional[Union[int, List[int]]]):
     """Print a list the existing global or layer properties and their values.
 
@@ -156,7 +154,7 @@ def proplist(document: vp.Document, global_flag: bool, layer: Optional[Union[int
         for prop in sorted(document.metadata.keys()):
             print(f"  {prop}: {_value_to_str(document.property(prop))}")
     else:
-        for lid in vp.multiple_to_layer_ids(layer, document):
+        for lid in multiple_to_layer_ids(layer, document):
             lc = document.layers[lid]
             print(f"listing {len(lc.metadata)} properties for layer {lid}")
             for prop in sorted(lc.metadata.keys()):
@@ -168,10 +166,8 @@ def proplist(document: vp.Document, global_flag: bool, layer: Optional[Union[int
 @cli.command(group="Metadata")
 @click.argument("prop")
 @click.option("--global", "-g", "global_flag", is_flag=True, help="Global mode.")
-@click.option(
-    "-l", "--layer", type=vp.LayerType(accept_multiple=True), help="Target layer(s)."
-)
-@vp.global_processor
+@click.option("-l", "--layer", type=LayerType(accept_multiple=True), help="Target layer(s).")
+@global_processor
 def propget(
     document: vp.Document, global_flag: bool, layer: Optional[Union[int, List[int]]], prop: str
 ):
@@ -192,7 +188,7 @@ def propget(
     if global_flag:
         print(f"global property {prop}: {_value_to_str(document.property(prop))}")
     else:
-        for lid in vp.multiple_to_layer_ids(layer, document):
+        for lid in multiple_to_layer_ids(layer, document):
             print(
                 f"layer {lid} property {prop}: "
                 f"{_value_to_str(document.layers[lid].property(prop))}"
@@ -204,10 +200,8 @@ def propget(
 @cli.command(group="Metadata")
 @click.argument("prop")
 @click.option("--global", "-g", "global_flag", is_flag=True, help="Global mode.")
-@click.option(
-    "-l", "--layer", type=vp.LayerType(accept_multiple=True), help="Target layer(s)."
-)
-@vp.global_processor
+@click.option("-l", "--layer", type=LayerType(accept_multiple=True), help="Target layer(s).")
+@global_processor
 def propdel(
     document: vp.Document, global_flag: bool, layer: Optional[Union[int, List[int]]], prop: str
 ):
@@ -228,7 +222,7 @@ def propdel(
     if global_flag:
         document.set_property(prop, None)
     else:
-        for lid in vp.multiple_to_layer_ids(layer, document):
+        for lid in multiple_to_layer_ids(layer, document):
             document.layers[lid].set_property(prop, None)
 
     return document
@@ -236,10 +230,8 @@ def propdel(
 
 @cli.command(group="Metadata")
 @click.option("--global", "-g", "global_flag", is_flag=True, help="Global mode.")
-@click.option(
-    "-l", "--layer", type=vp.LayerType(accept_multiple=True), help="Target layer(s)."
-)
-@vp.global_processor
+@click.option("-l", "--layer", type=LayerType(accept_multiple=True), help="Target layer(s).")
+@global_processor
 def propclear(
     document: vp.Document, global_flag: bool, layer: Optional[Union[int, List[int]]]
 ):
@@ -264,15 +256,15 @@ def propclear(
     if global_flag:
         document.clear_metadata()
     else:
-        for lid in vp.multiple_to_layer_ids(layer, document):
+        for lid in multiple_to_layer_ids(layer, document):
             document.layers[lid].clear_metadata()
 
     return document
 
 
 @cli.command(group="Metadata")
-@click.argument("pen_width", type=vp.LengthType(), metavar="WIDTH")
-@vp.layer_processor
+@click.argument("pen_width", type=LengthType(), metavar="WIDTH")
+@layer_processor
 def penwidth(layer: vp.LineCollection, pen_width: float) -> vp.LineCollection:
     """Set the pen width for one or more layers.
 
@@ -296,7 +288,7 @@ def penwidth(layer: vp.LineCollection, pen_width: float) -> vp.LineCollection:
 # noinspection PyShadowingNames
 @cli.command(group="Metadata")
 @click.argument("color", type=str)
-@vp.layer_processor
+@layer_processor
 def color(layer: vp.LineCollection, color: str) -> vp.LineCollection:
     """Set the color for one or more layers.
 
@@ -324,7 +316,7 @@ def color(layer: vp.LineCollection, color: str) -> vp.LineCollection:
 # noinspection PyShadowingNames
 @cli.command(group="Metadata")
 @click.argument("name", type=str)
-@vp.layer_processor
+@layer_processor
 def name(layer: vp.LineCollection, name: str) -> vp.LineCollection:
     """Set the name for one or more layers.
 
@@ -369,7 +361,7 @@ command. Check the documentation for more information on creating custom pen con
 
 @cli.command(group="Metadata", help=PENS_HELP_STRING)
 @click.argument("pen_config", metavar="CONF")
-@vp.global_processor
+@global_processor
 def pens(document: vp.Document, pen_config: str) -> vp.Document:
 
     # the CONF parameter must be checked explicitly (instead of using click.Choice()) because

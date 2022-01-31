@@ -7,6 +7,7 @@ import click
 import vpype as vp
 
 from .cli import cli
+from .decorators import global_processor
 
 __all__ = ("write",)
 
@@ -184,7 +185,7 @@ Examples:
     help="[HPGL only] Do not display the plotter configuration or paper loading information.",
 )
 @click.pass_obj  # to obtain the command string
-@vp.global_processor
+@global_processor
 def write(
     document: vp.Document,
     cmd_string: Optional[str],

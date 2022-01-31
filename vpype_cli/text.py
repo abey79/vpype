@@ -5,6 +5,8 @@ import click
 import vpype as vp
 
 from .cli import cli
+from .decorators import generator
+from .types import LengthType
 
 
 @cli.command(group="Text")
@@ -12,16 +14,14 @@ from .cli import cli
 @click.option(
     "-f", "--font", type=click.Choice(vp.FONT_NAMES), default="futural", help="Font to use."
 )
-@click.option(
-    "-s", "--size", type=vp.LengthType(), default=18, help="Text size (default: 18)."
-)
-@click.option("-w", "--wrap", type=vp.LengthType(), help="Wrap to provided width.")
+@click.option("-s", "--size", type=LengthType(), default=18, help="Text size (default: 18).")
+@click.option("-w", "--wrap", type=LengthType(), help="Wrap to provided width.")
 @click.option("-j", "--justify", is_flag=True, help="Justify text block (wrap-mode only).")
 @click.option(
     "-p",
     "--position",
     nargs=2,
-    type=vp.LengthType(),
+    type=LengthType(),
     default=[0, 0],
     help="Position of the text (default: 0, 0).",
 )
@@ -32,7 +32,7 @@ from .cli import cli
     default="left",
     help="Text alignment with respect to position (default: left).",
 )
-@vp.generator
+@generator
 def text(
     string: str,
     font: str,

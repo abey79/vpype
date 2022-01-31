@@ -1,6 +1,4 @@
 import logging
-from types import ModuleType
-from typing import Optional
 
 import click
 import numpy as np
@@ -8,6 +6,7 @@ import numpy as np
 import vpype as vp
 
 from .cli import cli
+from .decorators import global_processor
 
 try:
     # noinspection PyUnresolvedReferences
@@ -58,7 +57,7 @@ COLORS = [
     default="px",
     help="Units of the plot (when --show-grid is active, classic only).",
 )
-@vp.global_processor
+@global_processor
 def show(
     document: vp.Document,
     classic: bool,

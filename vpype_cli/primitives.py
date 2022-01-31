@@ -5,16 +5,18 @@ import click
 import vpype as vp
 
 from .cli import cli
+from .decorators import generator
+from .types import AngleType, LengthType
 
 __all__ = ("arc", "circle", "ellipse", "line", "rect")
 
 
 @cli.command(group="Primitives")
-@click.argument("x0", type=vp.LengthType())
-@click.argument("y0", type=vp.LengthType())
-@click.argument("x1", type=vp.LengthType())
-@click.argument("y1", type=vp.LengthType())
-@vp.generator
+@click.argument("x0", type=LengthType())
+@click.argument("y0", type=LengthType())
+@click.argument("x1", type=LengthType())
+@click.argument("y1", type=LengthType())
+@generator
 def line(x0: float, y0: float, x1: float, y1: float) -> vp.LineCollection:
     """Generate a single line.
 
@@ -24,14 +26,14 @@ def line(x0: float, y0: float, x1: float, y1: float) -> vp.LineCollection:
 
 
 @cli.command(group="Primitives")
-@click.argument("x", type=vp.LengthType())
-@click.argument("y", type=vp.LengthType())
-@click.argument("width", type=vp.LengthType())
-@click.argument("height", type=vp.LengthType())
+@click.argument("x", type=LengthType())
+@click.argument("y", type=LengthType())
+@click.argument("width", type=LengthType())
+@click.argument("height", type=LengthType())
 @click.option(
     "--radii",
     "-r",
-    type=vp.LengthType(),
+    type=LengthType(),
     nargs=4,
     default=(0, 0, 0, 0),
     help="Top-left, top-right, bottom-right and bottom-left corner radii.",
@@ -39,11 +41,11 @@ def line(x0: float, y0: float, x1: float, y1: float) -> vp.LineCollection:
 @click.option(
     "-q",
     "--quantization",
-    type=vp.LengthType(),
+    type=LengthType(),
     default="1mm",
     help="Maximum length of segments approximating the rounded angles.",
 )
-@vp.generator
+@generator
 def rect(
     x: float,
     y: float,
@@ -74,20 +76,20 @@ def rect(
 
 
 @cli.command(group="Primitives")
-@click.argument("x", type=vp.LengthType())
-@click.argument("y", type=vp.LengthType())
-@click.argument("rw", type=vp.LengthType())
-@click.argument("rh", type=vp.LengthType())
-@click.argument("start", type=vp.AngleType())
-@click.argument("stop", type=vp.AngleType())
+@click.argument("x", type=LengthType())
+@click.argument("y", type=LengthType())
+@click.argument("rw", type=LengthType())
+@click.argument("rh", type=LengthType())
+@click.argument("start", type=AngleType())
+@click.argument("stop", type=AngleType())
 @click.option(
     "-q",
     "--quantization",
-    type=vp.LengthType(),
+    type=LengthType(),
     default="1mm",
     help="Maximum length of segments approximating the arc.",
 )
-@vp.generator
+@generator
 def arc(
     x: float, y: float, rw: float, rh: float, start: float, stop: float, quantization: float
 ):
@@ -104,17 +106,17 @@ def arc(
 
 
 @cli.command(group="Primitives")
-@click.argument("x", type=vp.LengthType())
-@click.argument("y", type=vp.LengthType())
-@click.argument("r", type=vp.LengthType())
+@click.argument("x", type=LengthType())
+@click.argument("y", type=LengthType())
+@click.argument("r", type=LengthType())
 @click.option(
     "-q",
     "--quantization",
-    type=vp.LengthType(),
+    type=LengthType(),
     default="1mm",
     help="Maximum length of segments approximating the circle.",
 )
-@vp.generator
+@generator
 def circle(x: float, y: float, r: float, quantization: float):
     """Generate lines approximating a circle.
 
@@ -125,18 +127,18 @@ def circle(x: float, y: float, r: float, quantization: float):
 
 
 @cli.command(group="Primitives")
-@click.argument("x", type=vp.LengthType())
-@click.argument("y", type=vp.LengthType())
-@click.argument("w", type=vp.LengthType())
-@click.argument("h", type=vp.LengthType())
+@click.argument("x", type=LengthType())
+@click.argument("y", type=LengthType())
+@click.argument("w", type=LengthType())
+@click.argument("h", type=LengthType())
 @click.option(
     "-q",
     "--quantization",
-    type=vp.LengthType(),
+    type=LengthType(),
     default="1mm",
     help="Maximum length of segments approximating the ellipse.",
 )
-@vp.generator
+@generator
 def ellipse(x: float, y: float, w: float, h: float, quantization: float):
     """Generate lines approximating an ellipse.
 

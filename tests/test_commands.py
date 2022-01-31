@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 
 import vpype as vp
-from vpype_cli import DebugData, cli, execute
+from vpype_cli import DebugData, cli, execute, global_processor
 
 from .utils import TESTS_DIRECTORY, execute_single_line
 
@@ -129,7 +129,7 @@ def test_commands_execute(args):
 @pytest.mark.parametrize("cmd", MINIMAL_COMMANDS)
 def test_commands_must_return_document(runner, cmd):
     @cli.command()
-    @vp.global_processor
+    @global_processor
     def assertdoc(document):
         assert document is not None
         assert type(document) is vp.Document
@@ -150,7 +150,7 @@ def test_commands_keeps_page_size(runner, cmd):
     page_size = None
 
     @cli.command()
-    @vp.global_processor
+    @global_processor
     def getpagesize(doc: vp.Document) -> vp.Document:
         nonlocal page_size
         page_size = doc.page_size
@@ -534,7 +534,7 @@ def test_layout(runner, args, expected_bounds):
     document = vp.Document()
 
     @cli.command()
-    @vp.global_processor
+    @global_processor
     def sample(doc: vp.Document):
         nonlocal document
         document = doc

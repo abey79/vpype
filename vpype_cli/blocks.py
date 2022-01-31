@@ -2,9 +2,11 @@ from typing import Tuple
 
 import click
 
-from vpype import Document, LengthType, block_processor
+import vpype as vp
 
 from .cli import BlockProcessor, cli, execute_processors
+from .decorators import block_processor
+from .types import LengthType
 
 __all__ = ("GridBlockProcessor", "RepeatBlockProcessor")
 
@@ -33,7 +35,7 @@ class GridBlockProcessor(BlockProcessor):
         self.offset = offset
 
     def process(self, processors):
-        document = Document()
+        document = vp.Document()
 
         for i in range(self.number[0]):
             for j in range(self.number[1]):
@@ -57,7 +59,7 @@ class RepeatBlockProcessor(BlockProcessor):
         self.number = number
 
     def process(self, processors):
-        document = Document()
+        document = vp.Document()
 
         for _ in range(self.number):
             state = execute_processors(processors)

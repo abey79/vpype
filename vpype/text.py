@@ -217,6 +217,7 @@ def text_block(
     width /= scale_factor
 
     def measure(txt):
+        # noinspection PyShadowingNames
         bounds = _text_line(txt, font).bounds()
         return bounds[2] if bounds else 0.0
 

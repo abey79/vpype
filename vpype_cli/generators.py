@@ -3,9 +3,11 @@ from typing import Tuple
 import click
 import numpy as np
 
-from vpype import LengthType, LineCollection, generator
+import vpype as vp
 
 from .cli import cli
+from .decorators import generator
+from .types import LengthType
 
 __all__ = ("random",)
 
@@ -32,4 +34,4 @@ def random(n: int, area: Tuple[float, float]):
     lines = np.random.rand(n, 2) + 1j * np.random.rand(n, 2)
     lines[:, 0] *= area[0]
     lines[:, 1] *= area[1]
-    return LineCollection(lines)
+    return vp.LineCollection(lines)

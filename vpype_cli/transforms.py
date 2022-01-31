@@ -7,6 +7,8 @@ import click
 import vpype as vp
 
 from .cli import cli
+from .decorators import global_processor, layer_processor
+from .types import AngleType, LayerType, LengthType, multiple_to_layer_ids
 
 __all__ = ("rotate", "scale_relative", "scaleto", "skew", "translate")
 
@@ -16,7 +18,7 @@ def _compute_origin(
     layer: Optional[Union[int, List[int]]],
     origin_coords: Optional[Union[Tuple[()], Tuple[float, float]]],
 ) -> Tuple[Tuple[float, float], List[int], Tuple[float, float, float, float]]:
-    layer_ids = vp.multiple_to_layer_ids(layer, document)
+    layer_ids = multiple_to_layer_ids(layer, document)
     bounds = document.bounds(layer_ids)
 
     if not bounds:
@@ -35,8 +37,8 @@ def _compute_origin(
 
 
 @cli.command(group="Transforms")
-@click.argument("offset", nargs=2, type=vp.LengthType(), required=True)
-@vp.layer_processor
+@click.argument("offset", nargs=2, type=LengthType(), required=True)
+@layer_processor
 def translate(lc: vp.LineCollection, offset: Tuple[float, float]):
     """
     Translate the geometries. X and Y offsets must be provided. These arguments understand
@@ -62,11 +64,11 @@ def translate(lc: vp.LineCollection, offset: Tuple[float, float]):
 
 # noinspection PyShadowingNames
 @cli.command(name="scale", group="Transforms")
-@click.argument("scale", nargs=2, type=vp.LengthType())
+@click.argument("scale", nargs=2, type=LengthType())
 @click.option(
     "-l",
     "--layer",
-    type=vp.LayerType(accept_multiple=True),
+    type=LayerType(accept_multiple=True),
     default="all",
     help="Target layer(s).",
 )
@@ -75,10 +77,10 @@ def translate(lc: vp.LineCollection, offset: Tuple[float, float]):
     "--origin",
     "origin_coords",
     nargs=2,
-    type=vp.LengthType(),
+    type=LengthType(),
     help="Use a specific origin.",
 )
-@vp.global_processor
+@global_processor
 def scale_relative(
     document: vp.Document,
     scale: Tuple[float, float],
@@ -120,11 +122,11 @@ def scale_relative(
 
 # noinspection PyShadowingNames
 @cli.command(group="Transforms")
-@click.argument("dim", nargs=2, type=vp.LengthType())
+@click.argument("dim", nargs=2, type=LengthType())
 @click.option(
     "-l",
     "--layer",
-    type=vp.LayerType(accept_multiple=True),
+    type=LayerType(accept_multiple=True),
     default="all",
     help="Target layer(s).",
 )
@@ -139,10 +141,10 @@ def scale_relative(
     "--origin",
     "origin_coords",
     nargs=2,
-    type=vp.LengthType(),
+    type=LengthType(),
     help="Use a specific origin.",
 )
-@vp.global_processor
+@global_processor
 def scaleto(
     document: vp.Document,
     dim: Tuple[float, float],
@@ -197,11 +199,11 @@ def scaleto(
 
 # noinspection DuplicatedCode
 @cli.command(group="Transforms")
-@click.argument("angle", required=True, type=vp.AngleType())
+@click.argument("angle", required=True, type=AngleType())
 @click.option(
     "-l",
     "--layer",
-    type=vp.LayerType(accept_multiple=True),
+    type=LayerType(accept_multiple=True),
     default="all",
     help="Target layer(s).",
 )
@@ -210,10 +212,10 @@ def scaleto(
     "--origin",
     "origin_coords",
     nargs=2,
-    type=vp.LengthType(),
+    type=LengthType(),
     help="Use a specific origin.",
 )
-@vp.global_processor
+@global_processor
 def rotate(
     document: vp.Document,
     angle: float,
@@ -254,7 +256,7 @@ def rotate(
 @click.option(
     "-l",
     "--layer",
-    type=vp.LayerType(accept_multiple=True),
+    type=LayerType(accept_multiple=True),
     default="all",
     help="Target layer(s).",
 )
@@ -263,10 +265,10 @@ def rotate(
     "--origin",
     "origin_coords",
     nargs=2,
-    type=vp.LengthType(),
+    type=LengthType(),
     help="Use a specific origin.",
 )
-@vp.global_processor
+@global_processor
 def skew(
     document: vp.Document,
     layer: Union[int, List[int]],
