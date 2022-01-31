@@ -5,7 +5,7 @@ import pytest
 
 import vpype as vp
 import vpype_viewer
-from vpype_cli import cli
+from vpype_cli import cli, global_processor
 
 TEST_COMMANDS = [
     "rect 1cm 1cm 10cm 15cm",
@@ -74,7 +74,7 @@ def test_show(assert_image_similarity, runner, monkeypatch, commands, params):
 
 def test_show_must_return_document(runner, monkeypatch):
     @cli.command()
-    @vp.global_processor
+    @global_processor
     def assertdoc(document):
         assert document is not None
         assert type(document) is vp.Document

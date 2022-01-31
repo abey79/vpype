@@ -3,15 +3,18 @@ import os
 import random
 import shlex
 import sys
+import traceback
 from typing import Any, List, Optional, TextIO, Union
 
 import click
 import numpy as np
-from click_plugins import with_plugins
 from pkg_resources import iter_entry_points
 from shapely.geometry import MultiLineString
 
 import vpype as vp
+
+from .decorators import global_processor
+from .state import State
 
 __all__ = ("cli", "execute", "begin", "end", "BlockProcessor", "execute_processors")
 
@@ -74,8 +77,38 @@ class GroupedGroup(click.Group):
         return super().main(args=preprocess_argument_list(args), **extra)
 
 
+class _BrokenCommand(click.Command):  # pragma: no cover
+    """Rather than completely crash the CLI when a broken plugin is loaded, this
+    class provides a modified help message informing the user that the plugin is
+    broken and they should contact the owner.  If the user executes the plugin
+    or specifies `--help` a traceback is reported showing the exception the
+    plugin loader encountered.
+    """
+
+    def __init__(self, name):
+        """Define the special help messages after instantiating a `click.Command()`."""
+
+        click.Command.__init__(self, name)
+        util_name = os.path.basename(sys.argv and sys.argv[0] or __file__)
+        self.help = (
+            "\nWarning: entry point could not be loaded. Contact "
+            "its author for help.\n\n\b\n" + traceback.format_exc()
+        )
+        self.short_help = "\u2020 Warning: could not load plugin. See `%s %s --help`." % (
+            util_name,
+            self.name,
+        )
+
+    def invoke(self, ctx):
+        """Print the traceback instead of doing nothing."""
+        click.echo(self.help, color=ctx.color)
+        ctx.exit(1)
+
+    def parse_args(self, ctx, args):
+        return args
+
+
 # noinspection PyUnusedLocal,PyUnresolvedReferences
-@with_plugins(iter_entry_points("vpype.plugins"))
 @click.group(cls=GroupedGroup, chain=True)
 @click.version_option(version=vp.__version__, message="%(prog)s %(version)s")
 @click.option("-v", "--verbose", count=True)
@@ -138,9 +171,23 @@ def cli(ctx, verbose, include, history, seed, config):
     elif verbose > 1:
         logging.getLogger().setLevel(logging.DEBUG)
 
+    # Plug-in loading logic. This approach is preferred because:
+    # 1) Deferred plug-in loading avoid circular import between vpype and vpype_cli when plug-
+    #    in uses deprecated APIs.
+    # 2) Avoids the PyCharm type error with CliRunner.invoke()
+    for entry_point in iter_entry_points("vpype.plugins"):
+        # noinspection PyBroadException
+        try:
+            ctx.command.add_command(entry_point.load())
+        except Exception:
+            # Catch this so a busted plugin doesn't take down the CLI.
+            # Handled by registering a dummy command that does nothing
+            # other than explain the error.
+            ctx.command.add_command(_BrokenCommand(entry_point.name))
+
     # We use the command string as context object, mainly for the purpose of the `write`
     # command. This is a bit of a hack, and will need to be updated if we ever need more state
-    # to be passed around (probably VpypeState should go in there!)
+    # to be passed around (probably State should go in there!)
     cmd_string = "vpype " + " ".join(shlex.quote(arg) for arg in sys.argv[1:]) + "\n"
     ctx.obj = cmd_string
 
@@ -149,7 +196,7 @@ def cli(ctx, verbose, include, history, seed, config):
             fp.write(cmd_string)
 
     if seed is None:
-        seed = np.random.randint(2 ** 31)
+        seed = np.random.randint(2**31)
         logging.info(f"vpype: no seed provided, using {seed}")
     np.random.seed(seed)
     random.seed(seed)
@@ -164,7 +211,7 @@ def process_pipeline(processors, verbose, include, history, seed, config):
     execute_processors(processors)
 
 
-def execute_processors(processors) -> vp.VpypeState:
+def execute_processors(processors) -> State:
     """
     Execute a sequence of processors to generate a Document structure. For block handling, we
     use a recursive approach. Only top-level blocks are extracted and processed by block
@@ -243,7 +290,7 @@ def execute_processors(processors) -> vp.VpypeState:
         raise click.ClickException("An 'end' command is missing")
 
     # the (only) frame's processors should now be flat and can be chain-called
-    state = vp.VpypeState()
+    state = State()
     for proc in outer_processors:
         state = proc(state)
     return state
@@ -384,7 +431,7 @@ def execute(
     if document:
 
         @cli.command()
-        @vp.global_processor
+        @global_processor
         def vsketchinput(doc):
             doc.extend(document)
             return doc
@@ -392,7 +439,7 @@ def execute(
     out_doc = vp.Document()
 
     @cli.command()
-    @vp.global_processor
+    @global_processor
     def vsketchoutput(doc):
         out_doc.extend(doc)
         return doc

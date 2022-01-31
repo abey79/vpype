@@ -76,24 +76,25 @@ Let's check that that everything works as expected::
 
     ...
 
-The cookiecutter project includes a single :ref:`generator <fundamentals_generators>` command with the :py:func:`generator` decorator:
+The cookiecutter project includes a single :ref:`generator <fundamentals_generators>` command with the :func:`@vpype_cli.generator <vpype_cli.generator>` decorator:
 
 .. code-block:: python
 
   import click
-  from vpype import LineCollection, generator
+  import vpype as vp
+  import vpype_cli
 
   @click.command()
-  @generator
+  @vpype_cli.generator
   def my_vpype_plugin():
       """Insert documentation here.
       """
-      lc = LineCollection()
+      lc = vp.LineCollection()
       return lc
 
   my_vpype_plugin.help_group = "Plugins"
 
-Generator commands must return a :py:class:`LineCollection` instance. Plug-in can also contain :ref:`layer processor <fundamentals_layer_processors>` or :ref:`global processor <fundamentals_global_processors>` command, respectively using the :py:func:`layer_processor` and :py:func:`global_processor` decorators. Check the API reference for more information.
+Generator commands must return a :py:class:`vpype.LineCollection` instance. Plug-in can also contain :ref:`layer processor <fundamentals_layer_processors>` or :ref:`global processor <fundamentals_global_processors>` command, respectively using the :func:`@vpype_cli.layer_processor <vpype_cli.layer_processor>` and :py:func:`@vpype_cli.global_processor <vpype_cli.global_processor>` decorators. Check the API reference for more information.
 
 
 .. _plugins_help:

@@ -6,9 +6,10 @@ from typing import Any, Dict, Iterable, List, Sequence
 
 import numpy as np
 
-from vpype import Document, LineCollection, as_vector, global_processor
+import vpype as vp
 
 from .cli import cli
+from .decorators import global_processor
 
 debug_data: List[Dict[str, Any]] = []
 
@@ -17,7 +18,7 @@ __all__ = ("dbsample", "dbdump", "stat", "DebugData")
 
 @cli.command(hidden=True)
 @global_processor
-def dbsample(document: Document):
+def dbsample(document: vp.Document):
     """
     Show statistics on the current geometries in JSON format.
     """
@@ -33,7 +34,7 @@ def dbsample(document: Document):
         data["pen_up_length"] = document.pen_up_length()
         data["bounds"] = document.bounds()
         data["layers"] = {
-            layer_id: [as_vector(line).tolist() for line in layer]
+            layer_id: [vp.as_vector(line).tolist() for line in layer]
             for layer_id, layer in document.layers.items()
         }
 
@@ -43,7 +44,7 @@ def dbsample(document: Document):
 
 @cli.command(hidden=True)
 @global_processor
-def dbdump(document: Document):
+def dbdump(document: vp.Document):
     global debug_data
     print(json.dumps(debug_data))
     debug_data = []
@@ -71,9 +72,9 @@ class DebugData:
         self.bounds = data.get("bounds", [0, 0, 0, 0])
         self.layers = data.get("layers", {})
 
-        self.document = Document()
+        self.document = vp.Document()
         for vid, lines in self.layers.items():
-            self.document[int(vid)] = LineCollection(
+            self.document[int(vid)] = vp.LineCollection(
                 [np.array([x + 1j * y for x, y in line]) for line in lines]
             )
 
@@ -128,7 +129,7 @@ class DebugData:
 
 @cli.command(group="Output")
 @global_processor
-def stat(document: Document):
+def stat(document: vp.Document):
     """Print human-readable statistics on the current geometries."""
 
     print("========= Stats ========= ")

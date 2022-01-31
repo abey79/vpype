@@ -39,6 +39,30 @@ New features and improvements:
 * Providing a non-existent layer ID to any `--layer` parameter now generates a note (visible with `--verbose`) (#359, #382)
 
 API changes:
+* Moved all CLI-related APIs from `vpype` to `vpype_cli` (#388)
+
+  A number of CLI-related APIs remained in the `vpype` package for historical reasons. They are now located in the `vpype_cli` package for consistency and to allow for future extensions.
+
+  * Moved the following decorators, classes, and functions from the `vpype` package to the `vpype_cli` package. Importing from `vpype` will now generate a deprecation warning:
+    * `@block_processor`
+    * `@generator`
+    * `@global_processor`
+    * `@layer_processor`
+    * `@pass_state`
+    * `AngleType`
+    * `LayerType`
+    * `LengthType`
+    * `PageSizeType`
+    * `multiple_to_layer_ids()`
+    * `single_to_layer_id()`
+  * Moved and renamed `vpype.VpypeState` to `vpype_cli.State`. Using the old name will generate a deprecation warning. 
+  * Removed the following long-time deprecated aliases:
+    * `vpype.Length` (alias to `vpype_cli.LengthType`) 
+    * `vpype.VectorData` (alias to `vpype.Document`)
+    * `vpype.convert()`(alias to `vpype.convert_length()`)
+    * `vpype.convert_page_format()` (alias to `vpype.convert_page_size()`)
+    * `vpype.PAGE_FORMATS` (alias to `vpype.PAGE_SIZES`)
+
 * `vpype.Document` and `vpype.LineCollection` have additional members to manage properties through the `vpype._MetadataMixin` mix-in class (#359)
 * Renamed `vpype.Document.empty_copy()` to `vpype.Document.clone()` for coherence with `vpype.LineCollection` (the old name remains for backward compatibility) (#359, #380) 
 * Added `vpype.read_svg_by_attribute()` to read SVG while sorting geometries by arbitrary attributes (#378)
@@ -47,6 +71,7 @@ API changes:
 Other changes:
 * Renamed the bundled config file to `vpype_config.toml` (#359)
 * Changed dependencies to dataclasses (instead of attrs) and tomli (instead of toml) (#362)
+* Removed dependency to click-plugin (#388)
 * Various documentation improvements (#359, #363)
 
 

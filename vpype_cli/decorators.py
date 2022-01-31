@@ -5,9 +5,6 @@ from functools import update_wrapper
 
 import click
 
-from .layers import LayerType, VpypeState, multiple_to_layer_ids, single_to_layer_id
-
-# REMINDER: anything added here must be added to docs/api.rst
 __all__ = [
     "layer_processor",
     "global_processor",
@@ -15,6 +12,9 @@ __all__ = [
     "block_processor",
     "pass_state",
 ]
+
+from .state import State
+from .types import LayerType, multiple_to_layer_ids, single_to_layer_id
 
 
 def _format_timedelta(dt: datetime.timedelta) -> str:
@@ -73,7 +73,7 @@ def layer_processor(f):
         layers = kwargs.pop("layer", -1)
 
         # noinspection PyShadowingNames
-        def layer_processor(state: VpypeState) -> VpypeState:
+        def layer_processor(state: State) -> State:
             for lid in multiple_to_layer_ids(layers, state.document):
                 logging.info(
                     f"executing layer processor `{f.__name__}` on layer {lid} "
@@ -142,7 +142,7 @@ def global_processor(f):
 
     def new_func(*args, **kwargs):
         # noinspection PyShadowingNames
-        def global_processor(state: VpypeState) -> VpypeState:
+        def global_processor(state: State) -> State:
             logging.info(f"executing global processor `{f.__name__}` (kwargs: {kwargs})")
 
             start = datetime.datetime.now()
@@ -163,7 +163,7 @@ def global_processor(f):
 
 
 def generator(f):
-    """Helper decorator to define generator-type commands.
+    """Helper decorator to define a :ref:`generator <fundamentals_generators>` command.
 
     Generator do not have input, have automatically a "-l, --layer" option added to them, and
     must return a LineCollection structure, which will be added to a new layer or an existing
@@ -181,7 +181,7 @@ def generator(f):
         layer = kwargs.pop("layer", -1)
 
         # noinspection PyShadowingNames
-        def generator(state: VpypeState) -> VpypeState:
+        def generator(state: State) -> State:
             with state.current():
                 target_layer = single_to_layer_id(layer, state.document)
 
@@ -221,6 +221,6 @@ def pass_state(f):
     """Marks a command as wanting to receive the current state."""
 
     def new_func(*args, **kwargs):
-        return f(VpypeState.get_current(), *args, **kwargs)
+        return f(State.get_current(), *args, **kwargs)
 
     return update_wrapper(new_func, f)

@@ -3,31 +3,33 @@ import click
 import vpype as vp
 
 from .cli import cli
+from .decorators import layer_processor
+from .types import LengthType
 
 
 @cli.command(group="Filters")
 @click.option(
     "-a",
     "--amplitude",
-    type=vp.LengthType(),
+    type=LengthType(),
     default="0.5mm",
     help="Amplitude of the noise-based displacement (default: 0.5mm).",
 )
 @click.option(
     "-p",
     "--period",
-    type=vp.LengthType(),
+    type=LengthType(),
     default="3mm",
     help="Period of the noise-based displacement (default: 3mm).",
 )
 @click.option(
     "-q",
     "--quantization",
-    type=vp.LengthType(),
+    type=LengthType(),
     default="0.05mm",
     help="Maximum segment size used for the resampling (default: 0.05mm).",
 )
-@vp.layer_processor
+@layer_processor
 def squiggles(lines: vp.LineCollection, amplitude: float, period: float, quantization: float):
     """Apply a squiggle filter to the geometries.
 

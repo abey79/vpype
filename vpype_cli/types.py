@@ -1,39 +1,104 @@
 import logging
-from contextlib import contextmanager
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Tuple, Union
 
 import click
 
-from .model import Document
+import vpype as vp
 
-# REMINDER: anything added here must be added to docs/api.rst
-__all__ = ["VpypeState", "multiple_to_layer_ids", "single_to_layer_id", "LayerType"]
+from .state import State
 
 
-class VpypeState:
-    current_state: Union["VpypeState", None] = None
+class LengthType(click.ParamType):
+    """:class:`click.ParamType` sub-class to automatically converts a user-provided length
+    string (which may contain units) into a value in CSS pixel units. This class uses
+    :func:`convert_length` internally.
 
-    def __init__(self, doc: Union[Document, None] = None):
-        if doc is not None:
-            self.document = doc
+    Example::
+
+        >>> import click
+        >>> import vpype_cli
+        >>> import vpype
+        >>> @vpype_cli.cli.command(group="my commands")
+        ... @click.argument("x", type=vpype_cli.LengthType())
+        ... @click.option("-o", "--option", type=vpype_cli.LengthType(), default="1mm")
+        ... @vpype_cli.generator
+        ... def my_command(x: float, option: float):
+        ...     pass
+    """
+
+    name = "length"
+
+    def convert(self, value, param, ctx):
+        if isinstance(value, str):
+            try:
+                return vp.convert_length(value)
+            except ValueError:
+                self.fail(f"parameter {value} is an incorrect length")
         else:
-            self.document = Document()
+            return super().convert(value, param, ctx)
 
-        self.target_layer: Optional[int] = None
 
-    @classmethod
-    def get_current(cls):
-        return cls.current_state
+class AngleType(click.ParamType):
+    """:class:`click.ParamType` sub-class to automatically converts a user-provided angle
+    string (which may contain units) into a value in degrees. This class uses
+    :func:`convert_angle` internally.
 
-    @contextmanager
-    def current(self):
-        self.__class__.current_state = self
-        yield
-        self.__class__.current_state = None
+    Example::
+
+        >>> import click
+        >>> import vpype_cli
+        >>> import vpype
+        >>> @vpype_cli.cli.command(group="my commands")
+        ... @click.argument("angle", type=vpype_cli.AngleType())
+        ... @vpype_cli.generator
+        ... def my_command(angle: float):
+        ...     pass
+    """
+
+    name = "angle"
+
+    def convert(self, value, param, ctx):
+        try:
+            if isinstance(value, str):
+                return vp.convert_angle(value)
+            else:
+                return super().convert(value, param, ctx)
+        except ValueError:
+            self.fail(f"parameter {value} is an incorrect angle")
+
+
+class PageSizeType(click.ParamType):
+    """:class:`click.ParamType` sub-class to automatically converts a user-provided page size
+    string into a tuple of float in CSS pixel units. See :func:`convert_page_size` for
+    information on the page size descriptor syntax.
+
+    Example::
+
+        >>> import click
+        >>> import vpype_cli
+        >>> import vpype
+        >>> @vpype_cli.cli.command(group="my commands")
+        ... @click.argument("fmt", type=vpype_cli.PageSizeType())
+        ... @vpype_cli.generator
+        ... def my_command(fmt: Tuple[float, float]):
+        ...     pass
+    """
+
+    name = "pagesize"
+
+    def convert(self, value: Any, param, ctx) -> Optional[Tuple[float, float]]:
+        try:
+            if isinstance(value, str):
+                return vp.convert_page_size(value)
+            else:
+                return super().convert(value, param, ctx)
+
+        except ValueError:
+            self.fail(f"parameter {value} is not a valid page size")
 
 
 def multiple_to_layer_ids(
-    layers: Optional[Union[int, List[int]]], document: Document
+    layers: Optional[Union[int, List[int]]], document: vp.Document
 ) -> List[int]:
     """Convert multiple-layer CLI argument to list of layer IDs.
 
@@ -59,7 +124,7 @@ def multiple_to_layer_ids(
 
 
 def single_to_layer_id(
-    layer: Optional[int], document: Document, must_exist: bool = False
+    layer: Optional[int], document: vp.Document, must_exist: bool = False
 ) -> int:
     """Convert single-layer CLI argument to layer ID, accounting for the existence of a current
     a current target layer and dealing with default behavior.
@@ -72,12 +137,12 @@ def single_to_layer_id(
     Returns:
         Target layer ID
     """
-    current_target_layer = VpypeState.get_current().target_layer
+    current_target_layer = State.get_current().target_layer
 
     if layer is LayerType.NEW or (layer is None and current_target_layer is None):
         lid = document.free_id()
     elif layer is None:
-        lid = VpypeState.get_current().target_layer
+        lid = State.get_current().target_layer
     else:
         lid = layer
 

@@ -30,7 +30,6 @@ __all__ = [
     "PlotterConfig",
     "ConfigManager",
     "config_manager",
-    "CONFIG_MANAGER",
 ]
 
 
@@ -246,9 +245,6 @@ class ConfigManager:
 
 
 config_manager = ConfigManager()
-
-# deprecated
-CONFIG_MANAGER = config_manager
 
 
 def _init():

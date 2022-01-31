@@ -6,13 +6,15 @@ import click
 import vpype as vp
 
 from .cli import cli
+from .decorators import global_processor
+from .types import LayerType, multiple_to_layer_ids, single_to_layer_id
 
 __all__ = ("lcopy", "lmove", "ldelete", "lreverse", "lswap")
 
 
 @cli.command(group="Layers")
-@click.argument("sources", type=vp.LayerType(accept_multiple=True))
-@click.argument("dest", type=vp.LayerType(accept_new=True))
+@click.argument("sources", type=LayerType(accept_multiple=True))
+@click.argument("dest", type=LayerType(accept_new=True))
 @click.option(
     "-p",
     "--prob",
@@ -20,7 +22,7 @@ __all__ = ("lcopy", "lmove", "ldelete", "lreverse", "lswap")
     help="Path copy probability (default: 1.0).",
 )
 @click.option("-m", "--no-prop", is_flag=True, help="Do not copy metadata.")
-@vp.global_processor
+@global_processor
 def lcopy(document, sources, dest, prob: Optional[float], no_prop: bool):
     """Copy the content of one or more layer(s) to another layer.
 
@@ -56,8 +58,8 @@ content is not duplicated:
             vpype [...] lcopy all 1 [...]
     """
 
-    src_lids = vp.multiple_to_layer_ids(sources, document)
-    dest_lid = vp.single_to_layer_id(dest, document)
+    src_lids = multiple_to_layer_ids(sources, document)
+    dest_lid = single_to_layer_id(dest, document)
 
     if dest_lid in src_lids:
         src_lids.remove(dest_lid)
@@ -81,8 +83,8 @@ content is not duplicated:
 
 
 @cli.command(group="Layers")
-@click.argument("sources", type=vp.LayerType(accept_multiple=True))
-@click.argument("dest", type=vp.LayerType(accept_new=True))
+@click.argument("sources", type=LayerType(accept_multiple=True))
+@click.argument("dest", type=LayerType(accept_new=True))
 @click.option(
     "-p",
     "--prob",
@@ -90,7 +92,7 @@ content is not duplicated:
     help="Path move probability (default: 1.0).",
 )
 @click.option("-m", "--no-prop", is_flag=True, help="Do not move metadata.")
-@vp.global_processor
+@global_processor
 def lmove(document, sources, dest, prob: Optional[float], no_prop: bool):
     """Move the content of one or more layer(s) to another layer.
 
@@ -120,8 +122,8 @@ def lmove(document, sources, dest, prob: Optional[float], no_prop: bool):
             vpype [...] lmove 1,2 1 [...]  # merge layer 1 and 2 to layer 1
     """
 
-    src_lids = vp.multiple_to_layer_ids(sources, document)
-    dest_lid = vp.single_to_layer_id(dest, document)
+    src_lids = multiple_to_layer_ids(sources, document)
+    dest_lid = single_to_layer_id(dest, document)
 
     if dest_lid in src_lids:
         src_lids.remove(dest_lid)
@@ -156,7 +158,7 @@ def lmove(document, sources, dest, prob: Optional[float], no_prop: bool):
 
 
 @cli.command(group="Layers")
-@click.argument("layers", type=vp.LayerType(accept_multiple=True))
+@click.argument("layers", type=LayerType(accept_multiple=True))
 @click.option(
     "-k", "--keep", is_flag=True, help="Specified layers must be kept instead of deleted."
 )
@@ -166,7 +168,7 @@ def lmove(document, sources, dest, prob: Optional[float], no_prop: bool):
     type=click.FloatRange(0.0, 1.0),
     help="Path deletion probability (default: 1.0).",
 )
-@vp.global_processor
+@global_processor
 def ldelete(document: vp.Document, layers, keep: bool, prob: Optional[float]) -> vp.Document:
     """Delete one or more layers.
 
@@ -180,7 +182,7 @@ def ldelete(document: vp.Document, layers, keep: bool, prob: Optional[float]) ->
     lower than 1.0, some paths will not be deleted.
     """
 
-    lids = set(vp.multiple_to_layer_ids(layers, document))
+    lids = set(multiple_to_layer_ids(layers, document))
 
     if keep:
         lids = document.layers.keys() - lids
@@ -203,8 +205,8 @@ def ldelete(document: vp.Document, layers, keep: bool, prob: Optional[float]) ->
 
 
 @cli.command(group="Layers")
-@click.argument("first", type=vp.LayerType(accept_multiple=False, accept_new=False))
-@click.argument("second", type=vp.LayerType(accept_multiple=False, accept_new=False))
+@click.argument("first", type=LayerType(accept_multiple=False, accept_new=False))
+@click.argument("second", type=LayerType(accept_multiple=False, accept_new=False))
 @click.option(
     "-p",
     "--prob",
@@ -212,7 +214,7 @@ def ldelete(document: vp.Document, layers, keep: bool, prob: Optional[float]) ->
     help="Path deletion probability (default: 1.0).",
 )
 @click.option("-m", "--no-prop", is_flag=True, help="Do not move metadata.")
-@vp.global_processor
+@global_processor
 def lswap(
     document: vp.Document, first: int, second: int, prob: Optional[float], no_prop: bool
 ) -> vp.Document:
@@ -228,8 +230,8 @@ def lswap(
     well. This behaviour can be disabled with the `--no-prop` option.
     """
 
-    first_lid = vp.single_to_layer_id(first, document, must_exist=True)
-    second_lid = vp.single_to_layer_id(second, document, must_exist=True)
+    first_lid = single_to_layer_id(first, document, must_exist=True)
+    second_lid = single_to_layer_id(second, document, must_exist=True)
 
     if prob is None:
         document.swap_content(first_lid, second_lid)
@@ -254,8 +256,8 @@ def lswap(
 
 
 @cli.command(group="Layers")
-@click.argument("layers", type=vp.LayerType(accept_multiple=True, accept_new=False))
-@vp.global_processor
+@click.argument("layers", type=LayerType(accept_multiple=True, accept_new=False))
+@global_processor
 def lreverse(document: vp.Document, layers) -> vp.Document:
     """Reverse the path order within one or more layers.
 
@@ -278,7 +280,7 @@ def lreverse(document: vp.Document, layers) -> vp.Document:
             $ vpype [...] ldelete all [...]
     """
 
-    lids = set(vp.multiple_to_layer_ids(layers, document))
+    lids = set(multiple_to_layer_ids(layers, document))
 
     for layer_id in lids:
         document.layers[layer_id].reverse()

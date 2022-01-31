@@ -1,6 +1,5 @@
 """Implementation of vpype's data model
 """
-import logging
 import math
 from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Union, cast
 
@@ -11,7 +10,6 @@ from .geometry import crop, reloop
 from .line_index import LineIndex
 from .metadata import METADATA_FIELD_PAGE_SIZE, METADATA_SYSTEM_FIELD_TYPES
 
-# REMINDER: anything added here must be added to docs/api.rst
 __all__ = [
     "LineCollection",
     "Document",
@@ -19,8 +17,6 @@ __all__ = [
     "LineCollectionLike",
     "as_vector",
     "_MetadataMixin",  # for documentation
-    # deprecated:
-    "VectorData",
 ]
 
 LineLike = Union[LineString, LinearRing, Iterable[complex]]
@@ -864,11 +860,3 @@ class Document(_MetadataMixin):
             the total number of segments in the geometries
         """
         return sum(layer.segment_count() for layer in self._layers.values())
-
-
-class VectorData(Document):
-    """Deprecated, use Document."""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        logging.warning("!!! `vpype.VectorData` is deprecated, use `vpype.Document` instead.")

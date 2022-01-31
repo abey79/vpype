@@ -33,7 +33,7 @@ def squiggles(
 
     # link noise seed to global seed
     noise = pnoise.Noise()
-    noise.seed(random.randint(0, 2 ** 16))
+    noise.seed(random.randint(0, 2**16))
 
     freq = 1.0 / period
     new_lines = lines.clone()
