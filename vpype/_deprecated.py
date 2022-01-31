@@ -1,7 +1,5 @@
 import logging
 
-import vpype_cli
-
 from .config import config_manager
 
 # deprecated
@@ -77,6 +75,8 @@ class LayerType:  # pragma: no cover
 
 class LengthType:  # pragma: no cover
     def __new__(cls):
+        import vpype_cli
+
         logging.warning(
             "!!! `vpype.LengthType` is deprecated, use `vpype_cli.LengthType` instead."
         )
