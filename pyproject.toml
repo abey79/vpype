@@ -42,7 +42,7 @@ pnoise = "^0.1.0"
 Shapely = {extras = ["vectorized"], version = ">=1.7.1,<1.9.0"}
 scipy = "^1.6"
 setuptools = "^51.0.0"
-svgelements = "1.6.7"
+svgelements = "1.6.8"
 svgwrite = "~1.4"
 tomli = "^2.0.0"
 
