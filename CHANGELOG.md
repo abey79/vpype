@@ -9,15 +9,15 @@ New features and improvements:
   
   This feature is intended as a generic mechanism whereby a set of properties may be attached to specific layers (layer property) or all of them (global property). Properties are identified by a name and may be of arbitrary type (e.g. integer, floating point, color, etc.). This new infrastructure is used by several of the features introduced in this release, paves the way for future features, and further empowers plug-in writers. See the [documentation](https://vpype.readthedocs.io/en/latest/metadata) for more background information on metadata.
 
-* Layer color, pen width, and name are now customizable (#359, #376)
+* Layer color, pen width, and name are now customizable (#359, #376, #389)
   * The `read` commands now sets layer color, pen width, and name based on the input SVG if possible.
   * The new `color`, `penwdith`, and `name` commands can be used to modify layer color, pen width, and name.
   * The new `pens` command can apply a predefined or custom scheme on multiple layers at once. Two schemes, `rgb` and `cmyk`, are included and others may be defined in the configuration file.
   * The `show` and `write` commands were updated to take into account these new layer properties.
 
-* The `read` command can now optionally sort geometries by attributes (e.g. stroke color, stroke width, etc.) instead of by SVG layer (#378)
+* The `read` command can now optionally sort geometries by attributes (e.g. stroke color, stroke width, etc.) instead of by SVG layer (#378, #389)
 
-* The `read` and `write` commands now preserve a sub-set of SVG attributes (experimental) (#359)
+* The `read` and `write` commands now preserve a sub-set of SVG attributes (experimental) (#359, #389)
   
   The `read` command now seeks for SVG attributes (e.g. `stroke-dasharray`) which are shared by all geometries in each layer. When found, such attributes are saved as layer properties (with their name prefixed with `svg_`, e.g. `svg_stroke-dasharray`). The `write` command can optionally restore these attributes in the output SVG (using the `--restore-attribs`), thereby maintaining some of the visual aspects of the original SVG (e.g. dashed lines).
 
