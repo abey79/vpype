@@ -386,7 +386,7 @@ def test_read_by_attribute():
     assert _prop_set(doc, "vp_pen_width") == pytest.approx({1, 4})
 
 
-def test_read_layer_assumes_single_layer(runner, caplog):
+def test_read_layer_assumes_single_layer(caplog):
     test_file = TEST_FILE_DIRECTORY / "misc" / "multilayer.svg"
     doc = vpype_cli.execute(f"read --layer 2 '{test_file}'", global_opt="-v")
 
@@ -395,10 +395,32 @@ def test_read_layer_assumes_single_layer(runner, caplog):
     assert 2 in doc.layers
 
 
-def test_read_single_layer_attr_warning(runner, caplog):
+def test_read_single_layer_attr_warning(caplog):
     test_file = TEST_FILE_DIRECTORY / "misc" / "multilayer_by_attributes.svg"
     doc = vpype_cli.execute(f"read -m -a stroke '{test_file}'")
 
     assert "`--attr` is ignored in single-layer mode" in caplog.text
     assert len(doc.layers) == 1
     assert 1 in doc.layers
+
+
+def test_write_svg_svg_props(tmp_path):
+    file_path = tmp_path / "file.svg"
+
+    vpype_cli.execute(
+        f"line 0 0 10 10 layout a5 propset -l1 svg_stroke-dasharray '1 2' "
+        f"write -r -f svg {file_path}"
+    )
+    assert 'stroke-dasharray="1 2"' in file_path.read_text()
+
+    vpype_cli.execute(
+        f"line 0 0 10 10 layout a5 propset -g svg_inkscape_version '1.1.0' "
+        f"write -r -f svg {file_path}"
+    )
+    assert 'inkscape:version="1.1.0"' in file_path.read_text()
+
+    vpype_cli.execute(
+        f"line 0 0 10 10 layout a5 propset -g svg_unknown_version '1.1.0' "
+        f"write -r -f svg {file_path}"
+    )
+    assert 'unknown:version="1.1.0"' not in file_path.read_text()
