@@ -439,7 +439,9 @@ class Engine:
                         )
                     )
                 elif self.view_mode == ViewMode.PREVIEW:
-                    pen_width = lc.metadata.get("vp:pen_width", self._default_pen_width)
+                    pen_width = lc.metadata.get(
+                        vp.METADATA_FIELD_PEN_WIDTH, self._default_pen_width
+                    )
                     self._layer_painters[layer_id].append(
                         LineCollectionPreviewPainter(
                             self._ctx,

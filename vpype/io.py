@@ -92,7 +92,7 @@ _PathType = Union[
 _PathListType = List[_PathType]
 
 
-_NAMESPACED_PROPERTY_RE = re.compile(r"{([-a-zA-Z0-9@:%._+~#=/]+)}([a-zA-Z0-9]+)")
+_NAMESPACED_PROPERTY_RE = re.compile(r"{([-a-zA-Z0-9@:%._+~#=/]+)}([a-zA-Z_][a-zA-Z0-9\-_.]*)")
 
 
 def _extract_metadata_from_element(
@@ -110,8 +110,8 @@ def _extract_metadata_from_element(
     The strategy is as follows:
     - attributes are mapped directly to system metadata (i.e. "vp.color" and "vp.pen_width" --
       "vp.name" is handled by read_multilayer_svg())
-    - values are whitelisted and added as `"svg:"` namespace
-    - XML-namespaced values are also added as `svg:` namespace (e.g. `"svg:inkscape:label"`
+    - values are whitelisted and added as `"svg_"` namespace
+    - XML-namespaced values are also added as `svg_` namespace (e.g. `"svg_inkscape:label"`
     - SVG attributes are disregarded
     """
 
@@ -129,7 +129,7 @@ def _extract_metadata_from_element(
     # white-listed root SVG properties
     metadata.update(
         {
-            "svg:" + k: v
+            "svg_" + k: v
             for k, v in elem.values.items()
             if k in METADATA_SVG_ATTRIBUTES_WHITELIST
         }
@@ -141,9 +141,9 @@ def _extract_metadata_from_element(
         if mo:
             ns = mo[1]
             if ns in METADATA_SVG_NAMESPACES:
-                metadata[f"svg:{METADATA_SVG_NAMESPACES[ns]}:{mo[2]}"] = v
+                metadata[f"svg_{METADATA_SVG_NAMESPACES[ns]}_{mo[2]}"] = v
             else:
-                metadata["svg:" + k] = v
+                metadata["svg_" + k] = v
 
     return metadata
 
@@ -564,17 +564,23 @@ def read_svg_by_attributes(
 
 
 _WRITE_SVG_RESTORE_EXCLUDE_LIST = (
-    "svg:display",
-    "svg:visibility",
-    "svg:stroke",
-    "svg:stroke-width",
+    "svg_display",
+    "svg_visibility",
+    "svg_stroke",
+    "svg_stroke-width",
+    "svg_inkscape_groupmode",  # handled by svgwrite
+    "svg_inkscape_label",  # handled by system field
 )
 
 
 def _restore_metadata(elem: svgwrite.base.BaseElement, metadata: Dict[str, Any]) -> None:
     for prop, val in metadata.items():
-        if prop.startswith("svg:") and prop not in _WRITE_SVG_RESTORE_EXCLUDE_LIST:
-            elem.attribs[prop[4:]] = str(val)
+        if prop.startswith("svg_") and prop not in _WRITE_SVG_RESTORE_EXCLUDE_LIST:
+            parts = prop[4:].split("_")
+            if len(parts) == 2 and parts[0] in METADATA_SVG_NAMESPACES.values():
+                elem.attribs[":".join(parts)] = str(val)
+            elif len(parts) == 1:
+                elem.attribs[parts[0]] = str(val)
 
 
 # noinspection HttpUrlsUsage
@@ -600,23 +606,23 @@ def write_svg(
 
     No scaling or rotation is applied to geometries.
 
-    Layers are named after the `vp:name` system property if it exists, or with their layer ID
+    Layers are named after the `vp_name` system property if it exists, or with their layer ID
     otherwise. This can be overridden with the  ``layer_label_format`` parameter, which may
     contain a C-style format specifier such as `%d` which will be replaced by the layer number.
 
-    Optionally, metadata properties prefixed with ``svg:`` (typically extracted from an input
+    Optionally, metadata properties prefixed with ``svg_`` (typically extracted from an input
     SVG with the :ref:`cmd_read` command) may be used as group attributes with
     ``use_svg_metadata=True``.
 
     The color of the layer is determined by the ``color_mode`` parameter.
 
-        - ``"default"``: use ``vp:color`` system property and reverts to the default coloring
+        - ``"default"``: use ``vp_color`` system property and reverts to the default coloring
           scheme
         - ``"none"``: no formatting (black)
         - ``"layer"``: one color per layer based on the default coloring scheme
         - ``"path"``: one color per path based on the default coloring scheme
 
-    The pen width is set to the `vp:pen_width` system property if it exists.
+    The pen width is set to the `vp_pen_width` system property if it exists.
 
     For previsualisation purposes, pen-up trajectories can be added to the SVG using the
     ``show pen_up`` argument.
@@ -631,7 +637,7 @@ def write_svg(
         show_pen_up: add paths for the pen-up trajectories
         color_mode: "default" (system property), "none" (no formatting), "layer" (one color per
             layer), "path" (one color per path)
-        use_svg_metadata: apply ``svg:``-prefixed properties as SVG attributes
+        use_svg_metadata: apply ``svg_``-prefixed properties as SVG attributes
     """
 
     # compute bounds

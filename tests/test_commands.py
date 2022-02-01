@@ -596,34 +596,34 @@ def test_text_command_empty():
         (
             "pens rgb proplist -l all",
             "listing 2 properties for layer 1\n"
-            "  vp:color: (color) #ff0000\n"
-            "  vp:name: (str) red\n"
+            "  vp_color: (color) #ff0000\n"
+            "  vp_name: (str) red\n"
             "listing 2 properties for layer 2\n"
-            "  vp:color: (color) #008000\n"
-            "  vp:name: (str) green\n"
+            "  vp_color: (color) #008000\n"
+            "  vp_name: (str) green\n"
             "listing 2 properties for layer 3\n"
-            "  vp:color: (color) #0000ff\n"
-            "  vp:name: (str) blue",
+            "  vp_color: (color) #0000ff\n"
+            "  vp_name: (str) blue",
         ),
         (
-            "pens rgb propdel -l1 vp:color proplist -l all",
-            "listing 1 properties for layer 1\n  vp:name: (str) red\n"
+            "pens rgb propdel -l1 vp_color proplist -l all",
+            "listing 1 properties for layer 1\n  vp_name: (str) red\n"
             "listing 2 properties for layer 2\n"
-            "  vp:color: (color) #008000\n"
-            "  vp:name: (str) green\n"
+            "  vp_color: (color) #008000\n"
+            "  vp_name: (str) green\n"
             "listing 2 properties for layer 3\n"
-            "  vp:color: (color) #0000ff\n"
-            "  vp:name: (str) blue",
+            "  vp_color: (color) #0000ff\n"
+            "  vp_name: (str) blue",
         ),
         (
-            "pens rgb propdel -l all vp:color proplist -l all",
-            "listing 1 properties for layer 1\n  vp:name: (str) red\n"
-            "listing 1 properties for layer 2\n  vp:name: (str) green\n"
-            "listing 1 properties for layer 3\n  vp:name: (str) blue",
+            "pens rgb propdel -l all vp_color proplist -l all",
+            "listing 1 properties for layer 1\n  vp_name: (str) red\n"
+            "listing 1 properties for layer 2\n  vp_name: (str) green\n"
+            "listing 1 properties for layer 3\n  vp_name: (str) blue",
         ),
         (
-            "pens rgb propdel -l all vp:color proplist -l 2",
-            "listing 1 properties for layer 2\n  vp:name: (str) green",
+            "pens rgb propdel -l all vp_color proplist -l 2",
+            "listing 1 properties for layer 2\n  vp_name: (str) green",
         ),
         (
             "pens rgb propclear -l all proplist",
@@ -633,10 +633,10 @@ def test_text_command_empty():
         ),
         (
             "pagesize 400x1200 proplist -g",
-            "listing 1 global properties\n  vp:page_size: (tuple) (400.0, 1200.0)",
+            "listing 1 global properties\n  vp_page_size: (tuple) (400.0, 1200.0)",
         ),
         (
-            "pagesize 400x1200 propdel -g vp:page_size proplist -g",
+            "pagesize 400x1200 propdel -g vp_page_size proplist -g",
             "listing 0 global properties",
         ),
         ("propset -g -t int prop 10 propget -g prop", "global property prop: (int) 10"),

@@ -180,21 +180,21 @@ def test_read_stdin(runner):
             """<?xml version="1.0"?><svg>
                 <line x1="0" y1="0" x2="10" y2="10" fill="red" />
             </svg>""",
-            {1: {"svg:fill": "red"}},
+            {1: {"svg_fill": "red"}},
             id="lone_line",
         ),
         pytest.param(
             """<?xml version="1.0"?><svg font="#f00">
                 <line x1="0" y1="0" x2="10" y2="10" fill="red" />
             </svg>""",
-            {0: {"svg:font": "#f00"}, 1: {"svg:fill": "red"}},
+            {0: {"svg_font": "#f00"}, 1: {"svg_fill": "red"}},
             id="lone_line_svg_attrib",
         ),
         pytest.param(
             """<?xml version="1.0"?><svg fill="blue">
                 <line x1="0" y1="0" x2="10" y2="10" fill="red" />
             </svg>""",
-            {1: {"svg:fill": "red"}},
+            {1: {"svg_fill": "red"}},
             id="lone_line_svg_attrib_conflict",
         ),
         pytest.param(
@@ -202,7 +202,7 @@ def test_read_stdin(runner):
                 <line x1="0" y1="0" x2="10" y2="10" fill="red" />
                 <line x1="0" y1="0" x2="10" y2="10" fill="green" />
             </svg>""",
-            {1: {"svg:fill": None}},
+            {1: {"svg_fill": None}},
             id="two_line_inconsistent",
         ),
         pytest.param(
@@ -212,7 +212,7 @@ def test_read_stdin(runner):
                     <line x1="0" y1="0" x2="10" y2="10" fill="red" />
                 </g>
             </svg>""",
-            {1: {"svg:fill": "red"}},
+            {1: {"svg_fill": "red"}},
             id="group_1_with_lone_line_svg_attrib_conflict",
         ),
         pytest.param(
@@ -221,7 +221,7 @@ def test_read_stdin(runner):
                     <line x1="0" y1="0" x2="10" y2="10" fill="red" />
                 </g>
             </svg>""",
-            {1: {"svg:fill": "red"}},
+            {1: {"svg_fill": "red"}},
             id="group_1_svg_attrib_conflict",
         ),
         pytest.param(
@@ -231,7 +231,7 @@ def test_read_stdin(runner):
                     <line x1="0" y1="0" x2="10" y2="10" fill="green" />
                 </g>
             </svg>""",
-            {1: {"svg:fill": None}},
+            {1: {"svg_fill": None}},
             id="inconsistent_group1",
         ),
         pytest.param(
@@ -249,7 +249,7 @@ def test_read_stdin(runner):
                     <circle cx="0" cy="0" r="10" fill="#666" />
                 </g>
             </svg>""",
-            {0: {"svg:fill": "blue"}, 1: {"svg:fill": "red"}, 2: {}, 3: {"svg:fill": "#666"}},
+            {0: {"svg_fill": "blue"}, 1: {"svg_fill": "red"}, 2: {}, 3: {"svg_fill": "#666"}},
             id="multi_layer",
         ),
     ],
@@ -284,21 +284,21 @@ def test_read_multilayer_metadata(tmp_path, svg, expected_metadata):
             """<?xml version="1.0"?><svg>
                 <line x1="0" y1="0" x2="10" y2="10" fill="red" />
             </svg>""",
-            {"svg:fill": "red"},
+            {"svg_fill": "red"},
             id="lone_line",
         ),
         pytest.param(
             """<?xml version="1.0"?><svg stroke="#f00">
                 <line x1="0" y1="0" x2="10" y2="10" fill="red" />
             </svg>""",
-            {"svg:fill": "red", "svg:stroke": "#f00"},
+            {"svg_fill": "red", "svg_stroke": "#f00"},
             id="lone_line_svg_attrib",
         ),
         pytest.param(
             """<?xml version="1.0"?><svg fill="blue">
                 <line x1="0" y1="0" x2="10" y2="10" fill="red" />
             </svg>""",
-            {"svg:fill": "red"},
+            {"svg_fill": "red"},
             id="lone_line_svg_attrib_conflict",
         ),
         pytest.param(
@@ -306,7 +306,7 @@ def test_read_multilayer_metadata(tmp_path, svg, expected_metadata):
                 <line x1="0" y1="0" x2="10" y2="10" fill="red" />
                 <line x1="0" y1="0" x2="10" y2="10" fill="green" />
             </svg>""",
-            {"svg:fill": None},
+            {"svg_fill": None},
             id="two_line_inconsistent",
         ),
         pytest.param(
@@ -316,7 +316,7 @@ def test_read_multilayer_metadata(tmp_path, svg, expected_metadata):
                     <line x1="0" y1="0" x2="10" y2="10" fill="red" />
                 </g>
             </svg>""",
-            {"svg:fill": "red"},
+            {"svg_fill": "red"},
             id="group_1_with_lone_line_svg_attrib_conflict",
         ),
         pytest.param(
@@ -325,7 +325,7 @@ def test_read_multilayer_metadata(tmp_path, svg, expected_metadata):
                     <line x1="0" y1="0" x2="10" y2="10" fill="red" />
                 </g>
             </svg>""",
-            {"svg:fill": "red"},
+            {"svg_fill": "red"},
             id="group_1_svg_attrib_conflict",
         ),
         pytest.param(
@@ -335,7 +335,7 @@ def test_read_multilayer_metadata(tmp_path, svg, expected_metadata):
                     <line x1="0" y1="0" x2="10" y2="10" fill="green" />
                 </g>
             </svg>""",
-            {"svg:fill": None},
+            {"svg_fill": None},
             id="inconsistent_group1",
         ),
     ],
@@ -364,9 +364,9 @@ def test_read_layer_name(runner):
     assert res.exit_code == 0
     assert (
         res.stdout
-        == """layer 1 property vp:name: (str) my layer 1
-layer 2 property vp:name: (str) my layer 2
-layer 3 property vp:name: (str) my layer 3
+        == """layer 1 property vp_name: (str) my layer 1
+layer 2 property vp_name: (str) my layer 2
+layer 3 property vp_name: (str) my layer 3
 """
     )
 
@@ -378,15 +378,15 @@ def test_read_by_attribute():
     file = TEST_FILE_DIRECTORY / "misc" / "multilayer_by_attributes.svg"
     doc = vp.read_svg_by_attributes(str(file), ["stroke"], 0.1)
     assert len(doc.layers) == 2
-    assert _prop_set(doc, "vp:color") == {vp.Color("#906"), vp.Color("#00f")}
+    assert _prop_set(doc, "vp_color") == {vp.Color("#906"), vp.Color("#00f")}
 
     doc = vp.read_svg_by_attributes(str(file), ["stroke", "stroke-width"], 0.1)
     assert len(doc.layers) == 3
-    assert _prop_set(doc, "vp:color") == {vp.Color("#906"), vp.Color("#00f")}
-    assert _prop_set(doc, "vp:pen_width") == pytest.approx({1, 4})
+    assert _prop_set(doc, "vp_color") == {vp.Color("#906"), vp.Color("#00f")}
+    assert _prop_set(doc, "vp_pen_width") == pytest.approx({1, 4})
 
 
-def test_read_layer_assumes_single_layer(runner, caplog):
+def test_read_layer_assumes_single_layer(caplog):
     test_file = TEST_FILE_DIRECTORY / "misc" / "multilayer.svg"
     doc = vpype_cli.execute(f"read --layer 2 '{test_file}'", global_opt="-v")
 
@@ -395,10 +395,31 @@ def test_read_layer_assumes_single_layer(runner, caplog):
     assert 2 in doc.layers
 
 
-def test_read_single_layer_attr_warning(runner, caplog):
+def test_read_single_layer_attr_warning(caplog):
     test_file = TEST_FILE_DIRECTORY / "misc" / "multilayer_by_attributes.svg"
     doc = vpype_cli.execute(f"read -m -a stroke '{test_file}'")
 
     assert "`--attr` is ignored in single-layer mode" in caplog.text
     assert len(doc.layers) == 1
     assert 1 in doc.layers
+
+
+def test_write_svg_svg_props(capsys):
+    vpype_cli.execute(
+        "line 0 0 10 10 layout a5 propset -l1 svg_stroke-dasharray '1 2' write -r -f svg -"
+    )
+    assert 'stroke-dasharray="1 2"' in capsys.readouterr().out
+
+
+def test_write_svg_svg_props_namespace(capsys):
+    vpype_cli.execute(
+        "line 0 0 10 10 layout a5 propset -g svg_inkscape_version '1.1.0' write -r -f svg -"
+    )
+    assert 'inkscape:version="1.1.0"' in capsys.readouterr().out
+
+
+def test_write_svg_svg_props_unknown_namespace(capsys):
+    vpype_cli.execute(
+        "line 0 0 10 10 layout a5 propset -g svg_unknown_version '1.1.0' write -r -f svg -"
+    )
+    assert 'unknown:version="1.1.0"' not in capsys.readouterr().out

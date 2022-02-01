@@ -93,7 +93,7 @@ def read(
     FILE may be a file path path or a dash (-) to read from the standard input instead.
 
     By default, the `read` command attempts to preserve the layer structure of the SVG. In this
-    context, top-level groups (<svg:g>) are each considered a layer. If any, all non-group,
+    context, top-level groups (<g>) are each considered a layer. If any, all non-group,
     top-level SVG elements are imported into layer 1.
 
     The following logic is used to determine in which layer each SVG top-level group is
@@ -147,7 +147,7 @@ of appearance.
     When importing the SVG, the `read` commands attempts to extract the SVG attributes that
     are common to all paths within a layer. The "stroke", "stroke-width" and "inkscape:label"
     attributes are used to set the layer color, pen width and, respectively, name. The other
-    attributes (e.g. "stroke-dasharray", etc.) are stored as layer properties with a "svg:"
+    attributes (e.g. "stroke-dasharray", etc.) are stored as layer properties with a `svg_`
     prefix. These properties are ignored by vpype but may be used by plug-ins. Also, the
     `write` command can optionally restore them in the exported SVG.
 
