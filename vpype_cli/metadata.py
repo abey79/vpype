@@ -100,7 +100,7 @@ def propset(
         Set the layer property of type `float` (this is equivalent to using the `penwidth`
         command:
 
-            vpype [...] propset --layer 1 --type float vp:pen_width 0.5mm [...]
+            vpype [...] propset --layer 1 --type float vp_pen_width 0.5mm [...]
 
         Set a layer property of type `color`:
 
@@ -179,9 +179,9 @@ def propget(
 
     Examples:
 
-        Print the value of property `vp:color` for all layers:
+        Print the value of property `vp_color` for all layers:
 
-            vpype [...] pens cmyk propget --layer all vp:color [...]
+            vpype [...] pens cmyk propget --layer all vp_color [...]
     """
     global_flag, layer = _check_scope(global_flag, layer)
 
@@ -215,7 +215,7 @@ def propdel(
 
         Remove a property from a layer:
 
-            vpype [...] pens cmyk propdel --layer 1 vp:name [...]
+            vpype [...] pens cmyk propdel --layer 1 vp_name [...]
     """
     global_flag, layer = _check_scope(global_flag, layer)
 

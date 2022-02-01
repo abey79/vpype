@@ -63,12 +63,13 @@ class Color:
 
 
 # layer metadata field names
-METADATA_FIELD_NAME = "vp:name"
-METADATA_FIELD_COLOR = "vp:color"
-METADATA_FIELD_PEN_WIDTH = "vp:pen_width"
+METADATA_FIELD_NAME = "vp_name"
+METADATA_FIELD_COLOR = "vp_color"
+METADATA_FIELD_PEN_WIDTH = "vp_pen_width"
 
 # global metadata field names
-METADATA_FIELD_PAGE_SIZE = "vp:page_size"
+METADATA_FIELD_SVG_NAMESPACES = "vp_svg_ns"
+METADATA_FIELD_PAGE_SIZE = "vp_page_size"
 
 METADATA_SYSTEM_FIELD_TYPES = {
     METADATA_FIELD_NAME: str,

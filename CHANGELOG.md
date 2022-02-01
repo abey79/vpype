@@ -19,7 +19,7 @@ New features and improvements:
 
 * The `read` and `write` commands now preserve a sub-set of SVG attributes (experimental) (#359)
   
-  The `read` command now seeks for SVG attributes (e.g. `stroke-dasharray`) which are shared by all geometries in each layer. When found, such attributes are saved as layer properties (with their name prefixed with `svg:`, e.g. `svg:stroke-dasharray`). The `write` command can optionally restore these attributes in the output SVG (using the `--restore-attribs`), thereby maintaining some of the visual aspects of the original SVG (e.g. dashed lines).
+  The `read` command now seeks for SVG attributes (e.g. `stroke-dasharray`) which are shared by all geometries in each layer. When found, such attributes are saved as layer properties (with their name prefixed with `svg_`, e.g. `svg_stroke-dasharray`). The `write` command can optionally restore these attributes in the output SVG (using the `--restore-attribs`), thereby maintaining some of the visual aspects of the original SVG (e.g. dashed lines).
 
 * Introduced new commands for low-level inspection and modification of metadata (#359)
 
