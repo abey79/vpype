@@ -404,23 +404,22 @@ def test_read_single_layer_attr_warning(caplog):
     assert 1 in doc.layers
 
 
-def test_write_svg_svg_props(tmp_path):
-    file_path = tmp_path / "file.svg"
-
+def test_write_svg_svg_props(capsys):
     vpype_cli.execute(
-        f"line 0 0 10 10 layout a5 propset -l1 svg_stroke-dasharray '1 2' "
-        f"write -r -f svg {file_path}"
+        "line 0 0 10 10 layout a5 propset -l1 svg_stroke-dasharray '1 2' write -r -f svg -"
     )
-    assert 'stroke-dasharray="1 2"' in file_path.read_text()
+    assert 'stroke-dasharray="1 2"' in capsys.readouterr().out
 
-    vpype_cli.execute(
-        f"line 0 0 10 10 layout a5 propset -g svg_inkscape_version '1.1.0' "
-        f"write -r -f svg {file_path}"
-    )
-    assert 'inkscape:version="1.1.0"' in file_path.read_text()
 
+def test_write_svg_svg_props_namespace(capsys):
     vpype_cli.execute(
-        f"line 0 0 10 10 layout a5 propset -g svg_unknown_version '1.1.0' "
-        f"write -r -f svg {file_path}"
+        "line 0 0 10 10 layout a5 propset -g svg_inkscape_version '1.1.0' write -r -f svg -"
     )
-    assert 'unknown:version="1.1.0"' not in file_path.read_text()
+    assert 'inkscape:version="1.1.0"' in capsys.readouterr().out
+
+
+def test_write_svg_svg_props_unknown_namespace(capsys):
+    vpype_cli.execute(
+        "line 0 0 10 10 layout a5 propset -g svg_unknown_version '1.1.0' write -r -f svg -"
+    )
+    assert 'unknown:version="1.1.0"' not in capsys.readouterr().out
