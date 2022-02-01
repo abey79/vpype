@@ -147,7 +147,7 @@ of appearance.
     When importing the SVG, the `read` commands attempts to extract the SVG attributes that
     are common to all paths within a layer. The "stroke", "stroke-width" and "inkscape:label"
     attributes are used to set the layer color, pen width and, respectively, name. The other
-    attributes (e.g. "stroke-dasharray", etc.) are stored as layer properties with a "svg_"
+    attributes (e.g. "stroke-dasharray", etc.) are stored as layer properties with a `svg_`
     prefix. These properties are ignored by vpype but may be used by plug-ins. Also, the
     `write` command can optionally restore them in the exported SVG.
 
