@@ -7,7 +7,7 @@
 New features and improvements:
 * Updated the internal data model to support global and per-layer metadata (#359)
   
-  This feature is intended as a generic mechanism whereby a set of properties may be attached to specific layers (layer property) or all of them (global property). Properties are identified by a name and may be of arbitrary type (e.g. integer, floating point, color, etc.). This new infrastructure is used by several of the features introduced in this release, paves the way for future features, and further empowers plug-in writers. See the [documentation](https://vpype.readthedocs.io/en/latest/metadata) for more background information on metadata.
+  This feature is intended as a generic mechanism whereby a set of properties may be attached to specific layers (layer property) or all of them (global property). Properties are identified by a name and may be of arbitrary type (e.g. integer, floating point, color, etc.). This new infrastructure is used by several of the features introduced in this release, paves the way for future features, and further empowers plug-in writers. See the [documentation](https://vpype.readthedocs.io/en/latest/fundamentals.html#metadata) for more background information on metadata.
 
 * Layer color, pen width, and name are now customizable (#359, #376, #389)
   * The `read` commands now sets layer color, pen width, and name based on the input SVG if possible.
@@ -29,14 +29,38 @@ New features and improvements:
   * `propdel`: deletes a given global or layer property
   * `propclear`: removes all global and/or layer properties
 
+* Added property substitution to CLI user input (#395)
+
+  The input provided to most commands' arguments and options may now contain substitution patterns which will be replaced by the corresponding property value. See the [documentation](https://vpype.readthedocs.io/en/latest/fundamentals.html#cli-property-substitution) for more information and examples.
+
 * Updated layer operation commands to handle metadata (#359)
 
   * When a single source layer is specified and `--prob` is not used, the `lcopy` and `lmove` commands now copy the source layer's properties to the destination layer (possibly overwriting existing properties).
   * When `--prob` is not used, the `lswap` command now swaps the layer properties as well.
   * These behaviors can be disabled with the `--no-prop` option.
 
+* Improved the handling of block processors  (#395)
+ 
+  Block processors are commands which, when combined with `begin` and `end`, operate on the sequence they encompass. For example, the sequence `begin grid 2 2 random end` creates a 2x2 grid of random line patches. The infrastructure underlying block processors has been overhauled to increase their usefulness and extensibility.
+  
+  * The `begin` marker is now optional and implied whenever a block processor command is encountered. The following pipelines are thus equivalent:
+    ```bash
+    $ vpype begin grid 2 2 random end show
+    $ vpype grid 2 2 random end show 
+    ```
+    *Note*: the `end` marker must always be used to mark the end of a block.
+  * Commands inside the block now have access to the current layer structure and its metadata. This makes their use more predictable. For example, `begin grid 2 2 random --layer new end` now correctly generates patches of random lines on different layers.
+  * The `grid` block processor now first iterate along lines instead of columns.
+  
+* Changed the initial default target layer to 1 (#395)
+  
+  Previously, the first generator command of the pipeline would default to create a new layer if the `--layer` option was not provided. This could lead to unexpected behaviour in several situation. The target layer is now layer 1. For subsequent generators, the existing behaviour of using the previous generator target layer as default remains.   
+
 * Added `--keep` option to the `ldelete` command (to delete all layers but those specified) (#383)
 * Providing a non-existent layer ID to any `--layer` parameter now generates a note (visible with `--verbose`) (#359, #382)
+
+Bug fixes:
+* Fixed an issue with the `random` command when using non-square area (#395)
 
 API changes:
 * Moved all CLI-related APIs from `vpype` to `vpype_cli` (#388)
@@ -63,6 +87,14 @@ API changes:
     * `vpype.convert_page_format()` (alias to `vpype.convert_page_size()`)
     * `vpype.PAGE_FORMATS` (alias to `vpype.PAGE_SIZES`)
 
+* Added support for property substitution in Click type subclasses (#395)
+  * Existing type classes (`AngleType`, `LengthType`, `PageSizeType`) now support property substitution.
+  * Added `TextType` and `IntegerType` to be used instead of `str`, resp. `int`, when property substitution support is desired.
+* Updated the block processor API (breaking change) (#395)
+  
+  Block processor commands (decorated with `@block_processor`) are no longer sub-classes of `BlockProcessor` (which has been removed). The are instead regular functions (like commands of other types) which take a `State` instance and a list of processors as first arguments.
+
+* Added methods to `vpype_cli.State` to support property substitution, deferred arguments/options evaluation and block processor implementations (#395)
 * `vpype.Document` and `vpype.LineCollection` have additional members to manage properties through the `vpype._MetadataMixin` mix-in class (#359)
 * Renamed `vpype.Document.empty_copy()` to `vpype.Document.clone()` for coherence with `vpype.LineCollection` (the old name remains for backward compatibility) (#359, #380) 
 * Added `vpype.read_svg_by_attribute()` to read SVG while sorting geometries by arbitrary attributes (#378)

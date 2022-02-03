@@ -2,8 +2,15 @@ import datetime
 import logging
 import math
 from functools import update_wrapper
+from typing import TYPE_CHECKING, Iterable
 
 import click
+
+from .state import State
+from .types import LayerType, multiple_to_layer_ids, single_to_layer_id
+
+if TYPE_CHECKING:  # pragma: no cover
+    from .cli import ProcessorType
 
 __all__ = [
     "layer_processor",
@@ -12,9 +19,6 @@ __all__ = [
     "block_processor",
     "pass_state",
 ]
-
-from .state import State
-from .types import LayerType, multiple_to_layer_ids, single_to_layer_id
 
 
 def _format_timedelta(dt: datetime.timedelta) -> str:
@@ -32,7 +36,7 @@ def _format_timedelta(dt: datetime.timedelta) -> str:
 
 
 def layer_processor(f):
-    """Helper decorator to define a :ref:`layer processor <fundamentals_layer_processors>`
+    """Decorator to define a :ref:`layer processor <fundamentals_layer_processors>`
     command.
 
     Layer processors implements "intra-layer" processing, i.e. they are independently called
@@ -47,7 +51,7 @@ def layer_processor(f):
     .. code-block:: python3
 
         @click.command()
-        @vpype.layer_processor
+        @layer_processor
         def my_processor(lines: vpype.LineCollection) -> vpype.LineCollection:
             '''Example layer processor'''
 
@@ -70,7 +74,7 @@ def layer_processor(f):
         help="Target layer(s) or 'all'.",
     )
     def new_func(*args, **kwargs):
-        layers = kwargs.pop("layer", -1)
+        layers = kwargs.pop("layer", [])
 
         # noinspection PyShadowingNames
         def layer_processor(state: State) -> State:
@@ -82,7 +86,10 @@ def layer_processor(f):
 
                 start = datetime.datetime.now()
                 with state.current():
-                    state.document[lid] = f(state.document[lid], *args, **kwargs)
+                    state.current_layer_id = lid
+                    new_args, new_kwargs = state.evaluate_parameters(args, kwargs)
+                    state.document[lid] = f(state.document[lid], *new_args, **new_kwargs)
+                    state.current_layer_id = None
                 stop = datetime.datetime.now()
 
                 logging.info(
@@ -98,7 +105,7 @@ def layer_processor(f):
 
 
 def global_processor(f):
-    """Helper decorator to define a :ref:`global processor <fundamentals_global_processors>`
+    """Decorator to define a :ref:`global processor <fundamentals_global_processors>`
     command.
 
     This type of command implement a global, multi-layer processing and should be used for
@@ -112,9 +119,7 @@ def global_processor(f):
 
     A global processor receives a :py:class:`Document` as input and must return one.
 
-    Example:
-
-    .. code-block:: python3
+    Example::
 
         @click.command()
         @click.option(
@@ -124,7 +129,7 @@ def global_processor(f):
             default="all",
             help="Target layer(s).",
         )
-        @vpype.global_processor
+        @global_processor
         def my_global_processor(
             document: vpype.Document, layer: Union[int, List[int]]
         ) -> vpype.Document:
@@ -147,7 +152,8 @@ def global_processor(f):
 
             start = datetime.datetime.now()
             with state.current():
-                state.document = f(state.document, *args, **kwargs)
+                new_args, new_kwargs = state.evaluate_parameters(args, kwargs)
+                state.document = f(state.document, *new_args, **new_kwargs)
             stop = datetime.datetime.now()
 
             logging.info(
@@ -163,7 +169,7 @@ def global_processor(f):
 
 
 def generator(f):
-    """Helper decorator to define a :ref:`generator <fundamentals_generators>` command.
+    """Decorator to define a :ref:`generator <fundamentals_generators>` command.
 
     Generator do not have input, have automatically a "-l, --layer" option added to them, and
     must return a LineCollection structure, which will be added to a new layer or an existing
@@ -178,7 +184,7 @@ def generator(f):
         help="Target layer or 'new'.",
     )
     def new_func(*args, **kwargs):
-        layer = kwargs.pop("layer", -1)
+        layer = kwargs.pop("layer", None)
 
         # noinspection PyShadowingNames
         def generator(state: State) -> State:
@@ -191,10 +197,13 @@ def generator(f):
                 )
 
                 start = datetime.datetime.now()
-                state.document.add(f(*args, **kwargs), target_layer)
+                state.current_layer_id = target_layer
+                new_args, new_kwargs = state.evaluate_parameters(args, kwargs)
+                state.document.add(f(*new_args, **new_kwargs), target_layer)
+                state.current_layer_id = None
                 stop = datetime.datetime.now()
 
-            state.target_layer = target_layer
+            state.target_layer_id = target_layer
 
             logging.info(
                 f"generator `{f.__name__}` execution complete "
@@ -208,17 +217,72 @@ def generator(f):
     return update_wrapper(new_func, f)
 
 
-def block_processor(c):
-    """Create an instance of the block processor class."""
+def block_processor(f):
+    """Decorator to define a `block <fundamentals_blocks>`_ processor command.
+
+    Block processor function take a :class:`State` instance and a processor list as their
+    first two argument. The processor list consists of the commands enclosed within the block.
+    The block processor implementation should call the :func:`execute_processors` function
+    to run the processor list, possibly temporarily changing the content of the :class:`State`
+    instance content.
+
+    Example::
+
+        @click.command()
+        @vpype_cli.block_processor
+        def my_block_processor(state: vpype_cli.State, processors) -> vpype_cli.State:
+            '''Example block processor'''
+
+            # block implementation
+            # should include call(s) to vpype_cli.execute_processors(processors, state)
+
+            return state
+
+        my_block_processor.help_group = "My Plugins"
+    """
 
     def new_func(*args, **kwargs):
-        return c(*args, **kwargs)
+        # noinspection PyShadowingNames
+        def block_processor(state: State, processors: Iterable["ProcessorType"]) -> State:
+            logging.info(f"executing block processor `{f.__name__}` (kwargs: {kwargs})")
 
-    return update_wrapper(new_func, c)
+            start = datetime.datetime.now()
+            new_args, new_kwargs = state.evaluate_parameters(args, kwargs)
+            f(state, processors, *new_args, **new_kwargs)
+            stop = datetime.datetime.now()
+
+            logging.info(
+                f"block processor `{f.__name__}` execution complete "
+                f"({_format_timedelta(stop - start)})"
+            )
+
+            return state
+
+        # mark processor as being a block processor, needed by execute_processors()
+        block_processor.__vpype_block_processor__ = True
+        return block_processor
+
+    return update_wrapper(new_func, f)
 
 
 def pass_state(f):
-    """Marks a command as wanting to receive the current state."""
+    """Marks a command as wanting to receive the current state.
+
+    Note: :func:`pass_state` must always be placed *after* the command type decorator (e.g.
+    :func:`generator` and friends).
+
+    Example::
+
+        @click.command()
+        @generator
+        @pass_state
+        def my_generator(state: State) -> vpype.Document:
+            lc = vpype.LineCollection()
+            current_layer_id = state.current_layer_id
+            # ...
+
+            return lc
+    """
 
     def new_func(*args, **kwargs):
         return f(State.get_current(), *args, **kwargs)

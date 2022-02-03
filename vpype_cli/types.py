@@ -1,17 +1,84 @@
 import logging
-from typing import Any, List, Optional, Tuple, Union
+from typing import ClassVar, List, Optional, Tuple, Union
 
 import click
 
 import vpype as vp
 
-from .state import State
+from .state import State, _DeferredEvaluator
 
 
-class LengthType(click.ParamType):
-    """:class:`click.ParamType` sub-class to automatically converts a user-provided length
-    string (which may contain units) into a value in CSS pixel units. This class uses
-    :func:`convert_length` internally.
+class _DeferredEvaluatorType(click.ParamType):
+    """Base class for types which rely on a deferred evaluator.
+
+    Sub-classes must set the value of ``_evaluator_class``.
+    """
+
+    _evaluator_class: ClassVar = _DeferredEvaluator
+
+    def convert(self, value, param, ctx):
+        if isinstance(value, str):
+            return self.__class__._evaluator_class(value)
+        else:
+            return super().convert(value, param, ctx)
+
+
+class TextType(_DeferredEvaluatorType):
+    """:class:`click.ParamType` sub-class to automatically perform
+    :ref:`property substitution <fundamentals_property_substitution>` on user input.
+
+    Example::
+
+        >>> import click
+        >>> import vpype_cli
+        >>> import vpype
+        >>> @vpype_cli.cli.command(group="my commands")
+        ... @click.argument("text", type=vpype_cli.TextType())
+        ... @vpype_cli.generator
+        ... def my_command(text: str):
+        ...     pass
+    """
+
+    class _TextDeferredEvaluator(_DeferredEvaluator):
+        def evaluate(self, state: "State") -> str:
+            return state.substitute_input(self._text)
+
+    name = "text"
+    _evaluator_class = _TextDeferredEvaluator
+
+
+class IntegerType(_DeferredEvaluatorType):
+    """:class:`click.ParamType` sub-class to automatically perform
+    :ref:`property substitution <fundamentals_property_substitution>` on user input.
+
+    Example::
+
+        >>> import click
+        >>> import vpype_cli
+        >>> import vpype
+        >>> @vpype_cli.cli.command(group="my commands")
+        ... @click.argument("number", type=vpype_cli.IntegerType())
+        ... @vpype_cli.generator
+        ... def my_command(number: int):
+        ...     pass
+    """
+
+    class _IntegerDeferredEvaluator(_DeferredEvaluator):
+        def evaluate(self, state: "State") -> int:
+            return int(state.substitute_input(self._text))
+
+    name = "number"
+    _evaluator_class = _IntegerDeferredEvaluator
+
+
+class LengthType(_DeferredEvaluatorType):
+    """:class:`click.ParamType` sub-class to automatically converts a user-provided lengths
+    into CSS pixel units.
+
+
+    User-provided length strings may contains units which are converted using
+    :func:`convert_length`. :ref:`Property substitution <fundamentals_property_substitution>`
+    is perfomred as well.
 
     Example::
 
@@ -26,22 +93,20 @@ class LengthType(click.ParamType):
         ...     pass
     """
 
+    class _LengthDeferredEvaluator(_DeferredEvaluator):
+        def evaluate(self, state: "State") -> float:
+            return vp.convert_length(state.substitute_input(self._text))
+
     name = "length"
-
-    def convert(self, value, param, ctx):
-        if isinstance(value, str):
-            try:
-                return vp.convert_length(value)
-            except ValueError:
-                self.fail(f"parameter {value} is an incorrect length")
-        else:
-            return super().convert(value, param, ctx)
+    _evaluator_class = _LengthDeferredEvaluator
 
 
-class AngleType(click.ParamType):
-    """:class:`click.ParamType` sub-class to automatically converts a user-provided angle
-    string (which may contain units) into a value in degrees. This class uses
-    :func:`convert_angle` internally.
+class AngleType(_DeferredEvaluatorType):
+    """:class:`click.ParamType` sub-class to automatically converts a user-provided angle.
+
+    User-provided angle strings may contain units and are converted into a value in degrees.
+    This class uses :func:`convert_angle` internally.
+    :ref:`Property substitution <fundamentals_property_substitution>` is perfomred as well.
 
     Example::
 
@@ -55,22 +120,20 @@ class AngleType(click.ParamType):
         ...     pass
     """
 
+    class _AngleDeferredEvaluator(_DeferredEvaluator):
+        def evaluate(self, state: "State") -> float:
+            return vp.convert_angle(state.substitute_input(self._text))
+
     name = "angle"
-
-    def convert(self, value, param, ctx):
-        try:
-            if isinstance(value, str):
-                return vp.convert_angle(value)
-            else:
-                return super().convert(value, param, ctx)
-        except ValueError:
-            self.fail(f"parameter {value} is an incorrect angle")
+    _evaluator_class = _AngleDeferredEvaluator
 
 
-class PageSizeType(click.ParamType):
-    """:class:`click.ParamType` sub-class to automatically converts a user-provided page size
-    string into a tuple of float in CSS pixel units. See :func:`convert_page_size` for
-    information on the page size descriptor syntax.
+class PageSizeType(_DeferredEvaluatorType):
+    """:class:`click.ParamType` sub-class to automatically converts a user-provided page size.
+
+    User-provided page size strings are converted into a tuple of float in CSS pixel units.
+    See :func:`convert_page_size` for information on the page size descriptor syntax.
+    :ref:`Property substitution <fundamentals_property_substitution>` is perfomred as well.
 
     Example::
 
@@ -84,17 +147,12 @@ class PageSizeType(click.ParamType):
         ...     pass
     """
 
+    class _PageSizeDeferredEvaluator(_DeferredEvaluator):
+        def evaluate(self, state: "State") -> Tuple[float, float]:
+            return vp.convert_page_size(state.substitute_input(self._text))
+
     name = "pagesize"
-
-    def convert(self, value: Any, param, ctx) -> Optional[Tuple[float, float]]:
-        try:
-            if isinstance(value, str):
-                return vp.convert_page_size(value)
-            else:
-                return super().convert(value, param, ctx)
-
-        except ValueError:
-            self.fail(f"parameter {value} is not a valid page size")
+    _evaluator_class = _PageSizeDeferredEvaluator
 
 
 def multiple_to_layer_ids(
@@ -132,17 +190,17 @@ def single_to_layer_id(
     Arg:
         layer: value from a :class:`LayerType` argument
         document: target :class:`Document` instance (for new layer ID)
-        must_exists: if True, the function
+        must_exists: if True, the function raises a :class:`click.BadParameter` exception
 
     Returns:
         Target layer ID
     """
-    current_target_layer = State.get_current().target_layer
+    current_target_layer = State.get_current().target_layer_id
 
     if layer is LayerType.NEW or (layer is None and current_target_layer is None):
         lid = document.free_id()
     elif layer is None:
-        lid = State.get_current().target_layer
+        lid = State.get_current().target_layer_id
     else:
         lid = layer
 
@@ -153,8 +211,7 @@ def single_to_layer_id(
 
 
 class LayerType(click.ParamType):
-    """
-    Interpret value of --layer options.
+    """Interpret values of --layer options.
 
     If `accept_multiple == True`, comma-separated array of int is accepted or 'all'. Returns
     either a list of IDs or `LayerType.ALL`.

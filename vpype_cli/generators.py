@@ -7,13 +7,15 @@ import vpype as vp
 
 from .cli import cli
 from .decorators import generator
-from .types import LengthType
+from .types import IntegerType, LengthType
 
 __all__ = ("random",)
 
 
 @cli.command(group="Generators")
-@click.option("-n", "--count", "n", type=int, default=10, help="Number of lines to generate.")
+@click.option(
+    "-n", "--count", "n", type=IntegerType(), default=10, help="Number of lines to generate."
+)
 @click.option(
     "-a",
     "--area",
@@ -32,6 +34,6 @@ def random(n: int, area: Tuple[float, float]):
     """
 
     lines = np.random.rand(n, 2) + 1j * np.random.rand(n, 2)
-    lines[:, 0] *= area[0]
-    lines[:, 1] *= area[1]
+    lines.real *= area[0]
+    lines.imag *= area[1]
     return vp.LineCollection(lines)

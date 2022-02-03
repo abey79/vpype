@@ -6,11 +6,11 @@ import vpype as vp
 
 from .cli import cli
 from .decorators import generator
-from .types import LengthType
+from .types import LengthType, TextType
 
 
 @cli.command(group="Text")
-@click.argument("string", type=str)
+@click.argument("string", type=TextType())
 @click.option(
     "-f", "--font", type=click.Choice(vp.FONT_NAMES), default="futural", help="Font to use."
 )

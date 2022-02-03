@@ -35,7 +35,7 @@ def as_vector(a: np.ndarray):
 
 class _MetadataMixin:
     def __init__(self, metadata: Optional[Dict[str, Any]] = None):
-        self._metadata: Dict[str, Any] = metadata or {}
+        self._metadata: Dict[str, Any] = metadata.copy() if metadata else {}
 
     @property
     def metadata(self):
@@ -528,9 +528,25 @@ class Document(_MetadataMixin):
         if line_collection:
             self.add(line_collection, 1)
 
-    def clone(self) -> "Document":
-        """Create an empty copy of this document with the same metadata"""
-        return Document(metadata=self.metadata)
+    def clone(self, keep_layers: bool = False) -> "Document":
+        """Create an empty copy of this document with the same metadata.
+
+        By default, the cloned document doest not contain any layer. If ``keep_layers`` is set
+        to true, empty layers with metadata will be created to match the source document's
+        layer.
+
+        Args:
+            keep_layers: if True, empty layers matching the source document's layers and
+                metadata
+
+        Returns:
+            the cloned document
+        """
+        doc = Document(metadata=self.metadata)
+        if keep_layers:
+            for layer_id in self.layers:
+                doc.layers[layer_id] = self.layers[layer_id].clone()
+        return doc
 
     # backward compatibility
     empty_copy = clone
@@ -597,10 +613,11 @@ class Document(_MetadataMixin):
         """
         return (self._layers[lid] for lid in layer_ids if lid in self._layers)
 
-    def exists(self, layer_id: int) -> bool:
+    def exists(self, layer_id: Optional[int]) -> bool:
         """Test existence of a layer.
 
-        Note that existence of a layer does not necessarily imply that it isn't empty.
+        Note that existence of a layer does not necessarily imply that it isn't empty. Always
+        return False if ``layer_id`` is None.
 
         Args:
             layer_id: layer ID to test
@@ -608,6 +625,9 @@ class Document(_MetadataMixin):
         Returns:
             True if the layer ID exists
         """
+        if layer_id is None:
+            return False
+
         return layer_id in self._layers
 
     def __getitem__(self, layer_id: int):

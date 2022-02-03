@@ -345,12 +345,10 @@ def test_hpgl_relative_no_aliasing(runner):
 
     cmds = res.stdout.strip().split(";")
 
-    # Note: the following indices depends on the weird bug that a `line` command after a
-    # `begin`/`end` block is using a new layer (i.e. layer 2) instead of the same layer as
-    # before
+    # find the two line commands
     line1_pd = cmds[6]
     assert line1_pd.startswith("PD")
-    line2_pd = cmds[10]
+    line2_pd = cmds[8]
     assert line2_pd.startswith("PD")
 
     line1_length = sum(map(int, line1_pd.lstrip("PD").split(",")[0::2]))
