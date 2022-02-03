@@ -43,8 +43,18 @@ New features and improvements:
  
   Block processors are commands which, when combined with `begin` and `end`, operate on the sequence they encompass. For example, the sequence `begin grid 2 2 random end` creates a 2x2 grid of random line patches. The infrastructure underlying block processors has been overhauled to increase their usefulness and extensibility.
   
+  * The `begin` marker is now optional and implied whenever a block processor command is encountered. The following pipelines are thus equivalent:
+    ```bash
+    $ vpype begin grid 2 2 random end show
+    $ vpype grid 2 2 random end show 
+    ```
+    *Note*: the `end` marker must always be used to mark the end of a block.
   * Commands inside the block now have access to the current layer structure and its metadata. This makes their use more predictable. For example, `begin grid 2 2 random --layer new end` now correctly generates patches of random lines on different layers.
   * The `grid` block processor now first iterate along lines instead of columns.
+  
+* Changed the initial default target layer to 1 (#395)
+  
+  Previously, the first generator command of the pipeline would default to create a new layer if the `--layer` option was not provided. This could lead to unexpected behaviour in several situation. The target layer is now layer 1. For subsequent generators, the existing behaviour of using the previous generator target layer as default remains.   
 
 * Added `--keep` option to the `ldelete` command (to delete all layers but those specified) (#383)
 * Providing a non-existent layer ID to any `--layer` parameter now generates a note (visible with `--verbose`) (#359, #382)

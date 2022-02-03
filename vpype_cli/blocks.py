@@ -33,6 +33,11 @@ def grid(
     The number of column and row must always be specified. By default, 10mm offsets are used
     in both directions. Use the `--offset` option to override these values.
 
+    The nested commands are exposed to a pipeline which does not contain any geometry but
+    retains the layer structure and metadata. The properties created and modified by the
+    nested commands are applied on the pipeline. However, the properties deleted by the nested
+    commands are not deleted from the outer pipeline.
+
     Examples:
 
         Create a grid of random line patches:
@@ -60,6 +65,11 @@ def repeat(state: State, processors: Iterable[ProcessorType], number: int) -> St
     """Repeat geometries N times.
 
     Repeats the enclosed command N times, stacking their output on top of each other.
+
+    The nested commands are exposed to a pipeline which does not contain any geometry but
+    retains the layer structure and metadata. The properties created and modified by the
+    nested commands are applied on the pipeline. However, the properties deleted by the nested
+    commands are not deleted from the outer pipeline.
 
     Examples:
 

@@ -74,7 +74,7 @@ def layer_processor(f):
         help="Target layer(s) or 'all'.",
     )
     def new_func(*args, **kwargs):
-        layers = kwargs.pop("layer", -1)
+        layers = kwargs.pop("layer", [])
 
         # noinspection PyShadowingNames
         def layer_processor(state: State) -> State:
@@ -184,7 +184,7 @@ def generator(f):
         help="Target layer or 'new'.",
     )
     def new_func(*args, **kwargs):
-        layer = kwargs.pop("layer", -1)
+        layer = kwargs.pop("layer", None)
 
         # noinspection PyShadowingNames
         def generator(state: State) -> State:

@@ -238,25 +238,24 @@ def execute_processors(processors: Iterable[ProcessorType], state: State) -> Non
 
     for proc in processors:
         if getattr(proc, "__vpype_block_processor__", False):
-            if expect_block:
-                expect_block = False
-                # if we in a top level block, we save the block layer_processor
-                # (nested block are ignored for the time being)
-                if nested_count == 1:
-                    block = proc
-                else:
-                    top_level_processors.append(proc)
+            if not expect_block:
+                # `begin` was omitted
+                nested_count += 1
             else:
-                raise click.BadParameter("A block command must always follow 'begin'")
+                expect_block = False
+
+            # if we in a top level block, we save the block layer_processor
+            # (nested block are ignored for the time being)
+            if nested_count == 1:
+                block = proc
+            else:
+                top_level_processors.append(proc)
         elif expect_block:
             raise click.BadParameter("A block command must always follow 'begin'")
         elif isinstance(proc, BeginBlock):
             # entering a block
             nested_count += 1
             expect_block = True
-
-            if nested_count > 1:
-                top_level_processors.append(proc)
         elif isinstance(proc, EndBlock):
             if nested_count < 1:
                 raise click.BadParameter(

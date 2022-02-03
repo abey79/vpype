@@ -244,6 +244,8 @@ Blocks
 
 Blocks refer to a portion of the pipeline marked by the :ref:`cmd_begin` and :ref:`cmd_end` special commands. The command immediately following :ref:`cmd_begin` is called the *block processor* and controls how many times the block pipeline is executed and what is done with the geometries it produced.
 
+**Note**: as of *vpype* 1.9, the :ref:`cmd_begin` is optional and is implied when a block processor command is encountered. The :ref:`cmd_end` remains mandatory to mark the end of a block.
+
 A commonly used block processor is the :ref:`cmd_grid` command. It repeatedly executes the commands inside the block (known as the "block pipeline") and arranges the results on a regular grid. For example, this command generates a grid of five by ten 0.5-inch-radius circles, with a spacing of two inches in both directions::
 
   $ vpype begin                     \
