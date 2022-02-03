@@ -32,6 +32,6 @@ def random(n: int, area: Tuple[float, float]):
     """
 
     lines = np.random.rand(n, 2) + 1j * np.random.rand(n, 2)
-    lines[:, 0] *= area[0]
-    lines[:, 1] *= area[1]
+    lines.real *= area[0]
+    lines.imag *= area[1]
     return vp.LineCollection(lines)

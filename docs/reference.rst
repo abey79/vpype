@@ -48,7 +48,7 @@ CLI reference
    :prog: filter
 
 .. _cmd_grid:
-.. click:: vpype_cli:GridBlockProcessor
+.. click:: vpype_cli:grid
    :prog: grid
 
 .. _cmd_layout:
@@ -148,7 +148,7 @@ CLI reference
    :prog: reloop
 
 .. _cmd_repeat:
-.. click:: vpype_cli:RepeatBlockProcessor
+.. click:: vpype_cli:repeat
    :prog: repeat
 
 .. _cmd_reverse:

@@ -93,6 +93,7 @@ def assert_image_similarity(request) -> Callable:
 
         if store_ref_image:
             img.save(path)
+            pytest.skip("storing reference images")
         else:
             try:
                 ref_img = Image.open(path)

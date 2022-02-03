@@ -7,7 +7,7 @@ import vpype as vp
 
 from .cli import cli
 from .decorators import global_processor, layer_processor
-from .types import LayerType, LengthType, multiple_to_layer_ids
+from .types import LayerType, LengthType, TextType, multiple_to_layer_ids
 
 __all__ = (
     "propset",
@@ -287,7 +287,7 @@ def penwidth(layer: vp.LineCollection, pen_width: float) -> vp.LineCollection:
 
 # noinspection PyShadowingNames
 @cli.command(group="Metadata")
-@click.argument("color", type=str)
+@click.argument("color", type=TextType())
 @layer_processor
 def color(layer: vp.LineCollection, color: str) -> vp.LineCollection:
     """Set the color for one or more layers.
@@ -315,7 +315,7 @@ def color(layer: vp.LineCollection, color: str) -> vp.LineCollection:
 
 # noinspection PyShadowingNames
 @cli.command(group="Metadata")
-@click.argument("name", type=str)
+@click.argument("name", type=TextType())
 @layer_processor
 def name(layer: vp.LineCollection, name: str) -> vp.LineCollection:
     """Set the name for one or more layers.

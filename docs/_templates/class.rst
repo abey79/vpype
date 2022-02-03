@@ -35,7 +35,7 @@
    {% endblock %}
 
    {% block attributes %}
-   {% if attributes %}
+   {% if attributes|length > 0 %}
    .. rubric:: Attributes
 
    .. autosummary::

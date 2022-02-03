@@ -16,6 +16,7 @@
 
 # -- Project information -----------------------------------------------------
 # noinspection PyPackageRequirements
+import click
 from recommonmark.parser import CommonMarkParser
 
 project = "vpype"
@@ -93,11 +94,14 @@ napoleon_include_init_with_doc = True
 def autodoc_skip_member(app, what, name, obj, skip, options):
     # noinspection PyBroadException
     try:
-        deprecated = "_deprecated" in str(obj.__module__)
+        if "_deprecated" in str(obj.__module__):
+            return True
     except:
-        deprecated = False
+        pass
 
-    # print("!!! ", what, name, str(obj.__module__))
+    if name.startswith("__") and name.endswith("__"):
+        return True
+
     exclusions = (
         # vpype/__init__.py
         "_get_version",
@@ -105,19 +109,11 @@ def autodoc_skip_member(app, what, name, obj, skip, options):
         "CONFIG_MANAGER",
         # vpype_cli/debug.py
         "DebugData",
-        # private attribute
-        "__dict__",
-        "__doc__",
-        "__module__",
-        "__weakref__",
-        "__init__",
-        "__getitem__",
-        "__iter__",
-        "__len__",
-        "__repr__",
+        # vpype_cli/state.py
+        "_current_state",
     )
     exclude = name in exclusions
-    return skip or exclude or deprecated
+    return skip or name in exclusions
 
 
 # RECOMMONMARK WORKAROUND

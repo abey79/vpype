@@ -7,7 +7,9 @@ import click
 import vpype as vp
 
 from .cli import cli
-from .decorators import global_processor
+from .decorators import global_processor, pass_state
+from .state import State
+from .types import TextType
 
 __all__ = ("write",)
 
@@ -150,7 +152,7 @@ Examples:
 @click.option(
     "-ll",
     "--layer-label",
-    type=str,
+    type=TextType(),
     help="[SVG only] Pattern used to for naming layers.",
 )
 @click.option("-pu", "--pen-up", is_flag=True, help="[SVG only] Generate pen-up trajectories.")
@@ -168,7 +170,9 @@ Examples:
     default=False,
     help="[SVG only] attempt to restore SVG attributes from properties",
 )
-@click.option("-d", "--device", type=str, help="[HPGL only] Type of the plotter device.")
+@click.option(
+    "-d", "--device", type=TextType(), help="[HPGL only] Type of the plotter device."
+)
 @click.option(
     "-a", "--absolute", is_flag=True, help="[HPGL only] Use absolute coordinates exclusively."
 )
@@ -186,7 +190,9 @@ Examples:
 )
 @click.pass_obj  # to obtain the command string
 @global_processor
+@pass_state
 def write(
+    state: State,
     document: vp.Document,
     cmd_string: Optional[str],
     output,
@@ -217,7 +223,7 @@ def write(
     if file_format == "svg":
         page_size_px = None
         if page_size:
-            page_size_px = vp.convert_page_size(page_size)
+            page_size_px = vp.convert_page_size(state.substitute_input(page_size))
             if landscape:
                 page_size_px = page_size_px[::-1]
 

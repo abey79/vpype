@@ -199,6 +199,41 @@ High-level commands such as :ref:`cmd_penwidth` are not the only means of intera
   * :ref:`cmd_propclear`: deletes all global or layer properties
 
 
+.. _fundamentals_property_substitution:
+
+CLI property substitution
+_________________________
+
+Most arguments and options passes to commands via the *vpype* CLI will apply property substitution on the provided input. For example, this command will draw the name of the layer::
+
+  $ vpype [...] text --layer 1 "{vp_name} layer" [...]
+
+The curly braces indicate that they should be substituted by the content of the property they refer to. In this case, if layer 1 is named "red", the text "red layer" should be drawn by the :ref:`cmd_text` command. Note the use of double quotes. They are needed because curly braces are typically used by shell interpreters such as ``bash`` or ``zsh`` (here, they are also needed to escape the whitespace between ``{vp_name}`` and ``layer``).
+
+To avoid substitution, curly braces can be escaped by doubling them::
+
+  $ vpype [...] text --layer 1 "{{hello}}" [...]   # the text '{hello}' will be drawn
+
+Numeric arguments and options also support substitutions (though they may result in an error if the substituted text is not a number). For example, the following command fills the entire page with random lines::
+
+  $ vpype pagesize a4 random -n 200 -a "{vp_page_size[0]}" "{vp_page_size[1]}" show
+
+Internally, the substitution is performed using the :meth:`str.format` Python function, which supports a number of customisation options for numerical values. Here are some examples to illustrates the possibilities:
+
+.. code-block:: none
+
+  {vp_pen_width}          -> 2.5
+  {vp_pen_width:.3f}      -> 2.500
+  {vp_pen_width:06.2f}    -> 002.50
+  {vp_page_size}          -> (793.7007874015749, 1122.5196850393702)
+  {vp_page_size[0]:.2f}   -> 793.70
+  {vp_color}              -> #ff0000
+  {vp_color.red}          -> 255
+  {vp_color.red:#02x}     -> 0xff
+
+See the `Python documentation <https://docs.python.org/3/library/string.html#format-string-syntax>`_ for a complete description of the formatting mini-language.
+
+
 .. _fundamentals_blocks:
 
 Blocks

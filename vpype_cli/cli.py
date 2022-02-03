@@ -4,19 +4,25 @@ import random
 import shlex
 import sys
 import traceback
-from typing import Any, List, Optional, TextIO, Union
+from typing import Any, Callable, Iterable, List, Optional, TextIO, Union, cast
 
 import click
 import numpy as np
 from pkg_resources import iter_entry_points
-from shapely.geometry import MultiLineString
 
 import vpype as vp
 
 from .decorators import global_processor
 from .state import State
 
-__all__ = ("cli", "execute", "begin", "end", "BlockProcessor", "execute_processors")
+__all__ = ("cli", "execute", "begin", "end", "execute_processors", "ProcessorType")
+
+
+ProcessorType = Union[
+    Callable,
+    "BeginBlock",
+    "EndBlock",
+]
 
 
 class GroupedGroup(click.Group):
@@ -208,16 +214,20 @@ def cli(ctx, verbose, include, history, seed, config):
 # noinspection PyShadowingNames,PyUnusedLocal
 @cli.result_callback()
 def process_pipeline(processors, verbose, include, history, seed, config):
-    execute_processors(processors)
+    execute_processors(processors, State())
 
 
-def execute_processors(processors) -> State:
-    """
-    Execute a sequence of processors to generate a Document structure. For block handling, we
-    use a recursive approach. Only top-level blocks are extracted and processed by block
+def execute_processors(processors: Iterable[ProcessorType], state: State) -> None:
+    """Execute a sequence of processors to generate a Document structure. For block handling,
+    we use a recursive approach. Only top-level blocks are extracted and processed by block
     processors, which, in turn, recursively call this function.
-    :param processors: iterable of processors
-    :return: generated geometries
+
+    Args:
+        processors: iterable of processors
+        state: state structure
+
+    Returns:
+        generated geometries
     """
 
     outer_processors: List[Any] = []  # gather commands outside of top-level blocks
@@ -227,7 +237,7 @@ def execute_processors(processors) -> State:
     expect_block = False  # set to True by `begin` command
 
     for proc in processors:
-        if isinstance(proc, BlockProcessor):
+        if getattr(proc, "__vpype_block_processor__", False):
             if expect_block:
                 expect_block = False
                 # if we in a top level block, we save the block layer_processor
@@ -237,9 +247,9 @@ def execute_processors(processors) -> State:
                 else:
                     top_level_processors.append(proc)
             else:
-                raise click.ClickException("A block command must always follow 'begin'")
+                raise click.BadParameter("A block command must always follow 'begin'")
         elif expect_block:
-            raise click.ClickException("A block command must always follow 'begin'")
+            raise click.BadParameter("A block command must always follow 'begin'")
         elif isinstance(proc, BeginBlock):
             # entering a block
             nested_count += 1
@@ -249,30 +259,26 @@ def execute_processors(processors) -> State:
                 top_level_processors.append(proc)
         elif isinstance(proc, EndBlock):
             if nested_count < 1:
-                raise click.ClickException(
+                raise click.BadParameter(
                     "A 'end' command has no corresponding 'begin' command"
                 )
 
             nested_count -= 1
 
             if nested_count == 0:
-                # we're closing a top level block, let's process it
-                block_document = block.process(top_level_processors)  # type: ignore
+                # We're closing a top level block. The top-level sequence [BeginBlock,
+                # block_processor, *top_level_processors, EndBlock] is now replaced by a
+                # placeholder closure that will execute the corresponding block processor on
+                # the top_level_processors sequence.
 
-                # Create a placeholder layer_processor that will add the block's result to the
-                # current frame. The placeholder_processor is a closure, so we need to make
-                # a closure-building function. Failing that, the closure would refer directly
-                # to the block_vd variable above, which might be overwritten by a subsequent
-                # top-level block
+                # copy for the closure
+                processors = top_level_processors.copy()
+
                 # noinspection PyShadowingNames
-                def build_placeholder_processor(block_document):
-                    def placeholder_processor(input_state):
-                        input_state.document.extend(block_document)
-                        return input_state
+                def block_processor_placeholder(state: State) -> State:
+                    return cast(Callable, block)(state, processors)
 
-                    return placeholder_processor
-
-                outer_processors.append(build_placeholder_processor(block_document))
+                outer_processors.append(block_processor_placeholder)
 
                 # reset the top level layer_processor list
                 top_level_processors = list()
@@ -290,10 +296,8 @@ def execute_processors(processors) -> State:
         raise click.ClickException("An 'end' command is missing")
 
     # the (only) frame's processors should now be flat and can be chain-called
-    state = State()
     for proc in outer_processors:
-        state = proc(state)
-    return state
+        state = cast(Callable, proc)(state)
 
 
 class BeginBlock:
@@ -322,21 +326,6 @@ def end():
     return EndBlock()
 
 
-class BlockProcessor:
-    """
-    Base class for all block processors. Although it does nothing, block processors must
-    sub-class :class:`BlockProcessor` to be recognized as such.
-    """
-
-    def process(self, processors) -> MultiLineString:
-        """
-        Generate the compound geometries based on the provided processors. Sub-class must
-        override this function in their implementation.
-        :param processors: list of processors
-        :return: compound geometries
-        """
-
-
 def extract_arguments(f: TextIO) -> List[str]:
     """Read the content of a file-like object and extract the corresponding argument list.
 
@@ -344,8 +333,11 @@ def extract_arguments(f: TextIO) -> List[str]:
     to separate arguments. Single and double quote are honored, i.e. content becomes an
     argument (but quote are removed).
 
-    :param f: file-like object
-    :return: list of argument extracted from input
+    Args:
+        f: file-like object
+
+    Returns:
+        list of argument extracted from input
     """
     args = []
     for line in f.readlines():
@@ -360,10 +352,13 @@ def preprocess_argument_list(args: List[str], cwd: Union[str, None] = None) -> L
     Include options are either '-I' or '--include', and must be followed by a file path. This
     behaviour is recursive, e.g. a file could contain an include statement as well.
 
-    :param args:
-    :param cwd: current working directory, used as reference for relative file paths (use
-        actual current working directory if None)
-    :return: preprocessed list or argument
+    Args:
+        args: argument list
+        cwd:  current working directory, used as reference for relative file paths (use
+            actual current working directory if None)
+
+    Returns:
+        preprocessed list or argument
     """
 
     if cwd is None:

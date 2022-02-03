@@ -29,14 +29,28 @@ New features and improvements:
   * `propdel`: deletes a given global or layer property
   * `propclear`: removes all global and/or layer properties
 
+* Added property substitution to CLI user input (#XXXXXXX)
+
+  The input provided to most commands' arguments and options may now contain substitution patterns which will be replaced by the corresponding property value. See the [documentation](https://vpype.readthedocs.io/en/latest/XXXXXXXXXXX) for more information and examples.
+
 * Updated layer operation commands to handle metadata (#359)
 
   * When a single source layer is specified and `--prob` is not used, the `lcopy` and `lmove` commands now copy the source layer's properties to the destination layer (possibly overwriting existing properties).
   * When `--prob` is not used, the `lswap` command now swaps the layer properties as well.
   * These behaviors can be disabled with the `--no-prop` option.
 
+* Improved the handling of block processors  (#XXXXXXXXX)
+ 
+  Block processors are commands which, when combined with `begin` and `end`, operate on the sequence they encompass. For example, the sequence `begin grid 2 2 random end` creates a 2x2 grid of random line patches. The infrastructure underlying block processors has been overhauled to increase their usefulness and extensibility.
+  
+  * Commands inside the block now have access to the current layer structure and its metadata. This makes their use more predictable. For example, `begin grid 2 2 random --layer new end` now correctly generates patches of random lines on different layers.
+  * The `grid` block processor now first iterate along lines instead of columns.
+
 * Added `--keep` option to the `ldelete` command (to delete all layers but those specified) (#383)
 * Providing a non-existent layer ID to any `--layer` parameter now generates a note (visible with `--verbose`) (#359, #382)
+
+Bug fixes:
+* Fixed an issue with the `random` command when using non-square area (#XXXXXXXXXXXXXXXX)
 
 API changes:
 * Moved all CLI-related APIs from `vpype` to `vpype_cli` (#388)
@@ -63,6 +77,15 @@ API changes:
     * `vpype.convert_page_format()` (alias to `vpype.convert_page_size()`)
     * `vpype.PAGE_FORMATS` (alias to `vpype.PAGE_SIZES`)
 
+* Added `vpype_cli.TextType` type class for Click arguments and options (#XXXXXXX)
+  
+  Commands should use this class instead of `str` when property substitution is desired.
+* Most existing `vpype_cli` type classes (`AngleType`, `LengthType`, `PageSizeType`) now support property substitution (#XXXXXXXX)
+* Updated the block processor API (breaking change) (#XXXXXXXX)
+  
+  Block processor commands (decorated with `@block_processor`) are no longer sub-classes of `BlockProcessor` (which has been removed). The are instead regular functions (like commands of other types) which take a `State` instance and a list of processors as first arguments.
+
+* Added methods to `vpype_cli.State` to support property substitution, deferred arguments/options evaluation and block processor implementations (#XXXXXX)
 * `vpype.Document` and `vpype.LineCollection` have additional members to manage properties through the `vpype._MetadataMixin` mix-in class (#359)
 * Renamed `vpype.Document.empty_copy()` to `vpype.Document.clone()` for coherence with `vpype.LineCollection` (the old name remains for backward compatibility) (#359, #380) 
 * Added `vpype.read_svg_by_attribute()` to read SVG while sorting geometries by arbitrary attributes (#378)
