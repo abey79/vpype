@@ -202,7 +202,7 @@ High-level commands such as :ref:`cmd_penwidth` are not the only means of intera
 .. _fundamentals_property_substitution:
 
 CLI property substitution
-_________________________
+-------------------------
 
 Most arguments and options passes to commands via the *vpype* CLI will apply property substitution on the provided input. For example, this command will draw the name of the layer::
 

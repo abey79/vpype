@@ -7,7 +7,7 @@
 New features and improvements:
 * Updated the internal data model to support global and per-layer metadata (#359)
   
-  This feature is intended as a generic mechanism whereby a set of properties may be attached to specific layers (layer property) or all of them (global property). Properties are identified by a name and may be of arbitrary type (e.g. integer, floating point, color, etc.). This new infrastructure is used by several of the features introduced in this release, paves the way for future features, and further empowers plug-in writers. See the [documentation](https://vpype.readthedocs.io/en/latest/metadata) for more background information on metadata.
+  This feature is intended as a generic mechanism whereby a set of properties may be attached to specific layers (layer property) or all of them (global property). Properties are identified by a name and may be of arbitrary type (e.g. integer, floating point, color, etc.). This new infrastructure is used by several of the features introduced in this release, paves the way for future features, and further empowers plug-in writers. See the [documentation](https://vpype.readthedocs.io/en/latest/fundamentals.html#metadata) for more background information on metadata.
 
 * Layer color, pen width, and name are now customizable (#359, #376, #389)
   * The `read` commands now sets layer color, pen width, and name based on the input SVG if possible.
@@ -29,9 +29,9 @@ New features and improvements:
   * `propdel`: deletes a given global or layer property
   * `propclear`: removes all global and/or layer properties
 
-* Added property substitution to CLI user input (#XXXXXXX)
+* Added property substitution to CLI user input (#395)
 
-  The input provided to most commands' arguments and options may now contain substitution patterns which will be replaced by the corresponding property value. See the [documentation](https://vpype.readthedocs.io/en/latest/XXXXXXXXXXX) for more information and examples.
+  The input provided to most commands' arguments and options may now contain substitution patterns which will be replaced by the corresponding property value. See the [documentation](https://vpype.readthedocs.io/en/latest/fundamentals.html#cli-property-substitution) for more information and examples.
 
 * Updated layer operation commands to handle metadata (#359)
 
@@ -39,7 +39,7 @@ New features and improvements:
   * When `--prob` is not used, the `lswap` command now swaps the layer properties as well.
   * These behaviors can be disabled with the `--no-prop` option.
 
-* Improved the handling of block processors  (#XXXXXXXXX)
+* Improved the handling of block processors  (#395)
  
   Block processors are commands which, when combined with `begin` and `end`, operate on the sequence they encompass. For example, the sequence `begin grid 2 2 random end` creates a 2x2 grid of random line patches. The infrastructure underlying block processors has been overhauled to increase their usefulness and extensibility.
   
@@ -50,7 +50,7 @@ New features and improvements:
 * Providing a non-existent layer ID to any `--layer` parameter now generates a note (visible with `--verbose`) (#359, #382)
 
 Bug fixes:
-* Fixed an issue with the `random` command when using non-square area (#XXXXXXXXXXXXXXXX)
+* Fixed an issue with the `random` command when using non-square area (#395)
 
 API changes:
 * Moved all CLI-related APIs from `vpype` to `vpype_cli` (#388)
@@ -77,15 +77,15 @@ API changes:
     * `vpype.convert_page_format()` (alias to `vpype.convert_page_size()`)
     * `vpype.PAGE_FORMATS` (alias to `vpype.PAGE_SIZES`)
 
-* Added `vpype_cli.TextType` type class for Click arguments and options (#XXXXXXX)
+* Added `vpype_cli.TextType` type class for Click arguments and options (#395)
   
   Commands should use this class instead of `str` when property substitution is desired.
-* Most existing `vpype_cli` type classes (`AngleType`, `LengthType`, `PageSizeType`) now support property substitution (#XXXXXXXX)
-* Updated the block processor API (breaking change) (#XXXXXXXX)
+* Most existing `vpype_cli` type classes (`AngleType`, `LengthType`, `PageSizeType`) now support property substitution (#395)
+* Updated the block processor API (breaking change) (#395)
   
   Block processor commands (decorated with `@block_processor`) are no longer sub-classes of `BlockProcessor` (which has been removed). The are instead regular functions (like commands of other types) which take a `State` instance and a list of processors as first arguments.
 
-* Added methods to `vpype_cli.State` to support property substitution, deferred arguments/options evaluation and block processor implementations (#XXXXXX)
+* Added methods to `vpype_cli.State` to support property substitution, deferred arguments/options evaluation and block processor implementations (#395)
 * `vpype.Document` and `vpype.LineCollection` have additional members to manage properties through the `vpype._MetadataMixin` mix-in class (#359)
 * Renamed `vpype.Document.empty_copy()` to `vpype.Document.clone()` for coherence with `vpype.LineCollection` (the old name remains for backward compatibility) (#359, #380) 
 * Added `vpype.read_svg_by_attribute()` to read SVG while sorting geometries by arbitrary attributes (#378)
