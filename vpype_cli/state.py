@@ -49,7 +49,6 @@ class _DeferredEvaluator(ABC):
     def evaluate(self, state: "State") -> Any:
         """Sub-class must override this function and return the converted value of
         ``self._text``"""
-        pass
 
 
 class State:

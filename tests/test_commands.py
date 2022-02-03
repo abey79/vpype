@@ -27,6 +27,7 @@ MINIMAL_COMMANDS = [
     Command("begin grid 2 2 line 0 0 10 10 end"),
     Command("begin repeat 2 line 0 0 10 10 end"),
     Command("grid 2 2 line 0 0 10 10 end"),  # implicit `begin`
+    Command("grid 2 2 repeat 2 random -n 1 end end"),  # nested block
     Command("frame"),
     Command("random"),
     Command("line 0 0 1 1"),

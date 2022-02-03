@@ -48,8 +48,8 @@ def _check_scope(
 
 
 @cli.command(group="Metadata")
-@click.argument("prop")
-@click.argument("value")
+@click.argument("prop", type=TextType())
+@click.argument("value", type=TextType())
 @click.option("--global", "-g", "global_flag", is_flag=True, help="Global mode.")
 @click.option("-l", "--layer", type=LayerType(accept_multiple=True), help="Target layer(s).")
 @click.option(
@@ -164,7 +164,7 @@ def proplist(document: vp.Document, global_flag: bool, layer: Optional[Union[int
 
 
 @cli.command(group="Metadata")
-@click.argument("prop")
+@click.argument("prop", type=TextType())
 @click.option("--global", "-g", "global_flag", is_flag=True, help="Global mode.")
 @click.option("-l", "--layer", type=LayerType(accept_multiple=True), help="Target layer(s).")
 @global_processor
@@ -198,7 +198,7 @@ def propget(
 
 
 @cli.command(group="Metadata")
-@click.argument("prop")
+@click.argument("prop", type=TextType())
 @click.option("--global", "-g", "global_flag", is_flag=True, help="Global mode.")
 @click.option("-l", "--layer", type=LayerType(accept_multiple=True), help="Target layer(s).")
 @global_processor
@@ -360,7 +360,7 @@ command. Check the documentation for more information on creating custom pen con
 
 
 @cli.command(group="Metadata", help=PENS_HELP_STRING)
-@click.argument("pen_config", metavar="CONF")
+@click.argument("pen_config", metavar="CONF", type=TextType())
 @global_processor
 def pens(document: vp.Document, pen_config: str) -> vp.Document:
 

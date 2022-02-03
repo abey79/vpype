@@ -9,7 +9,7 @@ import click
 from .state import State
 from .types import LayerType, multiple_to_layer_ids, single_to_layer_id
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from .cli import ProcessorType
 
 __all__ = [

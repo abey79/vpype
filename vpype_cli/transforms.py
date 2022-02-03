@@ -252,7 +252,7 @@ def rotate(
 
 # noinspection DuplicatedCode
 @cli.command(group="Transforms")
-@click.argument("angles", required=True, nargs=2, type=float)
+@click.argument("angles", required=True, nargs=2, type=AngleType())
 @click.option(
     "-l",
     "--layer",

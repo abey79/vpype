@@ -321,3 +321,12 @@ def test_document_clone():
     new_doc = doc.clone()
     assert len(new_doc.layers) == 0
     assert new_doc.page_size == (3, 4)
+
+
+def test_document_exists_none():
+    doc = Document()
+    doc.add(LineCollection([[0, 1 + 1j], [2 + 2j, 3 + 3j, 4 + 4j]]), 1)
+
+    assert doc.exists(1)
+    assert not doc.exists(2)
+    assert not doc.exists(None)
