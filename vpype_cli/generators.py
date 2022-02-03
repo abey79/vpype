@@ -7,13 +7,15 @@ import vpype as vp
 
 from .cli import cli
 from .decorators import generator
-from .types import LengthType
+from .types import IntegerType, LengthType
 
 __all__ = ("random",)
 
 
 @cli.command(group="Generators")
-@click.option("-n", "--count", "n", type=int, default=10, help="Number of lines to generate.")
+@click.option(
+    "-n", "--count", "n", type=IntegerType(), default=10, help="Number of lines to generate."
+)
 @click.option(
     "-a",
     "--area",

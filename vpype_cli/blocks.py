@@ -5,13 +5,13 @@ import click
 from .cli import ProcessorType, cli, execute_processors
 from .decorators import block_processor
 from .state import State
-from .types import LengthType
+from .types import IntegerType, LengthType
 
 __all__ = ("grid", "repeat")
 
 
 @cli.command(group="Block processors")
-@click.argument("number", nargs=2, default=(2, 2), type=int, metavar="M N")
+@click.argument("number", nargs=2, default=(2, 2), type=IntegerType(), metavar="M N")
 @click.option(
     "-o",
     "--offset",
@@ -54,7 +54,7 @@ def grid(
 
 
 @cli.command("repeat", group="Block processors")
-@click.argument("number", type=int, metavar="N")
+@click.argument("number", type=IntegerType(), metavar="N")
 @block_processor
 def repeat(state: State, processors: Iterable[ProcessorType], number: int) -> State:
     """Repeat geometries N times.

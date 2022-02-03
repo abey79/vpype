@@ -8,7 +8,7 @@ import vpype as vp
 
 from .cli import cli
 from .decorators import global_processor, layer_processor
-from .types import LayerType, LengthType, PageSizeType, multiple_to_layer_ids
+from .types import IntegerType, LayerType, LengthType, PageSizeType, multiple_to_layer_ids
 
 __all__ = (
     "crop",
@@ -135,7 +135,7 @@ def linemerge(lines: vp.LineCollection, tolerance: float, no_flip: bool = True):
 @click.option(
     "-p",
     "--passes",
-    type=int,
+    type=IntegerType(),
     default=250,
     help="Number of passes the two-opt algorithm is permitted to take (default: 250)",
 )
@@ -345,7 +345,11 @@ def reloop(lines: vp.LineCollection, tolerance):
 
 @cli.command(group="Operations")
 @click.option(
-    "-n", "--count", type=int, default=2, help="How many pass for each line (default: 2)."
+    "-n",
+    "--count",
+    type=IntegerType(),
+    default=2,
+    help="How many pass for each line (default: 2).",
 )
 @layer_processor
 def multipass(lines: vp.LineCollection, count: int):

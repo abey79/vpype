@@ -9,7 +9,7 @@ import vpype as vp
 from .cli import cli
 from .decorators import global_processor, pass_state
 from .state import State
-from .types import TextType
+from .types import IntegerType, TextType
 
 __all__ = ("write",)
 
@@ -179,7 +179,7 @@ Examples:
 @click.option(
     "-vs",
     "--velocity",
-    type=int,
+    type=IntegerType(),
     help="[HPGL only] Emit a VS command with the provided value.",
 )
 @click.option(

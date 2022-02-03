@@ -47,6 +47,30 @@ class TextType(_DeferredEvaluatorType):
     _evaluator_class = _TextDeferredEvaluator
 
 
+class IntegerType(_DeferredEvaluatorType):
+    """:class:`click.ParamType` sub-class to automatically perform
+    :ref:`property substitution <fundamentals_property_substitution>` on user input.
+
+    Example::
+
+        >>> import click
+        >>> import vpype_cli
+        >>> import vpype
+        >>> @vpype_cli.cli.command(group="my commands")
+        ... @click.argument("number", type=vpype_cli.IntegerType())
+        ... @vpype_cli.generator
+        ... def my_command(number: int):
+        ...     pass
+    """
+
+    class _IntegerDeferredEvaluator(_DeferredEvaluator):
+        def evaluate(self, state: "State") -> int:
+            return int(state.substitute_input(self._text))
+
+    name = "number"
+    _evaluator_class = _IntegerDeferredEvaluator
+
+
 class LengthType(_DeferredEvaluatorType):
     """:class:`click.ParamType` sub-class to automatically converts a user-provided lengths
     into CSS pixel units.

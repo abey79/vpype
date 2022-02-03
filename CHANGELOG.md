@@ -77,10 +77,9 @@ API changes:
     * `vpype.convert_page_format()` (alias to `vpype.convert_page_size()`)
     * `vpype.PAGE_FORMATS` (alias to `vpype.PAGE_SIZES`)
 
-* Added `vpype_cli.TextType` type class for Click arguments and options (#395)
-  
-  Commands should use this class instead of `str` when property substitution is desired.
-* Most existing `vpype_cli` type classes (`AngleType`, `LengthType`, `PageSizeType`) now support property substitution (#395)
+* Added support for property substitution in Click type subclasses (#395)
+  * Existing type classes (`AngleType`, `LengthType`, `PageSizeType`) now support property substitution.
+  * Added `TextType` and `IntegerType` to be used instead of `str`, resp. `int`, when property substitution support is desired.
 * Updated the block processor API (breaking change) (#395)
   
   Block processor commands (decorated with `@block_processor`) are no longer sub-classes of `BlockProcessor` (which has been removed). The are instead regular functions (like commands of other types) which take a `State` instance and a list of processors as first arguments.
