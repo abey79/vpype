@@ -271,11 +271,11 @@ def execute_processors(processors: Iterable[ProcessorType], state: State) -> Non
                 # the top_level_processors sequence.
                 #
                 # Note: we use the default argument trick to copy the *current* value of
-                # top_level_processor "inside" the placeholder function.
+                # block and top_level_processor "inside" the placeholder function.
 
                 # noinspection PyShadowingNames
                 def block_processor_placeholder(
-                    state: State, processors=tuple(top_level_processors)
+                    state: State, block=block, processors=tuple(top_level_processors)
                 ) -> State:
                     return cast(Callable, block)(state, processors)
 
