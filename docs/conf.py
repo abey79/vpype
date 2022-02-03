@@ -16,7 +16,6 @@
 
 # -- Project information -----------------------------------------------------
 # noinspection PyPackageRequirements
-import click
 from recommonmark.parser import CommonMarkParser
 
 project = "vpype"
@@ -112,7 +111,7 @@ def autodoc_skip_member(app, what, name, obj, skip, options):
         # vpype_cli/state.py
         "_current_state",
     )
-    exclude = name in exclusions
+
     return skip or name in exclusions
 
 

@@ -269,12 +269,14 @@ def execute_processors(processors: Iterable[ProcessorType], state: State) -> Non
                 # block_processor, *top_level_processors, EndBlock] is now replaced by a
                 # placeholder closure that will execute the corresponding block processor on
                 # the top_level_processors sequence.
-
-                # copy for the closure
-                processors = top_level_processors.copy()
+                #
+                # Note: we use the default argument trick to copy the *current* value of
+                # top_level_processor "inside" the placeholder function.
 
                 # noinspection PyShadowingNames
-                def block_processor_placeholder(state: State) -> State:
+                def block_processor_placeholder(
+                    state: State, processors=tuple(top_level_processors)
+                ) -> State:
                     return cast(Callable, block)(state, processors)
 
                 outer_processors.append(block_processor_placeholder)
