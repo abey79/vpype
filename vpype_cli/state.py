@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from typing import Any, Dict, Optional, Tuple, Union
 
+import asteval
 import click
 
 import vpype as vp
@@ -72,6 +73,9 @@ class State:
         #: Layer ID being populated by a :func:`generator` or processed by a
         #: :func:`layer_processor` command.
         self.current_layer_id: Optional[int] = None
+
+        self._symtable = {}
+        self._interpreter = asteval.Interpreter(usersyms=self._symtable)
 
     def _evaluate_arg(self, arg: Any) -> Any:
         if isinstance(arg, tuple):
