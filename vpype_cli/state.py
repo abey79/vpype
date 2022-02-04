@@ -20,9 +20,9 @@ class _SubstitutionHelper:
         self.layer = layer
 
     def __getitem__(self, item):
-        if self.layer and self.layer.property_exists(item):
+        if self.layer is not None and self.layer.property_exists(item):
             return self.layer.property(item)
-        elif self.document and self.document.property_exists(item):
+        elif self.document is not None and self.document.property_exists(item):
             return self.document.property(item)
         else:
             raise click.BadParameter(f"Cannot substitute {{{item}}}: property not found")
