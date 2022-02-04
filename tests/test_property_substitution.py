@@ -50,3 +50,9 @@ def test_property_substitution_invalid(runner):
 def test_property_substitution_int():
     doc = vpype_cli.execute("propset -g -t int num 2 repeat 2 random -l new end")
     assert {1, 2} == doc.layers.keys()
+
+
+def test_property_substitution_empty_layer():
+    # property substitution should work even if the layer is empty
+    doc = vpype_cli.execute("pens rgb text {vp_name}")
+    assert len(doc.layers[1]) > 0
