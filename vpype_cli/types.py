@@ -41,7 +41,7 @@ class TextType(_DeferredEvaluatorType):
 
     class _TextDeferredEvaluator(_DeferredEvaluator):
         def evaluate(self, state: "State") -> str:
-            return state.substitute_input(self._text)
+            return state.substitute(self._text)
 
     name = "text"
     _evaluator_class = _TextDeferredEvaluator
@@ -65,7 +65,7 @@ class IntegerType(_DeferredEvaluatorType):
 
     class _IntegerDeferredEvaluator(_DeferredEvaluator):
         def evaluate(self, state: "State") -> int:
-            return int(state.substitute_input(self._text))
+            return int(state.substitute(self._text))
 
     name = "number"
     _evaluator_class = _IntegerDeferredEvaluator
@@ -95,7 +95,7 @@ class LengthType(_DeferredEvaluatorType):
 
     class _LengthDeferredEvaluator(_DeferredEvaluator):
         def evaluate(self, state: "State") -> float:
-            return vp.convert_length(state.substitute_input(self._text))
+            return vp.convert_length(state.substitute(self._text))
 
     name = "length"
     _evaluator_class = _LengthDeferredEvaluator
@@ -122,7 +122,7 @@ class AngleType(_DeferredEvaluatorType):
 
     class _AngleDeferredEvaluator(_DeferredEvaluator):
         def evaluate(self, state: "State") -> float:
-            return vp.convert_angle(state.substitute_input(self._text))
+            return vp.convert_angle(state.substitute(self._text))
 
     name = "angle"
     _evaluator_class = _AngleDeferredEvaluator
@@ -149,7 +149,7 @@ class PageSizeType(_DeferredEvaluatorType):
 
     class _PageSizeDeferredEvaluator(_DeferredEvaluator):
         def evaluate(self, state: "State") -> Tuple[float, float]:
-            return vp.convert_page_size(state.substitute_input(self._text))
+            return vp.convert_page_size(state.substitute(self._text))
 
     name = "pagesize"
     _evaluator_class = _PageSizeDeferredEvaluator

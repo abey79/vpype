@@ -223,7 +223,7 @@ def write(
     if file_format == "svg":
         page_size_px = None
         if page_size:
-            page_size_px = vp.convert_page_size(state.substitute_input(page_size))
+            page_size_px = vp.convert_page_size(state.substitute(page_size))
             if landscape:
                 page_size_px = page_size_px[::-1]
 

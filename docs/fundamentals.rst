@@ -234,6 +234,14 @@ Internally, the substitution is performed using the :meth:`str.format` Python fu
 See the `Python documentation <https://docs.python.org/3/library/string.html#format-string-syntax>`_ for a complete description of the formatting mini-language.
 
 
+.. _fundamentals_expression_substitution:
+
+Expression substitution
+========================
+
+TO COMPLETE!
+
+
 .. _fundamentals_blocks:
 
 Blocks

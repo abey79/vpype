@@ -87,7 +87,7 @@ def layer_processor(f):
                 start = datetime.datetime.now()
                 with state.current():
                     state.current_layer_id = lid
-                    new_args, new_kwargs = state.evaluate_parameters(args, kwargs)
+                    new_args, new_kwargs = state.preprocess_arguments(args, kwargs)
                     state.document[lid] = f(state.document[lid], *new_args, **new_kwargs)
                     state.current_layer_id = None
                 stop = datetime.datetime.now()
@@ -152,7 +152,7 @@ def global_processor(f):
 
             start = datetime.datetime.now()
             with state.current():
-                new_args, new_kwargs = state.evaluate_parameters(args, kwargs)
+                new_args, new_kwargs = state.preprocess_arguments(args, kwargs)
                 state.document = f(state.document, *new_args, **new_kwargs)
             stop = datetime.datetime.now()
 
@@ -198,7 +198,7 @@ def generator(f):
 
                 start = datetime.datetime.now()
                 state.current_layer_id = target_layer
-                new_args, new_kwargs = state.evaluate_parameters(args, kwargs)
+                new_args, new_kwargs = state.preprocess_arguments(args, kwargs)
                 state.document.add(f(*new_args, **new_kwargs), target_layer)
                 state.current_layer_id = None
                 stop = datetime.datetime.now()
@@ -247,7 +247,7 @@ def block_processor(f):
             logging.info(f"executing block processor `{f.__name__}` (kwargs: {kwargs})")
 
             start = datetime.datetime.now()
-            new_args, new_kwargs = state.evaluate_parameters(args, kwargs)
+            new_args, new_kwargs = state.preprocess_arguments(args, kwargs)
             f(state, processors, *new_args, **new_kwargs)
             stop = datetime.datetime.now()
 

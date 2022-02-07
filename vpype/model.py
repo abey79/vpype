@@ -139,17 +139,17 @@ class LineCollection(_MetadataMixin):
 
     Finally, :py:class:`LineCollection` implements a number of operations such as geometrical
     transformation, cropping, merging, etc. (see member function documentation for details).
+
+    Args:
+        lines (LineCollectionLike): iterable of line (accepts the same input as
+            :func:`~LineCollection.append`).
+        metadata: if provided, used as layer metadata
     """
 
     def __init__(
         self, lines: LineCollectionLike = (), metadata: Optional[Dict[str, Any]] = None
     ):
-        """Create a LineCollection instance from an iterable of lines.
-
-        Args:
-            lines (LineCollectionLike): iterable of line (accepts the same input as
-                :func:`~LineCollection.append`).
-        """
+        """Create a LineCollection instance from an iterable of lines."""
         super().__init__(metadata)
 
         self._lines: List[np.ndarray] = []
@@ -505,6 +505,11 @@ class Document(_MetadataMixin):
     In addition, the Document class maintains a :py:attr:`page_size` attribute which describe
     the physical size of the document. This attribute is not strictly linked to the actual
     Document's content, but can be set based on it.
+
+    Args:
+        line_collection: if provided, used as layer 1
+        metadata: if provided, used as global metadata
+        page_size: if provided, used as page size
     """
 
     def __init__(

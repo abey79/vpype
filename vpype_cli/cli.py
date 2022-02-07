@@ -4,7 +4,7 @@ import random
 import shlex
 import sys
 import traceback
-from typing import Any, Callable, Iterable, List, Optional, TextIO, Union, cast
+from typing import TYPE_CHECKING, Any, Callable, Iterable, List, Optional, TextIO, Union, cast
 
 import click
 import numpy as np
@@ -209,6 +209,11 @@ def cli(ctx, verbose, include, history, seed, config):
 
     if config is not None:
         vp.config_manager.load_config_file(config)
+
+
+# this is somehow needed to make PyCharm happy with runner.invoke(cli, ...)
+if TYPE_CHECKING:
+    cli = cast(GroupedGroup, cli)
 
 
 # noinspection PyShadowingNames,PyUnusedLocal
