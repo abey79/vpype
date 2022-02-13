@@ -39,6 +39,18 @@ CLI reference
 .. click:: vpype_cli:end
    :prog: end
 
+.. _cmd_eval:
+.. click:: vpype_cli:eval
+   :prog: eval
+
+.. _cmd_forfile:
+.. click:: vpype_cli:forfile
+   :prog: forfile
+
+.. _cmd_forlayer:
+.. click:: vpype_cli:forlayer
+   :prog: forlayer
+
 .. _cmd_frame:
 .. click:: vpype_cli:frame
    :prog: frame

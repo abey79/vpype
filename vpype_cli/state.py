@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Dict, Generator, Optional, Tuple, Union
 
 import click
 
@@ -36,6 +36,12 @@ class _DeferredEvaluator(ABC):
     def evaluate(self, state: "State") -> Any:
         """Sub-class must override this function and return the converted value of
         ``self._text``"""
+
+    def __str__(self):
+        return self._text
+
+    def __repr__(self):
+        return repr(self._text)
 
 
 class State:
@@ -125,17 +131,63 @@ class State:
         self.__class__._current_state = None
 
     @contextmanager
-    def clear_document(self):
-        """Context manager to temporarily clear and extend the state's document.
+    def temp_document(self) -> Generator[vp.Document, None, None]:
+        """Context manager to temporarily clear the state's document.
 
-        This context manager is typically used by block processor to clear the document of
-        line data while retaining its structure when executing nested processors, and then
-        add the generated geometries to the original document. See :func:`block` for an
-        example.
+        This context manager is typically used by block processor to temporarily clear the
+        document of line data while retaining its structure when executing nested processors.
+        The context manager returns the temporary document instance. It is typically used by
+        block processors to extend the original document after running the nested commands.
+
+        Returns:
+            the temporary document instance
+
+        Example::
+
+            >>> import vpype_cli
+            >>> @vpype_cli.cli.command()
+            ... @vpype_cli.block_processor
+            ... def clean_block(state, processors):
+            ...     with state.temp_document() as temp_doc:
+            ...         # state.document is now empty but has the same structure as the
+            ...         # original document
+            ...         vpype_cli.execute_processors(processors, state)
+            ...     # update the original document with the temporary one
+            ...     state.document.extend(temp_doc)
         """
 
         original_doc = self.document
         self.document = original_doc.clone(keep_layers=True)
-        yield
-        original_doc.extend(self.document)
+        yield self.document
         self.document = original_doc
+
+    @contextmanager
+    def expression_variables(self, variables: Dict[str, Any]) -> Generator[None, None, None]:
+        """Context manager to temporarily set expression variables.
+
+        This context manager is typically used by block processors to temporarily set relevant
+        expression variables. These variables are deleted or, if pre-existing, restored upon
+        exiting the context.
+
+        Args:
+            variables: variables to set
+
+        Example::
+
+            >>> import vpype_cli
+            >>> @vpype_cli.cli.command()
+            ... @vpype_cli.block_processor
+            ... def run_twice(state, processors):
+            ...     with state.expression_variables({"_first": True}):
+            ...         vpype_cli.execute_processors(processors, state)
+            ...     with state.expression_variables({"_first": False}):
+            ...         vpype_cli.execute_processors(processors, state)
+        """
+
+        symtable = self._interpreter.symtable
+        saved_items = {k: symtable[k] for k in variables if k in symtable}
+        symtable.update(variables)
+        yield
+        for name in variables:
+            symtable.pop(name)
+        symtable.update(saved_items)

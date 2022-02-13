@@ -83,7 +83,7 @@ def state_factory():
             doc.layers[1].set_property("layer_prop", 1.5)
             state = vpype_cli.State(doc)
             state.current_layer_id = 1
-        else:
+        else:  # pragma: no cover
             raise ValueError(f"unknown state type {state_type}")
         return state
 

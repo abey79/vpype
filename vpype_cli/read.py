@@ -8,13 +8,13 @@ import vpype as vp
 
 from .cli import cli
 from .decorators import global_processor
-from .types import LayerType, LengthType, PageSizeType, single_to_layer_id
+from .types import LayerType, LengthType, PageSizeType, PathType, single_to_layer_id
 
 __all__ = ("read",)
 
 
 @cli.command(group="Input")
-@click.argument("file", type=click.Path(exists=True, dir_okay=False, allow_dash=True))
+@click.argument("file", type=PathType(exists=True, dir_okay=False, allow_dash=True))
 @click.option("-m", "--single-layer", is_flag=True, help="Single layer mode.")
 @click.option(
     "-l",

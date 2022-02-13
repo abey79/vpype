@@ -674,23 +674,32 @@ class Document(_MetadataMixin):
 
         self._layers[layer_id].extend(lines)
 
-    def replace(self, lines: LineCollectionLike, layer_id: int) -> None:
+    def replace(
+        self, lines: LineCollectionLike, layer_id: int, *, with_metadata: bool = False
+    ) -> None:
         """Replaces the content of a layer.
 
         This method replaces the content of layer ``layer_id`` with ``lines``. The layer must
         exist, otherwise a :class:`ValueError` exception is raised.
 
-        The destination layer retains its metadata
+        The destination layer retains its metadata, unless ``with_metadata`` is True, in which
+        case ``lines`` must have a ``metadata`` attribute.
 
         Args:
             lines: line data to assign to the layer
             layer_id: layer ID of the layer whose content is to be replaced
+            with_metadata:
         """
 
         if layer_id not in self._layers:
             raise ValueError(f"layer {layer_id} doesn't exist")
 
         self._layers[layer_id] = self._layers[layer_id].clone(lines)
+
+        if with_metadata:
+            metadata = getattr(lines, "metadata", None)
+            if metadata is not None:
+                self._layers[layer_id].metadata = metadata.copy()
 
     def swap_content(self, lid1: int, lid2: int) -> None:
         """Swap the content of two layers.

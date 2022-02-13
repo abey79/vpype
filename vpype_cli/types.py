@@ -1,5 +1,5 @@
 import logging
-from typing import ClassVar, List, Optional, Tuple, Union
+from typing import Any, ClassVar, List, Optional, Tuple, Type, Union
 
 import click
 
@@ -153,6 +153,54 @@ class PageSizeType(_DeferredEvaluatorType):
 
     name = "pagesize"
     _evaluator_class = _PageSizeDeferredEvaluator
+
+
+class _DelegatedDeferredEvaluatorType(click.ParamType):
+    """Base class for types which delegate the deferred evaluation to another type class.
+
+    Sub-class will behave like the delegate class (in particular __init__ will accept the same
+    arguments), but the delegate class will only be created upon deferred evaluation of user
+    input.
+    """
+
+    class _DelegatedDeferredEvaluator(_DeferredEvaluator):
+        def __init__(self, text: str, cls: Type, *args, **kwargs):
+            super().__init__(text)
+            self._cls = cls
+            self._args = args
+            self._kwargs = kwargs
+
+        def evaluate(self, state: "State") -> Any:
+            delegated = self._cls(*self._args, **self._kwargs)
+            return delegated.convert(state.substitute(self._text), None, None)
+
+    def __init__(self, *args, **kwargs):
+        self._args = args
+        self._kwargs = kwargs
+
+    def convert(self, value, param, ctx):
+        if isinstance(value, str):
+            return self.__class__._DelegatedDeferredEvaluator(
+                value, self.__class__._delegate_class, *self._args, **self._kwargs
+            )
+        else:
+            return super().convert(value, param, ctx)
+
+    _delegate_class: ClassVar = click.ParamType
+
+
+class PathType(_DelegatedDeferredEvaluatorType):
+    """:class:`click.Path` clone which performs substitution on input."""
+
+    name = "file"
+    _delegate_class = click.Path
+
+
+class FileType(_DelegatedDeferredEvaluatorType):
+    """:class:`click.File` clone which performs substitution on input."""
+
+    name = "file"
+    _delegate_class = click.File
 
 
 def multiple_to_layer_ids(

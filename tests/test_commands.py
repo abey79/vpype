@@ -12,6 +12,7 @@ from .utils import TESTS_DIRECTORY, execute_single_line
 CM = 96 / 2.54
 
 EXAMPLE_SVG = TESTS_DIRECTORY / "data" / "test_svg" / "svg_width_height" / "percent_size.svg"
+EXAMPLE_SVG_DIR = TESTS_DIRECTORY / "data" / "test_svg" / "misc"
 
 
 @dataclass
@@ -88,6 +89,11 @@ MINIMAL_COMMANDS = [
     Command("propdel -l 1 prop:layer", preserves_metadata=False),
     Command("propclear -g", preserves_metadata=False),
     Command("propclear -l 1", preserves_metadata=False),
+    Command(
+        f"forfile '{TESTS_DIRECTORY / '*.svg'}' text -p 0 %_i*cm% '%_i%/%_n%: %_file%' end"
+    ),
+    Command("eval x=2 eval %y=3 eval z=4% eval %w=5%"),
+    Command("forlayer text '%_lid% (%_i%/%_n%): %_name%' end"),
 ]
 
 # noinspection SpellCheckingInspection

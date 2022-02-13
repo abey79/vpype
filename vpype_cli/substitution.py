@@ -1,12 +1,12 @@
 import os
 import sys
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional
 
 import asteval
 
 import vpype as vp
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma no cover
     from .state import State
 
 
@@ -93,14 +93,11 @@ class _PropertyProxy:
         self._set_prop(name, value)
 
     def __getattr__(self, name):
-        if name.startswith("_"):
-            return super().__setattr__(name)
+        prop = self._get_prop(name)
+        if prop is not None:
+            return prop
         else:
-            prop = self._get_prop(name)
-            if prop is not None:
-                return prop
-            else:
-                raise AttributeError(f"property '{name}' not found")
+            raise AttributeError(f"property '{name}' not found")
 
     def __setattr__(self, name, value):
         if name.startswith("_"):
@@ -243,6 +240,10 @@ class SubstitutionHelper:
         self._interpreter = asteval.Interpreter(
             usersyms=symtable, readonly_symbols=symtable.keys()
         )
+
+    @property
+    def symtable(self) -> Dict[str, Any]:
+        return self._interpreter.symtable
 
     def substitute(self, text: str) -> str:
         """Apply :ref:`property <fundamentals_property_substitution>` and

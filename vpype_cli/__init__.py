@@ -6,6 +6,7 @@ from .blocks import *
 from .cli import *
 from .debug import *
 from .decorators import *
+from .eval import *
 from .filters import *
 from .frames import *
 from .generators import *

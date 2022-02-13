@@ -212,7 +212,7 @@ def cli(ctx, verbose, include, history, seed, config):
 
 
 # this is somehow needed to make PyCharm happy with runner.invoke(cli, ...)
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     cli = cast(GroupedGroup, cli)
 
 
