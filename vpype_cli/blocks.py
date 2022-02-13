@@ -12,7 +12,7 @@ from .decorators import block_processor
 from .state import State
 from .types import IntegerType, LengthType, TextType
 
-__all__ = ("grid", "repeat", "forfile")
+__all__ = ("grid", "repeat", "forfile", "forlayer")
 
 
 @cli.command(group="Block processors")

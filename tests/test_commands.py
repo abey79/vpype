@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 
 import vpype as vp
+import vpype_cli
 from vpype_cli import DebugData, cli, execute, global_processor
 
 from .utils import TESTS_DIRECTORY, execute_single_line
@@ -90,7 +91,7 @@ MINIMAL_COMMANDS = [
     Command("propclear -g", preserves_metadata=False),
     Command("propclear -l 1", preserves_metadata=False),
     Command(
-        f"forfile '{TESTS_DIRECTORY / '*.svg'}' text -p 0 %_i*cm% '%_i%/%_n%: %_file%' end"
+        f"forfile '{EXAMPLE_SVG_DIR / '*.svg'}' text -p 0 %_i*cm% '%_i%/%_n%: %_name%' end"
     ),
     Command("eval x=2 eval %y=3 eval z=4% eval %w=5%"),
     Command("forlayer text '%_lid% (%_i%/%_n%): %_name%' end"),
@@ -667,3 +668,19 @@ def test_property_commands(runner, cmd, expected_output):
     res = runner.invoke(cli, cmd)
     assert res.exit_code == 0
     assert res.stdout.strip() == expected_output.strip()
+
+
+def test_forlayer_command_property_accessor():
+    doc = vpype_cli.execute(
+        "pens rgb forlayer eval '_prop.test=_i;_prop.test2=_prop.test' end"
+    )
+    for i in range(3):
+        assert doc.layers[i + 1].property("test") == i
+        assert doc.layers[i + 1].property("test2") == i
+
+    doc = vpype_cli.execute(
+        'pens rgb forlayer eval \'_prop["test"]=_i;_prop["test2"]=_prop["test"]\' end'
+    )
+    for i in range(3):
+        assert doc.layers[i + 1].property("test") == i
+        assert doc.layers[i + 1].property("test2") == i

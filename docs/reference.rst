@@ -40,7 +40,7 @@ CLI reference
    :prog: end
 
 .. _cmd_eval:
-.. click:: vpype_cli:eval
+.. click:: vpype_cli:eval_cmd
    :prog: eval
 
 .. _cmd_forfile:
