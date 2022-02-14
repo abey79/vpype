@@ -146,7 +146,7 @@ def forfile(state: State, processors: Iterable[ProcessorType], files: str) -> St
         Process all SVGs in the current directory:
 
     \b
-            $ vpype begin forfile "*.svg" read %_path% linemerge linesort \\
+            $ vpype begin forfile \*.svg read %_path% linemerge linesort \\
                 write "optimized/%basename(_path)%" end
     """
 
@@ -221,7 +221,6 @@ def forlayer(state: State, processors: Iterable[ProcessorType]) -> State:
 
     orig_doc = state.document
     for i, lid in enumerate(orig_doc.layers):
-
         with state.temp_document() as doc:
             doc.replace(orig_doc.layers[lid], lid, with_metadata=True)
             variables = {
