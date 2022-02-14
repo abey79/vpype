@@ -154,7 +154,7 @@ def reference_svg(request, tmp_path) -> Callable:
                 export_svg_to(path)
     """
 
-    if sys.version_info < (3, 8):
+    if sys.version_info < (3, 8):  # pragma: no cover
         pytest.skip("requires Python 3.8 or higher")
 
     store_ref_svg = request.config.getoption("--store-ref-svg")
@@ -168,10 +168,10 @@ def reference_svg(request, tmp_path) -> Callable:
 
         yield temp_file
 
-        if store_ref_svg:
+        if store_ref_svg:  # pragma: no cover
             ref_path.write_bytes(temp_file.read_bytes())
         else:
-            if not ref_path.exists():
+            if not ref_path.exists():  # pragma: no cover
                 pytest.fail(f"reference SVG does not exist")
 
             temp_lines = _read_SVG_lines(temp_file)
