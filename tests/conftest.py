@@ -4,6 +4,8 @@ import hashlib
 import os
 import pathlib
 from typing import Callable, List
+from xml.dom import minidom
+from xml.etree import ElementTree
 
 import numpy as np
 import pytest
@@ -130,11 +132,10 @@ def assert_image_similarity(request) -> Callable:
 
 
 def _read_SVG_lines(path: pathlib.Path) -> List[str]:
-    return [
-        line
-        for line in path.read_text().splitlines()
-        if "<dc:source>" not in line and "<dc:date>" not in line
-    ]
+    tree = ElementTree.parse(path)
+    canon = ElementTree.canonicalize(ElementTree.tostring(tree.getroot()), strip_text=True)
+    lines = minidom.parseString(canon).toprettyxml().splitlines()
+    return [line for line in lines if "<dc:source" not in line and "<dc:date" not in line]
 
 
 @pytest.fixture
