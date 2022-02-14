@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:xlink="http://www.w3.org/1999/xlink" baseProfile="tiny" height="29.7cm" version="1.2" viewBox="0 0 793.7007874015749 1122.5196850393702" width="21.0cm">
+  <metadata>
+    <rdf:RDF>
+      <cc:Work>
+        <dc:format>image/svg+xml</dc:format>
+        <dc:source>vpype -k test_reference_output --store-ref-svg
+</dc:source>
+        <dc:date>2022-02-14T15:30:26.491420</dc:date>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs/>
+  <g fill="none" id="layer1" inkscape:groupmode="layer" inkscape:label="cyan" stroke="#00ffff" style="display:inline"/>
+  <g fill="none" id="layer2" inkscape:groupmode="layer" inkscape:label="magenta" stroke="#ff00ff" style="display:inline"/>
+  <g fill="none" id="layer3" inkscape:groupmode="layer" inkscape:label="yellow" stroke="#ffff00" style="display:inline"/>
+  <g fill="none" id="layer4" inkscape:groupmode="layer" inkscape:label="black" stroke="#000000" style="display:inline"/>
+  <g fill="none" id="layer5" inkscape:groupmode="layer" inkscape:label="5" stroke="#00ff00" style="display:inline">
+    <polygon points="56.6929,221.1024 56.6929,523.4646 359.0551,523.4646 359.0551,221.1024"/>
+  </g>
+  <g fill="none" id="layer6" inkscape:groupmode="layer" inkscape:label="6" stroke="#cc00cc" style="display:inline">
+    <polygon points="434.6457,221.1024 434.6457,523.4646 737.0079,523.4646 737.0079,221.1024"/>
+  </g>
+  <g fill="none" id="layer7" inkscape:groupmode="layer" inkscape:label="7" stroke="#cccc00" style="display:inline">
+    <polygon points="56.6929,599.0551 56.6929,901.4173 359.0551,901.4173 359.0551,599.0551"/>
+  </g>
+  <g fill="none" id="layer8" inkscape:groupmode="layer" inkscape:label="8" stroke="#000000" style="display:inline">
+    <polygon points="434.6457,599.0551 434.6457,901.4173 737.0079,901.4173 737.0079,599.0551"/>
+  </g>
+</svg>
