@@ -6,7 +6,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:source>vpype -k test_reference_output --store-ref-svg
 </dc:source>
-        <dc:date>2022-02-14T15:30:26.491420</dc:date>
+        <dc:date>2022-02-14T16:42:20.700491</dc:date>
       </cc:Work>
     </rdf:RDF>
   </metadata>

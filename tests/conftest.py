@@ -3,6 +3,7 @@ import difflib
 import hashlib
 import os
 import pathlib
+import sys
 from typing import Callable, List
 from xml.dom import minidom
 from xml.etree import ElementTree
@@ -133,7 +134,9 @@ def assert_image_similarity(request) -> Callable:
 
 def _read_SVG_lines(path: pathlib.Path) -> List[str]:
     tree = ElementTree.parse(path)
-    canon = ElementTree.canonicalize(ElementTree.tostring(tree.getroot()), strip_text=True)
+    xml_str = ElementTree.tostring(tree.getroot())
+    # ET.canonicalize doesn't exist on Python 3.7
+    canon = ElementTree.canonicalize(xml_str, strip_text=True)  # type: ignore
     lines = minidom.parseString(canon).toprettyxml().splitlines()
     return [line for line in lines if "<dc:source" not in line and "<dc:date" not in line]
 
@@ -150,6 +153,10 @@ def reference_svg(request, tmp_path) -> Callable:
             with reference_svg() as path:
                 export_svg_to(path)
     """
+
+    if sys.version_info < (3, 8):
+        pytest.skip("requires Python 3.8 or higher")
+
     store_ref_svg = request.config.getoption("--store-ref-svg")
     test_id = "refsvg_" + hashlib.md5(request.node.name.encode()).hexdigest() + ".svg"
     ref_path = pathlib.Path(REFERENCE_IMAGES_DIR) / test_id
