@@ -21,7 +21,7 @@ New features and improvements:
   ```bash
   $ vpype read input.svg text --layer 1 "Name: {vp_name} Pen width: {vp_pen_width:.2f}" write output.svg
   ```
-  See the [documentation](https://vpype.readthedocs.io/en/latest/fundamentals.html#cli-property-substitution) for more information and examples.
+  See the [documentation](https://vpype.readthedocs.io/en/latest/fundamentals.html#property-substitution) for more information and examples.
 
 * Added expression substitution to CLI user input (#397)
 
@@ -54,12 +54,11 @@ New features and improvements:
   * When `--prob` is not used, the `lswap` command now swaps the layer properties as well.
   * These behaviors can be disabled with the `--no-prop` option.
 
-* Improved the handling of block processors  (#395, #397)
- 
-  Block processors are commands which, when combined with `begin` and `end`, operate on the sequence they encompass. For example, the sequence `begin grid 2 2 random end` creates a 2x2 grid of random line patches. The infrastructure underlying block processors has been overhauled to increase their usefulness and extensibility.
-  
-  * The `grid` block processor now sets variables for expressions in nested commands.
-  * The `repeat` block processor now sets variables for expressions in nested commands.
+* Improved block processors (#395, #397)
+
+  * Simplified and improved the infrastructure underlying block processors for better extensibility.
+  * The `grid` block processor now adjusts the page size according to its layout. 
+  * The `grid` and `repeat` block processors now sets variables for expressions in nested commands.
   * Added `forfile` block processor to iterate over a list of file.
   * Added `forlayer` block processor to iterate over the existing layers.
   * The `begin` marker is now optional and implied whenever a block processor command is encountered. The following pipelines are thus equivalent:
@@ -70,6 +69,8 @@ New features and improvements:
     *Note*: the `end` marker must always be used to mark the end of a block.
   * Commands inside the block now have access to the current layer structure and its metadata. This makes their use more predictable. For example, `begin grid 2 2 random --layer new end` now correctly generates patches of random lines on different layers.
   * The `grid` block processor now first iterate along lines instead of columns.
+
+* The `read` command now will ignore a missing file if `--no-fail` parameter is used (#397)
   
 * Changed the initial default target layer to 1 (#395)
   

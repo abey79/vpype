@@ -1,6 +1,8 @@
+import glob
 import os
+import pathlib
 import sys
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, List, Optional
 
 import asteval
 
@@ -205,6 +207,12 @@ def _substitute_expressions(
     return "".join(_split_text(text, prop_interpreter, expr_interpreter))
 
 
+def _glob(files: str) -> List[pathlib.Path]:
+    return [
+        pathlib.Path(file) for file in glob.glob(os.path.expandvars(os.path.expanduser(files)))
+    ]
+
+
 _OS_PATH_SYMBOLS = (
     "abspath",
     "basename",
@@ -231,14 +239,19 @@ class SubstitutionHelper:
             **vp.UNITS,
             **{f: getattr(os.path, f) for f in _OS_PATH_SYMBOLS},
             "input": input,
+            "glob": _glob,
+            "convert_length": vp.convert_length,
+            "convert_angle": vp.convert_angle,
+            "convert_page_size": vp.convert_page_size,
             "stdin": sys.stdin,
             "Color": vp.Color,
             "prop": self._property_proxy,
             "lprop": _PropertyProxy(state, False, True),
             "gprop": _PropertyProxy(state, True, False),
         }
+        # disabling numpy as its math functions such as `ceil` do not convert to int.
         self._interpreter = asteval.Interpreter(
-            usersyms=symtable, readonly_symbols=symtable.keys()
+            usersyms=symtable, readonly_symbols=symtable.keys(), use_numpy=False
         )
 
     @property

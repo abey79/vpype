@@ -29,8 +29,9 @@ class _DeferredEvaluator(ABC):
     instances, perform the conversion, and forward the converted value to the command function.
     """
 
-    def __init__(self, text: str):
+    def __init__(self, text: str, param_name: str, *args, **kwargs):
         self._text = text
+        self._param_name = param_name
 
     @abstractmethod
     def evaluate(self, state: "State") -> Any:
@@ -71,21 +72,32 @@ class State:
 
         self._interpreter = SubstitutionHelper(self)
 
-    def _preprocess_arg(self, arg: Any) -> Any:
+    def preprocess_argument(self, arg: Any) -> Any:
+        """Evaluate an argument.
+
+        If ``arg`` is a :class:`_DeferredEvaluator` instance, evaluate it a return its value
+        instead.
+
+        Args:
+            arg: argument to evaluate
+
+        Returns:
+            returns the fully evaluated ``arg``
+        """
         if isinstance(arg, tuple):
-            return tuple(self._preprocess_arg(item) for item in arg)
+            return tuple(self.preprocess_argument(item) for item in arg)
         else:
             return arg.evaluate(self) if isinstance(arg, _DeferredEvaluator) else arg
 
     def preprocess_arguments(
         self, args: Tuple[Any, ...], kwargs: Dict[str, Any]
     ) -> Tuple[Tuple[Any, ...], Dict[str, Any]]:
-        """Replace any instance of :class:`_DeferredEvaluator` and replace them with the
+        """Evaluate any instance of :class:`_DeferredEvaluator` and replace them with the
         converted value.
         """
         return (
-            tuple(self._preprocess_arg(arg) for arg in args),
-            {k: self._preprocess_arg(v) for k, v in kwargs.items()},
+            tuple(self.preprocess_argument(arg) for arg in args),
+            {k: self.preprocess_argument(v) for k, v in kwargs.items()},
         )
 
     def substitute(self, text: str) -> str:

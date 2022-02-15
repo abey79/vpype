@@ -78,16 +78,17 @@ def layer_processor(f):
 
         # noinspection PyShadowingNames
         def layer_processor(state: State) -> State:
-            for lid in multiple_to_layer_ids(layers, state.document):
-                logging.info(
-                    f"executing layer processor `{f.__name__}` on layer {lid} "
-                    f"(kwargs: {kwargs})"
-                )
+            layers_eval = state.preprocess_argument(layers)
 
+            for lid in multiple_to_layer_ids(layers_eval, state.document):
                 start = datetime.datetime.now()
                 with state.current():
                     state.current_layer_id = lid
                     new_args, new_kwargs = state.preprocess_arguments(args, kwargs)
+                    logging.info(
+                        f"executing layer processor `{f.__name__}` on layer {lid} "
+                        f"(kwargs: {new_kwargs})"
+                    )
                     state.document[lid] = f(state.document[lid], *new_args, **new_kwargs)
                     state.current_layer_id = None
                 stop = datetime.datetime.now()
@@ -148,11 +149,12 @@ def global_processor(f):
     def new_func(*args, **kwargs):
         # noinspection PyShadowingNames
         def global_processor(state: State) -> State:
-            logging.info(f"executing global processor `{f.__name__}` (kwargs: {kwargs})")
-
             start = datetime.datetime.now()
             with state.current():
                 new_args, new_kwargs = state.preprocess_arguments(args, kwargs)
+                logging.info(
+                    f"executing global processor `{f.__name__}` (kwargs: {new_kwargs})"
+                )
                 state.document = f(state.document, *new_args, **new_kwargs)
             stop = datetime.datetime.now()
 
@@ -189,16 +191,16 @@ def generator(f):
         # noinspection PyShadowingNames
         def generator(state: State) -> State:
             with state.current():
-                target_layer = single_to_layer_id(layer, state.document)
-
-                logging.info(
-                    f"executing generator `{f.__name__}` to layer {target_layer} "
-                    f"(kwargs: {kwargs})"
-                )
+                layer_eval = state.preprocess_argument(layer)
+                target_layer = single_to_layer_id(layer_eval, state.document)
 
                 start = datetime.datetime.now()
                 state.current_layer_id = target_layer
                 new_args, new_kwargs = state.preprocess_arguments(args, kwargs)
+                logging.info(
+                    f"executing generator `{f.__name__}` to layer {target_layer} "
+                    f"(kwargs: {new_kwargs})"
+                )
                 state.document.add(f(*new_args, **new_kwargs), target_layer)
                 state.current_layer_id = None
                 stop = datetime.datetime.now()
@@ -248,6 +250,7 @@ def block_processor(f):
 
             start = datetime.datetime.now()
             new_args, new_kwargs = state.preprocess_arguments(args, kwargs)
+            logging.info(f"executing block processor `{f.__name__}` (kwargs: {new_kwargs})")
             f(state, processors, *new_args, **new_kwargs)
             stop = datetime.datetime.now()
 

@@ -4,6 +4,7 @@ import os
 import re
 from typing import Set
 
+import click
 import numpy as np
 import pytest
 
@@ -423,3 +424,9 @@ def test_write_svg_svg_props_unknown_namespace(capsys):
         "line 0 0 10 10 layout a5 propset -g svg_unknown_version '1.1.0' write -r -f svg -"
     )
     assert 'unknown:version="1.1.0"' not in capsys.readouterr().out
+
+
+def test_read_no_fail():
+    with pytest.raises(click.BadParameter):
+        vpype_cli.execute("read doesnotexist.svg")
+    vpype_cli.execute("read --no-fail doesnotexist.svg")

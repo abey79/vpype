@@ -23,13 +23,15 @@ class Command:
     exit_code_one_layer: int = 0
     exit_code_two_layers: int = 0
     preserves_metadata: bool = True
+    keeps_page_size: bool = True
 
 
 MINIMAL_COMMANDS = [
-    Command("begin grid 2 2 line 0 0 10 10 end"),
+    Command("begin grid 2 2 line 0 0 10 10 end", keeps_page_size=False),
+    Command("begin grid 0 0 line 0 0 10 10 end"),  # doesn't update page size
     Command("begin repeat 2 line 0 0 10 10 end"),
-    Command("grid 2 2 line 0 0 10 10 end"),  # implicit `begin`
-    Command("grid 2 2 repeat 2 random -n 1 end end"),  # nested block
+    Command("grid 2 2 line 0 0 10 10 end", keeps_page_size=False),  # implicit `begin`
+    Command("grid 2 2 repeat 2 random -n 1 end end", keeps_page_size=False),  # nested block
     Command("frame"),
     Command("random"),
     Command("line 0 0 1 1"),
@@ -70,11 +72,11 @@ MINIMAL_COMMANDS = [
     Command("trim 1mm 1mm"),
     Command("splitall"),
     Command("filter --min-length 1mm"),
-    Command("pagesize 10inx15in"),
+    Command("pagesize 10inx15in", keeps_page_size=False),
     Command("stat"),
     Command("snap 1"),
     Command("reverse"),
-    Command("layout a4"),
+    Command("layout a4", keeps_page_size=False),
     Command("squiggles"),
     Command("text 'hello wold'"),
     Command("penwidth 0.15mm", preserves_metadata=False),
@@ -88,7 +90,7 @@ MINIMAL_COMMANDS = [
     Command("proplist -l 1"),
     Command("propdel -g prop:global", preserves_metadata=False),
     Command("propdel -l 1 prop:layer", preserves_metadata=False),
-    Command("propclear -g", preserves_metadata=False),
+    Command("propclear -g", preserves_metadata=False, keeps_page_size=False),
     Command("propclear -l 1", preserves_metadata=False),
     Command(
         f"forfile '{EXAMPLE_SVG_DIR / '*.svg'}' text -p 0 %_i*cm% '%_i%/%_n%: %_name%' end"
@@ -153,7 +155,7 @@ def test_commands_keeps_page_size(runner, cmd):
 
     args = cmd.command
 
-    if args.split()[0] in ["pagesize", "layout"] or args.startswith("propclear -g"):
+    if not cmd.keeps_page_size:
         pytest.skip(f"command {args.split()[0]} fail this test by design")
 
     page_size = None

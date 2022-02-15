@@ -16,9 +16,15 @@ class _DeferredEvaluatorType(click.ParamType):
 
     _evaluator_class: ClassVar = _DeferredEvaluator
 
+    def __init__(self, *args, **kwargs):
+        self._args = args
+        self._kwargs = kwargs
+
     def convert(self, value, param, ctx):
         if isinstance(value, str):
-            return self.__class__._evaluator_class(value)
+            return self.__class__._evaluator_class(
+                value, param.human_readable_name, *self._args, **self._kwargs
+            )
         else:
             return super().convert(value, param, ctx)
 
@@ -164,8 +170,8 @@ class _DelegatedDeferredEvaluatorType(click.ParamType):
     """
 
     class _DelegatedDeferredEvaluator(_DeferredEvaluator):
-        def __init__(self, text: str, cls: Type, *args, **kwargs):
-            super().__init__(text)
+        def __init__(self, text: str, param_name: str, cls: Type, *args, **kwargs):
+            super().__init__(text, param_name)
             self._cls = cls
             self._args = args
             self._kwargs = kwargs
@@ -181,7 +187,11 @@ class _DelegatedDeferredEvaluatorType(click.ParamType):
     def convert(self, value, param, ctx):
         if isinstance(value, str):
             return self.__class__._DelegatedDeferredEvaluator(
-                value, self.__class__._delegate_class, *self._args, **self._kwargs
+                value,
+                param.human_readable_name,
+                self.__class__._delegate_class,
+                *self._args,
+                **self._kwargs,
             )
         else:
             return super().convert(value, param, ctx)
@@ -249,6 +259,8 @@ def single_to_layer_id(
         lid = document.free_id()
     elif layer is None:
         lid = State.get_current().target_layer_id
+    elif layer < 1:
+        raise click.BadParameter(f"layer {layer} is invalid")
     else:
         lid = layer
 
@@ -258,7 +270,7 @@ def single_to_layer_id(
     return lid
 
 
-class LayerType(click.ParamType):
+class LayerType(_DeferredEvaluatorType):
     """Interpret values of --layer options.
 
     If `accept_multiple == True`, comma-separated array of int is accepted or 'all'. Returns
@@ -269,64 +281,57 @@ class LayerType(click.ParamType):
     None is passed through, which typically means to use the default behaviour.
     """
 
-    name = "layer ID"
-
     NEW = -1
     ALL = -2
 
+    class _LayerTypeDeferredEvaluator(_DeferredEvaluator):
+        def __init__(
+            self, text: str, param_name: str, accept_multiple: bool, accept_new: bool
+        ):
+            super().__init__(text, param_name)
+            self._accept_multiple = accept_multiple
+            self._accept_new = accept_new
+
+        def evaluate(self, state: "State") -> Union[int, List[int]]:
+            value = state.substitute(self._text)
+
+            if value.lower() == "all":
+                if self._accept_multiple:
+                    return LayerType.ALL
+                else:
+                    raise click.BadParameter(
+                        f"parameter {self._param_name} must be a single layer and does "
+                        "not accept `all`"
+                    )
+            elif value.lower() == "new":
+                if self._accept_new:
+                    return LayerType.NEW
+                else:
+                    raise click.BadParameter(
+                        f"parameter {self._param_name} must be an existing layer and "
+                        "does not accept `new`"
+                    )
+
+            try:
+                if self._accept_multiple:
+                    id_arr = list(map(int, value.split(",")))
+                    for i in id_arr:
+                        if i < 1:
+                            raise click.BadParameter(f"layer {i} is invalid")
+                    return id_arr
+                else:
+                    return int(value)
+            except TypeError:
+                raise click.BadParameter(
+                    f"unexpected {value!r} of type {type(value).__name__}"
+                )
+            except ValueError:
+                raise click.BadParameter(
+                    f"{value!r} is not a valid value for parameter {self._param_name}"
+                )
+
     def __init__(self, accept_multiple: bool = False, accept_new: bool = False):
-        self.accept_multiple = accept_multiple
-        self.accept_new = accept_new
+        super().__init__(accept_multiple=accept_multiple, accept_new=accept_new)
 
-        if accept_multiple:
-            self.name = "layers"
-        else:
-            self.name = "layer"
-
-    def convert(self, value, param, ctx):
-        # accept value when already converted to final type
-        if isinstance(value, int):
-            if value > 0 or value in [self.ALL, self.NEW]:
-                return value
-            else:
-                self.fail(f"inconsistent converted value {value}")
-
-        value = str(value)
-        if value.lower() == "all":
-            if self.accept_multiple:
-                return LayerType.ALL
-            else:
-                self.fail(
-                    f"parameter {param.human_readable_name} must be a single layer and does "
-                    "not accept `all`",
-                    param,
-                    ctx,
-                )
-        elif value.lower() == "new":
-            if self.accept_new:
-                return LayerType.NEW
-            else:
-                self.fail(
-                    f"parameter {param.human_readable_name} must be an existing layer and "
-                    "does not accept `new`",
-                    param,
-                    ctx,
-                )
-
-        try:
-            if self.accept_multiple:
-                id_arr = list(map(int, value.split(",")))
-                for i in id_arr:
-                    if i < 1:
-                        raise TypeError
-                return id_arr
-            else:
-                return int(value)
-        except TypeError:
-            self.fail(f"unexpected {value!r} of type {type(value).__name__}", param, ctx)
-        except ValueError:
-            self.fail(
-                f"{value!r} is not a valid value for parameter {param.human_readable_name}",
-                param,
-                ctx,
-            )
+    name = "lid"
+    _evaluator_class = _LayerTypeDeferredEvaluator

@@ -158,10 +158,10 @@ Likewise, angles are interpreted as degrees by default but alternative units may
 
 .. _fundamentals_metadata:
 
-Metadata
-========
+Properties
+==========
 
-Metadata is data which provides information about other data. In the case of *vpype*, metadata takes the form of *properties* that are either attached to a given layer, or global. Properties are identified by a name and their value can be of arbitrary type (e.g. integer, floating point, color, etc.). There can be any number of global and/or layer properties and it is up to commands (and plug-ins) how they act based (or upon) these properties.
+In addition to geometries, the *vpype* pipeline carries metadata, i.e. data that provides information about geometries. This metadata takes the form of *properties* that are either attached to a given layer, or global. Properties are identified by a name and their value can be of arbitrary type (e.g. integer, floating point, color, etc.). There can be any number of global and/or layer properties and it is up to commands (and plug-ins) how they act based (or upon) these properties.
 
 
 System properties
@@ -201,8 +201,8 @@ High-level commands such as :ref:`cmd_penwidth` are not the only means of intera
 
 .. _fundamentals_property_substitution:
 
-CLI property substitution
--------------------------
+Property substitution
+---------------------
 
 Most arguments and options passes to commands via the *vpype* CLI will apply property substitution on the provided input. For example, this command will draw the name of the layer::
 

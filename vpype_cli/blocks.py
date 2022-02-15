@@ -80,6 +80,8 @@ def grid(
                 execute_processors(processors, state)
             doc.translate(offset[0] * i, offset[1] * j)
             state.document.extend(doc)
+    if nx > 0 and ny > 0:
+        state.document.page_size = (nx * offset[0], ny * offset[1])
 
     return state
 

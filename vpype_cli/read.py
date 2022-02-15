@@ -1,4 +1,5 @@
 import logging
+import pathlib
 import sys
 from typing import List, Optional, Tuple
 
@@ -14,7 +15,7 @@ __all__ = ("read",)
 
 
 @cli.command(group="Input")
-@click.argument("file", type=PathType(exists=True, dir_okay=False, allow_dash=True))
+@click.argument("file", type=PathType(dir_okay=False, allow_dash=True))
 @click.option("-m", "--single-layer", is_flag=True, help="Single layer mode.")
 @click.option(
     "-l",
@@ -36,6 +37,7 @@ __all__ = ("read",)
     default="0.1mm",
     help="Maximum length of segments approximating curved elements (default: 0.1mm).",
 )
+@click.option("--no-fail", is_flag=True, help="Do not fail is the target file doesn't exist.")
 @click.option(
     "-s",
     "--simplify",
@@ -82,6 +84,7 @@ def read(
     layer: Optional[int],
     attr: List[str],
     quantization: float,
+    no_fail: bool,
     simplify: bool,
     parallel: bool,
     no_crop: bool,
@@ -188,6 +191,12 @@ of appearance.
 
     if file == "-":
         file = sys.stdin
+    elif not pathlib.Path(file).is_file():
+        if no_fail:
+            logging.debug("read: file doesn't exist, ignoring due to `--no-fail`")
+            return document
+        else:
+            raise click.BadParameter(f"file {file!r} does not exist")
 
     if layer is not None and not single_layer:
         single_layer = True

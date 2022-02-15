@@ -6,7 +6,7 @@
 [![PyPI](https://img.shields.io/pypi/v/vpype?label=PyPI&logo=pypi)](https://pypi.org/project/vpype/)
 [![python](https://img.shields.io/github/languages/top/abey79/vpype)](https://www.python.org)
 [![Downloads](https://pepy.tech/badge/vpype)](https://pepy.tech/project/vpype)
-[![license](https://img.shields.io/pypi/l/vpype)](https://vpype.readthedocs.io/en/stable/license.html)
+[![license](https://img.shields.io/pypi/l/vpype)](https://vpype.readthedocs.io/en/latest/license.html)
 ![Test](https://img.shields.io/github/workflow/status/abey79/vpype/Lint%20and%20Tests?label=Tests&logo=github)
 [![codecov](https://codecov.io/gh/abey79/vpype/branch/master/graph/badge.svg?token=CE7FD9D6XO)](https://codecov.io/gh/abey79/vpype)
 [![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=abey79_vpype&metric=alert_status)](https://sonarcloud.io/dashboard?id=abey79_vpype)
