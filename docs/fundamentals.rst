@@ -54,10 +54,11 @@ Help on each command is also available by running the help option on that comman
 Lines and layers
 ================
 
-The geometries passed from command to command are organised as a collection of layers, each containing a collection of paths.
+.. figure:: images/layers.svg
+   :figwidth: 300px
+   :align: right
 
-.. image:: images/layers.svg
-   :width: 300px
+The geometries passed from command to command are organised as a collection of layers, each containing a collection of paths.
 
 The primary purpose of layers in *vpype* is to create or process files for multicolored plots, where each layer contains geometries to be drawn with a specific pen or color. In *vpype*, layers are identified by a non-zero, positive integer (e.g. 1, 2,...). You can have as many layers as you want, memory permitting.
 
@@ -204,7 +205,7 @@ High-level commands such as :ref:`cmd_penwidth` are not the only means of intera
 Property substitution
 ---------------------
 
-Most arguments and options passes to commands via the *vpype* CLI will apply property substitution on the provided input. For example, this command will draw the name of the layer::
+Most arguments and options passed to commands via the *vpype* CLI will apply property substitution on the provided input. For example, this command will draw the name of the layer::
 
   $ vpype [...] text --layer 1 "{vp_name} layer" [...]
 
@@ -237,9 +238,163 @@ See the `Python documentation <https://docs.python.org/3/library/string.html#for
 .. _fundamentals_expression_substitution:
 
 Expression substitution
-========================
+=======================
 
-TO COMPLETE!
+
+Most arguments and options passed via the CLI may contain so-called *expressions*, which are Python-like bits of code which *vpype* evaluates and replace by the result of evaluation. Expressions are marked by enclosing percent (``%``) characters.
+
+Let us consider the following simple example::
+
+  $ vpype text %3+4% show
+
+The argument passed to the :ref:`cmd_text` command, namely ``%3+4%``, is enclosed with percent character and thus evaluated as an expression. The expression, namely ``3+4``, evaluates to 7, and thus the number 7 is drawn and displayed by the :ref:`cmd_show` command.
+
+The expression does not need to span the entirety of a given argument, and multiple expressions may be used in a single argument::
+
+  $ vpype read input.svg layout %3+4%x%7+2%cm write output.svg
+
+There are two distinct expressions in this example (``%3+4%`` and ``%7+2%``). Together with the text around them, they evaluate to ``7x9cm``, which happens to be a valid input for the :ref:`cmd_layout` command.
+
+Most shells (e.g. ``bash``, ``zsh``, etc.) will interpret characters found in all but the simplest expression. For example, the multiplication operator ``*`` is interpreted as a wildcard by the shell. Parentheses, brackets, and curly braces all have meanings to the shell too. As a result, arguments and options containing expression must often be escaped with quotes::
+
+  $ vpype text "%round(4**3.2)%" show
+
+(Here, the function ``round()`` converts its argument to the nearest integer, and ``**`` is the exponentiation operator. This expression thus evaluates to 84.)
+
+When using expressions, the :ref:`cmd_eval` command is often useful. It does nothing but evaluating the expression it is passed. For example, this pipeline draw and display the text "hello world"::
+
+  $ vpype eval "%txt='hello world'%" text %txt% show
+
+Since :ref:`cmd_eval` has no other purpose than evaluating an expression, the expression markers ``%`` may be omitted. This is a valid variant of the same pipeline::
+
+  $ vpype eval "txt='hello world'" text %txt% show
+
+
+Basic syntax
+------------
+
+The syntax of expressions is a sub-set of Python, and is interpreted by the `asteval <https://github.com/newville/asteval>`_ library. Its `documentation <https://newville.github.io/asteval/>`_ states:
+
+  While the primary goal is evaluation of mathematical expressions, many features and constructs of the Python language are supported by default. These features include array slicing and subscripting, if-then-else conditionals, while loops, for loops, try-except blocks, list comprehension, and user-defined functions. All objects in the asteval interpreter are truly Python objects, and all of the basic built-in data structures (strings, dictionaries, tuple, lists, sets, numpy arrays) are supported, including the built-in methods for these objects.
+
+There is no shortage of online material covering the basics of Python syntax, which we will not repeat here. The context in which it is used with *vpype* is however somewhat unusual, leading to peculiarities which the next few sections discuss.
+
+Scope and variables
+-------------------
+
+Multiple expressions may be scattered across many commands in a single *vpype* invocation. They are all evaluated in the same context. In particular, this means that a variable created in one expression is available to subsequent expressions. This is often used in combination with the :ref:`cmd_eval` command to set or compute values which are used multiple times in the pipeline. For example::
+
+  $ vpype eval "m=2*cm; w,h=prop.vp_page_size" read input.svg \
+      crop "%m%" "%m%" "%w-2*m%" "%h-2*m%" \
+      rect "%m%" "%m%" "%w-2*m%" "%h-2*m%" \
+      write output.svg
+
+Here, the expression used with the :ref:`cmd_eval` command creates a variable ``m`` to store the margin size and unpacks the page size property (``vp_page_size``) into two variables (``w`` and ``h``). These variables are then used multiple times to crop the geometries and draw a rectangular frame with the given margin. Note that the symbols ``cm`` and ``prop`` are built-in, as explained in the next section.
+
+
+Built-in symbols
+----------------
+
+This section lists and describes the symbols (functions and variables) which are built-in to *vpype* expressions.
+
+The following standard Python symbols available:
+
+* Most the Python `built-in <https://docs.python.org/3/library/functions.html>`_ classes and functions.
+
+  :func:`abs`, :func:`all`, :func:`any`, :func:`bin`, :class:`bool`, :class:`bytearray`, :class:`bytes`, :func:`chr`, :class:`complex`, :class:`dict`, :func:`dir`, :func:`divmod`, :func:`enumerate`, :func:`filter`, :class:`float`, :func:`format`, :class:`frozenset`, :func:`hash`, :func:`hex`, :func:`id`, :func:`input`, :class:`int`, :func:`isinstance`, :func:`len`, :class:`list`, :func:`map`, :func:`max`, :func:`min`, :func:`oct`, :func:`ord`, :func:`pow`, :class:`range`, :func:`repr`, :func:`reversed`, :func:`round`, :class:`set`, :class:`slice`, :func:`sorted`, :class:`str`, :func:`sum`, :class:`tuple`, :class:`type`, :func:`zip`
+
+* Functions and constant from the :py:mod:`math` module.
+
+  :func:`acos() <math.acos>`, :func:`acosh() <math.acosh>`, :func:`asin() <math.asin>`, :func:`asinh() <math.asinh>`, :func:`atan() <math.atan>`, :func:`atan2() <math.atan2>`, :func:`atanh() <math.atanh>`, :func:`ceil() <math.ceil>`, :func:`copysign() <math.copysign>`, :func:`cos() <math.cos>`, :func:`cosh() <math.cosh>`, :func:`degrees() <math.degrees>`, :data:`e() <math.e>`, :func:`exp() <math.exp>`, :func:`fabs() <math.fabs>`, :func:`factorial() <math.factorial>`, :func:`floor() <math.floor>`, :func:`fmod() <math.fmod>`, :func:`frexp() <math.frexp>`, :func:`fsum() <math.fsum>`, :func:`hypot() <math.hypot>`, :func:`isinf() <math.isinf>`, :func:`isnan() <math.isnan>`, :func:`ldexp() <math.ldexp>`, :func:`log() <math.log>`, :func:`log10() <math.log10>`, :func:`log1p() <math.log1p>`, :func:`modf() <math.modf>`, :data:`pi() <math.pi>`, :func:`pow() <math.pow>`, :func:`radians() <math.radians>`, :func:`sin() <math.sin>`, :func:`sinh() <math.sinh>`, :func:`sqrt() <math.sqrt>`, :func:`tan() <math.tan>`, :func:`tanh() <math.tanh>`, :func:`trunc() <math.trunc>`
+
+* Some function from the :py:mod:`os.path` module.
+
+  :func:`abspath() <os.path.abspath>`, :func:`basename() <os.path.basename>`, :func:`dirname() <os.path.dirname>`, :func:`exists() <os.path.exists>`, :func:`expanduser() <os.path.expanduser>`, :func:`isfile() <os.path.isfile>`, :func:`isdir() <os.path.isdir>`, :func:`splitext() <os.path.splitext>`
+
+* The :data:`stdin <sys.stdin>` stream from the :py:mod:`sys` module.
+
+In addition, the following *vpype*-specific symbols are available:
+
+* The ``prop``, ``lprop``, and ``gprop`` property-access objects
+
+  These special objects provide access to the global or current-layer properties. Properties may be accessed by attribute (e.g. ``%prop.vp_name%``) or indexation (e.g. ``%prop['vp_name']%``). The ``gprop`` object provide access to global properties. The ``lprop`` object provide access to the current layer if available (it is available only within  :ref:`generator <fundamentals_generators>` and :ref:`layer processor <fundamentals_layer_processors>` commands). The ``prop`` object looks first for current-layer properties, if any, and then for global properties.
+
+* Units constants (``px``, ``in``, ``mm``, ``cm``, ``pc``, ``pt``)
+
+  These constants may be used to convert values to CSS pixels unit, which *vpype* uses internally. For example, the expression ``%(3+4)*cm%`` evaluates to the pixel equivalent of 7 centimeters (e.g. ~264.6 pixels).
+
+* The ``glob(pattern)`` function
+
+  This function creates a list of paths (of type `pathlib.Path <https://docs.python.org/3/library/pathlib.html#module-pathlib>`_) by expending the provided pattern. In addition to the usual wildcards (``*`` and ``**``), this function also expend the home directory (``~``) and environment variables (``$var`` or ``${var}``), similarly to what shells typically do. See :ref:`fundamentals_using_paths` for more info on using paths in expressions.
+
+* The :func:`convert_length() <vpype.convert_length>`, :func:`convert_angle() <vpype.convert_angle>`, and :func:`convert_page_size() <vpype.convert_page_size>` functions
+
+  This functions convert string representation of lengths, angles, respectively page sizes to numerical values. For example, ``%convert_length('4in')%`` evaluates to the pixel equivalent of 4 inches, and ``%convert_page_size('a4')%`` (approximately) evaluates to the tuple ``(793.70, 1122.52)``, which correspond to the A4 format in pixels.
+
+* The :class:`Color <vpype.Color>` class
+
+  This class can be used to create color structure from various input such as CSS-compatible strings or individual component. A :class:`Color <vpype.Color>` evaluates to a string that is compatible with the :ref:`cmd_color` command.
+
+In addition to the above, block processors define additional variables for expressions used in the nested commands. These variables are prefixed by a underscore character ``_`` to distinguish them from the symbols that are always available. See :ref:`fundamentals_blocks` for more information.
+
+
+.. _fundamentals_using_paths:
+
+Using paths
+-----------
+
+TODO
+
+Single-line hints
+-----------------
+
+The Python syntax is known for its strong reliance on line break and indentation (contrary to, say, C-derived languages). For *vpype* expressions, this is a disadvantage, as expressions should best fit a single line (the only work-around being the use of multiple :ref:`cmd_eval` commands). This section provides a few hints on how useful tasks may be achieved using single-line expressions.
+
+
+.. _fundamental_statement_separator:
+
+Statement separator
+~~~~~~~~~~~~~~~~~~~
+
+A single line of Python may contain multiple statement if they are separated with a semicolon (``;``). For example, this can be used to declare multiple variables in a single :ref:`cmd_eval` command::
+
+  $ vpype eval "a=3; b='hello'" [...]
+
+The expression evaluates to the last statement on the line. For example, this pipeline draws and displays the number 4::
+
+  $ vpype eval "a=2" text "%a+=2%;a"
+
+
+Conditional expressions
+~~~~~~~~~~~~~~~~~~~~~~~
+
+In most cases, `conditional expressions <https://docs.python.org/3/reference/expressions.html#conditional-expressions>`_ (also called "ternary operator") are a good replacement for conditional block::
+
+  $ vpype eval %b=True% text "%'I win' if b else 'I lose'%" show
+
+This technique used in the :ref:`faq_merge_to_grid` recipe.
+
+
+Single-line conditionals and loops
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Although conditional and loop statement typically require line breaks and tab, in their simpler form, they *can* be used on a single line. For examples, these are syntactically valid and could be used as *vpype* expression:
+
+  .. code-block:: python
+
+     if cond: n += 1
+     while cond: n += 1
+     for i in range(4): n += i
+
+It is important to note that, formally, these are Python *statement* (as opposed to *expression*). They therefore evaluate to :data:`None` regardless of the actual control flow. For example, this draws and displays "None"::
+
+  $ vpype text "%if True: 'hello'%" show
+
+These constructs are instead typically used to assign variables which are used in subsequent expression.
+
+Another limitation is that single-line conditionals and loops cannot be juxtaposed with other statements using the statement separator (see :ref:`fundamental_statement_separator`). In particular, ``a=3; if True: b=4`` is invalid and ``if False: a=3; b=4`` is valid but ``b=4`` is part of the ``if``-clause and, in this case, is thus never executed.
+
+Despite the constraints, these constructs can still be useful in real-world situations. For example, the :ref:`faq_merge_layers_by_name` recipe makes use of them.
 
 
 .. _fundamentals_blocks:
@@ -247,35 +402,149 @@ TO COMPLETE!
 Blocks
 ======
 
-.. image:: images/block.svg
-   :width: 600px
+Overview
+--------
 
-Blocks refer to a portion of the pipeline marked by the :ref:`cmd_begin` and :ref:`cmd_end` special commands. The command immediately following :ref:`cmd_begin` is called the *block processor* and controls how many times the block pipeline is executed and what is done with the geometries it produced.
+Blocks refer to a portion of the pipeline which starts with a (optional) :ref:`cmd_begin` command followed by a *block processor* command, and endswith a :ref:`cmd_end` commands. The commands in between the block processor command and the matching :ref:`cmd_end` command are called *nested commands* or, collectively, the *nested pipeline*. The block processor command "executes" the nested pipeline one or more times and combines the results in one way or the other. How exactly depends on the exact block processor command.
 
-**Note**: as of *vpype* 1.9, the :ref:`cmd_begin` is optional and is implied when a block processor command is encountered. The :ref:`cmd_end` remains mandatory to mark the end of a block.
+Let us consider an example:
 
-A commonly used block processor is the :ref:`cmd_grid` command. It repeatedly executes the commands inside the block (known as the "block pipeline") and arranges the results on a regular grid. For example, this command generates a grid of five by ten 0.5-inch-radius circles, with a spacing of two inches in both directions::
+.. code-block:: none
 
-  $ vpype begin                     \
-        grid --offset 2in 2in 5 10  \
-        circle 0 0 0.5in            \
-      end                           \
-      show
+                                             command              command
+                                      ┌─────────┴────────┐┌──────────┴──────────┐
 
-Note: The backslashes allow you to escape the end-of-line and split a command across multiple lines. In this case, it highlights the nested structure of blocks and how it emerges as some kind of mini-language.
+  $ vpype  begin  grid -o 2cm 2cm 2 2  circle 1cm 1cm 8mm  line 1cm 2mm 1cm 18mm  end  show
 
-Here is the result:
+          └──┬──┘└─────────┬─────────┘└────────────────────┬────────────────────┘└─┬─┘
+           block         block                           nested                  block
+           start       processor                        pipeline                  end
 
-.. image:: images/circle_grid.png
-   :width: 400px
+Here, a block is started by the :ref:`cmd_begin` command and the :ref:`cmd_grid` block processor. This block ends at the :ref:`cmd_end` command. The nested pipeline is made of the :ref:`cmd_circle` and :ref:`cmd_line` commands. (As of *vpype* 1.9, the :ref:`cmd_begin` command is optional since the use a block processor command, :ref:`cmd_grid` here, implicitly marks the beginning of a block. It is included here for clarity, but most examples in the present documentation omit it.)
 
-Let's break down what's happening here. The :ref:`cmd_begin` and :ref:`cmd_end` define a block whose processor is the :ref:`cmd_grid` command. The block pipeline consists of a single :ref:`cmd_circle` command, which generates a 0.5-inch-radius circle centered on 0, 0. The pipeline is executed 50 times (once for every location in a 5x10 grid), and the result is translated (i.e. moved) two inches each time by the :ref:`cmd_grid` command. After the block, the :ref:`cmd_show` commands displays the result.
+Here is how the pipeline above could be schematize and the output it produces:
+
+.. image:: images/grid_example_schema.svg
+   :width: 59%
+.. image:: images/grid_example_result.png
+   :width: 40%
+
+Let us zoom into the :ref:`cmd_grid` command. How does it use the nested pipeline? How many times is it executed? The following diagram illustrates how the :ref:`cmd_grid` command operates:
+
+
+
+..  figure:: images/grid_example_zoom.svg
+    :figwidth: 40%
+    :align: right
+
+The :ref:`cmd_grid` command executes the nested pipeline once for each "cell". In the example above, there are 4 cells because it is passed the arguments ``2`` and ``2`` for the number of columns and the number of rows. The nested pipeline is thus executed 4 times. Each time it is executed, the nested pipeline is first initialised without any geometries. Then, after it is executed, the resulting geometries are translated by an offset corresponding to the cell being rendered. Finally, the translated geometries are merged into the outer pipeline.
+
+
+Block variables
+---------------
+
+Block processors define variables (prefixed with the underscore character ``_``) for use in expressions within the nested pipeline. The full potential of blocks often requires using these variables.
+
+For examples
+
+
+Block processor commands
+------------------------
+
+This section provides a short overview of the available block processors. For the complete documentation, like any other command, you may use the ``--help`` command-line option::
+
+  $ vpype grid --help
+  Usage: vpype grid [OPTIONS] NX NY
+
+    Creates a NX by NY grid of geometry
+
+    The number of column and row must always be specified. By default, 10mm
+    offsets are used in both directions. Use the `--offset` option to override
+    these values.
+
+    [...]
+
+:ref:`grid <cmd_grid>`
+~~~~~~~~~~~~~~~~~~~~~~
+
+As amply illustrated above, the :ref:`cmd_grid` block processor is used to create grid layout. It defines the following variables:
+
+* ``_nx``: the total number of columns (NX)
+* ``_ny``: the total number of rows (NY)
+* ``_n``: the total number of cell (NX*NY)
+* ``_x``: the current column (0 to NX-1)
+* ``_y``: the current row (0 to NY-1)
+* ``_i``: the current cell (0 to _n-1)
+
+The :ref:`faq_merge_to_grid` recipe provides a real-world example with the :ref:`cmd_grid` command.
+
+
+:ref:`repeat <cmd_repeat>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+..  figure:: images/repeat_example.png
+    :figwidth: 40%
+    :align: right
+
+The :ref:`cmd_repeat` block processor executes the nested pipeline N times, where N is passed as argument. The nested pipeline is initialised without any geometries and, like the :ref:`cmd_grid` command, its output is merged to the outer pipeline.
+
+The following example creates four layers, each populated with random lines::
+
+  $ vpype repeat 4 random -l new -a 10cm 10cm -n 30 \
+      end pens cmyk show
+
+The :ref:`cmd_repeat` command defines the following variables:
+
+* ``_n``: number of repetition (N)
+* ``_i``: counter (0 to N-1)
+
+
+:ref:`forlayer <cmd_forlayer>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The :ref:`cmd_forlayer` block processor executes the nested pipeline once per pre-existing layer. The nested pipeline is initialised with empty geometry *except* the layer being processed. After the pipeline is executed, the corresponding layer is replaced in the outer pipeline and the other ones discarded.
+
+It defines the following variables:
+
+* ``lid`` (:class:`int`): the current layer ID
+* ``_name`` (:class:`str`): the name of the current layer
+* ``_color`` (:class:`vpype.Color`): the color of the current layer
+* ``_pen_width`` (:class:`float`): the pen width of the current layer
+* ``_prop``: properties of the current layer (accessible by item and/or attribute)
+* ``_i`` (:class:`int`): counter (0 to _n-1)
+* ``_n`` (:class:`int`): number of layers
+
+The :ref:`faq_export_by_layers` and :ref:`faq_merge_layers_by_name` recipes provide real-world examples with the :ref:`cmd_forlayer` command.
+
+
+:ref:`forfile <cmd_forfile>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The :ref:`cmd_forfile` block processor specializes with processing multiple existing files. It takes a file path pattern (e.g. ``*.svg``) as input, expend it as a list of file, and executes the nested pipeline once per file in the list. The nested pipeline is initialized with empty geometries and, after it is executed, its content is merged into the outer pipeline.
+
+It defines the following variables:
+
+* ``_path`` (:class:`pathlib.Path`): the file path (see :ref:`fundamentals_using_paths`)
+* ``_name`` (:class:`str`): the file name (e.g. ``"input.svg"``)
+* ``_parent`` (:class:`pathlib.Path`): the parent directory (see :ref:`fundamentals_using_paths`)
+* ``_ext`` (:class:`str`): the file extension (e.g. ``".svg"``)
+* ``_stem`` (:class:`str`): the file name without extension (e.g. ``"input"``)
+* ``_n`` (:class:`int`): the total number of files
+* ``_i`` (:class:`int`): counter (0 to _n-1)
+
+The :ref:`faq_files_to_layer` and :ref:`faq_merge_layers_by_name` recipes provide real-world examples with the :ref:`cmd_forfile` command.
+
+Nested blocks
+-------------
+
+.. figure:: images/random_grid.png
+   :figwidth: 40%
+   :align: right
 
 Blocks can be nested to achieve more complex compositions. Here is an example::
 
-  $ vpype begin                           \
+  $ vpype                                 \
     grid --offset 8cm 8cm 2 3             \
-      begin                               \
         grid --offset 2cm 2cm 3 3         \
         random --count 20 --area 1cm 1cm  \
         frame                             \
@@ -283,27 +552,6 @@ Blocks can be nested to achieve more complex compositions. Here is an example::
     frame --offset 0.3cm                  \
   end                                     \
   show
-
-And the result:
-
-.. image:: images/random_grid.png
-   :width: 400px
-
-When using blocks, it is important to understand that a block pipeline is always executed from a blank state, even if geometries exist before the block begins. The block pipeline's result is added to the global (or parent) pipeline only at the end of the block. To understand this, consider the following example (the :ref:`cmd_ldelete` command deletes the layer passed in argument)::
-
-  $ vpype                           \
-      circle --layer 1 0 0 1cm      \
-      begin                         \
-        grid --offset 2cm 2cm 3 3   \
-        ldelete 1                   \
-        circle --layer 10 0 0.5cm   \
-      end                           \
-      show
-
-Before the block, a 1cm-radius circle is added to layer 1. Then, the block pipeline starts by initializing a 3x3 grid - for each space in the grid it deletes layer 1 before adding a 0.5cm-radius circle. However, since the block pipeline is executed from a blank state, the :ref:`cmd_ldelete` command has nothing to remove and all 10 circle (nine from the grid block on layer 10, plus the original on layer one) are visible in the output:
-
-.. image:: images/ldelete_grid.png
-   :width: 400px
 
 .. _fundamentals_command_files:
 

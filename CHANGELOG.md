@@ -124,7 +124,7 @@ Other changes:
 * Renamed the bundled config file to `vpype_config.toml` (#359)
 * Changed dependencies to dataclasses (instead of attrs) and tomli (instead of toml) (#362)
 * Removed dependency to click-plugin (#388)
-* Various documentation improvements (#359, #363)
+* Improved documentation, in particular the [Fundamentals](https://vpype.readthedocs.io/en/latest/fundamentals.html) and [Cookbook](https://vpype.readthedocs.io/en/latest/cookbook.html) sections (#359, #363, #397)
 
 
 #### 1.8.1 (2022-01-13)

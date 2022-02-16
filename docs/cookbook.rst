@@ -8,8 +8,121 @@ Cookbook
 
 .. highlight:: bash
 
-Laying out a SVG for plotting
-=============================
+..
+  TODO:
+
+  - expression tricks
+    - input()
+
+
+SVG reading and writing recipes
+===============================
+
+Preserve color (or other attributes) when reading SVG
+-----------------------------------------------------
+
+By default, the :ref:`cmd_read` command sorts geometries into layers based on the input SVG's top-level groups, akin to Inkscape's layers. Stroke color is preserved *only* if it is identical for every geometries within a layer.
+
+When preserving the color is desirable, the :ref:`cmd_read` command can sort geometries by colors instead of by top-level groups. This is achieved by using the :option:`--attr <read --attr>` option::
+
+  $ vpype read --attr stroke input.svg [...]
+
+Here, we tell the :ref:`cmd_read` command to sort geometry by ``stroke``, which is the SVG attribute that defines the color of an element. As a result, a layer will be created for each different color encountered in the input SVG file.
+
+The same applies for any SVG attributes, even those not explicitly supported by *vpype*. For example, ``--attr stroke-width`` will sort layers by stroke width and ``--attr stroke-dasharray`` by type of stroke dash pattern.
+
+Multiple attributes can even be provided::
+
+  $ vpype read --attr stroke --attr stroke-width input.svg [...]
+
+In this case, a layer will be created for each unique combination of color and stroke width.
+
+.. _faq_files_to_layer:
+
+Load multiple files, each in a separate layer
+---------------------------------------------
+
+TODO: rewrite this::
+
+  $ vpype \
+  forfile "*.svg" \
+    read --layer %_i% %_path% \
+  end \
+  write output.svg
+
+This command will :ref:`cmd_read` two SVG files onto two different layers, then :ref:`cmd_write` them into a single SVG
+file::
+
+  $ vpype read --single-layer --layer 1 input1.svg read --single-layer --layer 2 input2.svg write output.svg
+
+Note the use of :option:`--single-layer <read --single-layer>`. It is necessary to make sure that the input SVG is
+merged into a single layer and is necessary to enable the :option:`--layer <read --layer>` option.
+
+This command will :ref:`cmd_read` two SVG files onto two different layers, rotate one layer 180 degrees, then
+:ref:`cmd_write` both layers into a single SVG file::
+
+  $ vpype read --single-layer --layer 1 input1.svg read --single-layer --layer 2 input2.svg rotate --layer 2 180 write output.svg
+
+This command will :ref:`cmd_read` two SVG files onto two different layers, :ref:`cmd_translate` (i.e. move) one of them
+0.1cm down and to the right, and then :ref:`cmd_write` both layers into a single SVG file with custom layer names
+"Pen 1" and "Pen 2"::
+
+  $ vpype read --single-layer --layer 1 input1.svg read --single-layer --layer 2 input2.svg translate --layer 2 0.1cm 0.1cm write --layer-label "Pen %d" output.svg
+
+
+.. _faq_merge_layers_by_name:
+
+Load multiple files, merging their layers by name
+-------------------------------------------------
+
+TODO::
+
+  $ vpype \
+    eval "names={};n=100" \
+    forfile "*.svg" \
+        read %_path% \
+        forlayer \
+            eval "%if _name not in names: names[_name] = n; n = n+1%" \
+            lmove %_lid% "%names[_name]%" \
+        end \
+    end \
+    write combined.svg
+
+.. _faq_export_by_layers:
+
+Saving each layer as a separate file
+------------------------------------
+
+TODO::
+
+  $ vpype read input.svg forlayer write "output_%_name or _lid%.svg" end
+
+
+Match the output and input file names
+-------------------------------------
+
+TODO
+
+
+Make a previsualisation SVG
+---------------------------
+
+The SVG output of :ref:`cmd_write` can be used to previsualize and inspect a plot. By default, paths are colored by layer. It can be useful to color each path differently to inspect the result of :ref:`cmd_linemerge`::
+
+  $ vpype read input.svg linemerge write --color-mode path output.svg
+
+Likewise, pen-up trajectories can be included in the SVG to inspect the result of :ref:`cmd_linesort`::
+
+  $ vpype read input.svg linesort write --pen-up output.svg
+
+Note that :option:`write --pen-up` should only be used for previsualization purposes as the pen-up trajectories may end-up being plotted otherwise. The Axidraw software will ignore the layer in which the pen-up trajectories are written, so it is safe to keep them in this particular case.
+
+
+Layout recipes
+==============
+
+Basic layout examples
+---------------------
 
 There are two ways to layout geometries on a page. The preferred way is to use commands such as :ref:`cmd_layout`, :ref:`cmd_scale`, :ref:`cmd_scaleto`, :ref:`cmd_translate`. In particular, :ref:`cmd_layout` handles most common cases
 by centering the geometries on page and optionally scaling them to fit specified margins. These commands act on the pipeline and their effect can be previewed using the :ref:`cmd_show` command. The following examples all use this approach.
@@ -50,43 +163,33 @@ This command will :ref:`cmd_read` a SVG file, add a single-line :ref:`cmd_frame`
   $ vpype read input.svg frame --offset 5cm write output.svg
 
 
+Cropping and framing geometries
+-------------------------------
 
-Preserve color (or other attributes) when reading SVG
-=====================================================
-
-By default, the :ref:`cmd_read` command sorts geometries into layers based on the input SVG's top-level groups, akin to Inkscape's layers. Stroke color is preserved *only* if it is identical for every geometries within a layer.
-
-When preserving the color is desirable, the :ref:`cmd_read` command can sort geometries by colors instead of by top-level groups. This is achieved by using the :option:`--attr <read --attr>` option::
-
-  $ vpype read --attr stroke input.svg [...]
-
-Here, we tell the :ref:`cmd_read` command to sort geometry by ``stroke``, which is the SVG attribute that defines the color of an element. As a result, a layer will be created for each different color encountered in the input SVG file.
-
-The same applies for any SVG attributes, even those not explicitly supported by *vpype*. For example, ``--attr stroke-width`` will sort layers by stroke width and ``--attr stroke-dasharray`` by type of stroke dash pattern.
-
-Multiple attributes can even be provided::
-
-  $ vpype read --attr stroke --attr stroke-width input.svg [...]
-
-In this case, a layer will be created for each unique combination of color and stroke width.
+TODO
 
 
-Make a previsualisation SVG
-===========================
+.. _faq_merge_to_grid:
 
-The SVG output of :ref:`cmd_write` can be used to previsualize and inspect a plot. By default, paths are colored by layer. It can be useful to color each path differently to inspect the result of :ref:`cmd_linemerge`::
+Laying out multiple SVGs on a grid
+----------------------------------
 
-  $ vpype read input.svg linemerge write --color-mode path output.svg
+TODO::
 
-Likewise, pen-up trajectories can be included in the SVG to inspect the result of :ref:`cmd_linesort`::
+  $ vpype \
+      eval "files=glob('*.svg')" \
+      eval "cols=3; rows=ceil(len(files)/cols)" \
+      grid -o 10cm 10cm "%cols%" "%rows%" \
+          read --no-fail "%files[_i] if _i < len(files) else ''%" \
+          layout -m 0.5cm 10x10cm \
+      end \
+      write combined_on_a_grid.svg
 
-  $ vpype read input.svg linesort write --pen-up output.svg
-
-Note that :option:`write --pen-up` should only be used for previsualization purposes as the pen-up trajectories may end-up being plotted otherwise. The Axidraw software will ignore the layer in which the pen-up trajectories are written, so it is safe to keep them in this particular case.
-
+Processing recipes
+===================
 
 Optimizing a SVG for plotting
-=============================
+-----------------------------
 
 This command will :ref:`cmd_read` a SVG file, merge any lines whose endings are less than 0.5mm from each other with :ref:`cmd_linemerge`, and then :ref:`cmd_write` a new SVG file::
 
@@ -113,31 +216,8 @@ This command will :ref:`cmd_read` a SVG file, use :ref:`cmd_linesort` to sort th
   $ vpype read input.svg linesort write output.svg
 
 
-Merging multiple designs into a multi-layer SVG
-===============================================
-
-This command will :ref:`cmd_read` two SVG files onto two different layers, then :ref:`cmd_write` them into a single SVG
-file::
-
-  $ vpype read --single-layer --layer 1 input1.svg read --single-layer --layer 2 input2.svg write output.svg
-
-Note the use of :option:`--single-layer <read --single-layer>`. It is necessary to make sure that the input SVG is
-merged into a single layer and is necessary to enable the :option:`--layer <read --layer>` option.
-
-This command will :ref:`cmd_read` two SVG files onto two different layers, rotate one layer 180 degrees, then
-:ref:`cmd_write` both layers into a single SVG file::
-
-  $ vpype read --single-layer --layer 1 input1.svg read --single-layer --layer 2 input2.svg rotate --layer 2 180 write output.svg
-
-This command will :ref:`cmd_read` two SVG files onto two different layers, :ref:`cmd_translate` (i.e. move) one of them
-0.1cm down and to the right, and then :ref:`cmd_write` both layers into a single SVG file with custom layer names
-"Pen 1" and "Pen 2"::
-
-  $ vpype read --single-layer --layer 1 input1.svg read --single-layer --layer 2 input2.svg translate --layer 2 0.1cm 0.1cm write --layer-label "Pen %d" output.svg
-
-
 Filtering out small lines
-=========================
+-------------------------
 
 In some cases (for example when using Blender's freestyle renderer), SVG files can contain a lot of tiny lines which
 significantly increase the plotting time and may be detrimental to the final look. These small lines can easily be
@@ -146,73 +226,11 @@ removed thanks to the :ref:`cmd_filter` command::
   $ vpype read input.svg filter --min-length 0.5mm write output.svg
 
 
-.. _faq_custom_config_file:
-
-Creating a custom configuration file
-====================================
-
-Some of *vpype*'s features (such as HPGL export) or plug-in (such as `vpype-gcode <https://github.com/plottertools/vpype-gcode>`_) can be customized using a configuration file using the `TOML <https://toml.io/en/>`_ format. The documentation of the features or plug-in using such a configuration file explains what it should contain. This section focuses on how a custom config file is made available to *vpype*.
-
-The most common way is to create a `.vpype.toml` file at the root of your user directory, e.g.:
-
-- ``C:\Users\username\.vpype.toml`` on Windows
-- ``/Users/username/.vpype.toml`` on Mac
-- ``/home/username/.vpype.toml`` on Linux
-
-If such a file exists, it will be automatically loaded by *vpype* whenever it is used.
-
-.. note::
-
-   The ``.`` prefix in the file name will make the file **hidden** on most systems. This naming is typical for configuration files in the Unix world.
-
-
-Alternatively, a configuration file may be provided upon invocation of *vpype* using the ``--confg`` option (or ``-c`` for short), e.g.::
-
-  (vpype_venv) $ vpype --config my_config_file.toml [...]
-
-Note that *vpype* does not "remember" of such configuration file and the ``--config`` option and it must be specified on each invocation.
-
-.. note::
-
-   *vpype* is bundled with a `configuration file <https://github.com/abey79/vpype/blob/master/vpype/vpype_config.toml>`_. It is strongly discouraged to edit this file as it will be overwritten each time *vpype* is installed or updated.
-
-
-.. _faq_custom_pen_config:
-
-Creating a custom pen configuration
-===================================
-
-Pen configurations associate names, colors, and/or pen widths to specific layers and are applied by the :ref:`cmd_pens`
-command. For example, the included ``cmyk`` pen configuration sets the name and color or layers 1 to 4 to cyan, magenta,
-yellow, resp. black, while leaving pen widths unchanged. New pen configurations can be defined in a custom config file
-(see :ref:`faq_custom_config_file`).
-
-Pen configurations must conform to the following format to be valid:
-
-  .. code-block:: toml
-
-    [pen_config.my_pen_config]  # my_pen_config is this pen configuration's name
-    layers = [
-        # for each layer, a layer_id must be provided, but name, color and
-        # pen_width are optional
-        { layer_id = 1, name = "black layer", color = "black", pen_width = "0.15mm" },
-
-        # any valid CSS color string and length unit may be used
-        { layer_id = 2, name = "red layer", color = "#e00", pen_width = "0.05in" },
-
-        # any attribute may be omitted, except layer_id
-        { layer_id = 4, color = "#00de00" },
-
-        # etc. (a pen configuration may have an arbitrary number of layers defined)
-    ]
-
-The above pen configuration can be used by referring to its name, in this case ``my_pen_config``::
-
-  $ vpype [...] pens my_pen_config [...]
-
+HPGL export recipes
+===================
 
 Converting a SVG to HPGL
-========================
+------------------------
 
 For vintage plotters, the :ref:`cmd_write` command is capable of generating HPGL code instead of SVG. HPGL output format
 is automatically selected if the output path file extension is ``.hpgl``. Since HPGL coordinate systems vary widely from
@@ -238,7 +256,7 @@ use::
 
 
 Defining a default HPGL plotter device
-======================================
+--------------------------------------
 
 If you are using the same type of plotter regularly, it may be cumbersome to systematically add the :option:`--device
 <write --device>` option to the :ref:`cmd_write` command. The default device can be set in a configuration file (see
@@ -253,7 +271,7 @@ If you are using the same type of plotter regularly, it may be cumbersome to sys
 .. _faq_custom_hpgl_config:
 
 Creating a custom configuration file for a HPGL plotter
-=======================================================
+-------------------------------------------------------
 
 The configuration for a number of HPGL plotter is bundled with *vpype* (run ``vpype write --help`` for a list). If your
 plotter is not included, it is possible to define your own plotter configuration in a custom configuration file
@@ -338,7 +356,7 @@ aspects that require specific caution:
 
 
 Using arbitrary paper size with HPGL output
-===========================================
+-------------------------------------------
 
 Some plotters such as the Calcomp Designmate support arbitrary paper sizes. Exporting HPGL with arbitrary paper size
 requires a specific paper configuration. *vpype* ships with the ``flex`` and ``flexl`` configurations for the
@@ -371,8 +389,85 @@ use the ``flexl`` paper configuration because the paper is loaded in landscape o
 SVG is already sized and laid out according to the paper size, the :ref:`cmd_layout` command may be omitted.
 
 
+Customizing *vpype*
+===================
+
+.. _faq_custom_config_file:
+
+Creating a custom configuration file
+------------------------------------
+
+Some of *vpype*'s features (such as HPGL export) or plug-in (such as `vpype-gcode <https://github.com/plottertools/vpype-gcode>`_) can be customized using a configuration file using the `TOML <https://toml.io/en/>`_ format. The documentation of the features or plug-in using such a configuration file explains what it should contain. This section focuses on how a custom config file is made available to *vpype*.
+
+The most common way is to create a `.vpype.toml` file at the root of your user directory, e.g.:
+
+- ``C:\Users\username\.vpype.toml`` on Windows
+- ``/Users/username/.vpype.toml`` on Mac
+- ``/home/username/.vpype.toml`` on Linux
+
+If such a file exists, it will be automatically loaded by *vpype* whenever it is used.
+
+.. note::
+
+   The ``.`` prefix in the file name will make the file **hidden** on most systems. This naming is typical for configuration files in the Unix world.
+
+
+Alternatively, a configuration file may be provided upon invocation of *vpype* using the ``--confg`` option (or ``-c`` for short), e.g.::
+
+  (vpype_venv) $ vpype --config my_config_file.toml [...]
+
+Note that *vpype* does not "remember" of such configuration file and the ``--config`` option and it must be specified on each invocation.
+
+.. note::
+
+   *vpype* is bundled with a `configuration file <https://github.com/abey79/vpype/blob/master/vpype/vpype_config.toml>`_. It is strongly discouraged to edit this file as it will be overwritten each time *vpype* is installed or updated.
+
+
+.. _faq_custom_pen_config:
+
+Creating a custom pen configuration
+-----------------------------------
+
+Pen configurations associate names, colors, and/or pen widths to specific layers and are applied by the :ref:`cmd_pens`
+command. For example, the included ``cmyk`` pen configuration sets the name and color or layers 1 to 4 to cyan, magenta,
+yellow, resp. black, while leaving pen widths unchanged. New pen configurations can be defined in a custom config file
+(see :ref:`faq_custom_config_file`).
+
+Pen configurations must conform to the following format to be valid:
+
+  .. code-block:: toml
+
+    [pen_config.my_pen_config]  # my_pen_config is this pen configuration's name
+    layers = [
+        # for each layer, a layer_id must be provided, but name, color and
+        # pen_width are optional
+        { layer_id = 1, name = "black layer", color = "black", pen_width = "0.15mm" },
+
+        # any valid CSS color string and length unit may be used
+        { layer_id = 2, name = "red layer", color = "#e00", pen_width = "0.05in" },
+
+        # any attribute may be omitted, except layer_id
+        { layer_id = 4, color = "#00de00" },
+
+        # etc. (a pen configuration may have an arbitrary number of layers defined)
+    ]
+
+The above pen configuration can be used by referring to its name, in this case ``my_pen_config``::
+
+  $ vpype [...] pens my_pen_config [...]
+
+
+Miscellaneous recipes
+=====================
+
+Create interactive scripts with ``input()``
+-------------------------------------------
+
+TODO
+
+
 Batch processing many SVG with bash scripts and ``parallel``
-============================================================
+------------------------------------------------------------
 
 Computers offer endless avenues for automation, which depend on OS and the type of task at hand. Here is one way to
 easily process a large number of SVG with the same *vpype* pipeline. This approach relies on the
@@ -397,20 +492,8 @@ them::
   $ parallel --dry-run --plus vpype read {} linemerge linesort write {/.svg/_processed.svg} ::: *.svg
 
 
-Repeating a design on a grid
-============================
-
-This command will draw a collection of 3x3cm :ref:`circles <cmd_circle>` in a 5x8 grid, then :ref:`cmd_show` the results using matplotlib::
-
-  $ vpype begin                   \
-      grid 5 8                    \
-      circle 0 0 3cm              \
-    end                           \
-    show
-
-
 External scripts
-================
+----------------
 
 The :ref:`cmd_script` command is a very useful generator that relies on an external Python script to produce geometries. Its
 use is demonstrated by the `alien.sh` and `alien2.sh` examples. A path to a Python file must be passed as argument.

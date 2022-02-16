@@ -49,8 +49,8 @@ def grid(
         _nx: number of columns (NX)
         _ny: number of rows (NY)
         _n: total number of cell (NX*NY)
-        _x: current column (0 to _nx-1)
-        _y: current row (0 to _ny-1)
+        _x: current column (0 to NX-1)
+        _y: current row (0 to NY-1)
         _i: current cell (0 to _n-1)
 
     Examples:
@@ -201,7 +201,8 @@ def forlayer(state: State, processors: Iterable[ProcessorType]) -> State:
     """Iterate over each layer.
 
     This block processor iterates over the layer, exposing the nested commands to a single
-    layer at a time.
+    layer at a time. After the nested pipeline is executed, the corresponding layer is replaced
+    in the outer pipeline and the other discarded.
 
     The following variables are set by `forlayer` and available for expressions:
 
