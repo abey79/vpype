@@ -28,7 +28,7 @@ Such a *vpype* invocation can easily be packaged in a shell script using some si
   #!/bin/sh
 
   vpype read "$1" linemerge linesort reloop linesimplify \
-     write "%prop.vp_source.with_stem(prop.vp_source.stem + '_processed')%_.svg"
+     write "%prop.vp_source.with_stem(prop.vp_source.stem + '_processed')%"
 
 (Shell scripts are typically named with a ``.sh`` extension and should be marked as "executable" to be used. This can be done with the ``chmod +x my_script.sh`` command.)
 
@@ -68,7 +68,7 @@ file::
 
   $ vpype \
       forfile "*.svg" \
-        read --layer %_i% %_path% \
+        read --layer %_i+1% %_path% \
       end \
       write output.svg
 
@@ -112,7 +112,7 @@ This is where it becomes interesting. For each layer, we first test whether its 
 
 Now that we made sure we have a destination layer ID for the current layer's name, we can move it using the ``lmove %_lid% "%names[_name]%"`` command. Here, ``_lid`` is the current layer ID as set by ``forlayer`` and ``names[_name]`` the destination layer.
 
-This recipe can be further augmented to arrange each file on a grid. This is covered in the :ref:`faq_merge_to_grid` receipe.
+This recipe can be further augmented to arrange each file on a grid. This is covered in the :ref:`faq_merge_to_grid` recipe.
 
 
 .. _faq_export_by_layers:
@@ -512,7 +512,7 @@ If such a file exists, it will be automatically loaded by *vpype* whenever it is
    The ``.`` prefix in the file name will make the file **hidden** on most systems. This naming is typical for configuration files in the Unix world.
 
 
-Alternatively, a configuration file may be provided upon invocation of *vpype* using the ``--confg`` option (or ``-c`` for short), e.g.::
+Alternatively, a configuration file may be provided upon invocation of *vpype* using the ``--config`` option (or ``-c`` for short), e.g.::
 
   (vpype_venv) $ vpype --config my_config_file.toml [...]
 
@@ -570,7 +570,7 @@ The Python :func:`input` function is available in :ref:`expressions <fundamental
   $ vpype \
       eval "margin = float(input('Margin in cm? '))" \
       read input.svg \
-      layout --fit-to-margin %margin*cm% a4 \
+      layout --fit-to-margins %margin*cm% a4 \
       write output.svg
   Margin in cm? 3
 

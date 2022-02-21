@@ -143,13 +143,16 @@ class State:
         self.__class__._current_state = None
 
     @contextmanager
-    def temp_document(self) -> Generator[vp.Document, None, None]:
+    def temp_document(self, keep_layer: bool = True) -> Generator[vp.Document, None, None]:
         """Context manager to temporarily clear the state's document.
 
         This context manager is typically used by block processor to temporarily clear the
         document of line data while retaining its structure when executing nested processors.
         The context manager returns the temporary document instance. It is typically used by
         block processors to extend the original document after running the nested commands.
+
+        Args:
+            keep_layer: keep the layer structure
 
         Returns:
             the temporary document instance
@@ -169,7 +172,7 @@ class State:
         """
 
         original_doc = self.document
-        self.document = original_doc.clone(keep_layers=True)
+        self.document = original_doc.clone(keep_layers=keep_layer)
         yield self.document
         self.document = original_doc
 

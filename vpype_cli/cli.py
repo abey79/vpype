@@ -303,7 +303,7 @@ def execute_processors(processors: Iterable[ProcessorType], state: State) -> Non
 
     # the (only) frame's processors should now be flat and can be chain-called
     for proc in outer_processors:
-        state = cast(Callable, proc)(state)
+        cast(Callable, proc)(state)
 
 
 class BeginBlock:

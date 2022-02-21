@@ -52,6 +52,7 @@ MINIMAL_COMMANDS = [
     Command("crop 0 0 1 1"),
     Command("linesort"),
     Command("linesort --two-opt"),
+    Command("random linesort"),  # make sure there is something sort
     Command("linemerge"),
     Command("linesimplify"),
     Command("multipass"),

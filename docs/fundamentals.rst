@@ -307,8 +307,9 @@ Scope and variables
 
 Multiple expressions may be scattered across several commands in a single *vpype* pipeline. They are all evaluated in the same scope. This means that a variable created in one expression is available to subsequent expressions. This is often used in combination with the :ref:`cmd_eval` command to set or compute values which are used multiple times in the pipeline. For example::
 
-  $ vpype eval "m=2*cm; w,h=prop.vp_page_size; w-=2*m;h-=2*m" \
+  $ vpype \
       read input.svg \
+      eval "m=2*cm; w,h=prop.vp_page_size; w-=2*m;h-=2*m" \
       crop "%m%" "%m%" "%w%" "%h%" \
       rect "%m%" "%m%" "%w%" "%h%" \
       write output.svg
@@ -372,10 +373,10 @@ Using paths
 Some properties (such a ``vp_source``, see :ref:`fundamentals_system_properties`) and expression variables (such as ``_path``, set by the :ref:`cmd_forfile` block processor) are instances of :class:`pathlib.Path` from the Python standard library. When evaluated, these objects behave like a string containing the file path and can be directly used with, e.g., the :ref:`cmd_read` command. The following command borrowed from the :ref:`faq_files_to_layer` recipe illustrates this::
 
   $ vpype \
-  forfile "*.svg" \
-    read --layer %_i% %_path% \
-  end \
-  write output.svg
+      forfile "*.svg" \
+        read --layer %_i+1% %_path% \
+      end \
+      write output.svg
 
 Here, the ``_path`` variable set by the :ref:`cmd_forfile` block processor is directly used as file path argument for the :ref:`cmd_read` command.
 
@@ -407,7 +408,7 @@ A single line of Python may contain multiple statements if they are separated wi
 
 The expression evaluates to the last statement. For example, this pipeline draws and displays the number 4::
 
-  $ vpype eval "a=2" text "%a+=2%;a" show
+  $ vpype eval "a=2" text "%a+=2;a%" show
 
 
 .. _fundamentals_conditional_expr:
@@ -587,15 +588,16 @@ Nested blocks
 
 Blocks can be nested to achieve more complex compositions. Here is an example::
 
-  $ vpype                                 \
-    grid --offset 8cm 8cm 2 3             \
-        grid --offset 2cm 2cm 3 3         \
-        random --count 20 --area 1cm 1cm  \
-        frame                             \
-      end                                 \
-    frame --offset 0.3cm                  \
-  end                                     \
-  show
+  $ vpype \
+      grid --offset 8cm 8cm 2 3 \
+        grid --offset 2cm 2cm 3 3 \
+          random --count 20 --area 1cm 1cm \
+          frame \
+        end \
+        frame --offset 0.3cm \
+      end \
+      layout a4 \
+      show
 
 .. _fundamentals_command_files:
 

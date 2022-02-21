@@ -32,7 +32,7 @@ def grid(
     processors: Iterable[ProcessorType],
     number: Tuple[int, int],
     offset: Tuple[float, float],
-) -> State:
+) -> None:
     """Creates a NX by NY grid of geometry
 
     The number of column and row must always be specified. By default, 10mm offsets are used
@@ -83,13 +83,11 @@ def grid(
     if nx > 0 and ny > 0:
         state.document.page_size = (nx * offset[0], ny * offset[1])
 
-    return state
-
 
 @cli.command(group="Block processors")
 @click.argument("number", type=IntegerType(), metavar="N")
 @block_processor
-def repeat(state: State, processors: Iterable[ProcessorType], number: int) -> State:
+def repeat(state: State, processors: Iterable[ProcessorType], number: int) -> None:
     """Repeat geometries N times.
 
     Repeats the enclosed command N times, stacking their output on top of each other.
@@ -118,13 +116,11 @@ def repeat(state: State, processors: Iterable[ProcessorType], number: int) -> St
             execute_processors(processors, state)
         state.document.extend(doc)
 
-    return state
-
 
 @cli.command(group="Block processors")
 @click.argument("files", type=TextType(), metavar="FILES")
 @block_processor
-def forfile(state: State, processors: Iterable[ProcessorType], files: str) -> State:
+def forfile(state: State, processors: Iterable[ProcessorType], files: str) -> None:
     """Iterate over a file list.
 
     The `forfile` block processor expends the FILES pattern into a file list like a shell
@@ -169,8 +165,6 @@ def forfile(state: State, processors: Iterable[ProcessorType], files: str) -> St
             execute_processors(processors, state)
         state.document.extend(doc)
 
-    return state
-
 
 class _MetadataProxy:
     def __init__(self, metadata: Dict[str, Any]):
@@ -197,12 +191,12 @@ class _MetadataProxy:
 
 @cli.command(group="Block processors")
 @block_processor
-def forlayer(state: State, processors: Iterable[ProcessorType]) -> State:
+def forlayer(state: State, processors: Iterable[ProcessorType]) -> None:
     """Iterate over each layer.
 
-    This block processor iterates over the layer, exposing the nested commands to a single
-    layer at a time. After the nested pipeline is executed, the corresponding layer is replaced
-    in the outer pipeline and the other discarded.
+    This block processor execute the nested pipeline once per layer. The nested pipeline is
+    exclusively exposed to the current layer. In addition, if the nested commands create any
+    other layer, they are merged as well into the outer pipeline.
 
     The following variables are set by `forlayer` and available for expressions:
 
@@ -223,9 +217,11 @@ def forlayer(state: State, processors: Iterable[ProcessorType]) -> State:
     """
 
     orig_doc = state.document
-    for i, lid in enumerate(orig_doc.layers):
-        with state.temp_document() as doc:
-            doc.replace(orig_doc.layers[lid], lid, with_metadata=True)
+    new_doc: vp.Document = orig_doc.clone()
+
+    for i, lid in enumerate(list(orig_doc.layers)):
+        with state.temp_document(keep_layer=False) as doc:
+            doc.add(orig_doc.pop(lid), lid, with_metadata=True)
             variables = {
                 "_lid": lid,
                 "_i": i,
@@ -237,6 +233,9 @@ def forlayer(state: State, processors: Iterable[ProcessorType]) -> State:
             }
             with state.expression_variables(variables):
                 execute_processors(processors, state)
-        state.document.replace(doc.layers[lid], lid, with_metadata=True)
+        new_doc.extend(doc)
 
-    return state
+    # The original document's content has been entirely popped and can be restored.
+    # Note: we *cannot* replace state.document by new_doc, as this interferes with
+    # state.temp_document() and ultimately breaks nested blocks
+    state.document.extend(new_doc)

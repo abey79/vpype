@@ -165,7 +165,7 @@ def linesort(lines: vp.LineCollection, no_flip: bool, two_opt: bool, passes: int
         return lines
 
     line_index = vp.LineIndex(lines[1:], reverse=not no_flip)
-    new_lines = vp.LineCollection([lines[0]])
+    new_lines = lines.clone([lines[0]])
 
     while len(line_index) > 0:
         # noinspection PyShadowingNames

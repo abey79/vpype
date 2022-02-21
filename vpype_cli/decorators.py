@@ -77,7 +77,7 @@ def layer_processor(f):
         layers = kwargs.pop("layer", [])
 
         # noinspection PyShadowingNames
-        def layer_processor(state: State) -> State:
+        def layer_processor(state: State) -> None:
             layers_eval = state.preprocess_argument(layers)
 
             for lid in multiple_to_layer_ids(layers_eval, state.document):
@@ -97,8 +97,6 @@ def layer_processor(f):
                     f"layer processor `{f.__name__}` execution complete "
                     f"({_format_timedelta(stop - start)})"
                 )
-
-            return state
 
         return layer_processor
 
@@ -148,7 +146,7 @@ def global_processor(f):
 
     def new_func(*args, **kwargs):
         # noinspection PyShadowingNames
-        def global_processor(state: State) -> State:
+        def global_processor(state: State) -> None:
             start = datetime.datetime.now()
             with state.current():
                 new_args, new_kwargs = state.preprocess_arguments(args, kwargs)
@@ -162,8 +160,6 @@ def global_processor(f):
                 f"global processor `{f.__name__}` execution complete "
                 f"({_format_timedelta(stop - start)})"
             )
-
-            return state
 
         return global_processor
 
@@ -189,7 +185,7 @@ def generator(f):
         layer = kwargs.pop("layer", None)
 
         # noinspection PyShadowingNames
-        def generator(state: State) -> State:
+        def generator(state: State) -> None:
             with state.current():
                 layer_eval = state.preprocess_argument(layer)
                 target_layer = single_to_layer_id(layer_eval, state.document)
@@ -211,8 +207,6 @@ def generator(f):
                 f"generator `{f.__name__}` execution complete "
                 f"({_format_timedelta(stop - start)})"
             )
-
-            return state
 
         return generator
 
@@ -245,7 +239,7 @@ def block_processor(f):
 
     def new_func(*args, **kwargs):
         # noinspection PyShadowingNames
-        def block_processor(state: State, processors: Iterable["ProcessorType"]) -> State:
+        def block_processor(state: State, processors: Iterable["ProcessorType"]) -> None:
             logging.info(f"executing block processor `{f.__name__}` (kwargs: {kwargs})")
 
             start = datetime.datetime.now()
@@ -258,8 +252,6 @@ def block_processor(f):
                 f"block processor `{f.__name__}` execution complete "
                 f"({_format_timedelta(stop - start)})"
             )
-
-            return state
 
         # mark processor as being a block processor, needed by execute_processors()
         block_processor.__vpype_block_processor__ = True
