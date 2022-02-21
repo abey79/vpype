@@ -117,8 +117,12 @@ def test_property_proxy_dict(state_factory):
     assert dict(_PropertyProxy(dummy_state, True, True)) == {
         "global_prop": 10,
         "layer_prop": 1.5,
+        "vp_sources": tuple(),
     }
-    assert dict(_PropertyProxy(dummy_state, True, False)) == {"global_prop": 10}
+    assert dict(_PropertyProxy(dummy_state, True, False)) == {
+        "global_prop": 10,
+        "vp_sources": tuple(),
+    }
     assert dict(_PropertyProxy(dummy_state, False, True)) == {"layer_prop": 1.5}
 
 
