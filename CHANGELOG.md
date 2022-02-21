@@ -7,13 +7,15 @@
 New features and improvements:
 * Added support for global and per-layer metadata (#359)
   
-  This feature is intended as a generic mechanism whereby a set of properties may be attached to specific layers (layer property) or all of them (global property). Properties are identified by a name and may be of arbitrary type (e.g. integer, floating point, color, etc.). This new infrastructure is used by several of the features introduced in this release, paves the way for future features, and further empowers plug-in writers. See the [documentation](https://vpype.readthedocs.io/en/latest/fundamentals.html#metadata) for more background information on metadata.
+  This feature is intended as a generic mechanism whereby a set of properties may be attached to specific layers (layer property) or all of them (global property). Properties are identified by a name and may be of arbitrary type (e.g. integer, floating point, color, etc.). This new infrastructure is used by several of the features introduced in this release, paves the way for future features, and further empowers plug-in writers. See the [documentation](https://vpype.readthedocs.io/en/latest/fundamentals.html#properties) for more background information on metadata.
 
 * Layer color, pen width, and name are now customizable (#359, #376, #389)
   * The `read` commands now sets layer color, pen width, and name based on the input SVG if possible.
   * The new `color`, `penwdith`, and `name` commands can be used to modify layer color, pen width, and name.
   * The new `pens` command can apply a predefined or custom scheme on multiple layers at once. Two common schemes are built-in: `rgb` and `cmyk`. Custom schemes can be defined in the configuration file.
   * The `show` and `write` commands were updated to take into account these new layer properties.
+
+* The `read` command now records the source SVG paths in the `vp_source` and `vp_sources` system properties (see the [documentation](https://vpype.readthedocs.io/en/latest/fundamentals.html#system-properties)) (#397)
 
 * Added property substitution to CLI user input (#395)
 

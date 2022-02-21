@@ -1,5 +1,6 @@
 """Run a bunch of tests on the svg collection."""
 import difflib
+import io
 import os
 import re
 from typing import Set
@@ -389,7 +390,7 @@ def test_read_by_attribute():
 
 def test_read_layer_assumes_single_layer(caplog):
     test_file = TEST_FILE_DIRECTORY / "misc" / "multilayer.svg"
-    doc = vpype_cli.execute(f"read --layer 2 '{test_file}'", global_opt="-v")
+    doc = vpype_cli.execute(f"read --layer 2 '{test_file}'", global_opt="-vv")
 
     assert "assuming single-layer mode" in caplog.text
     assert len(doc.layers) == 1
@@ -430,3 +431,53 @@ def test_read_no_fail():
     with pytest.raises(click.BadParameter):
         vpype_cli.execute("read doesnotexist.svg")
     vpype_cli.execute("read --no-fail doesnotexist.svg")
+
+
+def test_read_sets_source_properties():
+    test_file = TEST_FILE_DIRECTORY / "misc" / "multilayer.svg"
+    doc = vpype_cli.execute(f"read '{test_file}'")
+    assert doc.property(vp.METADATA_FIELD_SOURCE) == test_file
+    assert doc.property(vp.METADATA_FIELD_SOURCE_LIST) == (test_file,)
+
+
+def test_read_by_attrs_sets_source_properties():
+    test_file = TEST_FILE_DIRECTORY / "misc" / "multilayer.svg"
+    doc = vpype_cli.execute(f"read -a fill -a stroke '{test_file}'")
+    assert doc.property(vp.METADATA_FIELD_SOURCE) == test_file
+    assert doc.property(vp.METADATA_FIELD_SOURCE_LIST) == (test_file,)
+
+
+def test_read_single_layer_sets_source_properties():
+    test_file = TEST_FILE_DIRECTORY / "misc" / "multilayer.svg"
+    doc = vpype_cli.execute(f"read --layer 1 '{test_file}'")
+    assert doc.property(vp.METADATA_FIELD_SOURCE_LIST) == (test_file,)
+    assert len(doc.layers) == 1
+    assert doc.layers[1].property(vp.METADATA_FIELD_SOURCE) == test_file
+
+
+def test_read_stdin_sets_source_properties(monkeypatch):
+    test_file = TEST_FILE_DIRECTORY / "misc" / "multilayer.svg"
+    monkeypatch.setattr("sys.stdin", io.StringIO(test_file.read_text()))
+
+    doc = vpype_cli.execute(f"read -")
+    assert vp.METADATA_FIELD_SOURCE not in doc.metadata
+    assert doc.property(vp.METADATA_FIELD_SOURCE_LIST) == tuple()
+
+
+def test_read_single_layer_stdin_sets_source_properties(monkeypatch):
+    test_file = TEST_FILE_DIRECTORY / "misc" / "multilayer.svg"
+    monkeypatch.setattr("sys.stdin", io.StringIO(test_file.read_text()))
+
+    doc = vpype_cli.execute(f"read -l1 -")
+    assert vp.METADATA_FIELD_SOURCE not in doc.metadata
+    assert vp.METADATA_FIELD_SOURCE not in doc.layers[1].metadata
+    assert doc.property(vp.METADATA_FIELD_SOURCE_LIST) == tuple()
+
+
+def test_read_by_attr_stdin_sets_source_properties(monkeypatch):
+    test_file = TEST_FILE_DIRECTORY / "misc" / "multilayer.svg"
+    monkeypatch.setattr("sys.stdin", io.StringIO(test_file.read_text()))
+
+    doc = vpype_cli.execute(f"read -a stroke -a fill -")
+    assert vp.METADATA_FIELD_SOURCE not in doc.metadata
+    assert doc.property(vp.METADATA_FIELD_SOURCE_LIST) == tuple()

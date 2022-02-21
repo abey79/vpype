@@ -1,6 +1,7 @@
 """Implementation of vpype's data model
 """
 import math
+import pathlib
 from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Union, cast
 
 import numpy as np
@@ -8,7 +9,11 @@ from shapely.geometry import LinearRing, LineString, MultiLineString
 
 from .geometry import crop, reloop
 from .line_index import LineIndex
-from .metadata import METADATA_FIELD_PAGE_SIZE, METADATA_SYSTEM_FIELD_TYPES
+from .metadata import (
+    METADATA_FIELD_PAGE_SIZE,
+    METADATA_FIELD_SOURCE_LIST,
+    METADATA_SYSTEM_FIELD_TYPES,
+)
 
 __all__ = [
     "LineCollection",
@@ -524,6 +529,7 @@ class Document(_MetadataMixin):
             line_collection: if provided, used as layer 1
         """
         super().__init__(metadata)
+        self.set_property(METADATA_FIELD_SOURCE_LIST, tuple())
 
         self._layers: Dict[int, LineCollection] = {}
 
@@ -594,6 +600,25 @@ class Document(_MetadataMixin):
             else:
                 self.page_size = page_size
 
+    def add_to_sources(self, path) -> None:
+        """Add a path to the source list.
+
+        If ``path`` cannot be converted to a :class:`pathlib.Path` or the file doesn't exist,
+        it is ignored and not added to the source list.
+
+        Args:
+            path: file path
+        """
+        try:
+            path = pathlib.Path(path)
+            if path.exists():
+                self.set_property(
+                    METADATA_FIELD_SOURCE_LIST,
+                    self.property(METADATA_FIELD_SOURCE_LIST) + (path,),  # type: ignore
+                )
+        except TypeError:
+            pass
+
     def clear_layer_metadata(self) -> None:
         """Clear all metadata from the document."""
         for layer in self._layers.values():
@@ -658,11 +683,24 @@ class Document(_MetadataMixin):
             vid += 1
         return vid
 
-    def add(self, lines: LineCollectionLike, layer_id: Union[None, int] = None) -> None:
+    def add(
+        self,
+        lines: LineCollectionLike,
+        layer_id: Union[None, int] = None,
+        with_metadata: bool = False,
+    ) -> None:
         """Add a the content of a :py:class:`LineCollection` to a given layer.
 
-        If the given layer is None, a new layer with the lowest available layer ID is created
-        (with emtpy metadata) and initialized with the content of ``lc``.
+        If the given layer ID is :data:`None`, a new layer with the lowest available layer ID
+        is created and initialized with the content of ``lc``.
+
+        The destination layer's metadata is unchanged, unless ``with_metadata`` is
+        :data:`True`.
+
+        Args:
+            lines: lines to add to the layer
+            layer_id: the destination layer ID, or :data:`None` for a new layer
+            with_metadata: copies/update the metadata to the destination layer (if any)
         """
         if layer_id is None:
             layer_id = 1
@@ -673,6 +711,9 @@ class Document(_MetadataMixin):
             self._layers[layer_id] = LineCollection()
 
         self._layers[layer_id].extend(lines)
+
+        if with_metadata and isinstance(lines, LineCollection):
+            self._layers[layer_id].metadata.update(lines.metadata)
 
     def replace(
         self, lines: LineCollectionLike, layer_id: int, *, with_metadata: bool = False

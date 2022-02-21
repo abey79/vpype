@@ -1,4 +1,5 @@
 import dataclasses
+import pathlib
 from typing import Optional, Tuple, Union
 
 import svgelements
@@ -66,6 +67,8 @@ class Color:
 METADATA_FIELD_NAME = "vp_name"
 METADATA_FIELD_COLOR = "vp_color"
 METADATA_FIELD_PEN_WIDTH = "vp_pen_width"
+METADATA_FIELD_SOURCE = "vp_source"
+METADATA_FIELD_SOURCE_LIST = "vp_sources"
 
 # global metadata field names
 METADATA_FIELD_SVG_NAMESPACES = "vp_svg_ns"
@@ -76,6 +79,8 @@ METADATA_SYSTEM_FIELD_TYPES = {
     METADATA_FIELD_COLOR: Color,
     METADATA_FIELD_PEN_WIDTH: float,
     METADATA_FIELD_PAGE_SIZE: tuple,
+    METADATA_FIELD_SOURCE: pathlib.Path,
+    METADATA_FIELD_SOURCE_LIST: tuple,
 }
 
 # noinspection HttpUrlsUsage

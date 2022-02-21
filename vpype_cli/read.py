@@ -200,7 +200,7 @@ of appearance.
 
     if layer is not None and not single_layer:
         single_layer = True
-        logging.info("read: `--layer` provided, assuming single-layer mode")
+        logging.debug("read: `--layer` provided, assuming single-layer mode")
 
     if single_layer:
         if len(attr) > 0:
@@ -216,8 +216,9 @@ of appearance.
             default_height=height,
         )
 
-        document.add(lc, single_to_layer_id(layer, document))
+        document.add(lc, single_to_layer_id(layer, document), with_metadata=True)
         document.extend_page_size((width, height))
+        document.add_to_sources(file)
     else:
         if len(attr) == 0:
             doc = vp.read_multilayer_svg(

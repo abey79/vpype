@@ -5,6 +5,7 @@ import copy
 import dataclasses
 import datetime
 import math
+import pathlib
 import re
 from typing import Any, Dict, Iterable, Iterator, List, Optional, TextIO, Tuple, Union, cast
 from xml.etree import ElementTree
@@ -24,6 +25,7 @@ from .metadata import (
     METADATA_FIELD_COLOR,
     METADATA_FIELD_NAME,
     METADATA_FIELD_PEN_WIDTH,
+    METADATA_FIELD_SOURCE,
     METADATA_SVG_ATTRIBUTES_WHITELIST,
     METADATA_SVG_NAMESPACES,
     Color,
@@ -362,6 +364,17 @@ def _flattened_paths_to_line_collection(
     return lc
 
 
+def _get_source(file: Union[str, TextIO]) -> Optional[pathlib.Path]:
+    try:
+        path = pathlib.Path(file)  # type: ignore
+        if path.exists():
+            return path
+    except TypeError:
+        pass
+
+    return None
+
+
 def read_svg(
     file: Union[str, TextIO],
     quantization: float,
@@ -400,6 +413,10 @@ def read_svg(
 
     if crop:
         lc.crop(0, 0, svg.width, svg.height)
+
+    source = _get_source(file)
+    if source:
+        lc.set_property(METADATA_FIELD_SOURCE, source)
 
     return lc, svg.width, svg.height
 
@@ -501,6 +518,11 @@ def read_multilayer_svg(
     for layer in document.layers.values():
         layer.metadata = dict(layer.metadata.items() - document.metadata.items())
 
+    source = _get_source(file)
+    if source:
+        document.set_property(METADATA_FIELD_SOURCE, source)
+        document.add_to_sources(source)
+
     return document
 
 
@@ -559,6 +581,11 @@ def read_svg_by_attributes(
     # nested tag. As a result, we need to subtract global properties from the layer ones.
     for layer in document.layers.values():
         layer.metadata = dict(layer.metadata.items() - document.metadata.items())
+
+    source = _get_source(file)
+    if source:
+        document.set_property(METADATA_FIELD_SOURCE, source)
+        document.add_to_sources(source)
 
     return document
 
