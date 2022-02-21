@@ -1,6 +1,12 @@
+import contextlib
+import difflib
+import hashlib
 import os
 import pathlib
-from typing import Callable
+import sys
+from typing import Callable, List
+from xml.dom import minidom
+from xml.etree import ElementTree
 
 import numpy as np
 import pytest
@@ -56,6 +62,12 @@ def pytest_addoption(parser):
         help="Skip tests using assert_image_similarity().",
     )
 
+    parser.addoption(
+        "--store-ref-svg",
+        action="store_true",
+        help="Write reference SVGs for reference_svg().",
+    )
+
 
 def write_image_similarity_fail_report(
     image: Image,
@@ -109,7 +121,7 @@ def assert_image_similarity(request) -> Callable:
 
             if sum_sq_diff != 0:
                 normalized_sum_sq_diff = sum_sq_diff / np.sqrt(sum_sq_diff)
-                if normalized_sum_sq_diff > 5.5:  # pragma: no cover
+                if normalized_sum_sq_diff > 6.5:  # pragma: no cover
                     write_image_similarity_fail_report(
                         img, ref_img, img_arr, ref_img_arr, test_id, normalized_sum_sq_diff
                     )
@@ -118,3 +130,64 @@ def assert_image_similarity(request) -> Callable:
                     )
 
     return _assert_image_similarity
+
+
+def _read_SVG_lines(path: pathlib.Path) -> List[str]:
+    tree = ElementTree.parse(path)
+    xml_str = ElementTree.tostring(tree.getroot())
+    # ET.canonicalize doesn't exist on Python 3.7
+    canon = ElementTree.canonicalize(xml_str, strip_text=True)  # type: ignore
+    lines = minidom.parseString(canon).toprettyxml().splitlines()
+    return [line for line in lines if "<dc:source" not in line and "<dc:date" not in line]
+
+
+@pytest.fixture
+def reference_svg(request, tmp_path) -> Callable:
+    """Compare a SVG output to a saved reference.
+
+    Use `--store-ref-svg` to save reference SVGs.
+
+    Example::
+
+        def test_ref_svg(reference_svg):
+            with reference_svg() as path:
+                export_svg_to(path)
+    """
+
+    if sys.version_info < (3, 8):  # pragma: no cover
+        pytest.skip("requires Python 3.8 or higher")
+
+    store_ref_svg = request.config.getoption("--store-ref-svg")
+    test_id = "refsvg_" + hashlib.md5(request.node.name.encode()).hexdigest() + ".svg"
+    ref_path = pathlib.Path(REFERENCE_IMAGES_DIR) / test_id
+    temp_file = tmp_path / test_id
+
+    @contextlib.contextmanager
+    def _reference_svg():
+        nonlocal ref_path, temp_file, store_ref_svg
+
+        yield temp_file
+
+        if store_ref_svg:  # pragma: no cover
+            ref_path.write_bytes(temp_file.read_bytes())
+        else:
+            if not ref_path.exists():  # pragma: no cover
+                pytest.fail(f"reference SVG does not exist")
+
+            temp_lines = _read_SVG_lines(temp_file)
+            ref_lines = _read_SVG_lines(ref_path)
+
+            if len(temp_lines) != len(ref_lines) or not all(
+                a == b for a, b in zip(temp_lines, ref_lines)
+            ):
+                delta = difflib.unified_diff(
+                    temp_lines,
+                    ref_lines,
+                    fromfile="<test result>",
+                    tofile=str(ref_path.relative_to(pathlib.Path(REFERENCE_IMAGES_DIR))),
+                    lineterm="",
+                )
+
+                pytest.fail(f"generated SVG does not match reference:\n" + "\n".join(delta))
+
+    return _reference_svg

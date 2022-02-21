@@ -4,7 +4,7 @@ import random
 import shlex
 import sys
 import traceback
-from typing import Any, Callable, Iterable, List, Optional, TextIO, Union, cast
+from typing import TYPE_CHECKING, Any, Callable, Iterable, List, Optional, TextIO, Union, cast
 
 import click
 import numpy as np
@@ -211,6 +211,11 @@ def cli(ctx, verbose, include, history, seed, config):
         vp.config_manager.load_config_file(config)
 
 
+# this is somehow needed to make PyCharm happy with runner.invoke(cli, ...)
+if TYPE_CHECKING:  # pragma: no cover
+    cli = cast(GroupedGroup, cli)
+
+
 # noinspection PyShadowingNames,PyUnusedLocal
 @cli.result_callback()
 def process_pipeline(processors, verbose, include, history, seed, config):
@@ -298,7 +303,7 @@ def execute_processors(processors: Iterable[ProcessorType], state: State) -> Non
 
     # the (only) frame's processors should now be flat and can be chain-called
     for proc in outer_processors:
-        state = cast(Callable, proc)(state)
+        cast(Callable, proc)(state)
 
 
 class BeginBlock:

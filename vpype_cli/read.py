@@ -1,4 +1,5 @@
 import logging
+import pathlib
 import sys
 from typing import List, Optional, Tuple
 
@@ -8,13 +9,13 @@ import vpype as vp
 
 from .cli import cli
 from .decorators import global_processor
-from .types import LayerType, LengthType, PageSizeType, single_to_layer_id
+from .types import LayerType, LengthType, PageSizeType, PathType, single_to_layer_id
 
 __all__ = ("read",)
 
 
 @cli.command(group="Input")
-@click.argument("file", type=click.Path(exists=True, dir_okay=False, allow_dash=True))
+@click.argument("file", type=PathType(dir_okay=False, allow_dash=True))
 @click.option("-m", "--single-layer", is_flag=True, help="Single layer mode.")
 @click.option(
     "-l",
@@ -36,6 +37,7 @@ __all__ = ("read",)
     default="0.1mm",
     help="Maximum length of segments approximating curved elements (default: 0.1mm).",
 )
+@click.option("--no-fail", is_flag=True, help="Do not fail is the target file doesn't exist.")
 @click.option(
     "-s",
     "--simplify",
@@ -82,6 +84,7 @@ def read(
     layer: Optional[int],
     attr: List[str],
     quantization: float,
+    no_fail: bool,
     simplify: bool,
     parallel: bool,
     no_crop: bool,
@@ -188,10 +191,16 @@ of appearance.
 
     if file == "-":
         file = sys.stdin
+    elif not pathlib.Path(file).is_file():
+        if no_fail:
+            logging.debug("read: file doesn't exist, ignoring due to `--no-fail`")
+            return document
+        else:
+            raise click.BadParameter(f"file {file!r} does not exist")
 
     if layer is not None and not single_layer:
         single_layer = True
-        logging.info("read: `--layer` provided, assuming single-layer mode")
+        logging.debug("read: `--layer` provided, assuming single-layer mode")
 
     if single_layer:
         if len(attr) > 0:
@@ -207,8 +216,9 @@ of appearance.
             default_height=height,
         )
 
-        document.add(lc, single_to_layer_id(layer, document))
+        document.add(lc, single_to_layer_id(layer, document), with_metadata=True)
         document.extend_page_size((width, height))
+        document.add_to_sources(file)
     else:
         if len(attr) == 0:
             doc = vp.read_multilayer_svg(

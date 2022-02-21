@@ -1,6 +1,7 @@
 """Implementation of vpype's data model
 """
 import math
+import pathlib
 from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Union, cast
 
 import numpy as np
@@ -8,7 +9,11 @@ from shapely.geometry import LinearRing, LineString, MultiLineString
 
 from .geometry import crop, reloop
 from .line_index import LineIndex
-from .metadata import METADATA_FIELD_PAGE_SIZE, METADATA_SYSTEM_FIELD_TYPES
+from .metadata import (
+    METADATA_FIELD_PAGE_SIZE,
+    METADATA_FIELD_SOURCE_LIST,
+    METADATA_SYSTEM_FIELD_TYPES,
+)
 
 __all__ = [
     "LineCollection",
@@ -139,17 +144,17 @@ class LineCollection(_MetadataMixin):
 
     Finally, :py:class:`LineCollection` implements a number of operations such as geometrical
     transformation, cropping, merging, etc. (see member function documentation for details).
+
+    Args:
+        lines (LineCollectionLike): iterable of line (accepts the same input as
+            :func:`~LineCollection.append`).
+        metadata: if provided, used as layer metadata
     """
 
     def __init__(
         self, lines: LineCollectionLike = (), metadata: Optional[Dict[str, Any]] = None
     ):
-        """Create a LineCollection instance from an iterable of lines.
-
-        Args:
-            lines (LineCollectionLike): iterable of line (accepts the same input as
-                :func:`~LineCollection.append`).
-        """
+        """Create a LineCollection instance from an iterable of lines."""
         super().__init__(metadata)
 
         self._lines: List[np.ndarray] = []
@@ -505,6 +510,11 @@ class Document(_MetadataMixin):
     In addition, the Document class maintains a :py:attr:`page_size` attribute which describe
     the physical size of the document. This attribute is not strictly linked to the actual
     Document's content, but can be set based on it.
+
+    Args:
+        line_collection: if provided, used as layer 1
+        metadata: if provided, used as global metadata
+        page_size: if provided, used as page size
     """
 
     def __init__(
@@ -589,6 +599,30 @@ class Document(_MetadataMixin):
             else:
                 self.page_size = page_size
 
+    @property
+    def sources(self) -> Tuple[pathlib.Path, ...]:
+        return self.metadata.get(METADATA_FIELD_SOURCE_LIST, tuple())
+
+    @sources.setter
+    def sources(self, sources: Tuple[pathlib.Path, ...]) -> None:
+        self.set_property(METADATA_FIELD_SOURCE_LIST, sources)
+
+    def add_to_sources(self, path) -> None:
+        """Add a path to the source list.
+
+        If ``path`` cannot be converted to a :class:`pathlib.Path` or the file doesn't exist,
+        it is ignored and not added to the source list.
+
+        Args:
+            path: file path
+        """
+        try:
+            path = pathlib.Path(path)
+            if path.exists():
+                self.sources += (path,)
+        except TypeError:
+            pass
+
     def clear_layer_metadata(self) -> None:
         """Clear all metadata from the document."""
         for layer in self._layers.values():
@@ -653,11 +687,24 @@ class Document(_MetadataMixin):
             vid += 1
         return vid
 
-    def add(self, lines: LineCollectionLike, layer_id: Union[None, int] = None) -> None:
+    def add(
+        self,
+        lines: LineCollectionLike,
+        layer_id: Union[None, int] = None,
+        with_metadata: bool = False,
+    ) -> None:
         """Add a the content of a :py:class:`LineCollection` to a given layer.
 
-        If the given layer is None, a new layer with the lowest available layer ID is created
-        (with emtpy metadata) and initialized with the content of ``lc``.
+        If the given layer ID is :data:`None`, a new layer with the lowest available layer ID
+        is created and initialized with the content of ``lc``.
+
+        The destination layer's metadata is unchanged, unless ``with_metadata`` is
+        :data:`True`.
+
+        Args:
+            lines: lines to add to the layer
+            layer_id: the destination layer ID, or :data:`None` for a new layer
+            with_metadata: copies/update the metadata to the destination layer (if any)
         """
         if layer_id is None:
             layer_id = 1
@@ -669,23 +716,35 @@ class Document(_MetadataMixin):
 
         self._layers[layer_id].extend(lines)
 
-    def replace(self, lines: LineCollectionLike, layer_id: int) -> None:
+        if with_metadata and isinstance(lines, LineCollection):
+            self._layers[layer_id].metadata.update(lines.metadata)
+
+    def replace(
+        self, lines: LineCollectionLike, layer_id: int, *, with_metadata: bool = False
+    ) -> None:
         """Replaces the content of a layer.
 
         This method replaces the content of layer ``layer_id`` with ``lines``. The layer must
         exist, otherwise a :class:`ValueError` exception is raised.
 
-        The destination layer retains its metadata
+        The destination layer retains its metadata, unless ``with_metadata`` is True, in which
+        case ``lines`` must have a ``metadata`` attribute.
 
         Args:
             lines: line data to assign to the layer
             layer_id: layer ID of the layer whose content is to be replaced
+            with_metadata:
         """
 
         if layer_id not in self._layers:
             raise ValueError(f"layer {layer_id} doesn't exist")
 
         self._layers[layer_id] = self._layers[layer_id].clone(lines)
+
+        if with_metadata:
+            metadata = getattr(lines, "metadata", None)
+            if metadata is not None:
+                self._layers[layer_id].metadata = metadata.copy()
 
     def swap_content(self, lid1: int, lid2: int) -> None:
         """Swap the content of two layers.
@@ -728,10 +787,16 @@ class Document(_MetadataMixin):
             doc: source Document
         """
 
-        # special treatment for page size
+        # special treatment for page size and source list
         self.extend_page_size(doc.page_size)
+        for path in doc.sources:
+            self.add_to_sources(path)
         self.metadata.update(
-            {k: v for k, v in doc.metadata.items() if k != METADATA_FIELD_PAGE_SIZE}
+            {
+                k: v
+                for k, v in doc.metadata.items()
+                if k not in {METADATA_FIELD_PAGE_SIZE, METADATA_FIELD_SOURCE_LIST}
+            }
         )
 
         for layer_id, layer in doc.layers.items():

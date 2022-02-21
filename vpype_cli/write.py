@@ -9,7 +9,7 @@ import vpype as vp
 from .cli import cli
 from .decorators import global_processor, pass_state
 from .state import State
-from .types import IntegerType, TextType
+from .types import FileType, IntegerType, TextType
 
 __all__ = ("write",)
 
@@ -125,7 +125,7 @@ Examples:
 
 
 @cli.command(group="Output", help=WRITE_HELP)
-@click.argument("output", type=click.File("w"))
+@click.argument("output", type=FileType("w"))
 @click.option(
     "-f",
     "--format",
@@ -223,7 +223,7 @@ def write(
     if file_format == "svg":
         page_size_px = None
         if page_size:
-            page_size_px = vp.convert_page_size(state.substitute_input(page_size))
+            page_size_px = vp.convert_page_size(state.substitute(page_size))
             if landscape:
                 page_size_px = page_size_px[::-1]
 

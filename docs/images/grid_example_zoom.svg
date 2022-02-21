@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 26.0.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 243.7 210.8" style="enable-background:new 0 0 243.7 210.8;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:none;stroke:#000000;stroke-miterlimit:10;}
+	.st1{font-family:'MyriadPro-Regular';}
+	.st2{font-size:24px;}
+	.st3{font-size:12px;}
+	.st4{fill:none;stroke:#000000;stroke-miterlimit:10;stroke-dasharray:2.7265,2.7265;}
+	.st5{fill:none;stroke:#666666;stroke-miterlimit:10;}
+	.st6{enable-background:new    ;}
+	.st7{fill:#666666;}
+</style>
+<rect x="51" y="5" class="st0" width="140.3" height="140.3"/>
+<rect x="86.5" y="161.7" class="st0" width="17.4" height="17.4"/>
+<g>
+	<g>
+		<line class="st0" x1="22.7" y1="49.3" x2="44" y2="49.3"/>
+		<g>
+			<polygon points="51,49.3 41.1,53.4 43.4,49.3 41.1,45.3 			"/>
+		</g>
+	</g>
+</g>
+<text transform="matrix(1 0 0 1 98.0139 32.6948)" class="st1 st2">grid</text>
+<polyline class="st0" points="83.2,186.3 83.2,194.8 163.2,194.8 163.2,186.3 "/>
+<text transform="matrix(1 0 0 1 75.8552 207.1696)" class="st1 st3">nested commands</text>
+<line class="st0" x1="191.3" y1="49.3" x2="219.6" y2="49.3"/>
+<g>
+	<g>
+		<line class="st0" x1="219.6" y1="49.3" x2="221.1" y2="49.3"/>
+		<line class="st4" x1="223.9" y1="49.3" x2="233.4" y2="49.3"/>
+		<line class="st0" x1="234.8" y1="49.3" x2="236.3" y2="49.3"/>
+	</g>
+</g>
+<g>
+	<g>
+		<line class="st0" x1="6" y1="49.3" x2="7.5" y2="49.3"/>
+		<line class="st4" x1="10.3" y1="49.3" x2="19.8" y2="49.3"/>
+		<line class="st0" x1="21.2" y1="49.3" x2="22.7" y2="49.3"/>
+	</g>
+</g>
+<line class="st5" x1="51" y1="49.3" x2="191.3" y2="49.3"/>
+<g>
+	<g>
+		<polyline class="st0" points="68.3,145.4 68.3,161 68.3,169.9 79.4,169.9 		"/>
+		<g>
+			<polygon points="86.5,169.9 76.5,174 78.9,169.9 76.5,165.9 			"/>
+		</g>
+	</g>
+</g>
+<text transform="matrix(1 0 0 1 57.6584 79.7075)" class="st6"><tspan x="0" y="0" class="st7 st1 st3">empty</tspan><tspan x="0" y="14.4" class="st7 st1 st3">pipeline</tspan></text>
+<rect x="142.1" y="161.7" class="st0" width="17.4" height="17.4"/>
+<g>
+	<g>
+		<polyline class="st5" points="171.8,145.4 171.8,137.3 151.8,137.3 151.7,130.1 		"/>
+		<g>
+			<polygon class="st7" points="151.5,123 155.8,132.9 151.7,130.6 147.6,133.1 			"/>
+		</g>
+	</g>
+</g>
+<g>
+	<g>
+		<polyline class="st0" points="159.5,169.9 171.8,169.9 171.8,152.4 		"/>
+		<g>
+			<polygon points="171.8,145.4 175.9,155.3 171.8,152.9 167.7,155.3 			"/>
+		</g>
+	</g>
+</g>
+<g>
+	<g>
+		<line class="st0" x1="128.4" y1="169.9" x2="135" y2="169.9"/>
+		<g>
+			<polygon points="142.1,169.9 132.1,174 134.5,169.9 132.1,165.9 			"/>
+		</g>
+	</g>
+</g>
+<g>
+	<g>
+		<line class="st0" x1="113.1" y1="169.9" x2="114.5" y2="169.9"/>
+		<line class="st4" x1="117" y1="169.9" x2="125.8" y2="169.9"/>
+		<line class="st0" x1="127.1" y1="169.9" x2="128.4" y2="169.9"/>
+	</g>
+</g>
+<line class="st0" x1="113.1" y1="169.9" x2="104.2" y2="169.9"/>
+<g>
+	<g>
+		<line class="st5" x1="68.3" y1="138.3" x2="68.3" y2="100.7"/>
+		<g>
+			<polygon class="st7" points="68.3,145.4 72.3,135.4 68.3,137.8 64.2,135.4 			"/>
+		</g>
+	</g>
+</g>
+<g>
+	<g>
+		<line class="st5" x1="151.8" y1="73.9" x2="151.8" y2="56.4"/>
+		<g>
+			<polygon class="st7" points="151.8,49.4 155.9,59.3 151.8,57 147.7,59.3 			"/>
+		</g>
+	</g>
+</g>
+<text transform="matrix(1 0 0 1 138.8998 58.4492)" class="st7 st1 st3">+</text>
+<rect x="127" y="73.9" class="st5" width="49.1" height="49.1"/>
+<text transform="matrix(1 0 0 1 130.4442 88.0817)" class="st6"><tspan x="0" y="0" class="st7 st1 st3">translate</tspan><tspan x="6.8" y="14.4" class="st7 st1 st3">to cell</tspan><tspan x="16.5" y="28.8" class="st7 st1 st3">i, j</tspan></text>
+</svg>

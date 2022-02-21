@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:xlink="http://www.w3.org/1999/xlink" baseProfile="tiny" height="0.02645833cm" version="1.2" viewBox="0 0 10.0 1" width="0.26458333cm">
+  <metadata>
+    <rdf:RDF>
+      <cc:Work>
+        <dc:format>image/svg+xml</dc:format>
+        <dc:source>vpype -k test_reference_output --store-ref-svg
+</dc:source>
+        <dc:date>2022-02-14T17:02:36.161253</dc:date>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs/>
+  <g fill="none" id="layer1" inkscape:groupmode="layer" inkscape:label="1" stroke="#0000ff" style="display:inline">
+    <line x1="0.0" x2="10.0" y1="0.0" y2="0.0"/>
+  </g>
+</svg>

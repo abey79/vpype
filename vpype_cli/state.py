@@ -1,31 +1,18 @@
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Dict, Generator, Optional, Tuple, Union
 
 import click
 
 import vpype as vp
 
+from .substitution import (
+    ExpressionSubstitutionError,
+    PropertySubstitutionError,
+    SubstitutionHelper,
+)
+
 __all__ = ("State", "_DeferredEvaluator")
-
-
-class _SubstitutionHelper:
-    """Dict-like class for :ref:`property substitution <fundamentals_property_substitution>`
-    using :meth:`str.format_map`."""
-
-    def __init__(
-        self, document: Optional[vp.Document] = None, layer: Optional[vp.LineCollection] = None
-    ):
-        self.document = document
-        self.layer = layer
-
-    def __getitem__(self, item):
-        if self.layer is not None and self.layer.property_exists(item):
-            return self.layer.property(item)
-        elif self.document is not None and self.document.property_exists(item):
-            return self.document.property(item)
-        else:
-            raise click.BadParameter(f"Cannot substitute {{{item}}}: property not found")
 
 
 class _DeferredEvaluator(ABC):
@@ -42,13 +29,20 @@ class _DeferredEvaluator(ABC):
     instances, perform the conversion, and forward the converted value to the command function.
     """
 
-    def __init__(self, text: str):
+    def __init__(self, text: str, param_name: str, *args, **kwargs):
         self._text = text
+        self._param_name = param_name
 
     @abstractmethod
     def evaluate(self, state: "State") -> Any:
         """Sub-class must override this function and return the converted value of
         ``self._text``"""
+
+    def __str__(self):
+        return self._text
+
+    def __repr__(self):
+        return repr(self._text)
 
 
 class State:
@@ -57,6 +51,9 @@ class State:
     This class encapsulates the current state of the pipeline and provides services to
     commands. To access the current state instance, a command must use the :func:`pass_state`
     decorator.
+
+    Args:
+        document: if provided, use this document
     """
 
     _current_state: Union["State", None] = None
@@ -73,48 +70,62 @@ class State:
         #: :func:`layer_processor` command.
         self.current_layer_id: Optional[int] = None
 
-    def _evaluate_arg(self, arg: Any) -> Any:
+        self._interpreter = SubstitutionHelper(self)
+
+    def preprocess_argument(self, arg: Any) -> Any:
+        """Evaluate an argument.
+
+        If ``arg`` is a :class:`_DeferredEvaluator` instance, evaluate it a return its value
+        instead.
+
+        Args:
+            arg: argument to evaluate
+
+        Returns:
+            returns the fully evaluated ``arg``
+        """
         if isinstance(arg, tuple):
-            return tuple(self._evaluate_arg(item) for item in arg)
+            return tuple(self.preprocess_argument(item) for item in arg)
         else:
             return arg.evaluate(self) if isinstance(arg, _DeferredEvaluator) else arg
 
-    def evaluate_parameters(
+    def preprocess_arguments(
         self, args: Tuple[Any, ...], kwargs: Dict[str, Any]
     ) -> Tuple[Tuple[Any, ...], Dict[str, Any]]:
-        """Replace any instance of :class:`_DeferredEvaluator` and replace them with the
+        """Evaluate any instance of :class:`_DeferredEvaluator` and replace them with the
         converted value.
         """
         return (
-            tuple(self._evaluate_arg(arg) for arg in args),
-            {k: self._evaluate_arg(v) for k, v in kwargs.items()},
+            tuple(self.preprocess_argument(arg) for arg in args),
+            {k: self.preprocess_argument(v) for k, v in kwargs.items()},
         )
 
-    def substitute_input(self, txt: str) -> str:
-        """Apply :ref:`property substitution <fundamentals_property_substitution>` on input
-        from user.
-
-        Command implementation should favour using one (or more) of the types which have
-        built-in substitution, such as :class:`TextType`, :class:`LengthType`, etc. This method
-        may be used in cases where using types is not appropriate.
+    def substitute(self, text: str) -> str:
+        """Apply :ref:`property <fundamentals_property_substitution>` and
+        :ref:`expression <fundamentals_expression_substitution>` substitution on user input.
 
         Args:
-            txt: input text on which to apply substitution
+            text: user input on which to perform the substitution
 
         Returns:
-            fully-substituted text
+            fully substituted text
         """
-        helper = _SubstitutionHelper(
-            self.document,
-            self.document.layers[self.current_layer_id]
-            if self.current_layer_id in self.document.layers
-            else None,
-        )
-
         try:
-            return txt.format_map(helper)
-        except ValueError as exc:
-            raise click.BadParameter("Could not perform substitution: " + exc.args[0])
+            return self._interpreter.substitute(text)
+        except (ExpressionSubstitutionError, PropertySubstitutionError) as exc:
+            cause_err = "Error"
+            cause = getattr(exc, "__cause__", None)
+            if cause:
+                cause_err = cause.__class__.__name__
+            type_err = (
+                "expression" if isinstance(exc, ExpressionSubstitutionError) else "property"
+            )
+            details = ""
+            if cause and len(cause.args) > 0:
+                details = ": " + cause.args[0]
+            raise click.BadParameter(
+                f"{cause_err} with {type_err} substitution{details}"
+            ) from exc
 
     @classmethod
     def get_current(cls):
@@ -132,17 +143,66 @@ class State:
         self.__class__._current_state = None
 
     @contextmanager
-    def clear_document(self):
-        """Context manager to temporarily clear and extend the state's document.
+    def temp_document(self, keep_layer: bool = True) -> Generator[vp.Document, None, None]:
+        """Context manager to temporarily clear the state's document.
 
-        This context manager is typically used by block processor to clear the document of
-        line data while retaining its structure when executing nested processors, and then
-        add the generated geometries to the original document. See :func:`block` for an
-        example.
+        This context manager is typically used by block processor to temporarily clear the
+        document of line data while retaining its structure when executing nested processors.
+        The context manager returns the temporary document instance. It is typically used by
+        block processors to extend the original document after running the nested commands.
+
+        Args:
+            keep_layer: keep the layer structure
+
+        Returns:
+            the temporary document instance
+
+        Example::
+
+            >>> import vpype_cli
+            >>> @vpype_cli.cli.command()
+            ... @vpype_cli.block_processor
+            ... def clean_block(state, processors):
+            ...     with state.temp_document() as temp_doc:
+            ...         # state.document is now empty but has the same structure as the
+            ...         # original document
+            ...         vpype_cli.execute_processors(processors, state)
+            ...     # update the original document with the temporary one
+            ...     state.document.extend(temp_doc)
         """
 
         original_doc = self.document
-        self.document = original_doc.clone(keep_layers=True)
-        yield
-        original_doc.extend(self.document)
+        self.document = original_doc.clone(keep_layers=keep_layer)
+        yield self.document
         self.document = original_doc
+
+    @contextmanager
+    def expression_variables(self, variables: Dict[str, Any]) -> Generator[None, None, None]:
+        """Context manager to temporarily set expression variables.
+
+        This context manager is typically used by block processors to temporarily set relevant
+        expression variables. These variables are deleted or, if pre-existing, restored upon
+        exiting the context.
+
+        Args:
+            variables: variables to set
+
+        Example::
+
+            >>> import vpype_cli
+            >>> @vpype_cli.cli.command()
+            ... @vpype_cli.block_processor
+            ... def run_twice(state, processors):
+            ...     with state.expression_variables({"_first": True}):
+            ...         vpype_cli.execute_processors(processors, state)
+            ...     with state.expression_variables({"_first": False}):
+            ...         vpype_cli.execute_processors(processors, state)
+        """
+
+        symtable = self._interpreter.symtable
+        saved_items = {k: symtable[k] for k in variables if k in symtable}
+        symtable.update(variables)
+        yield
+        for name in variables:
+            symtable.pop(name)
+        symtable.update(saved_items)

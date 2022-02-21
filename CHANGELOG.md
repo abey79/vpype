@@ -5,15 +5,36 @@
 **Note**: This is the last version of *vpype* to support Python 3.7.
 
 New features and improvements:
-* Updated the internal data model to support global and per-layer metadata (#359)
+* Added support for global and per-layer metadata (#359)
   
-  This feature is intended as a generic mechanism whereby a set of properties may be attached to specific layers (layer property) or all of them (global property). Properties are identified by a name and may be of arbitrary type (e.g. integer, floating point, color, etc.). This new infrastructure is used by several of the features introduced in this release, paves the way for future features, and further empowers plug-in writers. See the [documentation](https://vpype.readthedocs.io/en/latest/fundamentals.html#metadata) for more background information on metadata.
+  This feature is intended as a generic mechanism whereby a set of properties may be attached to specific layers (layer property) or all of them (global property). Properties are identified by a name and may be of arbitrary type (e.g. integer, floating point, color, etc.). This new infrastructure is used by several of the features introduced in this release, paves the way for future features, and further empowers plug-in writers. See the [documentation](https://vpype.readthedocs.io/en/latest/fundamentals.html#properties) for more background information on metadata.
 
 * Layer color, pen width, and name are now customizable (#359, #376, #389)
   * The `read` commands now sets layer color, pen width, and name based on the input SVG if possible.
   * The new `color`, `penwdith`, and `name` commands can be used to modify layer color, pen width, and name.
-  * The new `pens` command can apply a predefined or custom scheme on multiple layers at once. Two schemes, `rgb` and `cmyk`, are included and others may be defined in the configuration file.
+  * The new `pens` command can apply a predefined or custom scheme on multiple layers at once. Two common schemes are built-in: `rgb` and `cmyk`. Custom schemes can be defined in the configuration file.
   * The `show` and `write` commands were updated to take into account these new layer properties.
+
+* The `read` command now records the source SVG paths in the `vp_source` and `vp_sources` system properties (see the [documentation](https://vpype.readthedocs.io/en/latest/fundamentals.html#system-properties)) (#397)
+
+* Added property substitution to CLI user input (#395)
+
+  The input provided to most commands' arguments and options may now contain substitution patterns which will be replaced by the corresponding property value. Property substitution patterns are marked with curly braces (e.g. `{property_name}`) and support the same formatting capabilities as the Python's [`format()` function](https://docs.python.org/3/library/string.html#formatstrings). For example, the following command draws the layer name and pen width:
+  ```bash
+  $ vpype read input.svg text --layer 1 "Name: {vp_name} Pen width: {vp_pen_width:.2f}" write output.svg
+  ```
+  See the [documentation](https://vpype.readthedocs.io/en/latest/fundamentals.html#property-substitution) for more information and examples.
+
+* Added expression substitution to CLI user input (#397)
+
+  The input provided to most command's arguments and option may now contain expression patterns which will be evaluated before the command is run. Expression patterns are marked with the percent `%` symbol (e.g. `%3+4%`) and support a large subset of the Python language. For example, the following pipeline adds a rectangular frame to a document with a given margin:
+  ```bash
+  $ vpype read my_file.svg \
+        eval "%m = 1*cm%" \
+        rect %m% %m% "%prop.vp_page_size[0]-2*m%" "%prop.vp_page_size[1]-2*m%" \
+        write %basename(vp_filename)%_framed.svg
+  ```
+  See the [documentation](https://vpype.readthedocs.io/en/latest/fundamentals.html#expression-substitution) for more information and examples.
 
 * The `read` command can now optionally sort geometries by attributes (e.g. stroke color, stroke width, etc.) instead of by SVG layer (#378, #389)
 
@@ -29,20 +50,19 @@ New features and improvements:
   * `propdel`: deletes a given global or layer property
   * `propclear`: removes all global and/or layer properties
 
-* Added property substitution to CLI user input (#395)
-
-  The input provided to most commands' arguments and options may now contain substitution patterns which will be replaced by the corresponding property value. See the [documentation](https://vpype.readthedocs.io/en/latest/fundamentals.html#cli-property-substitution) for more information and examples.
-
 * Updated layer operation commands to handle metadata (#359)
 
   * When a single source layer is specified and `--prob` is not used, the `lcopy` and `lmove` commands now copy the source layer's properties to the destination layer (possibly overwriting existing properties).
   * When `--prob` is not used, the `lswap` command now swaps the layer properties as well.
   * These behaviors can be disabled with the `--no-prop` option.
 
-* Improved the handling of block processors  (#395)
- 
-  Block processors are commands which, when combined with `begin` and `end`, operate on the sequence they encompass. For example, the sequence `begin grid 2 2 random end` creates a 2x2 grid of random line patches. The infrastructure underlying block processors has been overhauled to increase their usefulness and extensibility.
-  
+* Improved block processors (#395, #397)
+
+  * Simplified and improved the infrastructure underlying block processors for better extensibility.
+  * The `grid` block processor now adjusts the page size according to its layout. 
+  * The `grid` and `repeat` block processors now sets variables for expressions in nested commands.
+  * Added `forfile` block processor to iterate over a list of file.
+  * Added `forlayer` block processor to iterate over the existing layers.
   * The `begin` marker is now optional and implied whenever a block processor command is encountered. The following pipelines are thus equivalent:
     ```bash
     $ vpype begin grid 2 2 random end show
@@ -51,6 +71,8 @@ New features and improvements:
     *Note*: the `end` marker must always be used to mark the end of a block.
   * Commands inside the block now have access to the current layer structure and its metadata. This makes their use more predictable. For example, `begin grid 2 2 random --layer new end` now correctly generates patches of random lines on different layers.
   * The `grid` block processor now first iterate along lines instead of columns.
+
+* The `read` command now will ignore a missing file if `--no-fail` parameter is used (#397)
   
 * Changed the initial default target layer to 1 (#395)
   
@@ -94,8 +116,8 @@ API changes:
   
   Block processor commands (decorated with `@block_processor`) are no longer sub-classes of `BlockProcessor` (which has been removed). The are instead regular functions (like commands of other types) which take a `State` instance and a list of processors as first arguments.
 
-* Added methods to `vpype_cli.State` to support property substitution, deferred arguments/options evaluation and block processor implementations (#395)
-* `vpype.Document` and `vpype.LineCollection` have additional members to manage properties through the `vpype._MetadataMixin` mix-in class (#359)
+* Added methods to `vpype_cli.State` to support expression and property substitution, deferred arguments/options evaluation and block processor implementations (#395, #397)
+* `vpype.Document` and `vpype.LineCollection` have multiple, non-breaking additions to support metadata (in particular through the `vpype._MetadataMixin` mix-in class) (#359, #397)
 * Renamed `vpype.Document.empty_copy()` to `vpype.Document.clone()` for coherence with `vpype.LineCollection` (the old name remains for backward compatibility) (#359, #380) 
 * Added `vpype.read_svg_by_attribute()` to read SVG while sorting geometries by arbitrary attributes (#378)
 * Added an argument to `vpype_cli.execute()` to pass global option such as `--verbose` (#378)
@@ -104,7 +126,7 @@ Other changes:
 * Renamed the bundled config file to `vpype_config.toml` (#359)
 * Changed dependencies to dataclasses (instead of attrs) and tomli (instead of toml) (#362)
 * Removed dependency to click-plugin (#388)
-* Various documentation improvements (#359, #363)
+* Improved documentation, in particular the [Fundamentals](https://vpype.readthedocs.io/en/latest/fundamentals.html) and [Cookbook](https://vpype.readthedocs.io/en/latest/cookbook.html) sections (#359, #363, #397)
 
 
 #### 1.8.1 (2022-01-13)
