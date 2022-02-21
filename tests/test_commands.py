@@ -645,14 +645,11 @@ def test_text_command_empty():
         ),
         (
             "pagesize 400x1200 proplist -g",
-            (
-                "listing 2 global properties\n  vp_page_size: (tuple) (400.0, 1200.0)\n"
-                "  vp_sources: (tuple) ()"
-            ),
+            "listing 1 global properties\n  vp_page_size: (tuple) (400.0, 1200.0)",
         ),
         (
             "pagesize 400x1200 propdel -g vp_page_size proplist -g",
-            "listing 1 global properties\n  vp_sources: (tuple) ()",
+            "listing 0 global properties",
         ),
         ("propset -g -t int prop 10 propget -g prop", "global property prop: (int) 10"),
         (

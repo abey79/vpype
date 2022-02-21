@@ -529,7 +529,6 @@ class Document(_MetadataMixin):
             line_collection: if provided, used as layer 1
         """
         super().__init__(metadata)
-        self.set_property(METADATA_FIELD_SOURCE_LIST, tuple())
 
         self._layers: Dict[int, LineCollection] = {}
 
@@ -600,6 +599,14 @@ class Document(_MetadataMixin):
             else:
                 self.page_size = page_size
 
+    @property
+    def sources(self) -> Tuple[pathlib.Path, ...]:
+        return self.metadata.get(METADATA_FIELD_SOURCE_LIST, tuple())
+
+    @sources.setter
+    def sources(self, sources: Tuple[pathlib.Path, ...]) -> None:
+        self.set_property(METADATA_FIELD_SOURCE_LIST, sources)
+
     def add_to_sources(self, path) -> None:
         """Add a path to the source list.
 
@@ -612,10 +619,7 @@ class Document(_MetadataMixin):
         try:
             path = pathlib.Path(path)
             if path.exists():
-                self.set_property(
-                    METADATA_FIELD_SOURCE_LIST,
-                    self.property(METADATA_FIELD_SOURCE_LIST) + (path,),  # type: ignore
-                )
+                self.sources += (path,)
         except TypeError:
             pass
 
@@ -785,7 +789,8 @@ class Document(_MetadataMixin):
 
         # special treatment for page size and source list
         self.extend_page_size(doc.page_size)
-        self.metadata[METADATA_FIELD_SOURCE_LIST] += doc.property(METADATA_FIELD_SOURCE_LIST)
+        for path in doc.sources:
+            self.add_to_sources(path)
         self.metadata.update(
             {
                 k: v
