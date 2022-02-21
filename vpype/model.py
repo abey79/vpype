@@ -783,10 +783,15 @@ class Document(_MetadataMixin):
             doc: source Document
         """
 
-        # special treatment for page size
+        # special treatment for page size and source list
         self.extend_page_size(doc.page_size)
+        self.metadata[METADATA_FIELD_SOURCE_LIST] += doc.property(METADATA_FIELD_SOURCE_LIST)
         self.metadata.update(
-            {k: v for k, v in doc.metadata.items() if k != METADATA_FIELD_PAGE_SIZE}
+            {
+                k: v
+                for k, v in doc.metadata.items()
+                if k not in {METADATA_FIELD_PAGE_SIZE, METADATA_FIELD_SOURCE_LIST}
+            }
         )
 
         for layer_id, layer in doc.layers.items():
