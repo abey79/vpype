@@ -98,6 +98,7 @@ MINIMAL_COMMANDS = [
     ),
     Command("eval x=2 eval %y=3 eval z=4% eval %w=5%"),
     Command("forlayer text '%_lid% (%_i%/%_n%): %_name%' end"),
+    Command("pagerotate", keeps_page_size=False),
 ]
 
 # noinspection SpellCheckingInspection
@@ -687,3 +688,17 @@ def test_forlayer_command_property_accessor():
     for i in range(3):
         assert doc.layers[i + 1].property("test") == i
         assert doc.layers[i + 1].property("test2") == i
+
+
+def test_pagerotate():
+    doc = vpype_cli.execute("random pagesize a4 pagerotate")
+    assert doc.page_size == pytest.approx((1122.5196850393702, 793.7007874015749))
+
+    doc = vpype_cli.execute("random pagesize a4 pagerotate -cw")
+    assert doc.page_size == pytest.approx((1122.5196850393702, 793.7007874015749))
+
+
+def test_pagerotate_error(caplog):
+    doc = vpype_cli.execute("random pagerotate")
+    assert doc.page_size is None
+    assert "page size is not defined, page not rotated" in caplog.text

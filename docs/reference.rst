@@ -111,6 +111,10 @@ CLI reference
 .. click:: vpype_cli:name
    :prog: name
 
+.. _cmd_pagerotate:
+.. click:: vpype_cli:pagerotate
+   :prog: pagerotate
+
 .. _cmd_pagesize:
 .. click:: vpype_cli:pagesize
    :prog: pagesize
