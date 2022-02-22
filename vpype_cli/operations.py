@@ -19,6 +19,7 @@ __all__ = (
     "linesimplify",
     "linesort",
     "multipass",
+    "pagerotate",
     "pagesize",
     "reloop",
     "reverse",
