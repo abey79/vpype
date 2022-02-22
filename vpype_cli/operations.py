@@ -1,4 +1,5 @@
 import logging
+import math
 from typing import List, Optional, Tuple, Union, cast
 
 import click
@@ -18,6 +19,7 @@ __all__ = (
     "linesimplify",
     "linesort",
     "multipass",
+    "pagerotate",
     "pagesize",
     "reloop",
     "reverse",
@@ -606,6 +608,39 @@ def layout(
         v_offset = margin + (size[1] - height - 2 * margin) / 2 - min_y
 
     document.translate(h_offset, v_offset)
+    return document
+
+
+@cli.command(group="Operations")
+@click.option(
+    "--clockwise",
+    "-cw",
+    is_flag=True,
+    help="Rotate clockwise instead of the default counter-clockwise",
+)
+@global_processor
+def pagerotate(document: vp.Document, clockwise: bool):
+    """Rotate the page by 90 degrees.
+
+    This command rotates the page by 90 degrees counter-clockwise. If the `--clockwise` option
+    is passed, it rotates the page clockwise instead.
+
+    Note: if the page size is not defined, an error is printed and the page is not rotated.
+    """
+    page_size = document.page_size
+    if page_size is None:
+        logging.warning("pagerotate: page size is not defined, page not rotated")
+        return document
+    w, h = page_size
+
+    if clockwise:
+        document.rotate(math.pi / 2)
+        document.translate(h, 0)
+    else:
+        document.rotate(-math.pi / 2)
+        document.translate(0, w)
+
+    document.page_size = h, w
     return document
 
 

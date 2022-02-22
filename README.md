@@ -244,6 +244,7 @@ and much more.
 
 - Easy and flexible **layout** command for centring and fitting to margin with selectable le horizontal and vertical alignment
   ([`layout`](https://vpype.readthedocs.io/en/latest/reference.html#layout)).
+- **Page rotation** command ([`pagerotate`](https://vpype.readthedocs.io/en/latest/reference.html#pagerotate)).
 - Powerful **transform** commands for scaling, translating, skewing and rotating geometries ([`scale`](https://vpype.readthedocs.io/en/latest/reference.html#scale), [`translate`](https://vpype.readthedocs.io/en/latest/reference.html#translate), [`skew`](https://vpype.readthedocs.io/en/latest/reference.html#skew), [`rotate`](https://vpype.readthedocs.io/en/latest/reference.html#rotate)).
 - Support for **scaling** and **cropping** to arbitrary dimensions ([`scaleto`](https://vpype.readthedocs.io/en/latest/reference.html#scaleto), [`crop`](https://vpype.readthedocs.io/en/latest/reference.html#crop)).
 - Support for **trimming** geometries by an arbitrary amount ([`trim`](https://vpype.readthedocs.io/en/latest/reference.html#trim)).

@@ -78,6 +78,7 @@ New features and improvements:
   
   Previously, the first generator command of the pipeline would default to create a new layer if the `--layer` option was not provided. This could lead to unexpected behaviour in several situation. The target layer is now layer 1. For subsequent generators, the existing behaviour of using the previous generator target layer as default remains.   
 
+* Added `pagerotate` command, to rotate the page layout (including geometries) by 90 degrees (#404)
 * Added `--keep` option to the `ldelete` command (to delete all layers but those specified) (#383)
 * Providing a non-existent layer ID to any `--layer` parameter now generates a note (visible with `--verbose`) (#359, #382)
 
