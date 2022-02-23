@@ -15,7 +15,7 @@ New features and improvements:
   * The new `pens` command can apply a predefined or custom scheme on multiple layers at once. Two common schemes are built-in: `rgb` and `cmyk`. Custom schemes can be defined in the configuration file.
   * The `show` and `write` commands were updated to take into account these new layer properties.
 
-* The `read` command now records the source SVG paths in the `vp_source` and `vp_sources` system properties (see the [documentation](https://vpype.readthedocs.io/en/latest/fundamentals.html#system-properties)) (#397)
+* The `read` command now records the source SVG paths in the `vp_source` and `vp_sources` system properties (see the [documentation](https://vpype.readthedocs.io/en/latest/fundamentals.html#system-properties)) (#397, #406)
 
 * Added property substitution to CLI user input (#395)
 

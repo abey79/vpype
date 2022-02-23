@@ -437,20 +437,20 @@ def test_read_sets_source_properties():
     test_file = TEST_FILE_DIRECTORY / "misc" / "multilayer.svg"
     doc = vpype_cli.execute(f"read '{test_file}'")
     assert doc.property(vp.METADATA_FIELD_SOURCE) == test_file
-    assert doc.property(vp.METADATA_FIELD_SOURCE_LIST) == (test_file,)
+    assert doc.property(vp.METADATA_FIELD_SOURCE_LIST) == {test_file}
 
 
 def test_read_by_attrs_sets_source_properties():
     test_file = TEST_FILE_DIRECTORY / "misc" / "multilayer.svg"
     doc = vpype_cli.execute(f"read -a fill -a stroke '{test_file}'")
     assert doc.property(vp.METADATA_FIELD_SOURCE) == test_file
-    assert doc.property(vp.METADATA_FIELD_SOURCE_LIST) == (test_file,)
+    assert doc.property(vp.METADATA_FIELD_SOURCE_LIST) == {test_file}
 
 
 def test_read_single_layer_sets_source_properties():
     test_file = TEST_FILE_DIRECTORY / "misc" / "multilayer.svg"
     doc = vpype_cli.execute(f"read --layer 1 '{test_file}'")
-    assert doc.property(vp.METADATA_FIELD_SOURCE_LIST) == (test_file,)
+    assert doc.property(vp.METADATA_FIELD_SOURCE_LIST) == {test_file}
     assert len(doc.layers) == 1
     assert doc.layers[1].property(vp.METADATA_FIELD_SOURCE) == test_file
 
@@ -461,7 +461,7 @@ def test_read_stdin_sets_source_properties(monkeypatch):
 
     doc = vpype_cli.execute(f"read -")
     assert vp.METADATA_FIELD_SOURCE not in doc.metadata
-    assert doc.sources == tuple()
+    assert doc.sources == set()
 
 
 def test_read_single_layer_stdin_sets_source_properties(monkeypatch):
@@ -471,7 +471,7 @@ def test_read_single_layer_stdin_sets_source_properties(monkeypatch):
     doc = vpype_cli.execute(f"read -l1 -")
     assert vp.METADATA_FIELD_SOURCE not in doc.metadata
     assert vp.METADATA_FIELD_SOURCE not in doc.layers[1].metadata
-    assert doc.sources == tuple()
+    assert doc.sources == set()
 
 
 def test_read_by_attr_stdin_sets_source_properties(monkeypatch):
@@ -480,4 +480,4 @@ def test_read_by_attr_stdin_sets_source_properties(monkeypatch):
 
     doc = vpype_cli.execute(f"read -a stroke -a fill -")
     assert vp.METADATA_FIELD_SOURCE not in doc.metadata
-    assert doc.sources == tuple()
+    assert doc.sources == set()

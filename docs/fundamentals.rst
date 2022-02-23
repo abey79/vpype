@@ -182,7 +182,7 @@ Although there is in general no constraint on the number, name, and type of prop
   * ``vp_name`` (:class:`str`): the name of a layer (layer property)
   * ``vp_page_size`` (two-:class:`tuple` of :class:`float`): the page size (global property)
   * ``vp_source`` (:class:`pathlib.Path`): the input file from which the geometries are created (global and/or layer property)
-  * ``vp_sources`` (:class:`list` of :class:`pathlib.Path`): list of all input files from which geometries are created (global property)
+  * ``vp_sources`` (:class:`set` of :class:`pathlib.Path`): list of all input files from which geometries are created (global property)
 
 Many commands act on these properties. For example, the :ref:`cmd_read` command sets these properties according to the imported SVG file's content. The :ref:`cmd_color`, :ref:`cmd_penwidth`, :ref:`cmd_name`, and :ref:`cmd_pens` commands can set these properties to arbitrary values. In particular, the :ref:`cmd_pens` commands can apply a predefined set of values on multiple layers at once, for example to apply a CMYK color scheme (see :ref:`faq_custom_pen_config` for more information). The page size global property is set by the :ref:`cmd_pagesize` and :ref:`cmd_layout` commands, and used by the :ref:`cmd_write` command.
 
@@ -192,7 +192,7 @@ Many commands act on these properties. For example, the :ref:`cmd_read` command 
 
   The ``vp_source`` property contains the last input file used, and may be overwritten if subsequent file-based commands are used. For example, the :ref:`cmd_read` command stores the input SVG path in ``vp_source`` as layer property if the ``--layer`` option is used, or as global property otherwise. If multiple :ref:`cmd_read` commands are used, the last one may overwrite the value from the earlier ones.
 
-  To address this limitation, the :ref:`cmd_read` command also *appends* the input SVG path to the ``vp_sources`` global property. The ``vp_sources`` property therefore is a list of *all* source files involved. Third-party developers are strongly encouraged to implement a similar behavior in their file-based plug-ins.
+  To address this limitation, the :ref:`cmd_read` command also *appends* the input SVG path to the ``vp_sources`` global property. The ``vp_sources`` property therefore is a set of *all* source files involved. Third-party developers are strongly encouraged to implement a similar behavior in their file-based plug-ins.
 
 
 SVG attributes properties

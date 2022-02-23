@@ -2,7 +2,19 @@
 """
 import math
 import pathlib
-from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Union, cast
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    Union,
+    cast,
+)
 
 import numpy as np
 from shapely.geometry import LinearRing, LineString, MultiLineString
@@ -600,11 +612,11 @@ class Document(_MetadataMixin):
                 self.page_size = page_size
 
     @property
-    def sources(self) -> Tuple[pathlib.Path, ...]:
-        return self.metadata.get(METADATA_FIELD_SOURCE_LIST, tuple())
+    def sources(self) -> Set[pathlib.Path]:
+        return self.metadata.get(METADATA_FIELD_SOURCE_LIST, set())
 
     @sources.setter
-    def sources(self, sources: Tuple[pathlib.Path, ...]) -> None:
+    def sources(self, sources: Set[pathlib.Path]) -> None:
         self.set_property(METADATA_FIELD_SOURCE_LIST, sources)
 
     def add_to_sources(self, path) -> None:
@@ -619,7 +631,7 @@ class Document(_MetadataMixin):
         try:
             path = pathlib.Path(path)
             if path.exists():
-                self.sources += (path,)
+                self.sources |= {path}
         except TypeError:
             pass
 
