@@ -240,8 +240,6 @@ def block_processor(f):
     def new_func(*args, **kwargs):
         # noinspection PyShadowingNames
         def block_processor(state: State, processors: Iterable["ProcessorType"]) -> None:
-            logging.info(f"executing block processor `{f.__name__}` (kwargs: {kwargs})")
-
             start = datetime.datetime.now()
             new_args, new_kwargs = state.preprocess_arguments(args, kwargs)
             logging.info(f"executing block processor `{f.__name__}` (kwargs: {new_kwargs})")
