@@ -437,20 +437,20 @@ def test_read_sets_source_properties():
     test_file = TEST_FILE_DIRECTORY / "misc" / "multilayer.svg"
     doc = vpype_cli.execute(f"read '{test_file}'")
     assert doc.property(vp.METADATA_FIELD_SOURCE) == test_file
-    assert doc.property(vp.METADATA_FIELD_SOURCE_LIST) == (test_file,)
+    assert doc.property(vp.METADATA_FIELD_SOURCE_LIST) == {test_file}
 
 
 def test_read_by_attrs_sets_source_properties():
     test_file = TEST_FILE_DIRECTORY / "misc" / "multilayer.svg"
     doc = vpype_cli.execute(f"read -a fill -a stroke '{test_file}'")
     assert doc.property(vp.METADATA_FIELD_SOURCE) == test_file
-    assert doc.property(vp.METADATA_FIELD_SOURCE_LIST) == (test_file,)
+    assert doc.property(vp.METADATA_FIELD_SOURCE_LIST) == {test_file}
 
 
 def test_read_single_layer_sets_source_properties():
     test_file = TEST_FILE_DIRECTORY / "misc" / "multilayer.svg"
     doc = vpype_cli.execute(f"read --layer 1 '{test_file}'")
-    assert doc.property(vp.METADATA_FIELD_SOURCE_LIST) == (test_file,)
+    assert doc.property(vp.METADATA_FIELD_SOURCE_LIST) == {test_file}
     assert len(doc.layers) == 1
     assert doc.layers[1].property(vp.METADATA_FIELD_SOURCE) == test_file
 
