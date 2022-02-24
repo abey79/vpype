@@ -5,44 +5,33 @@
 **Note**: This is the last version of *vpype* to support Python 3.7.
 
 New features and improvements:
-* Added support for global and per-layer metadata (#359)
+* Added support for global and per-layer [properties]((https://vpype.readthedocs.io/en/latest/fundamentals.html#properties)) (#359)
   
-  This feature is intended as a generic mechanism whereby a set of properties may be attached to specific layers (layer property) or all of them (global property). Properties are identified by a name and may be of arbitrary type (e.g. integer, floating point, color, etc.). This new infrastructure is used by several of the features introduced in this release, paves the way for future features, and further empowers plug-in writers. See the [documentation](https://vpype.readthedocs.io/en/latest/fundamentals.html#properties) for more background information on metadata.
+  This feature introduces metadata to the pipeline in the form of properties which may either be attached to specific layers (layer property) or all of them (global property). Properties are identified by a name and may be of arbitrary type (e.g. integer, floating point, color, etc.). A number of [system properties](https://vpype.readthedocs.io/en/latest/fundamentals.html#system-properties) with a specific name (prefixed with `vp_`) and type are introduced to support some of the new features.
 
 * Layer color, pen width, and name are now customizable (#359, #376, #389)
   * The `read` commands now sets layer color, pen width, and name based on the input SVG if possible.
   * The new `color`, `penwdith`, and `name` commands can be used to modify layer color, pen width, and name.
-  * The new `pens` command can apply a predefined or custom scheme on multiple layers at once. Two common schemes are built-in: `rgb` and `cmyk`. Custom schemes can be defined in the configuration file.
-  * The `show` and `write` commands were updated to take into account these new layer properties.
+  * The new `pens` command can apply a predefined or custom scheme on multiple layers at once. Two common schemes are built-in: `rgb` and `cmyk`. [Custom schemes](https://vpype.readthedocs.io/en/latest/cookbook.html#creating-a-custom-pen-configuration) can be defined in the configuration file.
+  * The `show` and `write` commands now take into account these layer properties.
 
 * The `read` command now records the source SVG paths in the `vp_source` and `vp_sources` system properties (see the [documentation](https://vpype.readthedocs.io/en/latest/fundamentals.html#system-properties)) (#397, #406)
 
-* Added property substitution to CLI user input (#395)
+* Added [property substitution](https://vpype.readthedocs.io/en/latest/fundamentals.html#property-substitution) to CLI user input (#395)
 
-  The input provided to most commands' arguments and options may now contain substitution patterns which will be replaced by the corresponding property value. Property substitution patterns are marked with curly braces (e.g. `{property_name}`) and support the same formatting capabilities as the Python's [`format()` function](https://docs.python.org/3/library/string.html#formatstrings). For example, the following command draws the layer name and pen width:
-  ```bash
-  $ vpype read input.svg text --layer 1 "Name: {vp_name} Pen width: {vp_pen_width:.2f}" write output.svg
-  ```
-  See the [documentation](https://vpype.readthedocs.io/en/latest/fundamentals.html#property-substitution) for more information and examples.
+  The input provided to most commands' arguments and options may now contain substitution patterns which will be replaced by the corresponding property value. Property substitution patterns are marked with curly braces (e.g. `{property_name}`) and support the same formatting capabilities as the Python's [`format()` function](https://docs.python.org/3/library/string.html#formatstrings).
 
-* Added expression substitution to CLI user input (#397)
+* Added [expression substitution](https://vpype.readthedocs.io/en/latest/fundamentals.html#expression-substitution) to CLI user input (#397)
 
-  The input provided to most command's arguments and option may now contain expression patterns which will be evaluated before the command is run. Expression patterns are marked with the percent `%` symbol (e.g. `%3+4%`) and support a large subset of the Python language. For example, the following pipeline adds a rectangular frame to a document with a given margin:
-  ```bash
-  $ vpype read my_file.svg \
-        eval "%m = 1*cm%" \
-        rect %m% %m% "%prop.vp_page_size[0]-2*m%" "%prop.vp_page_size[1]-2*m%" \
-        write %basename(vp_filename)%_framed.svg
-  ```
-  See the [documentation](https://vpype.readthedocs.io/en/latest/fundamentals.html#expression-substitution) for more information and examples.
+  The input provided to most command's arguments and options may now contain expression patterns which are evaluated before the command is executed. Expression patterns are marked with the percent symbol `%` (e.g. `%3+4%`) and support a large subset of the Python language. [A](https://vpype.readthedocs.io/en/latest/cookbook.html#load-multiple-files-merging-their-layers-by-name) [lot](https://vpype.readthedocs.io/en/latest/cookbook.html#cropping-and-framing-geometries) [of](https://vpype.readthedocs.io/en/latest/cookbook.html#laying-out-multiple-svgs-on-a-grid) [examples](https://vpype.readthedocs.io/en/latest/cookbook.html#create-interactive-scripts-with-input) were added in the [cookbook](https://vpype.readthedocs.io/en/latest/cookbook.html).
 
-* The `read` command can now optionally sort geometries by attributes (e.g. stroke color, stroke width, etc.) instead of by SVG layer (#378, #389)
+* Added the `--attr` option to the `read` command to (optionally) sort geometries by attributes (e.g. stroke color, stroke width, etc.) instead of by SVG layer (#378, #389)
 
 * The `read` and `write` commands now preserve a sub-set of SVG attributes (experimental) (#359, #389)
   
-  The `read` command now seeks for SVG attributes (e.g. `stroke-dasharray`) which are shared by all geometries in each layer. When found, such attributes are saved as layer properties (with their name prefixed with `svg_`, e.g. `svg_stroke-dasharray`). The `write` command can optionally restore these attributes in the output SVG (using the `--restore-attribs`), thereby maintaining some of the visual aspects of the original SVG (e.g. dashed lines).
+  The `read` command identifies SVG attributes (e.g. `stroke-dasharray`) which are common in all geometries within each layer. These attributes are saved as layer properties with their name prefixed with `svg_` (e.g. `svg_stroke-dasharray`). The `write` command can optionally restore these attributes in the output SVG using the `--restore-attribs` option.
 
-* Introduced new commands for low-level inspection and modification of metadata (#359)
+* Introduced new commands for low-level inspection and modification of properties (#359)
 
   * `propget`: gets the value of a given global or layer property
   * `proplist`: lists all global and/or layer properties and their value
@@ -50,7 +39,7 @@ New features and improvements:
   * `propdel`: deletes a given global or layer property
   * `propclear`: removes all global and/or layer properties
 
-* Updated layer operation commands to handle metadata (#359)
+* Updated layer operation commands to handle properties (#359)
 
   * When a single source layer is specified and `--prob` is not used, the `lcopy` and `lmove` commands now copy the source layer's properties to the destination layer (possibly overwriting existing properties).
   * When `--prob` is not used, the `lswap` command now swaps the layer properties as well.
@@ -59,19 +48,18 @@ New features and improvements:
 * Improved block processors (#395, #397)
 
   * Simplified and improved the infrastructure underlying block processors for better extensibility.
-  * The `grid` block processor now adjusts the page size according to its layout. 
-  * The `grid` and `repeat` block processors now sets variables for expressions in nested commands.
-  * Added `forfile` block processor to iterate over a list of file.
-  * Added `forlayer` block processor to iterate over the existing layers.
-  * The `begin` marker is now optional and implied whenever a block processor command is encountered. The following pipelines are thus equivalent:
-    ```bash
-    $ vpype begin grid 2 2 random end show
-    $ vpype grid 2 2 random end show 
-    ```
-    *Note*: the `end` marker must always be used to mark the end of a block.
-  * Commands inside the block now have access to the current layer structure and its metadata. This makes their use more predictable. For example, `begin grid 2 2 random --layer new end` now correctly generates patches of random lines on different layers.
-  * The `grid` block processor now first iterate along lines instead of columns.
+  * The `begin` marker is now optional and implied whenever a block processor command is encountered. *Note*: the `end` marker must always be used to mark the end of a block.
+  * Commands inside the block now have access to the current layer structure and its metadata.
 
+* Improved the `grid` block processor (#397)
+  
+  * The page size is now updated according to the grid size.
+  * The command now sets expression variables for use in the nested pipeline.
+  * Cells are now first iterated along rows instead of columns.
+
+* The `repeat` block processor now sets expression variables for use in the nested pipeline (#397)
+* Added `forfile` block processor to iterate over a list of file (#397)
+* Added `forlayer` block processor to iterate over the existing layers (#397)
 * The `read` command now will ignore a missing file if `--no-fail` parameter is used (#397)
   
 * Changed the initial default target layer to 1 (#395)
