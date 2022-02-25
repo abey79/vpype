@@ -368,7 +368,7 @@ def _get_source(file: Union[str, TextIO]) -> Optional[pathlib.Path]:
     try:
         path = pathlib.Path(file)  # type: ignore
         if path.exists():
-            return path
+            return path.absolute()
     except TypeError:
         pass
 
