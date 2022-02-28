@@ -898,7 +898,7 @@ test = ["pytest"]
 
 [[package]]
 name = "svgelements"
-version = "1.6.9"
+version = "1.6.10"
 description = "Svg Elements Parsing"
 category = "main"
 optional = false
@@ -992,7 +992,7 @@ docs = ["Sphinx", "sphinx-click", "sphinx-autodoc-typehints", "sphinx-rtd-theme"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7, !=3.9.0, <3.10"
-content-hash = "e03af9957e8aae66b123e7c75865a994d87278fad7ab902ee499e78e52232dbc"
+content-hash = "b9e391ecb26daf8ec76520631c5fa233de1f6c04cd8d653f931f79d5e51da528"
 
 [metadata.files]
 alabaster = [
@@ -1546,6 +1546,9 @@ requests = [
     {file = "requests-2.27.1.tar.gz", hash = "sha256:68d7c56fd5a8999887728ef304a6d12edc7be74f1cfa47714fc8b414525c9a61"},
 ]
 scipy = [
+    {file = "scipy-1.7.3-1-cp310-cp310-macosx_12_0_arm64.whl", hash = "sha256:c9e04d7e9b03a8a6ac2045f7c5ef741be86727d8f49c45db45f244bdd2bcff17"},
+    {file = "scipy-1.7.3-1-cp38-cp38-macosx_12_0_arm64.whl", hash = "sha256:b0e0aeb061a1d7dcd2ed59ea57ee56c9b23dd60100825f98238c06ee5cc4467e"},
+    {file = "scipy-1.7.3-1-cp39-cp39-macosx_12_0_arm64.whl", hash = "sha256:b78a35c5c74d336f42f44106174b9851c783184a85a3fe3e68857259b37b9ffb"},
     {file = "scipy-1.7.3-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:173308efba2270dcd61cd45a30dfded6ec0085b4b6eb33b5eb11ab443005e088"},
     {file = "scipy-1.7.3-cp310-cp310-macosx_12_0_arm64.whl", hash = "sha256:21b66200cf44b1c3e86495e3a436fc7a26608f92b8d43d344457c54f1c024cbc"},
     {file = "scipy-1.7.3-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:ceebc3c4f6a109777c0053dfa0282fddb8893eddfb0d598574acfb734a926168"},
@@ -1657,8 +1660,8 @@ sphinxcontrib-serializinghtml = [
     {file = "sphinxcontrib_serializinghtml-1.1.5-py2.py3-none-any.whl", hash = "sha256:352a9a00ae864471d3a7ead8d7d79f5fc0b57e8b3f95e9867eb9eb28999b92fd"},
 ]
 svgelements = [
-    {file = "svgelements-1.6.9-py2.py3-none-any.whl", hash = "sha256:83c3e53d7ae4cd7f4d7f4e7be29444870507e0d559a7a06160284be9e222c325"},
-    {file = "svgelements-1.6.9.tar.gz", hash = "sha256:355a5cd5f43834cfdfab669298253d17138c76b00feafb53fdbb59000aeb54a7"},
+    {file = "svgelements-1.6.10-py2.py3-none-any.whl", hash = "sha256:2a047b2a98223bb550b00e7776ca469cc902437ea3e265ade8c11135752988c1"},
+    {file = "svgelements-1.6.10.tar.gz", hash = "sha256:80ca705b26103a46256bdbc80ce75e4aa174d94fa7f57a5c9b9253208cd3b6f3"},
 ]
 svgwrite = [
     {file = "svgwrite-1.4.1-py3-none-any.whl", hash = "sha256:4b21652a1d9c543a6bf4f9f2a54146b214519b7540ca60cb99968ad09ef631d0"},
