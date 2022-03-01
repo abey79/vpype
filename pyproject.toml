@@ -42,7 +42,7 @@ pnoise = "^0.1.0"
 Shapely = {extras = ["vectorized"], version = "1.8.0"}  # 1.8.1 breaks win installer
 scipy = "^1.6"
 setuptools = "^51.0.0"
-svgelements = "1.6.9"
+svgelements = "1.6.10"
 svgwrite = "~1.4"
 tomli = "^2.0.0"
 asteval = "^0.9.26"
@@ -81,7 +81,7 @@ docs = ["Sphinx", "sphinx-click", "sphinx-autodoc-typehints", "sphinx-rtd-theme"
 all = ["matplotlib", "glcontext", "moderngl", "Pillow", "PySide2"]
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core>=1.0.8"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
