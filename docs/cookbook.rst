@@ -584,8 +584,25 @@ This works because of the particular way in which the ``or`` operator behaves. I
 
 See :ref:`faq_merge_to_grid` for a real-world example that makes use of this pattern.
 
-Batch processing many SVG with bash scripts and ``parallel``
-------------------------------------------------------------
+
+Batch processing multiple SVGs with ``forfile``
+-----------------------------------------------
+
+The :ref:`cmd_forfile` block processor can be used to apply the same processing on multiple files using the following pattern::
+
+  $ vpype forfile "*.svg" \
+        read "%_path%" \
+        linemerge linesort reloop linesimplify \
+        write "%_path.parent / _path.stem%_processed.svg" \
+      end
+
+The basic idea is to enclose the desired pipeline, including the :ref:`cmd_read` and :ref:`cmd_write` commands, in a :ref:`cmd_forfile` block. The input path is the ``_path`` expression variable set by :ref:`cmd_forfile`. A suitable output path can be constructed by combining ``_path.parent`` (the directory the input file) and ``_path.stem`` (the input file name without extension) in an expression, and adding the ``_processed.svg`` suffix (see :ref:`fundamentals_using_paths`).
+
+One of the drawbacks of this approach is that each file is processed sequentially without exploiting multiple CPU cores. For a large number of files, this may take some time. The next recipe introduces an alternative batch processing method which enables multi-core processing.
+
+
+Batch processing multiple SVGs with ``parallel``
+------------------------------------------------
 
 Computers offer endless avenues for automation, which depend on OS and the type of task at hand. Here is one way to
 easily process a large number of SVG with the same *vpype* pipeline. This approach relies on the
