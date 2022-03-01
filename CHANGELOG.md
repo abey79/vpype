@@ -113,6 +113,7 @@ API changes:
 
 Other changes:
 * Renamed the bundled config file to `vpype_config.toml` (#359)
+* Pinned poetry-core to 1.0.8 to enable editable installs (#410)
 * Changed dependencies to dataclasses (instead of attrs) and tomli (instead of toml) (#362)
 * Removed dependency to click-plugin (#388)
 * Improved documentation, in particular the [Fundamentals](https://vpype.readthedocs.io/en/latest/fundamentals.html) and [Cookbook](https://vpype.readthedocs.io/en/latest/cookbook.html) sections (#359, #363, #397)
