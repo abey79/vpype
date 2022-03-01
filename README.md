@@ -1,4 +1,4 @@
-![banner](https://github.com/abey79/vpype/raw/master/docs/images/banner.png)
+![banner](https://github.com/abey79/vpype/raw/master/docs/images/banner_ua.png)
 
 
 # _vpype_
