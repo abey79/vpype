@@ -1,10 +1,13 @@
 # Change log
 
-#### 1.9 (UNRELEASED)
+## 1.9
+
+Release date: UNRELEASED
 
 **Note**: This is the last version of *vpype* to support Python 3.7.
 
-New features and improvements:
+### New features and improvements
+
 * Added support for global and per-layer [properties]((https://vpype.readthedocs.io/en/latest/fundamentals.html#properties)) (#359)
   
   This feature introduces metadata to the pipeline in the form of properties which may either be attached to specific layers (layer property) or all of them (global property). Properties are identified by a name and may be of arbitrary type (e.g. integer, floating point, color, etc.). A number of [system properties](https://vpype.readthedocs.io/en/latest/fundamentals.html#system-properties) with a specific name (prefixed with `vp_`) and type are introduced to support some of the new features.
@@ -70,10 +73,12 @@ New features and improvements:
 * Added `--keep` option to the `ldelete` command (to delete all layers but those specified) (#383)
 * Providing a non-existent layer ID to any `--layer` parameter now generates a note (visible with `--verbose`) (#359, #382)
 
-Bug fixes:
+### Bug fixes
+
 * Fixed an issue with the `random` command when using non-square area (#395)
 
-API changes:
+### API changes
+
 * Moved all CLI-related APIs from `vpype` to `vpype_cli` (#388)
 
   A number of CLI-related APIs remained in the `vpype` package for historical reasons. They are now located in the `vpype_cli` package for consistency and to allow for future extensions.
@@ -111,7 +116,8 @@ API changes:
 * Added `vpype.read_svg_by_attribute()` to read SVG while sorting geometries by arbitrary attributes (#378)
 * Added an argument to `vpype_cli.execute()` to pass global option such as `--verbose` (#378)
 
-Other changes:
+### Other changes
+
 * Renamed the bundled config file to `vpype_config.toml` (#359)
 * Pinned poetry-core to 1.0.8 to enable editable installs (#410)
 * Changed dependencies to dataclasses (instead of attrs) and tomli (instead of toml) (#362)
@@ -119,15 +125,21 @@ Other changes:
 * Improved documentation, in particular the [Fundamentals](https://vpype.readthedocs.io/en/latest/fundamentals.html) and [Cookbook](https://vpype.readthedocs.io/en/latest/cookbook.html) sections (#359, #363, #397)
 
 
-#### 1.8.1 (2022-01-13)
+## 1.8.1
 
-Security fix:
+Release date: 2022-01-13
+
+### Security fix
+
 * Updated Pillow to 9.0.0 due to vulnerabilities in previous versions (CVE-2022-22815, CVE-2022-22817, CVE-2022-22816)
 
 
-#### 1.8 (2021-11-25)
+## 1.8
 
-New features and improvements:
+Release date: 2021-11-25
+
+### New features and improvements
+
 * Added `lswap` command to swap the content of two layers (#300)
 * Added `lreverse` command to reverse the order of paths within a layer (#300)
 * Improved HPGL export (#253, #310, #316, #335)
@@ -137,22 +149,27 @@ New features and improvements:
 * The viewer (`show` command) now catches interruptions from the terminal (ctrl-C) and closes itself (#321)
 * The `read` command now accepts `-` as file path to read from the standard input (#322)
 
-Bug fixes:
+### Bug fixes
+
 * Fixed issue with HPGL export where page size auto-detection would fail when using the default device from the config file (instead of specifying the device with `--device`) (#328)
 * Fixed issue where the viewer would crash with empty layers (#339) 
 
-Other changes:
+### Other changes
+
 * Updated to Shapely 1.8 (transition release toward 2.0) and fixed deprecation warnings (#325, #342)
 
 
-#### 1.7 (2021-06-10)
+## 1.7
+
+Release date: 2021-06-10
 
 **Important**: for a regular installation, *vpype* must now be installed/updated with the following command (see details below):
 ```
 pip install -U vpype[all]
 ```
 
-New features and improvements:
+### New features and improvements
+
 * Installing the viewer (`show` command) and its dependencies is now optional (#254)
   
   The `all` extra must now be provided to `pip` for a complete install:
@@ -165,19 +182,24 @@ New features and improvements:
 
   This feature is enabled by adding the `--two-opt` option. Since it considerably increases the processing time, it should primarily be used for special cases such as plotting the same file multiple times.
 
-Bug fixes:
+### Bug fixes
+
 * Fixed broken Windows installer (#285)
 * Fixed an issue where `read` would crash with empty `<polygon>` tags and similar degenerate geometries (#260)
 * Fixed an issue where `linesimplify` would skip layers containing a single line (#280)
 * Fixed an issue where floating point value could be generated for HPGL VS commands (#286)
 
-Other changes:
+### Other changes
+
 * Updated to Click 8.0.1 (#282) 
 
 
-#### 1.6 (2021-03-10)
+## 1.6
 
-New features and improvements:
+Release date: 2021-03-10
+
+### New features and improvements
+
 * Added new `text` command  (#226, #227)
   
   This command renders text using Hershey fonts. It can create text blocks with wrapping, custom alignment, and optional justification. A set of Hershey fonts is included.
@@ -189,29 +211,37 @@ New features and improvements:
 * Added `squiggles` command for a "shaky hand" or "liquid-like" styling (#217)
 * Added probabilistic mode to `lmove`, `lcopy`, and `ldelete` to enable various random coloring effects (#220)
 
-Bug fixes:
+### Bug fixes
+
 * Fixed missing documentation for the `reverse` command (#217)
 
-API changes:
+### API changes
+
 * Added `vpype.FONT_NAMES`, `vpype.text_line`, and `vpype.text_block` for Hershey-font-based text rendering (#226, #227)
 
+### Other changes
 
-Other changes:
 * Dropped support for Python 3.6 (#207)
 
 
-#### 1.5.1 (2021-02-19)
+## 1.5.1
 
-Bug fixes:
+Release date: 2021-02-19
+
+### Bug fixes
+
 * Fixed a shader compilation issue arising on some Windows configuration (#210)
 * Fixed UI glitches when using both non-HiDPI and HiDPI (a.k.a Retina) monitors (#211)
 
 
-#### 1.5 (2021-02-16)
+## 1.5
+
+Release date: 2021-02-16
 
 **Note**: This is the last version of *vpype* to support Python 3.6.
 
-New features and improvements:
+### New features and improvements
+
 * Viewer improvements:
   * Added rulers with dynamic scale to the display (can be optionally hidden) (#199)
   * Added metric and imperial unit system (in addition to pixels), used by the rulers and the mouse coordinates display (#199, #205)
@@ -225,34 +255,44 @@ New features and improvements:
     ```  
     A value of 1.5 may be useful on some Windows configurations where the default UI is very small.
   
-Bug fixes:
+### Bug fixes
+
 * Fixed issue on Linux where `show` would revert to the classic viewer due to a `libX11` discovery issue (#206)
 
-API changes:
+### API changes
+
 * Renamed `vpype.CONFIG_MANAGER` in favour of `vpype.config_manager` (existing name kept for compatibility) (#202)
 
 
-#### 1.4 (2021-02-08)
+## 1.4
 
-New features and improvements:
+Release date: 2021-02-08
+
+### New features and improvements
+
 * Python 3.9.1 (or later) is finally supported and now is the recommended version (#115)
 * Viewer improvements:
   * The viewer will now keep the page fitted to the window when resizing, until manually zoomed and/or panned (#193)
   * Significantly optimized launch and setting changes times (#184, #195)
 
-Bug fixes:
+### Bug fixes
+
 * Various documentation fixes and improvements:
   * improved the `layout` command's help text
   * improved the cookbook section on using `GNU parallel` (#108)
   * fixed typos related to the `layout` command in the cookbook (#186, thanks to @f4nu)
 
-API changes:
+### API changes
+
 * Added support for a sidebar in the viewer (#194)
 
 
-#### 1.3 (2021-01-27)
+## 1.3
 
-New features and improvements:
+Release date: 2021-01-27
+
+### New features and improvements
+
 * Added new `layout` command (#168)
   
   This command automates the page layout process on a specified the page size by centering the geometries (with
@@ -276,48 +316,64 @@ New features and improvements:
 * The `splitall` command will now filter out segments with identical end-points (#146)
 * Minor loading time improvement (#133)
 
-Bug fixes:
+### Bug fixes
+
 * Various documentation fixes (#170, #172, thanks to @theomega)
 
-API changes:
+### API changes
+
 * Added the new viewer engine and Qt-based GUI (#163)
 
 
-#### 1.2.1 (2020-12-26)
+## 1.2.1
 
-Hot fix:
+Release date: 2020-12-26
+
+### Hot fix
+
 * Fixed systematic crash with `read` command due to bad dependency version (#140)
 
 
-#### 1.2 (2020-12-17)
+## 1.2
 
-New features and improvements:
+Release date: 2020-12-17
+
+### New features and improvements
+
 * A Windows installer is now available (#120)
 * HPGL output: `--page-size` is no longer mandatory and `write` will try to infer which paper to use based on the current page size (#132)  
 * Added `reverse` command (#129)
 
-Bug fixes:
+### Bug fixes
+
 * Fixed crash for SVG with <desc> element (#127)
 * Fixed an issue where output HPGL file could be empty (#132)
 
 
-#### 1.1 (2020-12-10)
+## 1.1
+  
+Release date: 2020-12-10
 
-New features and improvements:
+### New features and improvements
+  
 * Added `snap` command (#110)
 * Invisible SVG elements are now discarded (#103)
 * Add support for angle units (affects `rotate`, `skew`, and `arc` commands, `--radian` option is removed) (#111)
 
-Bug fixes:
+### Bug fixes
+  
 * Fixed installation issue on Windows ("Numpy sanity check RuntimeError") (#119)
 * Fixed `write` to cap SVG width and height to a minimum of 1px (#102)
 * Fixed grouping of `stat` command in `vpype --help`
 
-API changes:
+### API changes
+  
 * Added `vpype_cli.execute()` to execute a vpype pipeline from Python (#104)
 * Added `vpype.convert_angle()` and `vpype.AngleType` (#111)
 
 
-#### 1.0 (2020-11-29)
+## 1.0
+
+Release date: 2020-11-29
 
 * Initial release
