@@ -48,7 +48,7 @@ def grid(
     \b
         _nx: number of columns (NX)
         _ny: number of rows (NY)
-        _n: total number of cell (NX*NY)
+        _n: total number of cells (NX*NY)
         _x: current column (0 to NX-1)
         _y: current row (0 to NY-1)
         _i: current cell (0 to _n-1)
@@ -100,8 +100,8 @@ def repeat(state: State, processors: Iterable[ProcessorType], number: int) -> No
     The following variables are set by `repeat` and available for expressions:
 
     \b
-        _n: number of repetition
-        _i: counter (0 to _n-1)
+        _n: number of repetitions (N)
+        _i: counter (0 to N-1)
 
     Examples:
 
@@ -132,10 +132,10 @@ def forfile(state: State, processors: Iterable[ProcessorType], files: str) -> No
 
     \b
         _path (pathlib.Path): file path
-        _name (str): file name (e.g. 'input.svg')
-        _parent (pathlib.Path): parent directory
-        _ext (str): file extension (e.g. '.svg')
-        _stem (str): file name without extension (e.g. 'input')
+        _name (str): file name, same as _path.name (e.g. 'input.svg')
+        _parent (pathlib.Path): parent directory, same as _path.parent
+        _ext (str): file extension, same as _path.suffix (e.g. '.svg')
+        _stem (str): file name without extension, same as _path.stem (e.g. 'input')
         _n (int): total number of files
         _i (int): counter (0 to _n-1)
 
