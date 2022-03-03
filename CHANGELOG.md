@@ -2,7 +2,7 @@
 
 ## 1.9
 
-Release date: UNRELEASED
+Release date: 2022-03-03
 
 **Note**: This is the last version of *vpype* to support Python 3.7.
 
