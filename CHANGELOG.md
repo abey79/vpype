@@ -63,6 +63,7 @@ Release date: UNRELEASED
 * The `repeat` block processor now sets expression variables for use in the nested pipeline (#397)
 * Added `forfile` block processor to iterate over a list of file (#397)
 * Added `forlayer` block processor to iterate over the existing layers (#397)
+* Added the `eval` command as placeholder for executing expressions (#397)
 * The `read` command now will ignore a missing file if `--no-fail` parameter is used (#397)
   
 * Changed the initial default target layer to 1 (#395)
