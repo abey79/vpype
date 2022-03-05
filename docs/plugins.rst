@@ -15,9 +15,23 @@ Thanks to the CLI library which underlies *vpype* (`Click <https://click.pallets
 
 Here are a few existing plug-ins to illustrate the possibilities:
 
-* `vpype-text <https://github.com/abey79/vpype-text>`_: generate plottable text with Hershey fonts (based on `axi <https://github.com/fogleman/axi>`_)
+* `vpype-gcode <https://github.com/plottertools/vpype-gcode>`__: flexible export to gcode or any other text-based format
+* `vpype-embroidery <https://github.com/EmbroidePy/vpype-embroidery>`__: convert to/from common embroidery file formats
+* `vpype-dxf <https://github.com/tatarize/vpype-dxf>`__: read from DXF
+* `vpype-vectrace <https://github.com/tatarize/vpype-vectrace>`__: trace from bitmap images
+* `occult <https://github.com/LoicGoulefert/occult>`__: perform hidden line removal with closed geometry
 
-* `vpype-pixelart <https://github.com/abey79/vpype-pixelart>`_: easy pixel art plotting
+  .. image:: https://raw.githubusercontent.com/LoicGoulefert/occult/master/img/example8.png
+     :height: 400px
+
+* `vpype-flow-imager <https://github.com/serycjon/vpype-flow-imager>`__: convert image to flow field line art
+
+  .. image:: https://raw.githubusercontent.com/serycjon/vpype-flow-imager/master/examples/coffee.jpg
+     :width: 300px
+  .. image:: https://raw.githubusercontent.com/serycjon/vpype-flow-imager/master/examples/coffee_out.png
+     :width: 300px
+
+* `vpype-pixelart <https://github.com/abey79/vpype-pixelart>`__: easy pixel art plotting
 
   .. image:: https://i.redd.it/g1nv7tf20aw11.png
      :width: 400px
@@ -27,7 +41,7 @@ Here are a few existing plug-ins to illustrate the possibilities:
 
   (original art by Reddit user `u/\_NoMansDream <https://www.reddit.com/user/_NoMansDream/>`_)
 
-- `hatched <https://github.com/abey79/hatched>`_: convert images to hatched patterns
+- `hatched <https://github.com/abey79/hatched>`__: convert images to hatched patterns
 
   .. image:: https://i.imgur.com/QLlBpNU.png
      :width: 300px
