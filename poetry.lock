@@ -930,7 +930,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "types-cachetools"
-version = "4.2.9"
+version = "5.0.0"
 description = "Typing stubs for cachetools"
 category = "dev"
 optional = false
@@ -1546,6 +1546,9 @@ requests = [
     {file = "requests-2.27.1.tar.gz", hash = "sha256:68d7c56fd5a8999887728ef304a6d12edc7be74f1cfa47714fc8b414525c9a61"},
 ]
 scipy = [
+    {file = "scipy-1.7.3-1-cp310-cp310-macosx_12_0_arm64.whl", hash = "sha256:c9e04d7e9b03a8a6ac2045f7c5ef741be86727d8f49c45db45f244bdd2bcff17"},
+    {file = "scipy-1.7.3-1-cp38-cp38-macosx_12_0_arm64.whl", hash = "sha256:b0e0aeb061a1d7dcd2ed59ea57ee56c9b23dd60100825f98238c06ee5cc4467e"},
+    {file = "scipy-1.7.3-1-cp39-cp39-macosx_12_0_arm64.whl", hash = "sha256:b78a35c5c74d336f42f44106174b9851c783184a85a3fe3e68857259b37b9ffb"},
     {file = "scipy-1.7.3-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:173308efba2270dcd61cd45a30dfded6ec0085b4b6eb33b5eb11ab443005e088"},
     {file = "scipy-1.7.3-cp310-cp310-macosx_12_0_arm64.whl", hash = "sha256:21b66200cf44b1c3e86495e3a436fc7a26608f92b8d43d344457c54f1c024cbc"},
     {file = "scipy-1.7.3-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:ceebc3c4f6a109777c0053dfa0282fddb8893eddfb0d598574acfb734a926168"},
@@ -1695,8 +1698,8 @@ typed-ast = [
     {file = "typed_ast-1.5.2.tar.gz", hash = "sha256:525a2d4088e70a9f75b08b3f87a51acc9cde640e19cc523c7e41aa355564ae27"},
 ]
 types-cachetools = [
-    {file = "types-cachetools-4.2.9.tar.gz", hash = "sha256:4ac4b7866da8d3f750413a3e91809c2bf6124aa920ef6dc32c5df2d84a53585c"},
-    {file = "types_cachetools-4.2.9-py3-none-any.whl", hash = "sha256:da18b1acbc4a03ed3ce8f6ad4d70ad8ca31f542c205cb45ceb524d2ddd544c28"},
+    {file = "types-cachetools-5.0.0.tar.gz", hash = "sha256:b207dd2bc8cc7371433caa024e8aebf6171f3a693eaec631933989dfcde8d3ed"},
+    {file = "types_cachetools-5.0.0-py3-none-any.whl", hash = "sha256:7615cab1ff52d350019c5c5a54bab1b73e5e12b409291aba0db8442290610226"},
 ]
 types-pkg-resources = [
     {file = "types-pkg_resources-0.1.3.tar.gz", hash = "sha256:834a9b8d3dbea343562fd99d5d3359a726f6bf9d3733bccd2b4f3096fbab9dae"},
