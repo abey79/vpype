@@ -3,7 +3,7 @@ import difflib
 import io
 import os
 import re
-from typing import Set
+from typing import List, Set
 
 import click
 import numpy as np
@@ -385,7 +385,7 @@ def test_read_by_attribute():
     doc = vp.read_svg_by_attributes(str(file), ["stroke", "stroke-width"], 0.1)
     assert len(doc.layers) == 3
     assert _prop_set(doc, "vp_color") == {vp.Color("#906"), vp.Color("#00f")}
-    assert _prop_set(doc, "vp_pen_width") == pytest.approx({1, 4})
+    assert sorted(_prop_set(doc, "vp_pen_width")) == pytest.approx([1, 4])
 
 
 def test_read_layer_assumes_single_layer(caplog):
