@@ -1,5 +1,5 @@
 import math
-from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Iterable, List, Optional, Sequence, Tuple, Union
 
 import moderngl as mgl
 import numpy as np
@@ -320,7 +320,7 @@ class LineCollectionPreviewPainter(Painter):
         last point identical to their first point."""
 
         indices = []
-        reset_index = [-1]
+        reset_index = np.array([-1])
         start_index = 0
         for i, line in enumerate(lc):
             if line[0] == line[-1]:  # closed path

@@ -173,9 +173,10 @@ def linesort(lines: vp.LineCollection, no_flip: bool, two_opt: bool, passes: int
         # noinspection PyShadowingNames
         idx, reverse = line_index.find_nearest(new_lines[-1][-1])
         line = line_index.pop(idx)
-        if reverse:
-            line = np.flip(line)
-        new_lines.append(line)
+        if line is not None:
+            if reverse:
+                line = np.flip(line)
+            new_lines.append(line)
 
     original = lines.pen_up_length()
     replacement = new_lines.pen_up_length()
