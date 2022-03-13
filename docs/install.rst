@@ -6,10 +6,14 @@ Installation
 
 This page explain how to install *vpype* for end-users. If you intend to develop on *vpype*, refer to the the :ref:`contributing` section.
 
-.. caution::
+..
+  .. caution::
 
-    *vpype* is currently **not compatible with Python 3.10**. The recommended version is Python 3.9.9 (or later in the 3.9 series). *vpype* is
-    also compatible with Python 3.8 and 3.7.
+      *vpype* is currently **not compatible with Python 3.10**. The recommended version is Python 3.9.9 (or later in the 3.9 series). *vpype* is also compatible with Python 3.8 and 3.7.
+
+.. note::
+
+  The recommended Python version is 3.10.2 or later. *vpype* is also compatible with Python 3.8 and 3.9.
 
 .. note::
 
@@ -32,16 +36,16 @@ Then, install the required ports::
 
   $ sudo port install python39 py39-shapely py39-scipy py39-numpy py39-pyside2
 
-Optionally, you may make Python 3.9 the default interpreter::
+Optionally, you may make Python 3.10 the default interpreter::
 
-  $ sudo port select --set python python39
+  $ sudo port select --set python python310
 
 Then, create the virtual environment::
 
-  $ /opt/local/bin/python3.9 -m venv vpype_venv --system-site-packages
+  $ /opt/local/bin/python3.10 -m venv vpype_venv --system-site-packages
 
 A virtual environment named ``vpype_venv`` will be created in the current directory. There are two import points to note in the command above.
-First, we use a full path (``/opt/local/bin/python3.9``) to ascertain that the virtual environment will use the right Python interpreter (i.e. MacPorts'). Second, we allow the virtual environment to use the global environment's packages (``--system-site-packages``). This is important because *vpype* needs MacPorts' version of PySide2 (``pip`` is unable to install PySide2 on Apple Silicon hardware).
+First, we use a full path (``/opt/local/bin/python3.10``) to ascertain that the virtual environment will use the right Python interpreter (i.e. MacPorts'). Second, we allow the virtual environment to use the global environment's packages (``--system-site-packages``). This is important because *vpype* needs MacPorts' version of PySide2 (``pip`` is unable to install PySide2 on Apple Silicon hardware).
 
 Now that the virtual environment is created, it may be activated::
 
@@ -54,7 +58,7 @@ Finally, *vpype* may be installed (note the prompt now reflecting the activated 
 You can test that *vpype* is fully functional by checking its version and displaying some random lines::
 
   (vpype_venv) $ vpype --version
-  vpype 1.8.0
+  vpype 1.9.0
   (vpype_venv) $ vpype random show
 
 Since *vpype* is installed within a virtual environment, it must be activated each time a new terminal window is opened::
@@ -71,7 +75,7 @@ macOS (Intel)
 
 The instructions above also apply but, since dependencies have better support for Intel-based Macs, some steps may be simplified.
 
-Firstly, the `official Python distribution <https://www.python.org/downloads/>`_ may be used instead of MacPorts' (again, install Python 3.9 and avoid Python 3.10 as *vpype* is not yet compatible). Secondly, ``pip`` will successfully install all dependencies so using system packages is not required.
+Firstly, the `official Python distribution <https://www.python.org/downloads/>`_ may be used instead of MacPorts'. Secondly, ``pip`` will successfully install all dependencies so using system packages is not required.
 
 Using MacPorts
 --------------
@@ -116,7 +120,7 @@ Install *vpype* (note the prompt now reflecting the activated virtual environmen
 You can test that *vpype* is fully functional by checking its version and displaying some random lines::
 
   (vpype_venv) $ vpype --version
-  vpype 1.8.0
+  vpype 1.9.0
   (vpype_venv) $ vpype random show
 
 Since *vpype* is installed within a virtual environment, it must be activated each time a new terminal window is opened::
