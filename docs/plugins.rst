@@ -20,6 +20,7 @@ Here are a few existing plug-ins to illustrate the possibilities:
 * `vpype-dxf <https://github.com/tatarize/vpype-dxf>`__: read from DXF
 * `vpype-vectrace <https://github.com/tatarize/vpype-vectrace>`__: trace from bitmap images
 * `occult <https://github.com/LoicGoulefert/occult>`__: perform hidden line removal with closed geometry
+* `deduplicate <https://github.com/LoicGoulefert/deduplicate>`__: remove overlapping lines
 
   .. image:: https://raw.githubusercontent.com/LoicGoulefert/occult/master/img/example8.png
      :height: 400px
