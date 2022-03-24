@@ -23,6 +23,10 @@ This page explain how to install *vpype* for end-users. If you intend to develop
 macOS (Apple Silicon/M1)
 ========================
 
+.. caution::
+
+   On M1 computers, using Python 3.9 is strongly recommended due to the restricted availability of the PySide2 library.
+
 .. highlight:: bash
 
 Installing *vpype* on Macs with Apple Silicon is possible but requires specific steps because some its dependencies are not yet fully supported on this architecture. As a result, the Python interpreter *must* be installed from `MacPorts <https://www.macports.org>`_.
@@ -36,16 +40,16 @@ Then, install the required ports::
 
   $ sudo port install python39 py39-shapely py39-scipy py39-numpy py39-pyside2
 
-Optionally, you may make Python 3.10 the default interpreter::
+Optionally, you may make Python 3.9 the default interpreter::
 
-  $ sudo port select --set python python310
+  $ sudo port select --set python python39
 
 Then, create the virtual environment::
 
-  $ /opt/local/bin/python3.10 -m venv vpype_venv --system-site-packages
+  $ /opt/local/bin/python3.9 -m venv vpype_venv --system-site-packages
 
 A virtual environment named ``vpype_venv`` will be created in the current directory. There are two import points to note in the command above.
-First, we use a full path (``/opt/local/bin/python3.10``) to ascertain that the virtual environment will use the right Python interpreter (i.e. MacPorts'). Second, we allow the virtual environment to use the global environment's packages (``--system-site-packages``). This is important because *vpype* needs MacPorts' version of PySide2 (``pip`` is unable to install PySide2 on Apple Silicon hardware).
+First, we use a full path (``/opt/local/bin/python3.9``) to ascertain that the virtual environment will use the right Python interpreter (i.e. MacPorts'). Second, we allow the virtual environment to use the global environment's packages (``--system-site-packages``). This is important because *vpype* needs MacPorts' version of PySide2 (``pip`` is unable to install PySide2 on Apple Silicon hardware).
 
 Now that the virtual environment is created, it may be activated::
 
