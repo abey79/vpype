@@ -8,7 +8,7 @@ readme = "README.md"
 homepage = "https://github.com/abey79/vpype"
 documentation = "https://vpype.readthedocs.io/en/latest/"
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
     "Topic :: Artistic Software",
     "Topic :: Multimedia :: Graphics",
@@ -33,7 +33,7 @@ include = [
 vpype = "vpype_cli.cli:cli"
 
 [tool.poetry.dependencies]
-python = ">=3.8, !=3.9.0, <3.11"
+python = ">=3.8, <3.11"
 cachetools = ">=4.2.2"
 click = "~8.0.1"
 multiprocess = "^0.70.11"
@@ -42,7 +42,7 @@ pnoise = "^0.1.0"
 Shapely = {extras = ["vectorized"], version = ">=1.8.1.post1"}  # 1.8.1 breaks win installer
 scipy = "^1.6"
 setuptools = "^51.0.0"
-svgelements = "1.6.10"
+svgelements = ">=1.6.10"
 svgwrite = "~1.4"
 tomli = "^2.0.0"
 asteval = "^0.9.26"
@@ -69,6 +69,7 @@ pytest-benchmark = ">=3.2.3"
 black = ">=22.1.0"
 isort = ">=5.8.0"
 pyinstaller = "^4.3"
+pyinstaller-hooks-contrib = { git = "https://github.com/pyinstaller/pyinstaller-hooks-contrib", rev = "75c3f7be6731589c5ce78999440a4bf1785f8280"}
 packaging = ">=20.8"
 pytest-mpl = ">=0.12"
 mypy = ">=0.901"
