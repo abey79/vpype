@@ -3,7 +3,7 @@ import difflib
 import io
 import os
 import re
-from typing import List, Set
+from typing import Set
 
 import click
 import numpy as np

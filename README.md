@@ -194,6 +194,7 @@ TL;DR:
   ```bash
   pip install "vpype[all]"
   ```
+- Installing on M1 Mac requires special care — check the [installation instruction](https://vpype.readthedocs.io/en/latest/install.html#macos-apple-silicon-m1).
 - A Windows installer is available [here](https://github.com/abey79/vpype/releases) (plug-ins cannot be installed
 when using this installation method).
 - A CLI-only version of *vpype* can be installed using the following command:

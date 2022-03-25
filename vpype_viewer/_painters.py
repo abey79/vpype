@@ -1,5 +1,5 @@
 import math
-from typing import TYPE_CHECKING, Any, Iterable, List, Optional, Sequence, Tuple, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union
 
 import moderngl as mgl
 import numpy as np
