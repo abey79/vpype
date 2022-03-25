@@ -134,7 +134,7 @@ def assert_image_similarity(request) -> Callable:
     return _assert_image_similarity
 
 
-def _read_SVG_lines(path: pathlib.Path) -> list[str]:
+def _read_svg_lines(path: pathlib.Path) -> list[str]:
     tree = ElementTree.parse(path)
     xml_str = ElementTree.tostring(tree.getroot())
     # ET.canonicalize doesn't exist on Python 3.7
@@ -176,8 +176,8 @@ def reference_svg(request, tmp_path) -> Callable:
             if not ref_path.exists():  # pragma: no cover
                 pytest.fail(f"reference SVG does not exist")
 
-            temp_lines = _read_SVG_lines(temp_file)
-            ref_lines = _read_SVG_lines(ref_path)
+            temp_lines = _read_svg_lines(temp_file)
+            ref_lines = _read_svg_lines(ref_path)
 
             if len(temp_lines) != len(ref_lines) or not all(
                 a == b for a, b in zip(temp_lines, ref_lines)
