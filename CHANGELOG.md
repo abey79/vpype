@@ -6,7 +6,7 @@ Release date: UNRELEASED
 
 ### New features and improvements
 
-* ...
+* Added HPGL configuration for the Calcomp Artisan plotter (thanks to Andee Collard and @ithinkido) (#418)
 
 ### Bug fixes
 
