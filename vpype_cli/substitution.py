@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import glob
 import os
 import pathlib
 import sys
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, List, Optional
+from typing import TYPE_CHECKING, Any, Callable, Iterable
 
 import asteval
 
@@ -35,12 +37,12 @@ class _PropertyProxy:
         layer_prop: access current layer properties
     """
 
-    def __init__(self, state: "State", global_prop: bool = True, layer_prop: bool = True):
+    def __init__(self, state: State, global_prop: bool = True, layer_prop: bool = True):
         self._state = state
         self._global_prop = global_prop
         self._layer_prop = layer_prop
 
-    def _get_prop(self, name) -> Optional[Any]:
+    def _get_prop(self, name) -> Any | None:
         if self._state.document is None:
             return None
 
@@ -207,7 +209,7 @@ def _substitute_expressions(
     return "".join(_split_text(text, prop_interpreter, expr_interpreter))
 
 
-def _glob(files: str) -> List[pathlib.Path]:
+def _glob(files: str) -> list[pathlib.Path]:
     return [
         pathlib.Path(file) for file in glob.glob(os.path.expandvars(os.path.expanduser(files)))
     ]
@@ -233,7 +235,7 @@ class SubstitutionHelper:
         state: :class:`State` instance
     """
 
-    def __init__(self, state: "State"):
+    def __init__(self, state: State):
         self._property_proxy = _PropertyProxy(state, True, True)
         symtable = {
             **vp.UNITS,
@@ -255,7 +257,7 @@ class SubstitutionHelper:
         )
 
     @property
-    def symtable(self) -> Dict[str, Any]:
+    def symtable(self) -> dict[str, Any]:
         return self._interpreter.symtable
 
     def substitute(self, text: str) -> str:

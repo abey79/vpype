@@ -1,4 +1,4 @@
-from typing import Tuple
+from __future__ import annotations
 
 import click
 import numpy as np
@@ -25,7 +25,7 @@ __all__ = ("random",)
     help="Dimension of the area in which lines are distributed.",
 )
 @generator
-def random(n: int, area: Tuple[float, float]):
+def random(n: int, area: tuple[float, float]):
     """
     Generate random lines.
 

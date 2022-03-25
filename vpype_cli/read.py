@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 import logging
 import pathlib
 import sys
-from typing import List, Optional, Tuple
 
 import click
 
@@ -81,14 +82,14 @@ def read(
     document: vp.Document,
     file,
     single_layer: bool,
-    layer: Optional[int],
-    attr: List[str],
+    layer: int | None,
+    attr: list[str],
     quantization: float,
     no_fail: bool,
     simplify: bool,
     parallel: bool,
     no_crop: bool,
-    display_size: Tuple[float, float],
+    display_size: tuple[float, float],
     display_landscape: bool,
 ) -> vp.Document:
     """Extract geometries from a SVG file.

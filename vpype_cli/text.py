@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from __future__ import annotations
 
 import click
 
@@ -37,9 +37,9 @@ def text(
     string: str,
     font: str,
     size: float,
-    wrap: Optional[float],
+    wrap: float | None,
     justify: float,
-    position: Tuple[float, float],
+    position: tuple[float, float],
     align: str,
 ):
     """Generate text using Hershey fonts.

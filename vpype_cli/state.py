@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
-from typing import Any, Dict, Generator, Optional, Tuple, Union
+from typing import Any, Generator
 
 import click
 
@@ -34,7 +36,7 @@ class _DeferredEvaluator(ABC):
         self._param_name = param_name
 
     @abstractmethod
-    def evaluate(self, state: "State") -> Any:
+    def evaluate(self, state: State) -> Any:
         """Sub-class must override this function and return the converted value of
         ``self._text``"""
 
@@ -56,19 +58,19 @@ class State:
         document: if provided, use this document
     """
 
-    _current_state: Union["State", None] = None
+    _current_state: State | None = None
 
-    def __init__(self, document: Optional[vp.Document] = None):
+    def __init__(self, document: vp.Document | None = None):
         #: Content of the current pipeline.
         self.document: vp.Document = document or vp.Document()
 
         #: Default layer ID used by :func:`generator` and :func:`layer_processor` commands
         #: when ``--layer`` is not provided.
-        self.target_layer_id: Optional[int] = 1
+        self.target_layer_id: int | None = 1
 
         #: Layer ID being populated by a :func:`generator` or processed by a
         #: :func:`layer_processor` command.
-        self.current_layer_id: Optional[int] = None
+        self.current_layer_id: int | None = None
 
         self._interpreter = SubstitutionHelper(self)
 
@@ -90,8 +92,8 @@ class State:
             return arg.evaluate(self) if isinstance(arg, _DeferredEvaluator) else arg
 
     def preprocess_arguments(
-        self, args: Tuple[Any, ...], kwargs: Dict[str, Any]
-    ) -> Tuple[Tuple[Any, ...], Dict[str, Any]]:
+        self, args: tuple[Any, ...], kwargs: dict[str, Any]
+    ) -> tuple[tuple[Any, ...], dict[str, Any]]:
         """Evaluate any instance of :class:`_DeferredEvaluator` and replace them with the
         converted value.
         """
@@ -177,7 +179,7 @@ class State:
         self.document = original_doc
 
     @contextmanager
-    def expression_variables(self, variables: Dict[str, Any]) -> Generator[None, None, None]:
+    def expression_variables(self, variables: dict[str, Any]) -> Generator[None, None, None]:
         """Context manager to temporarily set expression variables.
 
         This context manager is typically used by block processors to temporarily set relevant

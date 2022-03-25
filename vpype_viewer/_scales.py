@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import enum
 from dataclasses import dataclass
-from typing import Tuple
 
 MM_TO_PIXELS = 96.0 / 25.4
 FT_TO_PIXELS = 12 * 96.0
@@ -18,7 +19,7 @@ class UnitType(enum.Enum):
 @dataclass
 class ScaleSpec:
     scale: int  # in display unit
-    divisions: Tuple[int, int, int]  # total sub-division, mid tick, small tick
+    divisions: tuple[int, int, int]  # total sub-division, mid tick, small tick
     to_px: float  # conversion to px
     unit: str  # unit to display
 

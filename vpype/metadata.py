@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import dataclasses
 import pathlib
-from typing import Optional, Tuple, Union
 
 import svgelements
 
@@ -33,10 +34,10 @@ class Color:
 
     def __init__(
         self,
-        red: Optional[Union[int, str, "Color", svgelements.Color]] = None,
-        green: Optional[int] = None,
-        blue: Optional[int] = None,
-        alpha: Optional[int] = None,
+        red: int | str | Color | svgelements.Color | None = None,
+        green: int | None = None,
+        blue: int | None = None,
+        alpha: int | None = None,
     ):
         svgc = None
         if isinstance(red, (svgelements.Color, Color)):
@@ -51,7 +52,7 @@ class Color:
         object.__setattr__(self, "blue", int(blue or 0))
         object.__setattr__(self, "alpha", int(alpha or 255))
 
-    def as_floats(self) -> Tuple[float, float, float, float]:
+    def as_floats(self) -> tuple[float, float, float, float]:
         """Returns a float representation of the instance."""
         return self.red / 255, self.green / 255, self.blue / 255, self.alpha / 255
 

@@ -1,8 +1,10 @@
 """
 Hidden debug commands to help testing.
 """
+from __future__ import annotations
+
 import json
-from typing import Any, Dict, Iterable, List, Sequence
+from typing import Any, Iterable, Sequence
 
 import numpy as np
 
@@ -11,7 +13,7 @@ import vpype as vp
 from .cli import cli
 from .decorators import global_processor
 
-debug_data: List[Dict[str, Any]] = []
+debug_data: list[dict[str, Any]] = []
 
 __all__ = ("dbsample", "dbdump", "stat", "DebugData")
 
@@ -24,7 +26,7 @@ def dbsample(document: vp.Document):
     """
     global debug_data
 
-    data: Dict[str, Any] = {}
+    data: dict[str, Any] = {}
     if document.is_empty():
         data["count"] = 0
     else:
@@ -65,7 +67,7 @@ class DebugData:
         """
         return [DebugData(data) for data in json.loads(debug_output)]
 
-    def __init__(self, data: Dict[str, Any]):
+    def __init__(self, data: dict[str, Any]):
         self.count = data["count"]
         self.length = data.get("length", 0)
         self.pen_up_length = data.get("pen_up_length", 0)

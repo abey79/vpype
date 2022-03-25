@@ -1,5 +1,7 @@
 """File import/export functions.
 """
+from __future__ import annotations
+
 import collections
 import copy
 import dataclasses
@@ -7,7 +9,7 @@ import datetime
 import math
 import pathlib
 import re
-from typing import Any, Dict, Iterable, Iterator, List, Optional, TextIO, Tuple, Union, cast
+from typing import Any, Iterable, Iterator, List, TextIO, Union, cast
 from xml.etree import ElementTree
 
 import click
@@ -99,7 +101,7 @@ _NAMESPACED_PROPERTY_RE = re.compile(r"{([-a-zA-Z0-9@:%._+~#=/]+)}([a-zA-Z_][a-z
 
 def _extract_metadata_from_element(
     elem: svgelements.Shape, layer_system_props: bool = True
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Extracts the metadata from a svgelements element.
 
     svgelements offers 3 levels of metadata:
@@ -117,7 +119,7 @@ def _extract_metadata_from_element(
     - SVG attributes are disregarded
     """
 
-    metadata: Dict[str, Any] = {}
+    metadata: dict[str, Any] = {}
 
     # layer-level system properties
     if layer_system_props:
@@ -150,13 +152,13 @@ def _extract_metadata_from_element(
     return metadata
 
 
-def _intersect_dict(a: Dict[str, Any], b: Dict[str, Any]) -> Dict[str, Any]:
+def _intersect_dict(a: dict[str, Any], b: dict[str, Any]) -> dict[str, Any]:
     return dict(a.items() & b.items())
 
 
 def _merge_metadata(
-    base_metadata: Optional[Dict[str, Any]], additional_metadata: Dict[str, Any]
-) -> Dict[str, Any]:
+    base_metadata: dict[str, Any] | None, additional_metadata: dict[str, Any]
+) -> dict[str, Any]:
     """Merge two metadata dictionaries with handling of uninitialized base dictionary."""
 
     if base_metadata is None:
@@ -166,7 +168,7 @@ def _merge_metadata(
     return base_metadata
 
 
-def _element_to_paths(elem: svgelements.SVGElement) -> Optional[_PathType]:
+def _element_to_paths(elem: svgelements.SVGElement) -> _PathType | None:
     """Convert a SVG element into a path object that can be processed by
     :func:`_flattened_paths_to_line_collection`
 
@@ -197,7 +199,7 @@ def _element_to_paths(elem: svgelements.SVGElement) -> Optional[_PathType]:
 
 def _extract_paths(
     group: svgelements.Group, recursive
-) -> Tuple[_PathListType, Optional[Dict[str, Any]]]:
+) -> tuple[_PathListType, dict[str, Any] | None]:
     """Extract everything from the provided SVG group."""
 
     if recursive:
@@ -205,7 +207,7 @@ def _extract_paths(
     else:
         everything = group
     paths = []
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: dict[str, Any] | None = None
     for elem in everything:
         if hasattr(elem, "values") and elem.values.get("visibility", "") in (
             "hidden",
@@ -227,7 +229,7 @@ def _extract_paths(
 
 def _extract_paths_by_attributes(
     group: svgelements.Group, attributes: Iterable[str]
-) -> List[Tuple[_PathListType, Optional[Dict[str, Any]]]]:
+) -> list[tuple[_PathListType, dict[str, Any] | None]]:
     """Extract everything from the provided SVG group, grouped by the specified attributes.
 
     The paths are grouped by unique combinations of the provided attributes.
@@ -243,10 +245,10 @@ def _extract_paths_by_attributes(
     @dataclasses.dataclass
     class _LayerDesc:
         paths: _PathListType = dataclasses.field(default_factory=list)
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: dict[str, Any] | None = None
 
     attributes = tuple(attributes)
-    results: Dict[Tuple, _LayerDesc] = collections.defaultdict(lambda: _LayerDesc())
+    results: dict[tuple, _LayerDesc] = collections.defaultdict(lambda: _LayerDesc())
 
     for elem in group.select():
         if hasattr(elem, "values") and elem.values.get("visibility", "") in (
@@ -276,7 +278,7 @@ def _flattened_paths_to_line_collection(
     quantization: float,
     simplify: bool,
     parallel: bool,
-    metadata: Optional[Dict[str, Any]] = None,
+    metadata: dict[str, Any] | None = None,
 ) -> LineCollection:
     """Convert a path list to a :class:`LineCollection`.
 
@@ -364,7 +366,7 @@ def _flattened_paths_to_line_collection(
     return lc
 
 
-def _get_source(file: Union[str, TextIO]) -> Optional[pathlib.Path]:
+def _get_source(file: str | TextIO) -> pathlib.Path | None:
     try:
         path = pathlib.Path(file)  # type: ignore
         if path.exists():
@@ -376,14 +378,14 @@ def _get_source(file: Union[str, TextIO]) -> Optional[pathlib.Path]:
 
 
 def read_svg(
-    file: Union[str, TextIO],
+    file: str | TextIO,
     quantization: float,
     crop: bool = True,
     simplify: bool = False,
     parallel: bool = False,
     default_width: float = _DEFAULT_WIDTH,
     default_height: float = _DEFAULT_HEIGHT,
-) -> Tuple["LineCollection", float, float]:
+) -> tuple[LineCollection, float, float]:
     """Read a SVG file an return its content as a :class:`LineCollection` instance.
 
     All curved geometries are chopped in segments no longer than the value of *quantization*.
@@ -422,14 +424,14 @@ def read_svg(
 
 
 def read_multilayer_svg(
-    file: Union[str, TextIO],
+    file: str | TextIO,
     quantization: float,
     crop: bool = True,
     simplify: bool = False,
     parallel: bool = False,
     default_width: float = _DEFAULT_WIDTH,
     default_height: float = _DEFAULT_HEIGHT,
-) -> "Document":
+) -> Document:
     """Read a multilayer SVG file and return its content as a :class:`Document` instance
     retaining the SVG's layer structure and its dimension.
 
@@ -527,7 +529,7 @@ def read_multilayer_svg(
 
 
 def read_svg_by_attributes(
-    file: Union[str, TextIO],
+    file: str | TextIO,
     attributes: Iterable[str],
     quantization: float,
     crop: bool = True,
@@ -535,7 +537,7 @@ def read_svg_by_attributes(
     parallel: bool = False,
     default_width: float = _DEFAULT_WIDTH,
     default_height: float = _DEFAULT_HEIGHT,
-) -> "Document":
+) -> Document:
     """Read a SVG file by sorting geometries by unique combination of provided attributes.
 
     All curved geometries are chopped in segments no longer than the value of *quantization*.
@@ -600,7 +602,7 @@ _WRITE_SVG_RESTORE_EXCLUDE_LIST = (
 )
 
 
-def _restore_metadata(elem: svgwrite.base.BaseElement, metadata: Dict[str, Any]) -> None:
+def _restore_metadata(elem: svgwrite.base.BaseElement, metadata: dict[str, Any]) -> None:
     for prop, val in metadata.items():
         if prop.startswith("svg_") and prop not in _WRITE_SVG_RESTORE_EXCLUDE_LIST:
             parts = prop[4:].split("_")
@@ -614,10 +616,10 @@ def _restore_metadata(elem: svgwrite.base.BaseElement, metadata: Dict[str, Any])
 def write_svg(
     output: TextIO,
     document: Document,
-    page_size: Optional[Tuple[float, float]] = None,
+    page_size: tuple[float, float] | None = None,
     center: bool = False,
     source_string: str = "",
-    layer_label_format: Optional[str] = None,
+    layer_label_format: str | None = None,
     show_pen_up: bool = False,
     color_mode: str = "default",
     use_svg_metadata: bool = False,
@@ -795,9 +797,7 @@ def write_svg(
     dwg.write(output, pretty=True)
 
 
-def _get_hpgl_config(
-    device: Optional[str], page_size: str
-) -> Tuple[PlotterConfig, PaperConfig]:
+def _get_hpgl_config(device: str | None, page_size: str) -> tuple[PlotterConfig, PaperConfig]:
     plotter_config = config_manager.get_plotter_config(device)
     if plotter_config is None:
         raise ValueError(f"no configuration available for plotter '{device}'")
@@ -817,8 +817,8 @@ def write_hpgl(
     page_size: str,
     landscape: bool,
     center: bool,
-    device: Optional[str],
-    velocity: Optional[int],
+    device: str | None,
+    velocity: int | None,
     absolute: bool = False,
     quiet: bool = False,
 ) -> None:
@@ -939,7 +939,7 @@ def write_hpgl(
         output.write(f"PS{int(paper_config.set_ps)};")
 
     first_layer = True
-    last_point: Optional[complex] = None
+    last_point: complex | None = None
     for layer_id in sorted(document.layers.keys()):
         pen_id = 1 + (layer_id - 1) % plotter_config.pen_count
 

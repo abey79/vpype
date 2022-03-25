@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import glob
 import os
 import pathlib
-from typing import Any, Dict, Iterable, Tuple
+from typing import Any, Iterable
 
 import click
 
@@ -30,8 +32,8 @@ __all__ = ("grid", "repeat", "forfile", "forlayer")
 def grid(
     state: State,
     processors: Iterable[ProcessorType],
-    number: Tuple[int, int],
-    offset: Tuple[float, float],
+    number: tuple[int, int],
+    offset: tuple[float, float],
 ) -> None:
     """Creates a NX by NY grid of geometry
 
@@ -144,7 +146,7 @@ def forfile(state: State, processors: Iterable[ProcessorType], files: str) -> No
         Process all SVGs in the current directory:
 
     \b
-            $ vpype begin forfile \*.svg read %_path% linemerge linesort \\
+            $ vpype begin forfile \\*.svg read %_path% linemerge linesort \\
                 write "optimized/%basename(_path)%" end
     """
 
@@ -167,7 +169,7 @@ def forfile(state: State, processors: Iterable[ProcessorType], files: str) -> No
 
 
 class _MetadataProxy:
-    def __init__(self, metadata: Dict[str, Any]):
+    def __init__(self, metadata: dict[str, Any]):
         self._metadata = metadata
 
     def __getattr__(self, name):

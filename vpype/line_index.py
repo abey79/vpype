@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import logging
-from typing import Iterable, Optional, Tuple
+from typing import Iterable
 
 import numpy as np
 from scipy.spatial import cKDTree as KDTree
@@ -55,13 +57,13 @@ class LineIndex:
         self.available[idx] = False
         return self.lines[idx]
 
-    def pop(self, idx: int) -> Optional[np.ndarray]:
+    def pop(self, idx: int) -> np.ndarray | None:
         if not self.available[idx]:
             return None
         self.available[idx] = False
         return self.lines[idx]
 
-    def find_nearest_within(self, p: complex, max_dist: float) -> Tuple[Optional[int], bool]:
+    def find_nearest_within(self, p: complex, max_dist: float) -> tuple[int | None, bool]:
         """Find the closest line, assuming a maximum admissible distance.
         Returns a tuple of (idx, reverse), where `idx` may be None if nothing is found.
         `reverse` indicates whether or not a line ending has been matched instead of a start.
@@ -69,7 +71,7 @@ class LineIndex:
         """
 
         ridx = None
-        rdist: Optional[float] = 0.0
+        rdist: float | None = 0.0
 
         while True:
             reindex, idx, dist = self._find_nearest_within_in_index(p, max_dist, self.index)
@@ -102,7 +104,7 @@ class LineIndex:
 
     def _find_nearest_within_in_index(
         self, p: complex, max_dist: float, index: KDTree
-    ) -> Tuple[bool, Optional[int], Optional[float]]:
+    ) -> tuple[bool, int | None, float | None]:
         """Find nearest in specific index. Return (reindex, idx, dist) tuple, where
         reindex indicates if a reindex is needed.
         """
@@ -127,7 +129,7 @@ class LineIndex:
             return False, None, 0
 
     # noinspection PyUnboundLocalVariable
-    def find_nearest(self, p: complex) -> Tuple[int, bool]:
+    def find_nearest(self, p: complex) -> tuple[int, bool]:
         while True:
             idx, dist = self._find_nearest_in_index(p, self.index)
             if self.reverse:
@@ -147,7 +149,7 @@ class LineIndex:
         else:
             return idx, False
 
-    def _find_nearest_in_index(self, p: complex, index: KDTree) -> Tuple[Optional[int], float]:
+    def _find_nearest_in_index(self, p: complex, index: KDTree) -> tuple[int | None, float]:
         """Check the N nearest lines, hopefully find one that is active."""
 
         dists, idxs = index.query((p.real, p.imag), k=100)

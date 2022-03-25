@@ -20,12 +20,13 @@ DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
+from __future__ import annotations
 
 import itertools
 import pickle
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Dict, List
+from typing import Callable
 
 from .model import LineCollection
 
@@ -60,14 +61,14 @@ class _Font:
     The glyph data is converted to LineCollection.
     """
 
-    _FONTS: Dict[str, "_Font"] = {}
+    _FONTS: dict[str, _Font] = {}
 
     def __init__(self, name: str):
         with open(_FONT_DIR / (name + ".pickle"), "rb") as fp:
             font_data = pickle.load(fp)
 
         # convert all glyphs to LineCollections
-        self.glyphs: List[_Glyph] = [
+        self.glyphs: list[_Glyph] = [
             _Glyph(
                 lt, rt, LineCollection([[complex(i, j) for i, j in line] for line in lines])
             )
@@ -81,7 +82,7 @@ class _Font:
         self.max_height = all_glyphs.height()
 
     @classmethod
-    def get(cls, font_name: str) -> "_Font":
+    def get(cls, font_name: str) -> _Font:
         """Get _Font instance for provided name, using caching."""
         try:
             if font_name not in cls._FONTS:

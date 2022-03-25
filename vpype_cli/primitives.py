@@ -1,4 +1,4 @@
-from typing import Tuple
+from __future__ import annotations
 
 import click
 
@@ -51,7 +51,7 @@ def rect(
     y: float,
     width: float,
     height: float,
-    radii: Tuple[float, float, float, float],
+    radii: tuple[float, float, float, float],
     quantization: float,
 ) -> vp.LineCollection:
     """Generate a rectangle, with optional rounded angles.

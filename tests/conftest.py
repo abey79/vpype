@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 import contextlib
 import difflib
 import hashlib
 import os
 import pathlib
 import sys
-from typing import Callable, List
+from typing import Callable
 from xml.dom import minidom
 from xml.etree import ElementTree
 
@@ -132,7 +134,7 @@ def assert_image_similarity(request) -> Callable:
     return _assert_image_similarity
 
 
-def _read_SVG_lines(path: pathlib.Path) -> List[str]:
+def _read_SVG_lines(path: pathlib.Path) -> list[str]:
     tree = ElementTree.parse(path)
     xml_str = ElementTree.tostring(tree.getroot())
     # ET.canonicalize doesn't exist on Python 3.7

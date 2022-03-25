@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from __future__ import annotations
 
 import moderngl
 from PIL import Image
@@ -22,7 +22,7 @@ class ImageRenderer:
         >>> img = renderer.render()
     """
 
-    def __init__(self, size: Tuple[int, int]):
+    def __init__(self, size: tuple[int, int]):
         """Constructor.
 
         Args:
@@ -46,7 +46,7 @@ class ImageRenderer:
 
 def render_image(
     document: vp.Document,
-    size: Tuple[int, int] = (512, 512),
+    size: tuple[int, int] = (512, 512),
     view_mode: ViewMode = ViewMode.PREVIEW,
     show_pen_up: bool = False,
     show_points: bool = False,
@@ -55,8 +55,8 @@ def render_image(
     show_ruler: bool = False,
     pixel_factor: float = 1.0,
     unit_type: UnitType = UnitType.METRIC,
-    scale: Optional[float] = None,
-    origin: Optional[Tuple[float, float]] = None,
+    scale: float | None = None,
+    origin: tuple[float, float] | None = None,
 ) -> Image:
     """Render a :class:`vpype.Document` instance as a Pillow :class:`PIL.Image.Image`.
 

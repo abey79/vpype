@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import math
-from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Union
 
 import moderngl as mgl
 import numpy as np
@@ -17,7 +19,7 @@ ResourceType = Union[mgl.Buffer, mgl.Texture, mgl.TextureArray]
 class Painter:
     def __init__(self, ctx: mgl.Context):
         self._ctx = ctx
-        self._resources: List[ResourceType] = []
+        self._resources: list[ResourceType] = []
 
     def __del__(self):
         for resource in self._resources:
@@ -32,7 +34,7 @@ class Painter:
         self.register_resource(buffer)
         return buffer
 
-    def render(self, engine: "Engine", projection: np.ndarray) -> None:
+    def render(self, engine: Engine, projection: np.ndarray) -> None:
         raise NotImplementedError
 
 
@@ -40,7 +42,7 @@ class PaperBoundsPainter(Painter):
     def __init__(
         self,
         ctx: mgl.Context,
-        paper_size: Tuple[float, float],
+        paper_size: tuple[float, float],
         color: ColorType = (0, 0, 0, 0.45),
         shadow_size: float = 7.0,
     ):
@@ -84,7 +86,7 @@ class PaperBoundsPainter(Painter):
             self._prog, [(vbo, "2f", "in_vert")], self.buffer(triangle_idx.tobytes())
         )
 
-    def render(self, engine: "Engine", projection: np.ndarray) -> None:
+    def render(self, engine: Engine, projection: np.ndarray) -> None:
         self._prog["projection"].write(projection)
 
         self._prog["color"].value = (0, 0, 0, 0.25)
@@ -109,13 +111,13 @@ class LineCollectionFastPainter(Painter):
         ibo = self.buffer(indices.tobytes())
         self._vao = ctx.vertex_array(self._prog, [(vbo, "2f4", "in_vert")], index_buffer=ibo)
 
-    def render(self, engine: "Engine", projection: np.ndarray) -> None:
+    def render(self, engine: Engine, projection: np.ndarray) -> None:
         self._prog["projection"].write(projection)
         self._prog["color"].value = self._color
         self._vao.render(mgl.LINE_STRIP)
 
     @staticmethod
-    def _build_buffers(lc: vp.LineCollection) -> Tuple[np.ndarray, np.ndarray]:
+    def _build_buffers(lc: vp.LineCollection) -> tuple[np.ndarray, np.ndarray]:
         total_length = sum(len(line) for line in lc)
         buffer = np.empty((total_length, 2), dtype="f4")
         indices = np.empty(total_length + len(lc), dtype="i4")
@@ -163,14 +165,14 @@ class LineCollectionFastColorfulPainter(Painter):
             ibo,
         )
 
-    def render(self, engine: "Engine", projection: np.ndarray) -> None:
+    def render(self, engine: Engine, projection: np.ndarray) -> None:
         self._prog["projection"].write(projection)
         self._vao.render(mgl.LINE_STRIP)
         if self._show_points:
             self._vao.render(mgl.POINTS)
 
     @classmethod
-    def _build_buffers(cls, lc: vp.LineCollection) -> Tuple[np.ndarray, np.ndarray]:
+    def _build_buffers(cls, lc: vp.LineCollection) -> tuple[np.ndarray, np.ndarray]:
         total_length = sum(len(line) for line in lc)
         buffer = np.empty(total_length, dtype=[("vertex", "2f4"), ("color", "i1")])
         indices = np.empty(total_length + len(lc), dtype="i4")
@@ -228,7 +230,7 @@ class LineCollectionPointsPainter(Painter):
         vbo = self.buffer(vertices.tobytes())
         self._vao = ctx.vertex_array(self._prog, [(vbo, "2f4", "position")])
 
-    def render(self, engine: "Engine", projection: np.ndarray) -> None:
+    def render(self, engine: Engine, projection: np.ndarray) -> None:
         self._prog["projection"].write(projection)
         self._prog["color"].value = self._color
         self._vao.render(mgl.POINTS)
@@ -257,7 +259,7 @@ class LineCollectionPenUpPainter(Painter):
         self._prog = load_program("fast_line_mono", ctx)
 
         # build vertices
-        vertices: List[Tuple[float, float]] = []
+        vertices: list[tuple[float, float]] = []
         for i in range(len(lc) - 1):
             vertices.extend(
                 ((lc[i][-1].real, lc[i][-1].imag), (lc[i + 1][0].real, lc[i + 1][0].imag))
@@ -269,7 +271,7 @@ class LineCollectionPenUpPainter(Painter):
         else:
             self._vao = None
 
-    def render(self, engine: "Engine", projection: np.ndarray) -> None:
+    def render(self, engine: Engine, projection: np.ndarray) -> None:
         if self._vao is not None:
             self._prog["color"].value = self._color
             self._prog["projection"].write(projection)
@@ -291,7 +293,7 @@ class LineCollectionPreviewPainter(Painter):
         ibo = self.buffer(indices.tobytes())
         self._vao = ctx.vertex_array(self._prog, [(vbo, "2f4", "position")], ibo)
 
-    def render(self, engine: "Engine", projection: np.ndarray) -> None:
+    def render(self, engine: Engine, projection: np.ndarray) -> None:
         self._prog["color"].value = self._color
         self._prog["pen_width"].value = self._pen_width
         self._prog["antialias"].value = 1.5 / engine.scale
@@ -422,7 +424,7 @@ class RulersPainter(Painter):
     def thickness(self) -> float:
         return self._thickness
 
-    def render(self, engine: "Engine", projection: np.ndarray) -> None:
+    def render(self, engine: Engine, projection: np.ndarray) -> None:
         # ===========================
         # render frame
 
@@ -520,9 +522,9 @@ class LabelPainter(Painter):
         self,
         ctx: mgl.Context,
         label: str = "",
-        position: Tuple[float, float] = (0.0, 0.0),
+        position: tuple[float, float] = (0.0, 0.0),
         font_size: float = 14.0,
-        max_size: Optional[int] = None,
+        max_size: int | None = None,
         color: ColorType = (0.0, 0.0, 0.0, 1.0),
     ):
         super().__init__(ctx)
@@ -551,7 +553,7 @@ class LabelPainter(Painter):
             np.array([ord(c) for c in label[: self._max_size]], dtype=np.uint8).tobytes()
         )
 
-    def render(self, engine: "Engine", projection: np.ndarray) -> None:
+    def render(self, engine: Engine, projection: np.ndarray) -> None:
         self._texture.use(0)
         self._prog["color"].value = self._color
         self._prog["position"].value = (

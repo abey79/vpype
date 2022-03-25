@@ -1,12 +1,13 @@
 """
 Qt Viewer
 """
+from __future__ import annotations
+
 import functools
 import logging
 import math
 import os
 import sys
-from typing import Optional, Union
 
 import moderngl as mgl
 from PySide2.QtCore import QEvent, QSettings, QSize, Qt, Signal
@@ -54,7 +55,7 @@ class QtViewerWidget(QGLWidget):
 
     mouse_coords = Signal(str)
 
-    def __init__(self, document: Optional[vp.Document] = None, parent=None):
+    def __init__(self, document: vp.Document | None = None, parent=None):
         """Constructor.
         Args:
             document: the document to display
@@ -78,7 +79,7 @@ class QtViewerWidget(QGLWidget):
         self._factor = 1.0
 
         # deferred initialization in initializeGL()
-        self._ctx: Optional[mgl.Context] = None
+        self._ctx: mgl.Context | None = None
         self._screen = None
         self.engine = Engine(
             view_mode=ViewMode.OUTLINE, show_pen_up=False, render_cb=self.update
@@ -97,11 +98,11 @@ class QtViewerWidget(QGLWidget):
             f"logicalDotsPerInch={screen.logicalDotsPerInch()}, "
         )
 
-    def document(self) -> Optional[vp.Document]:
+    def document(self) -> vp.Document | None:
         """Return the :class:`vpype.Document` currently assigned to the widget."""
         return self._document
 
-    def set_document(self, document: Optional[vp.Document]) -> None:
+    def set_document(self, document: vp.Document | None) -> None:
         """Assign a new :class:`vpype.Document` to the widget."""
         self._document = document
         self.engine.document = document
@@ -216,7 +217,7 @@ class QtViewer(QWidget):
 
     def __init__(
         self,
-        document: Optional[vp.Document] = None,
+        document: vp.Document | None = None,
         view_mode: ViewMode = ViewMode.PREVIEW,
         show_pen_up: bool = False,
         show_points: bool = False,
@@ -389,7 +390,7 @@ class QtViewer(QWidget):
     def add_side_widget(self, widget: QWidget) -> None:
         self._hlayout.addWidget(widget)
 
-    def set_document(self, document: Optional[vp.Document]) -> None:
+    def set_document(self, document: vp.Document | None) -> None:
         self._viewer_widget.set_document(document)
         self._update_layer_menu()
 
@@ -425,12 +426,12 @@ class QtViewer(QWidget):
     def set_show_points(self, show_points: bool) -> None:
         self._viewer_widget.engine.show_points = show_points
 
-    def set_pen_width_mm(self, value: Union[float, QAction]) -> None:
+    def set_pen_width_mm(self, value: float | QAction) -> None:
         if isinstance(value, QAction):
             value = value.data()
         self._viewer_widget.engine.pen_width = value / 25.4 * 96.0
 
-    def set_pen_opacity(self, value: Union[float, QAction]) -> None:
+    def set_pen_opacity(self, value: float | QAction) -> None:
         if isinstance(value, QAction):
             value = value.data()
         self._viewer_widget.engine.pen_opacity = value

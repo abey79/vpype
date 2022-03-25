@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import logging
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable
 
 import click
 
@@ -22,7 +24,7 @@ __all__ = (
 )
 
 
-_STR_TO_TYPE: Dict[str, Callable] = {
+_STR_TO_TYPE: dict[str, Callable] = {
     "str": str,
     "int": lambda x: int(vp.convert_length(x)),
     "float": vp.convert_length,
@@ -31,8 +33,8 @@ _STR_TO_TYPE: Dict[str, Callable] = {
 
 
 def _check_scope(
-    global_flag: bool, layer: Optional[Union[int, List[int]]]
-) -> Tuple[bool, Optional[Union[int, List[int]]]]:
+    global_flag: bool, layer: int | list[int] | None
+) -> tuple[bool, int | list[int] | None]:
     if global_flag and layer is not None:
         logging.warning(
             "incompatible `--global` and `--layer` options were provided, assuming `--global`"
@@ -64,7 +66,7 @@ def _check_scope(
 def propset(
     document: vp.Document,
     global_flag: bool,
-    layer: Optional[Union[int, List[int]]],
+    layer: int | list[int] | None,
     prop: str,
     value: str,
     prop_type: str,
@@ -134,7 +136,7 @@ def _value_to_str(value: Any) -> str:
 @click.option("--global", "-g", "global_flag", is_flag=True, help="Global mode.")
 @click.option("-l", "--layer", type=LayerType(accept_multiple=True), help="Target layer(s).")
 @global_processor
-def proplist(document: vp.Document, global_flag: bool, layer: Optional[Union[int, List[int]]]):
+def proplist(document: vp.Document, global_flag: bool, layer: int | list[int] | None):
     """Print a list the existing global or layer properties and their values.
 
     Either the `--global` or `--layer` option must be used to specify whether global or
@@ -169,7 +171,7 @@ def proplist(document: vp.Document, global_flag: bool, layer: Optional[Union[int
 @click.option("-l", "--layer", type=LayerType(accept_multiple=True), help="Target layer(s).")
 @global_processor
 def propget(
-    document: vp.Document, global_flag: bool, layer: Optional[Union[int, List[int]]], prop: str
+    document: vp.Document, global_flag: bool, layer: int | list[int] | None, prop: str
 ):
     """Print the value of a global or layer property.
 
@@ -203,7 +205,7 @@ def propget(
 @click.option("-l", "--layer", type=LayerType(accept_multiple=True), help="Target layer(s).")
 @global_processor
 def propdel(
-    document: vp.Document, global_flag: bool, layer: Optional[Union[int, List[int]]], prop: str
+    document: vp.Document, global_flag: bool, layer: int | list[int] | None, prop: str
 ):
     """Remove a global or layer property.
 
@@ -232,9 +234,7 @@ def propdel(
 @click.option("--global", "-g", "global_flag", is_flag=True, help="Global mode.")
 @click.option("-l", "--layer", type=LayerType(accept_multiple=True), help="Target layer(s).")
 @global_processor
-def propclear(
-    document: vp.Document, global_flag: bool, layer: Optional[Union[int, List[int]]]
-):
+def propclear(document: vp.Document, global_flag: bool, layer: int | list[int] | None):
     """Remove all global or layer properties.
 
     Either the `--global` or `--layer` option must be used to specify whether global or

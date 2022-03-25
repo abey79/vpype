@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import os
 import pathlib
-from typing import Any, Dict, Optional, Tuple, cast
+from typing import Any, Tuple, cast
 
 import cachetools
 import cachetools.keys
@@ -12,7 +14,7 @@ ColorType = Tuple[float, float, float, float]
 
 
 @cachetools.cached(
-    cache=cast(Dict[Any, Any], {}),
+    cache=cast(dict[Any, Any], {}),
     key=lambda name, ctx: cachetools.keys.hashkey((name, id(ctx))),
 )
 def load_program(name: str, ctx: mgl.Context) -> mgl.Program:
@@ -31,11 +33,11 @@ def load_program(name: str, ctx: mgl.Context) -> mgl.Program:
         the loaded program
     """
 
-    def _load_shader(path: str) -> Optional[str]:
+    def _load_shader(path: str) -> str | None:
         try:
             with open(path) as fp:
                 return fp.read()
-        except IOError:
+        except OSError:
             return None
 
     full_path = os.path.dirname(__file__) + os.path.sep + "shaders" + os.path.sep + name
@@ -48,13 +50,13 @@ def load_program(name: str, ctx: mgl.Context) -> mgl.Program:
 
 
 @cachetools.cached(
-    cache=cast(Dict[Any, Any], {}),
+    cache=cast(dict[Any, Any], {}),
     key=lambda name, ctx, size, components: cachetools.keys.hashkey(
         (name, id(ctx), size, components)
     ),
 )
 def load_texture_array(
-    name: str, ctx: mgl.Context, size: Tuple[int, int, int], components: int = 4
+    name: str, ctx: mgl.Context, size: tuple[int, int, int], components: int = 4
 ) -> mgl.TextureArray:
     texture_path = pathlib.Path(__file__).parent / "resources" / name
     img = Image.open(str(texture_path))
