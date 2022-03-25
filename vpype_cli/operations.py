@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import logging
 import math
-from typing import List, Optional, Tuple, Union, cast
+from typing import cast
 
 import click
 import numpy as np
@@ -58,7 +60,7 @@ def crop(lines: vp.LineCollection, x: float, y: float, width: float, height: flo
 )
 @global_processor
 def trim(
-    document: vp.Document, margin_x: float, margin_y: float, layer: Union[int, List[int]]
+    document: vp.Document, margin_x: float, margin_y: float, layer: int | list[int]
 ) -> vp.Document:
     """Trim the geometries by some margin.
 
@@ -423,8 +425,8 @@ def splitall(lines: vp.LineCollection) -> vp.LineCollection:
 @layer_processor
 def filter_command(
     lines: vp.LineCollection,
-    min_length: Optional[float],
-    max_length: Optional[float],
+    min_length: float | None,
+    max_length: float | None,
     closed: bool,
     not_closed: bool,
     tolerance: float,
@@ -456,8 +458,8 @@ def filter_command(
 
 
 def _normalize_page_size(
-    page_size: Tuple[float, float], landscape: bool
-) -> Tuple[float, float]:
+    page_size: tuple[float, float], landscape: bool
+) -> tuple[float, float]:
     """Normalize page size to respect the orientation."""
     if (landscape and page_size[0] < page_size[1]) or (
         not landscape and page_size[0] > page_size[1]
@@ -564,9 +566,9 @@ Examples:
 @global_processor
 def layout(
     document: vp.Document,
-    size: Tuple[float, float],
+    size: tuple[float, float],
     landscape: bool,
-    margin: Optional[float],
+    margin: float | None,
     align: str,
     valign: str,
 ) -> vp.Document:

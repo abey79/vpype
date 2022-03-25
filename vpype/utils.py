@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import math
 import re
-from typing import Callable, Dict, List, Tuple, Union
+from typing import Callable
 
 import numpy as np
 
@@ -16,7 +18,7 @@ __all__ = [
 ]
 
 
-def _mm_to_px(x: float, y: float) -> Tuple[float, float]:
+def _mm_to_px(x: float, y: float) -> tuple[float, float]:
     return x * 96.0 / 25.4, y * 96.0 / 25.4
 
 
@@ -53,7 +55,7 @@ PAGE_SIZES = {
 }
 
 
-def _convert_unit(value: Union[str, float], units: Dict[str, float]) -> float:
+def _convert_unit(value: str | float, units: dict[str, float]) -> float:
     """Converts a string with unit to a value"""
     if isinstance(value, str):
         value = value.strip().lower()
@@ -65,7 +67,7 @@ def _convert_unit(value: Union[str, float], units: Dict[str, float]) -> float:
     return float(value)
 
 
-def convert_length(value: Union[str, float]) -> float:
+def convert_length(value: str | float) -> float:
     """Convert a length optionally expressed as a string with unit to px value.
 
     Args:
@@ -80,7 +82,7 @@ def convert_length(value: Union[str, float]) -> float:
     return _convert_unit(value, UNITS)
 
 
-def convert_angle(value: Union[str, float]) -> float:
+def convert_angle(value: str | float) -> float:
     """Convert an angle optionally expressed as a string with unit to degrees.
 
     Args:
@@ -95,7 +97,7 @@ def convert_angle(value: Union[str, float]) -> float:
     return _convert_unit(value, ANGLE_UNITS)
 
 
-def convert_page_size(value: str) -> Tuple[float, float]:
+def convert_page_size(value: str) -> tuple[float, float]:
     """Converts a string with page size to dimension in pixels.
 
     The input can be either a known page size (see ``vpype write --help`` for a list) or
@@ -145,7 +147,7 @@ def convert_page_size(value: str) -> Tuple[float, float]:
     return float(x) * convert_length(x_unit), float(y) * convert_length(y_unit)
 
 
-def union(line: np.ndarray, keys: List[Callable[[np.ndarray], bool]]) -> bool:
+def union(line: np.ndarray, keys: list[Callable[[np.ndarray], bool]]) -> bool:
     """Returns True if every callables in ``keys`` return True (similar to ``all()``. This
     function is typically used with :meth:`LineCollection.filter`.
 

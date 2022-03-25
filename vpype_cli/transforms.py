@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import logging
 import math
-from typing import List, Optional, Tuple, Union, cast
+from typing import Tuple, cast
 
 import click
 
@@ -15,9 +17,9 @@ __all__ = ("rotate", "scale_relative", "scaleto", "skew", "translate")
 
 def _compute_origin(
     document: vp.Document,
-    layer: Optional[Union[int, List[int]]],
-    origin_coords: Optional[Union[Tuple[()], Tuple[float, float]]],
-) -> Tuple[Tuple[float, float], List[int], Tuple[float, float, float, float]]:
+    layer: int | list[int] | None,
+    origin_coords: tuple[()] | tuple[float, float] | None,
+) -> tuple[tuple[float, float], list[int], tuple[float, float, float, float]]:
     layer_ids = multiple_to_layer_ids(layer, document)
     bounds = document.bounds(layer_ids)
 
@@ -39,7 +41,7 @@ def _compute_origin(
 @cli.command(group="Transforms")
 @click.argument("offset", nargs=2, type=LengthType(), required=True)
 @layer_processor
-def translate(lc: vp.LineCollection, offset: Tuple[float, float]):
+def translate(lc: vp.LineCollection, offset: tuple[float, float]):
     """
     Translate the geometries. X and Y offsets must be provided. These arguments understand
     supported units.
@@ -83,9 +85,9 @@ def translate(lc: vp.LineCollection, offset: Tuple[float, float]):
 @global_processor
 def scale_relative(
     document: vp.Document,
-    scale: Tuple[float, float],
-    layer: Union[int, List[int]],
-    origin_coords: Union[Tuple[()], Tuple[float, float]],
+    scale: tuple[float, float],
+    layer: int | list[int],
+    origin_coords: tuple[()] | tuple[float, float],
 ):
     """Scale the geometries by a factor.
 
@@ -147,10 +149,10 @@ def scale_relative(
 @global_processor
 def scaleto(
     document: vp.Document,
-    dim: Tuple[float, float],
-    layer: Union[int, List[int]],
+    dim: tuple[float, float],
+    layer: int | list[int],
     fit_dimensions: bool,
-    origin_coords: Union[Tuple[()], Tuple[float, float]],
+    origin_coords: tuple[()] | tuple[float, float],
 ):
     """Scale the geometries to given dimensions.
 
@@ -219,8 +221,8 @@ def scaleto(
 def rotate(
     document: vp.Document,
     angle: float,
-    layer: Union[int, List[int]],
-    origin_coords: Union[Tuple[()], Tuple[float, float]],
+    layer: int | list[int],
+    origin_coords: tuple[()] | tuple[float, float],
 ):
     """Rotate the geometries (clockwise positive).
 
@@ -271,9 +273,9 @@ def rotate(
 @global_processor
 def skew(
     document: vp.Document,
-    layer: Union[int, List[int]],
-    angles: Tuple[float, float],
-    origin_coords: Union[Tuple[()], Tuple[float, float]],
+    layer: int | list[int],
+    angles: tuple[float, float],
+    origin_coords: tuple[()] | tuple[float, float],
 ):
     """Skew the geometries.
 

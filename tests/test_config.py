@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 def test_config_is_empty(config_manager):
     assert config_manager.config == {}
 

@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import random
-from typing import Optional
 
 import click
 
@@ -23,7 +24,7 @@ __all__ = ("lcopy", "lmove", "ldelete", "lreverse", "lswap")
 )
 @click.option("-m", "--no-prop", is_flag=True, help="Do not copy metadata.")
 @global_processor
-def lcopy(document, sources, dest, prob: Optional[float], no_prop: bool):
+def lcopy(document, sources, dest, prob: float | None, no_prop: bool):
     """Copy the content of one or more layer(s) to another layer.
 
     SOURCES can be a single layer ID, the string 'all' (to copy all non-empty layers,
@@ -93,7 +94,7 @@ content is not duplicated:
 )
 @click.option("-m", "--no-prop", is_flag=True, help="Do not move metadata.")
 @global_processor
-def lmove(document, sources, dest, prob: Optional[float], no_prop: bool):
+def lmove(document, sources, dest, prob: float | None, no_prop: bool):
     """Move the content of one or more layer(s) to another layer.
 
     SOURCES can be a single layer ID, the string 'all' (to copy all non-empty layers,
@@ -169,7 +170,7 @@ def lmove(document, sources, dest, prob: Optional[float], no_prop: bool):
     help="Path deletion probability (default: 1.0).",
 )
 @global_processor
-def ldelete(document: vp.Document, layers, keep: bool, prob: Optional[float]) -> vp.Document:
+def ldelete(document: vp.Document, layers, keep: bool, prob: float | None) -> vp.Document:
     """Delete one or more layers.
 
     LAYERS can be a single layer ID, the string 'all' (to delete all layers), or a
@@ -216,7 +217,7 @@ def ldelete(document: vp.Document, layers, keep: bool, prob: Optional[float]) ->
 @click.option("-m", "--no-prop", is_flag=True, help="Do not move metadata.")
 @global_processor
 def lswap(
-    document: vp.Document, first: int, second: int, prob: Optional[float], no_prop: bool
+    document: vp.Document, first: int, second: int, prob: float | None, no_prop: bool
 ) -> vp.Document:
     """Swap the content between two layers
 

@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import logging
 import os
-from typing import Optional
 
 import click
 
@@ -194,19 +195,19 @@ Examples:
 def write(
     state: State,
     document: vp.Document,
-    cmd_string: Optional[str],
+    cmd_string: str | None,
     output,
     file_format: str,
     page_size: str,
     landscape: bool,
     center: bool,
-    layer_label: Optional[str],
+    layer_label: str | None,
     restore_attribs: bool,
     pen_up: bool,
     color_mode: str,
-    device: Optional[str],
+    device: str | None,
     absolute: bool,
-    velocity: Optional[int],
+    velocity: int | None,
     quiet: bool,
 ):
     """Write command."""

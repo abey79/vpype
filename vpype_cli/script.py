@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import importlib.util
 
 import click
@@ -37,8 +39,6 @@ def script(file) -> vp.LineCollection:
         return LineCollection(module.generate())  # type: ignore
     except Exception as exc:
         raise click.ClickException(
-            (
-                f"the file path must point to a Python script containing a `generate()`"
-                f"function ({str(exc)})"
-            )
+            f"the file path must point to a Python script containing a `generate()`"
+            f"function ({str(exc)})"
         )

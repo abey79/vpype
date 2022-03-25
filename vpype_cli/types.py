@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import logging
-from typing import Any, ClassVar, List, Optional, Tuple, Type, Union
+from typing import Any, ClassVar
 
 import click
 
@@ -46,7 +48,7 @@ class TextType(_DeferredEvaluatorType):
     """
 
     class _TextDeferredEvaluator(_DeferredEvaluator):
-        def evaluate(self, state: "State") -> str:
+        def evaluate(self, state: State) -> str:
             return state.substitute(self._text)
 
     name = "text"
@@ -70,7 +72,7 @@ class IntegerType(_DeferredEvaluatorType):
     """
 
     class _IntegerDeferredEvaluator(_DeferredEvaluator):
-        def evaluate(self, state: "State") -> int:
+        def evaluate(self, state: State) -> int:
             return int(state.substitute(self._text))
 
     name = "number"
@@ -100,7 +102,7 @@ class LengthType(_DeferredEvaluatorType):
     """
 
     class _LengthDeferredEvaluator(_DeferredEvaluator):
-        def evaluate(self, state: "State") -> float:
+        def evaluate(self, state: State) -> float:
             return vp.convert_length(state.substitute(self._text))
 
     name = "length"
@@ -127,7 +129,7 @@ class AngleType(_DeferredEvaluatorType):
     """
 
     class _AngleDeferredEvaluator(_DeferredEvaluator):
-        def evaluate(self, state: "State") -> float:
+        def evaluate(self, state: State) -> float:
             return vp.convert_angle(state.substitute(self._text))
 
     name = "angle"
@@ -149,12 +151,12 @@ class PageSizeType(_DeferredEvaluatorType):
         >>> @vpype_cli.cli.command(group="my commands")
         ... @click.argument("fmt", type=vpype_cli.PageSizeType())
         ... @vpype_cli.generator
-        ... def my_command(fmt: Tuple[float, float]):
+        ... def my_command(fmt: tuple[float, float]):
         ...     pass
     """
 
     class _PageSizeDeferredEvaluator(_DeferredEvaluator):
-        def evaluate(self, state: "State") -> Tuple[float, float]:
+        def evaluate(self, state: State) -> tuple[float, float]:
             return vp.convert_page_size(state.substitute(self._text))
 
     name = "pagesize"
@@ -170,13 +172,13 @@ class _DelegatedDeferredEvaluatorType(click.ParamType):
     """
 
     class _DelegatedDeferredEvaluator(_DeferredEvaluator):
-        def __init__(self, text: str, param_name: str, cls: Type, *args, **kwargs):
+        def __init__(self, text: str, param_name: str, cls: type, *args, **kwargs):
             super().__init__(text, param_name)
             self._cls = cls
             self._args = args
             self._kwargs = kwargs
 
-        def evaluate(self, state: "State") -> Any:
+        def evaluate(self, state: State) -> Any:
             delegated = self._cls(*self._args, **self._kwargs)
             return delegated.convert(state.substitute(self._text), None, None)
 
@@ -213,9 +215,7 @@ class FileType(_DelegatedDeferredEvaluatorType):
     _delegate_class = click.File
 
 
-def multiple_to_layer_ids(
-    layers: Optional[Union[int, List[int]]], document: vp.Document
-) -> List[int]:
+def multiple_to_layer_ids(layers: int | list[int] | None, document: vp.Document) -> list[int]:
     """Convert multiple-layer CLI argument to list of layer IDs.
 
     Args:
@@ -240,7 +240,7 @@ def multiple_to_layer_ids(
 
 
 def single_to_layer_id(
-    layer: Optional[int], document: vp.Document, must_exist: bool = False
+    layer: int | None, document: vp.Document, must_exist: bool = False
 ) -> int:
     """Convert single-layer CLI argument to layer ID, accounting for the existence of a current
     a current target layer and dealing with default behavior.
@@ -292,7 +292,7 @@ class LayerType(_DeferredEvaluatorType):
             self._accept_multiple = accept_multiple
             self._accept_new = accept_new
 
-        def evaluate(self, state: "State") -> Union[int, List[int]]:
+        def evaluate(self, state: State) -> int | list[int]:
             value = state.substitute(self._text)
 
             if value.lower() == "all":

@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 import logging
 import os
 import random
 import shlex
 import sys
 import traceback
-from typing import TYPE_CHECKING, Any, Callable, Iterable, List, Optional, TextIO, Union, cast
+from typing import TYPE_CHECKING, Any, Callable, Iterable, TextIO, Union, cast
 
 import click
 import numpy as np
@@ -34,7 +36,7 @@ class GroupedGroup(click.Group):
     def command(self, *args, **kwargs):
         """Gather the command help groups"""
         help_group = kwargs.pop("group", None)
-        decorator = super(GroupedGroup, self).command(*args, **kwargs)
+        decorator = super().command(*args, **kwargs)
 
         def wrapper(f):
             cmd = decorator(f)
@@ -100,7 +102,7 @@ class _BrokenCommand(click.Command):  # pragma: no cover
             "\nWarning: entry point could not be loaded. Contact "
             "its author for help.\n\n\b\n" + traceback.format_exc()
         )
-        self.short_help = "\u2020 Warning: could not load plugin. See `%s %s --help`." % (
+        self.short_help = "\u2020 Warning: could not load plugin. See `{} {} --help`.".format(
             util_name,
             self.name,
         )
@@ -235,8 +237,8 @@ def execute_processors(processors: Iterable[ProcessorType], state: State) -> Non
         generated geometries
     """
 
-    outer_processors: List[Any] = []  # gather commands outside of top-level blocks
-    top_level_processors: List[Any] = []  # gather commands inside of top-level blocks
+    outer_processors: list[Any] = []  # gather commands outside of top-level blocks
+    top_level_processors: list[Any] = []  # gather commands inside of top-level blocks
     block = None  # save the current top-level block's block layer_processor
     nested_count = 0  # block depth counter
     expect_block = False  # set to True by `begin` command
@@ -332,7 +334,7 @@ def end():
     return EndBlock()
 
 
-def extract_arguments(f: TextIO) -> List[str]:
+def extract_arguments(f: TextIO) -> list[str]:
     """Read the content of a file-like object and extract the corresponding argument list.
 
     Everything following a '#' is ignored until end of line. Any whitespace is considered
@@ -351,7 +353,7 @@ def extract_arguments(f: TextIO) -> List[str]:
     return args
 
 
-def preprocess_argument_list(args: List[str], cwd: Union[str, None] = None) -> List[str]:
+def preprocess_argument_list(args: list[str], cwd: str | None = None) -> list[str]:
     """Preprocess an argument list, replacing 'include' options by the corresponding file's
     content.
 
@@ -386,7 +388,7 @@ def preprocess_argument_list(args: List[str], cwd: Union[str, None] = None) -> L
                     file_path = os.path.join(cwd, file_path)
                 dir_path = os.path.dirname(file_path)
 
-                with open(file_path, "r") as f:
+                with open(file_path) as f:
                     result.extend(preprocess_argument_list(extract_arguments(f), dir_path))
         else:
             result.append(arg)
@@ -395,7 +397,7 @@ def preprocess_argument_list(args: List[str], cwd: Union[str, None] = None) -> L
 
 
 def execute(
-    pipeline: str, document: Optional[vp.Document] = None, global_opt: str = ""
+    pipeline: str, document: vp.Document | None = None, global_opt: str = ""
 ) -> vp.Document:
     """Execute a vpype pipeline.
 

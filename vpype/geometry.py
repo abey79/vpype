@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import math
-from typing import List, Optional
 
 import numpy as np
 
@@ -61,7 +62,7 @@ def _interpolate_crop(start: complex, stop: complex, loc: float, axis: int) -> c
 
 def crop_half_plane(
     line: np.ndarray, loc: float, axis: int, keep_smaller: bool
-) -> List[np.ndarray]:
+) -> list[np.ndarray]:
     """Crop a path at a axis-aligned location.
 
     The path is cut at location x=loc for axis=0, and y=loc for axis=1. The argument
@@ -142,14 +143,14 @@ def crop_half_plane(
     return line_arr
 
 
-def _crop_half_plane_mult(lines: List[np.ndarray], loc: float, axis: int, keep_smaller: bool):
+def _crop_half_plane_mult(lines: list[np.ndarray], loc: float, axis: int, keep_smaller: bool):
     new_lines = []
     for line in lines:
         new_lines.extend(crop_half_plane(line, loc=loc, axis=axis, keep_smaller=keep_smaller))
     return new_lines
 
 
-def crop(line: np.ndarray, x1: float, y1: float, x2: float, y2: float) -> List[np.ndarray]:
+def crop(line: np.ndarray, x1: float, y1: float, x2: float, y2: float) -> list[np.ndarray]:
     """Crop a polyline to a rectangular area.
 
     Args:
@@ -168,7 +169,7 @@ def crop(line: np.ndarray, x1: float, y1: float, x2: float, y2: float) -> List[n
     return _crop_half_plane_mult(line_list, y2, axis=1, keep_smaller=True)
 
 
-def reloop(line: np.ndarray, loc: Optional[int] = None) -> np.ndarray:
+def reloop(line: np.ndarray, loc: int | None = None) -> np.ndarray:
     """Change the seam of a closed path. Closed-ness is not checked. Beginning and end points
     are averaged to compute a new point. A new seam location can be provided or will be chosen
     randomly.

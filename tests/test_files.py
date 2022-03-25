@@ -1,9 +1,10 @@
 """Run a bunch of tests on the svg collection."""
+from __future__ import annotations
+
 import difflib
 import io
 import os
 import re
-from typing import Set
 
 import click
 import numpy as np
@@ -374,7 +375,7 @@ layer 3 property vp_name: (str) my layer 3
 
 
 def test_read_by_attribute():
-    def _prop_set(document: vp.Document, prop: str) -> Set:
+    def _prop_set(document: vp.Document, prop: str) -> set:
         return {layer.property(prop) for layer in document.layers.values()}
 
     file = TEST_FILE_DIRECTORY / "misc" / "multilayer_by_attributes.svg"

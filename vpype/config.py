@@ -14,12 +14,14 @@ HPGL plotter have specific config support::
     PaperConfig(name='a4', paper_size=(1122.5196850393702, 793.7007874015749), ...)
 """
 
+from __future__ import annotations
+
 import dataclasses
 import logging
 import math
 import os
 import pathlib
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
+from typing import Any, Mapping, Sequence
 
 import tomli
 
@@ -33,7 +35,7 @@ __all__ = [
 ]
 
 
-def _convert_length_pair(data: Sequence[Union[float, str]]) -> Tuple[float, float]:
+def _convert_length_pair(data: Sequence[float | str]) -> tuple[float, float]:
     return convert_length(data[0]), convert_length(data[1])
 
 
@@ -43,30 +45,30 @@ class PaperConfig:
 
     name: str  #: name of the paper format
     y_axis_up: bool  #: if True, the Y axis point upwards instead of downwards
-    origin_location: Tuple[
+    origin_location: tuple[
         float, float
     ]  #: location on paper of the (0, 0) plotter unit coordinates
 
-    paper_size: Optional[Tuple[float, float]] = None  #: X/Y axis convention of the plotter
-    paper_orientation: Optional[
+    paper_size: tuple[float, float] | None = None  #: X/Y axis convention of the plotter
+    paper_orientation: None | (
         str
-    ] = None  #: orientation of the plotter coordinate system on paper
-    x_range: Optional[Tuple[int, int]] = None  #: admissible range of X coordinates
-    y_range: Optional[Tuple[int, int]] = None  #: admissible range of Y coordinates
-    origin_location_reference: Optional[str] = "topleft"  #: reference for ``origin_location``
+    ) = None  #: orientation of the plotter coordinate system on paper
+    x_range: tuple[int, int] | None = None  #: admissible range of X coordinates
+    y_range: tuple[int, int] | None = None  #: admissible range of Y coordinates
+    origin_location_reference: str | None = "topleft"  #: reference for ``origin_location``
 
     info: str = ""  #: information printed to the user when paper is used
     rotate_180: bool = False  #: if True, the geometries are rotated by 180 degrees on the page
-    set_ps: Optional[int] = None  #: if not None, call PS with corresponding value
-    final_pu_params: Optional[
+    set_ps: int | None = None  #: if not None, call PS with corresponding value
+    final_pu_params: None | (
         str
-    ] = None  #: if not None, these params are added to the final PU command
-    aka_names: List[str] = dataclasses.field(
+    ) = None  #: if not None, these params are added to the final PU command
+    aka_names: list[str] = dataclasses.field(
         default_factory=list
     )  #: alternative paper names (will be found by :func:`paper_config`
 
     @classmethod
-    def from_config(cls, data: Dict[str, Any]) -> "PaperConfig":
+    def from_config(cls, data: dict[str, Any]) -> PaperConfig:
         return cls(
             name=data["name"],
             y_axis_up=data["y_axis_up"],
@@ -91,14 +93,14 @@ class PlotterConfig:
     """Data class containing configuration for a given plotter type."""
 
     name: str  #: name of the plotter
-    paper_configs: List[PaperConfig]  #: list of :class:`PaperConfig` instance
+    paper_configs: list[PaperConfig]  #: list of :class:`PaperConfig` instance
     plotter_unit_length: float  #: physical size of plotter units (in pixel)
     pen_count: int  #: number of pen supported by the plotter
 
     info: str = ""  #: information printed to the user when plotter is used
 
     @classmethod
-    def from_config(cls, data: Dict[str, Any]) -> "PlotterConfig":
+    def from_config(cls, data: dict[str, Any]) -> PlotterConfig:
         return cls(
             name=data["name"],
             paper_configs=[PaperConfig.from_config(d) for d in data["paper"]],
@@ -107,7 +109,7 @@ class PlotterConfig:
             info=data.get("info", ""),
         )
 
-    def paper_config(self, paper: str) -> Optional[PaperConfig]:
+    def paper_config(self, paper: str) -> PaperConfig | None:
         """Return the paper configuration for ``paper`` or none if not found.
 
         Args:
@@ -122,8 +124,8 @@ class PlotterConfig:
         return None
 
     def paper_config_from_size(
-        self, page_size: Optional[Tuple[float, float]]
-    ) -> Optional[PaperConfig]:
+        self, page_size: tuple[float, float] | None
+    ) -> PaperConfig | None:
         """Look for a paper configuration matching ``paper_format`` and return it if found.
 
         Args:
@@ -166,7 +168,7 @@ class ConfigManager:
     """
 
     def __init__(self):
-        self._config: Dict = {}
+        self._config: dict = {}
 
     def load_config_file(self, path: str) -> None:
         """Load a config file and add its content to the configuration database. The
@@ -176,7 +178,7 @@ class ConfigManager:
             path: path of the config file
         """
 
-        def _update(d: Dict, u: Mapping) -> Dict:
+        def _update(d: dict, u: Mapping) -> dict:
             """This function must overwrite list member, UNLESS they are list of table, in
             which case they must extend the list."""
             for k, v in u.items():
@@ -195,7 +197,7 @@ class ConfigManager:
         with open(path, "rb") as fp:
             self._config = _update(self._config, tomli.load(fp))
 
-    def get_plotter_list(self) -> List[str]:
+    def get_plotter_list(self) -> list[str]:
         """Returns a list of plotter names whose configuration is available.
 
         Returns:
@@ -203,7 +205,7 @@ class ConfigManager:
         """
         return list(self.config.get("device", {}).keys())
 
-    def get_plotter_config(self, device: Optional[str]) -> Optional[PlotterConfig]:
+    def get_plotter_config(self, device: str | None) -> PlotterConfig | None:
         """Returns a :class:`PlotterConfig` instance for plotter ``device``.
 
         If ``None`` is passed, this function attempts to use the default device if one is
@@ -224,7 +226,7 @@ class ConfigManager:
         else:
             return None
 
-    def get_command_config(self, name: str) -> Dict[str, Any]:
+    def get_command_config(self, name: str) -> dict[str, Any]:
         """Returns the configuration for command ``name``.
 
         Args:
@@ -240,7 +242,7 @@ class ConfigManager:
             return {}
 
     @property
-    def config(self) -> Dict[str, Any]:
+    def config(self) -> dict[str, Any]:
         return self._config
 
 

@@ -1,9 +1,11 @@
 """
 Generic viewer
 """
+from __future__ import annotations
+
 import enum
 from collections import defaultdict
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Callable
 
 import moderngl as mgl
 import numpy as np
@@ -77,20 +79,20 @@ class Engine:
 
         # state
         self._pixel_factor = 1.0
-        self._ctx: Optional[mgl.Context] = None
+        self._ctx: mgl.Context | None = None
         self._viewport_width = 100
         self._viewport_height = 100
         self._scale = 1.0  # one pixel of page equal one pixel of view port
         self._origin = (0.0, 0.0)  # top-left of page aligned with top-left of view port
-        self._document: Optional[vp.Document] = None
+        self._document: vp.Document | None = None
         self._rebuild_needed = True
         self._scale_spec = DEFAULT_SCALE_SPEC
 
         # painters
-        self._layer_visibility: Dict[int, bool] = defaultdict(lambda: True)
-        self._layer_painters: Dict[int, List[Painter]] = defaultdict(list)
-        self._paper_bounds_painter: Optional[PaperBoundsPainter] = None
-        self._rulers_painter: Optional[RulersPainter] = None
+        self._layer_visibility: dict[int, bool] = defaultdict(lambda: True)
+        self._layer_painters: dict[int, list[Painter]] = defaultdict(list)
+        self._paper_bounds_painter: PaperBoundsPainter | None = None
+        self._rulers_painter: RulersPainter | None = None
 
         self._fit_to_viewport_flag = True
 
@@ -108,12 +110,12 @@ class Engine:
     # Properties
 
     @property
-    def document(self) -> Optional[vp.Document]:
+    def document(self) -> vp.Document | None:
         """:class:`vpype.Document` being displayed."""
         return self._document
 
     @document.setter
-    def document(self, document: Optional[vp.Document]) -> None:
+    def document(self, document: vp.Document | None) -> None:
         self._document = document
         self._layer_visibility.clear()
         self._update()
@@ -130,13 +132,13 @@ class Engine:
         self._update(False)
 
     @property
-    def origin(self) -> Tuple[float, float]:
+    def origin(self) -> tuple[float, float]:
         """Current origin (document coordinates corresponding to the display window's top-left
         corner."""
         return self._origin
 
     @origin.setter
-    def origin(self, origin: Tuple[float, float]):
+    def origin(self, origin: tuple[float, float]):
         self._origin = origin
         self._fit_to_viewport_flag = False
         self._update(False)
@@ -298,7 +300,7 @@ class Engine:
 
         self._update(False)
 
-    def viewport_to_model(self, x: float, y: float) -> Tuple[float, float]:
+    def viewport_to_model(self, x: float, y: float) -> tuple[float, float]:
         """Converts viewport coordinates to model coordinates in pixels."""
         return x / self._scale + self._origin[0], y / self._scale + self._origin[1]
 

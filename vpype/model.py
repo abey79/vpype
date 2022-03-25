@@ -1,20 +1,10 @@
 """Implementation of vpype's data model
 """
+from __future__ import annotations
+
 import math
 import pathlib
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Set,
-    Tuple,
-    Union,
-    cast,
-)
+from typing import Any, Callable, Iterable, Iterator, Optional, Tuple, Union, cast
 
 import numpy as np
 from shapely.geometry import LinearRing, LineString, MultiLineString
@@ -51,8 +41,8 @@ def as_vector(a: np.ndarray):
 
 
 class _MetadataMixin:
-    def __init__(self, metadata: Optional[Dict[str, Any]] = None):
-        self._metadata: Dict[str, Any] = metadata.copy() if metadata else {}
+    def __init__(self, metadata: dict[str, Any] | None = None):
+        self._metadata: dict[str, Any] = metadata.copy() if metadata else {}
 
     @property
     def metadata(self):
@@ -64,7 +54,7 @@ class _MetadataMixin:
         return self._metadata
 
     @metadata.setter
-    def metadata(self, metadata: Dict[str, Any]) -> None:
+    def metadata(self, metadata: dict[str, Any]) -> None:
         """Sets the metadata structure."""
         self._metadata = metadata
 
@@ -76,7 +66,7 @@ class _MetadataMixin:
         """
         return prop in self._metadata
 
-    def property(self, prop: str) -> Optional[Any]:
+    def property(self, prop: str) -> Any | None:
         """Returns the value of a metadata property or None if it does not exist.
 
         Args:
@@ -84,7 +74,7 @@ class _MetadataMixin:
         """
         return self._metadata.get(prop, None)
 
-    def set_property(self, prop: str, value: Optional[Any]) -> None:
+    def set_property(self, prop: str, value: Any | None) -> None:
         """Sets the value of a metadata property. For system properties, this function casts
         the value to the proper type and throw an exception if this fails. If the value is
         None, the property is removed.
@@ -163,17 +153,15 @@ class LineCollection(_MetadataMixin):
         metadata: if provided, used as layer metadata
     """
 
-    def __init__(
-        self, lines: LineCollectionLike = (), metadata: Optional[Dict[str, Any]] = None
-    ):
+    def __init__(self, lines: LineCollectionLike = (), metadata: dict[str, Any] | None = None):
         """Create a LineCollection instance from an iterable of lines."""
         super().__init__(metadata)
 
-        self._lines: List[np.ndarray] = []
+        self._lines: list[np.ndarray] = []
         self.extend(lines)
 
     @property
-    def lines(self) -> List[np.ndarray]:
+    def lines(self) -> list[np.ndarray]:
         """Returns the list of line.
 
         Returns:
@@ -181,7 +169,7 @@ class LineCollection(_MetadataMixin):
         """
         return self._lines
 
-    def clone(self, lines: LineCollectionLike = ()) -> "LineCollection":
+    def clone(self, lines: LineCollectionLike = ()) -> LineCollection:
         """Creates a new :class:`LineCollection` with the same metadata.
 
         If ``lines`` is provided, its content is added to the new :class:`LineCollection`
@@ -257,7 +245,7 @@ class LineCollection(_MetadataMixin):
     def __len__(self) -> int:
         return len(self._lines)
 
-    def __getitem__(self, item: Union[int, slice]):
+    def __getitem__(self, item: int | slice):
         return self._lines[item]
 
     def __repr__(self):
@@ -282,7 +270,7 @@ class LineCollection(_MetadataMixin):
         for line in self._lines:
             line += c
 
-    def scale(self, sx: float, sy: Optional[float] = None) -> None:
+    def scale(self, sx: float, sy: float | None = None) -> None:
         """Scale the geometry.
 
         The scaling is performed about the coordinates origin (0, 0). To scale around a
@@ -427,7 +415,7 @@ class LineCollection(_MetadataMixin):
 
         self._lines = new_lines._lines
 
-    def bounds(self) -> Optional[Tuple[float, float, float, float]]:
+    def bounds(self) -> tuple[float, float, float, float] | None:
         """Returns the geometries' bounding box.
 
         Returns:
@@ -438,10 +426,10 @@ class LineCollection(_MetadataMixin):
             return None
         else:
             return (
-                float(min((line.real.min() for line in self._lines))),
-                float(min((line.imag.min() for line in self._lines))),
-                float(max((line.real.max() for line in self._lines))),
-                float(max((line.imag.max() for line in self._lines))),
+                float(min(line.real.min() for line in self._lines)),
+                float(min(line.imag.min() for line in self._lines)),
+                float(max(line.real.max() for line in self._lines)),
+                float(max(line.imag.max() for line in self._lines)),
             )
 
     def width(self) -> float:
@@ -453,8 +441,8 @@ class LineCollection(_MetadataMixin):
 
         if self._lines:
             return float(
-                max((line.real.max() for line in self._lines))
-                - min((line.real.min() for line in self._lines))
+                max(line.real.max() for line in self._lines)
+                - min(line.real.min() for line in self._lines)
             )
         else:
             return 0.0
@@ -467,8 +455,8 @@ class LineCollection(_MetadataMixin):
         """
         if self._lines:
             return float(
-                max((line.imag.max() for line in self._lines))
-                - min((line.imag.min() for line in self._lines))
+                max(line.imag.max() for line in self._lines)
+                - min(line.imag.min() for line in self._lines)
             )
         else:
             return 0.0
@@ -481,13 +469,13 @@ class LineCollection(_MetadataMixin):
         """
         return sum(np.sum(np.abs(np.diff(line))) for line in self._lines)
 
-    def pen_up_trajectories(self) -> "LineCollection":
+    def pen_up_trajectories(self) -> LineCollection:
         """Returns a LineCollection containing the pen-up trajectories."""
         return LineCollection(
             ([self._lines[i][-1], self._lines[i + 1][0]] for i in range(len(self._lines) - 1)),
         )
 
-    def pen_up_length(self) -> Tuple[float, float, float]:
+    def pen_up_length(self) -> tuple[float, float, float]:
         """Returns statistics on the pen-up distance corresponding to the path.
 
         The total, mean, and median distance are returned. The pen-up distance is the distance
@@ -532,8 +520,8 @@ class Document(_MetadataMixin):
     def __init__(
         self,
         line_collection: LineCollection = None,
-        metadata: Optional[Dict[str, Any]] = None,
-        page_size: Optional[Tuple[float, float]] = None,
+        metadata: dict[str, Any] | None = None,
+        page_size: tuple[float, float] | None = None,
     ):
         """Create a Document, optionally providing a :py:class:`LayerCollection` for layer 1.
 
@@ -542,7 +530,7 @@ class Document(_MetadataMixin):
         """
         super().__init__(metadata)
 
-        self._layers: Dict[int, LineCollection] = {}
+        self._layers: dict[int, LineCollection] = {}
 
         if page_size is not None:
             self.page_size = page_size
@@ -550,7 +538,7 @@ class Document(_MetadataMixin):
         if line_collection:
             self.add(line_collection, 1)
 
-    def clone(self, keep_layers: bool = False) -> "Document":
+    def clone(self, keep_layers: bool = False) -> Document:
         """Create an empty copy of this document with the same metadata.
 
         By default, the cloned document doest not contain any layer. If ``keep_layers`` is set
@@ -574,7 +562,7 @@ class Document(_MetadataMixin):
     empty_copy = clone
 
     @property
-    def layers(self) -> Dict[int, LineCollection]:
+    def layers(self) -> dict[int, LineCollection]:
         """Returns a reference to the layer dictionary.
         Returns:
             the internal layer dictionary
@@ -582,7 +570,7 @@ class Document(_MetadataMixin):
         return self._layers
 
     @property
-    def page_size(self) -> Optional[Tuple[float, float]]:
+    def page_size(self) -> tuple[float, float] | None:
         """Returns the page size or None if it hasn't been set."""
         return self.property(METADATA_FIELD_PAGE_SIZE)
 
@@ -591,7 +579,7 @@ class Document(_MetadataMixin):
         """Sets the page size to a new value."""
         self.set_property(METADATA_FIELD_PAGE_SIZE, page_size)
 
-    def extend_page_size(self, page_size: Optional[Tuple[float, float]]) -> None:
+    def extend_page_size(self, page_size: tuple[float, float] | None) -> None:
         """Adjust the  page sized according to the following logic:
 
             - if ``page_size`` is None, the the page size is unchanged
@@ -612,11 +600,11 @@ class Document(_MetadataMixin):
                 self.page_size = page_size
 
     @property
-    def sources(self) -> Set[pathlib.Path]:
+    def sources(self) -> set[pathlib.Path]:
         return self.metadata.get(METADATA_FIELD_SOURCE_LIST, set())
 
     @sources.setter
-    def sources(self, sources: Set[pathlib.Path]) -> None:
+    def sources(self, sources: set[pathlib.Path]) -> None:
         self.set_property(METADATA_FIELD_SOURCE_LIST, sources)
 
     def add_to_sources(self, path) -> None:
@@ -659,7 +647,7 @@ class Document(_MetadataMixin):
         """
         return (self._layers[lid] for lid in layer_ids if lid in self._layers)
 
-    def exists(self, layer_id: Optional[int]) -> bool:
+    def exists(self, layer_id: int | None) -> bool:
         """Test existence of a layer.
 
         Note that existence of a layer does not necessarily imply that it isn't empty. Always
@@ -702,7 +690,7 @@ class Document(_MetadataMixin):
     def add(
         self,
         lines: LineCollectionLike,
-        layer_id: Union[None, int] = None,
+        layer_id: None | int = None,
         with_metadata: bool = False,
     ) -> None:
         """Add a the content of a :py:class:`LineCollection` to a given layer.
@@ -783,7 +771,7 @@ class Document(_MetadataMixin):
 
         self._layers[lid1], self._layers[lid2] = self._layers[lid2], self._layers[lid1]
 
-    def extend(self, doc: "Document") -> None:
+    def extend(self, doc: Document) -> None:
         """Extend a Document with the content of another Document.
 
         The layer structure of the source Document is maintained and geometries are either
@@ -853,7 +841,7 @@ class Document(_MetadataMixin):
         for layer in self._layers.values():
             layer.translate(dx, dy)
 
-    def scale(self, sx: float, sy: Optional[float] = None) -> None:
+    def scale(self, sx: float, sy: float | None = None) -> None:
         """Scale the geometry.
 
         The scaling is performed about the coordinates origin (0, 0). To scale around a
@@ -881,8 +869,8 @@ class Document(_MetadataMixin):
             layer.rotate(angle)
 
     def bounds(
-        self, layer_ids: Union[None, Iterable[int]] = None
-    ) -> Optional[Tuple[float, float, float, float]]:
+        self, layer_ids: None | Iterable[int] = None
+    ) -> tuple[float, float, float, float] | None:
         """Compute bounds of the document.
 
         If layer_ids is provided, bounds are computed only for the corresponding IDs.

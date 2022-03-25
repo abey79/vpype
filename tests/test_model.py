@@ -1,4 +1,6 @@
-from typing import Iterable, Sequence, Set, Tuple
+from __future__ import annotations
+
+from typing import Iterable, Sequence
 
 import numpy as np
 import pytest
@@ -31,7 +33,7 @@ EMPTY_LINE_COLLECTION = [
 ]
 
 
-def _line_set(lc: Iterable[Sequence[complex]]) -> Set[Tuple[complex, ...]]:
+def _line_set(lc: Iterable[Sequence[complex]]) -> set[tuple[complex, ...]]:
     return {tuple(line if abs(line[0]) > abs(line[-1]) else reversed(line)) for line in lc}
 
 
