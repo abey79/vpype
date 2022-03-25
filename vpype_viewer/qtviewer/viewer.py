@@ -120,8 +120,13 @@ class QtViewerWidget(QGLWidget):
         self._ctx = mgl.create_context()
         logging.info(f"Context info: {self._ctx.info}")
 
-        self._ctx.viewport = (0, 0, self._factor * self.width(), self._factor * self.height())
         self._screen = self._ctx.detect_framebuffer()
+        self._screen.viewport = (
+            0,
+            0,
+            int(self._factor * self.width()),
+            int(self._factor * self.height()),
+        )
 
         self.engine.post_init(
             self._ctx, int(self._factor * self.width()), int(self._factor * self.height())
@@ -136,8 +141,9 @@ class QtViewerWidget(QGLWidget):
 
     def resizeGL(self, w: int, h: int) -> None:
         self.engine.resize(w, h)
-        if self._ctx:
-            self._ctx.viewport = (0, 0, w, h)
+
+        if self._screen:
+            self._screen.viewport = (0, 0, int(w), int(h))
 
     def mousePressEvent(self, evt):
         self._last_mouse_x = evt.x()

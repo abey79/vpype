@@ -6,10 +6,14 @@ Installation
 
 This page explain how to install *vpype* for end-users. If you intend to develop on *vpype*, refer to the the :ref:`contributing` section.
 
-.. caution::
+..
+  .. caution::
 
-    *vpype* is currently **not compatible with Python 3.10**. The recommended version is Python 3.9.9 (or later in the 3.9 series). *vpype* is
-    also compatible with Python 3.8 and 3.7.
+      *vpype* is currently **not compatible with Python 3.10**. The recommended version is Python 3.9.9 (or later in the 3.9 series). *vpype* is also compatible with Python 3.8 and 3.7.
+
+.. note::
+
+  The recommended Python version is 3.10.2 or later. *vpype* is also compatible with Python 3.8 and 3.9.
 
 .. note::
 
@@ -18,6 +22,10 @@ This page explain how to install *vpype* for end-users. If you intend to develop
 
 macOS (Apple Silicon/M1)
 ========================
+
+.. caution::
+
+   On M1 computers, using Python 3.9 is strongly recommended due to the restricted availability of the PySide2 library.
 
 .. highlight:: bash
 
@@ -54,7 +62,7 @@ Finally, *vpype* may be installed (note the prompt now reflecting the activated 
 You can test that *vpype* is fully functional by checking its version and displaying some random lines::
 
   (vpype_venv) $ vpype --version
-  vpype 1.8.0
+  vpype 1.9.0
   (vpype_venv) $ vpype random show
 
 Since *vpype* is installed within a virtual environment, it must be activated each time a new terminal window is opened::
@@ -71,7 +79,7 @@ macOS (Intel)
 
 The instructions above also apply but, since dependencies have better support for Intel-based Macs, some steps may be simplified.
 
-Firstly, the `official Python distribution <https://www.python.org/downloads/>`_ may be used instead of MacPorts' (again, install Python 3.9 and avoid Python 3.10 as *vpype* is not yet compatible). Secondly, ``pip`` will successfully install all dependencies so using system packages is not required.
+Firstly, the `official Python distribution <https://www.python.org/downloads/>`_ may be used instead of MacPorts'. Secondly, ``pip`` will successfully install all dependencies so using system packages is not required.
 
 Using MacPorts
 --------------
@@ -116,7 +124,7 @@ Install *vpype* (note the prompt now reflecting the activated virtual environmen
 You can test that *vpype* is fully functional by checking its version and displaying some random lines::
 
   (vpype_venv) $ vpype --version
-  vpype 1.8.0
+  vpype 1.9.0
   (vpype_venv) $ vpype random show
 
 Since *vpype* is installed within a virtual environment, it must be activated each time a new terminal window is opened::

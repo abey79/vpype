@@ -8,7 +8,7 @@ readme = "README.md"
 homepage = "https://github.com/abey79/vpype"
 documentation = "https://vpype.readthedocs.io/en/latest/"
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
     "Topic :: Artistic Software",
     "Topic :: Multimedia :: Graphics",
@@ -33,16 +33,16 @@ include = [
 vpype = "vpype_cli.cli:cli"
 
 [tool.poetry.dependencies]
-python = ">=3.7, !=3.9.0, <3.10"
+python = ">=3.8, <3.11"
 cachetools = ">=4.2.2"
 click = "~8.0.1"
 multiprocess = "^0.70.11"
 numpy = ">=1.20"
 pnoise = "^0.1.0"
-Shapely = {extras = ["vectorized"], version = "1.8.0"}  # 1.8.1 breaks win installer
+Shapely = {extras = ["vectorized"], version = ">=1.8.1.post1"}  # 1.8.1 breaks win installer
 scipy = "^1.6"
 setuptools = "^51.0.0"
-svgelements = "1.6.10"
+svgelements = ">=1.6.10"
 svgwrite = "~1.4"
 tomli = "^2.0.0"
 asteval = "^0.9.26"
@@ -51,7 +51,7 @@ asteval = "^0.9.26"
 matplotlib = { version = ">=3.3.2,<3.6.0", optional = true }
 glcontext = { version = ">=2.3.2", optional = true }  # 2.3.2 needed to fix #200
 moderngl = { version = "^5.6.2", optional = true }
-Pillow = { version = ">=9.0.0,!=9.0.1", optional = true }  # 9.0.1 doesn't work on M1
+Pillow = { version = ">=9.0.1", optional = true }
 PySide2 = { version = "^5.15.2", optional = true }
 
 # these needs to be there because of https://github.com/python-poetry/poetry/issues/1145
@@ -69,6 +69,7 @@ pytest-benchmark = ">=3.2.3"
 black = ">=22.1.0"
 isort = ">=5.8.0"
 pyinstaller = "^4.3"
+pyinstaller-hooks-contrib = ">=2022.3"  # fix for shapely 1.8.1
 packaging = ">=20.8"
 pytest-mpl = ">=0.12"
 mypy = ">=0.901"

@@ -189,11 +189,12 @@ curvy (circles, bezier curves, etc.) to lines made of small segments. _vpype_ do
 Detailed installation instructions are available in the [latest documentation](https://vpype.readthedocs.io/en/latest/install.html).
 
 TL;DR:
-- Python 3.9 is recommended, but *vpype* is also compatible with Python 3.7 and 3.8. *vpype* is **not** compatible with Python 3.10 yet. 
+- Python 3.10 is recommended, but *vpype* is also compatible with Python 3.8 and 3.9. 
 - *vpype* is published on the [Python Package Index](https://pypi.org) and can be installed with the following command (preferably in a virtual environment):
   ```bash
   pip install "vpype[all]"
   ```
+- Installing on M1 Mac requires special care — check the [installation instruction](https://vpype.readthedocs.io/en/latest/install.html#macos-apple-silicon-m1).
 - A Windows installer is available [here](https://github.com/abey79/vpype/releases) (plug-ins cannot be installed
 when using this installation method).
 - A CLI-only version of *vpype* can be installed using the following command:

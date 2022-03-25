@@ -12,6 +12,10 @@ Release date: UNRELEASED
 
 * ...
 
+### Other changes
+
+* Added support for Python 3.10 and dropped support for Python 3.7 (#417)
+
 
 ## 1.9
 
