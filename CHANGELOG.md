@@ -15,6 +15,7 @@ Release date: UNRELEASED
 ### Other changes
 
 * Added support for Python 3.10 and dropped support for Python 3.7 (#417)
+* Updated documentation template (#428)
 * Updated code base with modern typing syntax (using [pyupgrade](https://github.com/asottile/pyupgrade)) (#427)
 
 
