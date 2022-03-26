@@ -10,14 +10,12 @@ sphinx:
   configuration: docs/conf.py
   fail_on_warning: true
 
+formats: all
+
 # Optionally set the version of Python and requirements required to build your docs
 python:
   install:
-    - method: pip
-      path: .
-      extra_requirements:
-        - all
-        - docs
+    - requirements: docs/requirements.txt
 
 build:
   os: ubuntu-20.04

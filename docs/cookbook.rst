@@ -221,11 +221,11 @@ The basic idea is covered by the following pipeline::
 
 Here are the key insights to understand how this pipeline works:
 
-  * An expression with the ``glob()`` function (see :ref:`fundamentals_expr_builtins`) is used to create a list of files to include on the grid.
-  * Another expression computes the number of rows needed to include all files, given a number of column (hard-coded to 3 in this case).
-  * The :ref:`cmd_grid` command uses expressions again as argument to use the previously computed column and row count.
-  * For the :ref:`cmd_read` command, multiple tricks are used. The variable ``_i`` is set by the :ref:`cmd_grid` command and corresponds to the cell counter. We use it to look up the file path to read from our file list. We must however handle the last row, which might be incomplete. This is done with a conditional expression (see :ref:`fundamentals_conditional_expr`) which returns an empty path ``''`` if the cell index is beyond the end of the file list. Normally, the :ref:`cmd_read` would fail when passed a non-existing path. This is avoided by using the ``--no-fail`` option.
-  * Finally, the :ref:`cmd_layout` command fits the SVGs in the cell with a margin.
+* An expression with the ``glob()`` function (see :ref:`fundamentals_expr_builtins`) is used to create a list of files to include on the grid.
+* Another expression computes the number of rows needed to include all files, given a number of column (hard-coded to 3 in this case).
+* The :ref:`cmd_grid` command uses expressions again as argument to use the previously computed column and row count.
+* For the :ref:`cmd_read` command, multiple tricks are used. The variable ``_i`` is set by the :ref:`cmd_grid` command and corresponds to the cell counter. We use it to look up the file path to read from our file list. We must however handle the last row, which might be incomplete. This is done with a conditional expression (see :ref:`fundamentals_conditional_expr`) which returns an empty path ``''`` if the cell index is beyond the end of the file list. Normally, the :ref:`cmd_read` would fail when passed a non-existing path. This is avoided by using the ``--no-fail`` option.
+* Finally, the :ref:`cmd_layout` command fits the SVGs in the cell with a margin.
 
 One limitation of the pipeline above is that it will merge layers by their ID, disregarding properties such as layer name or color. In some cases, this may be an issue. Depending on the nature of the input SVGs, this can be addressed by reading each file in a different layer, like in :ref:`faq_files_to_layer`. This can be done by simply adding the ``--layer %_i+1%`` option to the :ref:`cmd_read` command.
 
