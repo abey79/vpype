@@ -17,6 +17,7 @@ Release date: UNRELEASED
 ### API changes
 
 * Added `vpype_cli.FloatType()`, `vpype_cli.IntRangeType()`, and `vpype_cli.ChoiceType()` (#430)
+* Changed `vpype.Document.add_to_sources()` to also modify the `vp_source` property (#431)
 
 
 ### Other changes
