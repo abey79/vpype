@@ -79,6 +79,30 @@ class IntegerType(_DeferredEvaluatorType):
     _evaluator_class = _IntegerDeferredEvaluator
 
 
+class FloatType(_DeferredEvaluatorType):
+    """:class:`click.ParamType` sub-class to automatically perform
+    :ref:`property substitution <fundamentals_property_substitution>` on user input.
+
+    Example::
+
+        >>> import click
+        >>> import vpype_cli
+        >>> import vpype
+        >>> @vpype_cli.cli.command(group="my commands")
+        ... @click.argument("number", type=vpype_cli.FloatType())
+        ... @vpype_cli.generator
+        ... def my_command(number: float):
+        ...     pass
+    """
+
+    class _FloatDeferredEvaluator(_DeferredEvaluator):
+        def evaluate(self, state: State) -> float:
+            return float(state.substitute(self._text))
+
+    name = "number"
+    _evaluator_class = _FloatDeferredEvaluator
+
+
 class LengthType(_DeferredEvaluatorType):
     """:class:`click.ParamType` sub-class to automatically converts a user-provided lengths
     into CSS pixel units.
@@ -213,6 +237,18 @@ class FileType(_DelegatedDeferredEvaluatorType):
 
     name = "file"
     _delegate_class = click.File
+
+
+class IntRangeType(_DelegatedDeferredEvaluatorType):
+    """:class:`click.File` clone which performs substitution on input."""
+
+    name = "float"
+    _delegate_class = click.IntRange
+
+
+class ChoiceType(_DelegatedDeferredEvaluatorType):
+    name = "choice"
+    _delegate_class = click.Choice
 
 
 def multiple_to_layer_ids(layers: int | list[int] | None, document: vp.Document) -> list[int]:
