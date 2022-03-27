@@ -13,6 +13,7 @@ from .geometry import crop, reloop
 from .line_index import LineIndex
 from .metadata import (
     METADATA_FIELD_PAGE_SIZE,
+    METADATA_FIELD_SOURCE,
     METADATA_FIELD_SOURCE_LIST,
     METADATA_SYSTEM_FIELD_TYPES,
 )
@@ -610,18 +611,16 @@ class Document(_MetadataMixin):
     def add_to_sources(self, path) -> None:
         """Add a path to the source list.
 
-        If ``path`` cannot be converted to a :class:`pathlib.Path` or the file doesn't exist,
-        it is ignored and not added to the source list.
+        This function sets the `vp_source` property to provided path and adds it to the
+        `vp_sources` property.
 
         Args:
             path: file path
         """
-        try:
-            path = pathlib.Path(path)
-            if path.exists():
-                self.sources |= {path}
-        except TypeError:
-            pass
+        if (path := pathlib.Path(path)).exists():
+            path = path.absolute()
+            self.set_property(METADATA_FIELD_SOURCE, path)
+            self.sources |= {path}
 
     def clear_layer_metadata(self) -> None:
         """Clear all metadata from the document."""
@@ -789,8 +788,7 @@ class Document(_MetadataMixin):
 
         # special treatment for page size and source list
         self.extend_page_size(doc.page_size)
-        for path in doc.sources:
-            self.add_to_sources(path)
+        self.sources |= doc.sources
         self.metadata.update(
             {
                 k: v
@@ -869,7 +867,7 @@ class Document(_MetadataMixin):
             layer.rotate(angle)
 
     def bounds(
-        self, layer_ids: None | Iterable[int] = None
+        self, layer_ids: Iterable[int] | None = None
     ) -> tuple[float, float, float, float] | None:
         """Compute bounds of the document.
 

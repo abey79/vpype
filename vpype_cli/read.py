@@ -192,7 +192,8 @@ of appearance.
 
     if file == "-":
         file = sys.stdin
-    elif not pathlib.Path(file).is_file():
+        path: pathlib.Path | None = None
+    elif not (path := pathlib.Path(file)).is_file():
         if no_fail:
             logging.debug("read: file doesn't exist, ignoring due to `--no-fail`")
             return document
@@ -219,7 +220,10 @@ of appearance.
 
         document.add(lc, single_to_layer_id(layer, document), with_metadata=True)
         document.extend_page_size((width, height))
-        document.add_to_sources(file)
+
+        # vp_source is not set here, as it becomes a layer property
+        if path:
+            document.sources |= {path.absolute()}
     else:
         if len(attr) == 0:
             doc = vp.read_multilayer_svg(
