@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from typing import Iterable, Sequence
 
 import numpy as np
@@ -332,3 +333,23 @@ def test_document_exists_none():
     assert doc.exists(1)
     assert not doc.exists(2)
     assert not doc.exists(None)
+
+
+def test_document_add_to_sources(tmp_path):
+    path = tmp_path / "some_file.txt"
+    path.touch()
+
+    doc = Document()
+    doc.add(LineCollection([[0, 1 + 1j], [2 + 2j, 3 + 3j, 4 + 4j]]), 1)
+
+    doc.add_to_sources(path)
+    assert path in doc.property(vp.METADATA_FIELD_SOURCE_LIST)
+    assert path == doc.property(vp.METADATA_FIELD_SOURCE)
+
+    path2 = tmp_path / "doest_exist.txt"
+    doc.add_to_sources(path2)
+    assert path2 not in doc.property(vp.METADATA_FIELD_SOURCE_LIST)
+    assert path2 != doc.property(vp.METADATA_FIELD_SOURCE)
+
+    with pytest.raises(Exception):
+        doc.add_to_sources(sys.stdin)
