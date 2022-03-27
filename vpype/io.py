@@ -757,7 +757,7 @@ def write_svg(
             ]
             color_idx += 1
         elif color_mode == "default":
-            color = layer.property(METADATA_FIELD_COLOR)
+            color = Color(layer.property(METADATA_FIELD_COLOR))
 
             # we want to avoid a subsequent layer whose color is undefined to have its color
             # affected by whether or not previous layer have their color defined
