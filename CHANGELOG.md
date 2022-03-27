@@ -15,6 +15,8 @@ Release date: UNRELEASED
 ### Other changes
 
 * Added support for Python 3.10 and dropped support for Python 3.7 (#417)
+* Updated installation instructions to use pipx (#428)
+* Updated documentation template (#428)
 * Updated code base with modern typing syntax (using [pyupgrade](https://github.com/asottile/pyupgrade)) (#427)
 
 
@@ -28,7 +30,7 @@ A commented version of these release notes is available [here](https://bylr.info
 
 ### New features and improvements
 
-* Added support for global and per-layer [properties]((https://vpype.readthedocs.io/en/latest/fundamentals.html#properties)) (#359)
+* Added support for global and per-layer [properties](https://vpype.readthedocs.io/en/latest/fundamentals.html#properties) (#359)
   
   This feature introduces metadata to the pipeline in the form of properties which may either be attached to specific layers (layer property) or all of them (global property). Properties are identified by a name and may be of arbitrary type (e.g. integer, floating point, color, etc.). A number of [system properties](https://vpype.readthedocs.io/en/latest/fundamentals.html#system-properties) with a specific name (prefixed with `vp_`) and type are introduced to support some of the new features.
 

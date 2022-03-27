@@ -8,9 +8,9 @@ What is *vpype*?
 In a nutshell, *vpype* is an extensible CLI pipeline utility which aims to be the Swiss Army knife for creating, modifying and/or optimizing plotter-ready vector graphics. Let's break this down:
 
 - CLI: *vpype* is a command-line utility, so it is operated from a terminal
-- Pipeline: *vpype* operates by assembling 'commands' in sequences in which each command generates or process geometries before passing them on to the next command. Here is an example:
+- Pipeline: *vpype* operates by assembling 'commands' in sequences in which each command generates or process geometries before passing them on to the next command. Here is an example::
 
-    ``vpype read input.svg scale 2 2 linesort write output.svg``
+    $ vpype read input.svg scale 2 2 linesort write output.svg
 
   Here the geometries are loaded from a file (``read input.svg``), their size is doubled in both directions (``scale 2 2``), paths are reordered to minimize plotting time (``linesort``), and an SVG file is created with the result (``write output.svg``).
 - Extensible: new commands can easily be added to *vpype* with plug-ins. This allows anyone to extend *vpype* with new commands or to write their own generative algorithm.
@@ -27,11 +27,11 @@ For Windows, an installer is available `here <https://github.com/abey79/vpype/re
 when using this installation method).
 
 For other platforms, and when plug-ins are required, *vpype* can be installed from the `Python Package Index <https://pypi.org>`_
-using the following command (Python 3.8 recommended)::
+using pipx::
 
-  pip install vpype
+  $ pipx install vpype
 
-Check the :ref:`installation instructions <install>` for more details, in particular on how to use a virtual environment (recommended).
+Check the :ref:`installation instruction <install>` for step-by-step explanations.
 
 Using this documentation
 ------------------------

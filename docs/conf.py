@@ -1,49 +1,27 @@
-# Configuration file for the Sphinx documentation builder.
-#
-# This file only contains a selection of the most common options. For a full
-# list see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
+import os
+import sys
 
-# -- Path setup --------------------------------------------------------------
+# let sphinx find vpype packages
+sys.path.insert(0, os.path.abspath("../"))
 
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-#
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
-
-# -- Project information -----------------------------------------------------
-# noinspection PyPackageRequirements
-from recommonmark.parser import CommonMarkParser
 
 project = "vpype"
 # noinspection PyShadowingBuiltins
 copyright = "2020-2022, Antoine Beyeler"
 author = "Antoine Beyeler"
 
-# -- General configuration ---------------------------------------------------
 
-# Add any Sphinx extension module names here, as strings. They can be
-# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
-# ones.
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
     "sphinx_click.ext",
-    "sphinx_autodoc_typehints",
-    # "recommonmark", # NOTE: see workaround below
-    # "alabaster",
-    # 'autoapi.extension',
+    "myst_parser",
+    "sphinx_copybutton",
 ]
 
-# -- Autoapi configuration ------------------------------------------------
-# autoapi_dirs = ['../vpype']
-# autoapi_options = ['members', 'undoc-members', 'show-inheritance']
-# autoapi_generate_api_docs = False
+autodoc_typehints = "both"
 
 autosummary_generate = True
 add_module_names = False
@@ -67,7 +45,7 @@ smartquotes_action = "qe"
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "sphinx_rtd_theme"
+html_theme = "furo"
 # html_theme = "alabaster"
 # html_theme_path = [alabaster.get_path()]
 
@@ -115,18 +93,5 @@ def autodoc_skip_member(app, what, name, obj, skip, options):
     return skip or name in exclusions
 
 
-# RECOMMONMARK WORKAROUND
-# see https://github.com/readthedocs/recommonmark/issues/177
-
-
-class CustomCommonMarkParser(CommonMarkParser):
-    def visit_document(self, node):
-        pass
-
-
 def setup(app):
     app.connect("autodoc-skip-member", autodoc_skip_member)
-
-    # recommonmark workaround
-    app.add_source_suffix(".md", "markdown")
-    app.add_source_parser(CustomCommonMarkParser)

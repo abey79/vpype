@@ -190,16 +190,16 @@ Detailed installation instructions are available in the [latest documentation](h
 
 TL;DR:
 - Python 3.10 is recommended, but *vpype* is also compatible with Python 3.8 and 3.9. 
-- *vpype* is published on the [Python Package Index](https://pypi.org) and can be installed with the following command (preferably in a virtual environment):
+- *vpype* is published on the [Python Package Index](https://pypi.org) and can be installed using [pipx](https://pypa.github.io/pipx/):
   ```bash
-  pip install "vpype[all]"
+  pipx install "vpype[all]"
   ```
-- Installing on M1 Mac requires special care — check the [installation instruction](https://vpype.readthedocs.io/en/latest/install.html#macos-apple-silicon-m1).
+- Installing on M1 Mac requires special care — check the [installation instruction](https://vpype.readthedocs.io/en/latest/install.html#installing-using-pipx-apple-silicon-m1).
 - A Windows installer is available [here](https://github.com/abey79/vpype/releases) (plug-ins cannot be installed
 when using this installation method).
 - A CLI-only version of *vpype* can be installed using the following command:
   ```bash
-  pip install vpype
+  pipx install vpype
   ```
   This version does not include the [`show`](https://vpype.readthedocs.io/en/latest/reference.html#show) command but does not require some of the dependencies which are more difficult or impossible to install on some platforms (such as matplotlib, PySide2, and ModernGL).
 
