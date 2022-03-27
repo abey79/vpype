@@ -89,7 +89,10 @@ class State:
         if isinstance(arg, tuple):
             return tuple(self.preprocess_argument(item) for item in arg)
         else:
-            return arg.evaluate(self) if isinstance(arg, _DeferredEvaluator) else arg
+            try:
+                return arg.evaluate(self) if isinstance(arg, _DeferredEvaluator) else arg
+            except Exception as exc:
+                raise click.BadParameter(str(exc)) from exc
 
     def preprocess_arguments(
         self, args: tuple[Any, ...], kwargs: dict[str, Any]

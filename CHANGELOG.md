@@ -8,9 +8,16 @@ Release date: UNRELEASED
 
 * Added HPGL configuration for the Calcomp Artisan plotter (thanks to Andee Collard and @ithinkido) (#418)
 
+
 ### Bug fixes
 
 * Fixed issue with `write` where layer opacity was included in the `stroke` attribute instead of using `stroke-opacity`, which, although compliant, was not compatible with Inkscape (#429)
+
+
+### API changes
+
+* Added `vpype_cli.FloatType()`, `vpype_cli.IntRangeType()`, and `vpype_cli.ChoiceType()` (#430)
+
 
 ### Other changes
 
