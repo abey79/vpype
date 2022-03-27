@@ -522,7 +522,6 @@ def read_multilayer_svg(
 
     source = _get_source(file)
     if source:
-        document.set_property(METADATA_FIELD_SOURCE, source)
         document.add_to_sources(source)
 
     return document
@@ -586,7 +585,6 @@ def read_svg_by_attributes(
 
     source = _get_source(file)
     if source:
-        document.set_property(METADATA_FIELD_SOURCE, source)
         document.add_to_sources(source)
 
     return document
