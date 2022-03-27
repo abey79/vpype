@@ -428,6 +428,18 @@ def test_write_svg_svg_props_unknown_namespace(capsys):
     assert 'unknown:version="1.1.0"' not in capsys.readouterr().out
 
 
+def test_write_opacity_100pct(capsys):
+    vpype_cli.execute("line 0 0 10 10 color red write -f svg -")
+    assert 'stroke="#ff0000"' in capsys.readouterr().out
+
+
+def test_write_opacity_50pct(capsys):
+    vpype_cli.execute("line 0 0 10 10 color '#ff00007f' write -f svg -")
+    output = capsys.readouterr().out
+    assert 'stroke="#ff0000"' in output
+    assert 'stroke-opacity="0.498"' in output
+
+
 def test_read_no_fail():
     with pytest.raises(click.BadParameter):
         vpype_cli.execute("read doesnotexist.svg")

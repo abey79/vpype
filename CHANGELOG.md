@@ -10,7 +10,7 @@ Release date: UNRELEASED
 
 ### Bug fixes
 
-* ...
+* Fixed issue with `write` where layer opacity was included in the `stroke` attribute instead of using `stroke-opacity`, which, although compliant, was not compatible with Inkscape (#429)
 
 ### Other changes
 
