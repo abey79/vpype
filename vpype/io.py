@@ -748,21 +748,24 @@ def write_svg(
         group = inkscape.layer(label=label)
         group.attribs["fill"] = "none"
 
+        color = Color("black")
         if color_mode == "layer" or (
             color_mode == "default" and not layer.property_exists(METADATA_FIELD_COLOR)
         ):
-            group.attribs["stroke"] = METADATA_DEFAULT_COLOR_SCHEME[
+            color = METADATA_DEFAULT_COLOR_SCHEME[
                 color_idx % len(METADATA_DEFAULT_COLOR_SCHEME)
             ]
             color_idx += 1
         elif color_mode == "default":
-            group.attribs["stroke"] = str(layer.property(METADATA_FIELD_COLOR))
+            color = layer.property(METADATA_FIELD_COLOR)
 
             # we want to avoid a subsequent layer whose color is undefined to have its color
             # affected by whether or not previous layer have their color defined
             color_idx += 1
-        elif color_mode == "none":
-            group.attribs["stroke"] = "black"
+
+        group.attribs["stroke"] = color.as_rgb_hes()
+        if color.alpha < 255:
+            group.attribs["stroke-opacity"] = f"{color.alpha/255:.3f}"
         group.attribs["style"] = "display:inline"
         group.attribs["id"] = f"layer{layer_id}"
         if layer.property_exists(METADATA_FIELD_PEN_WIDTH):
