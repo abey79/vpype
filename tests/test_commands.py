@@ -692,6 +692,21 @@ def test_forlayer_command_property_accessor():
         assert doc.layers[i + 1].property("test2") == i
 
 
+def test_forlayer_vars():
+    vpype_cli.execute(
+        """
+        repeat 5
+            random -l new
+        end 
+        eval 'cnt=0'
+        forlayer
+            eval 'assert _lid==cnt+1'
+            eval 'assert _i==cnt;cnt += 1'
+            eval 'assert _n==5'
+        end"""
+    )
+
+
 def test_pagerotate():
     doc = vpype_cli.execute("random pagesize a4 pagerotate")
     assert doc.page_size == pytest.approx((1122.5196850393702, 793.7007874015749))
