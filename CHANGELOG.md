@@ -7,6 +7,7 @@ Release date: UNRELEASED
 ### New features and improvements
 
 * Added HPGL configuration for the Calcomp Artisan plotter (thanks to Andee Collard and @ithinkido) (#418)
+* Added the `--dont-set-date` option to the `write` command (#442)
 
 
 ### Bug fixes
@@ -18,6 +19,7 @@ Release date: UNRELEASED
 
 * Added `vpype_cli.FloatType()`, `vpype_cli.IntRangeType()`, and `vpype_cli.ChoiceType()` (#430)
 * Changed `vpype.Document.add_to_sources()` to also modify the `vp_source` property (#431)
+* Added a `set_date:bool = True` argument to `vpype.write_svg()` (#442)
 
 
 ### Other changes
