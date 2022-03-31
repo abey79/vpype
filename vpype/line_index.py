@@ -4,14 +4,14 @@ import logging
 from typing import Iterable
 
 import numpy as np
-from scipy.spatial import cKDTree as KDTree
+from scipy.spatial import KDTree
 
 # REMINDER: anything added here must be added to docs/api.rst
 __all__ = ["LineIndex"]
 
 
 class LineIndex:
-    """Wrapper to scipy.spatial.cKDTree to facilitate systematic processing of a line
+    """Wrapper to scipy.spatial.KDTree to facilitate systematic processing of a line
     collection.
 
     Implementation note: we use the `available` bool array because deleting stuff from the
