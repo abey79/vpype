@@ -75,7 +75,7 @@ __all__ = ("read",)
     "--display-landscape",
     is_flag=True,
     default=False,
-    help="Use landscape orientation ofr display size.",
+    help="Use landscape orientation for display size.",
 )
 @global_processor
 def read(
