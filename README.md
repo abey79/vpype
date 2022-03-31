@@ -294,10 +294,12 @@ and much more.
  Here is a list of known vpype plug-ins (please make a pull request if yours is missing):
  
  - [vsketch](https://github.com/abey79/vsketch): *vsketch* is complete framework for plotter generative artists implemented using *vpype*'s API
+ - [vpype-perspective](https://github.com/abey79/vpype-perspective): put your art in perspective
  - [vpype-pixelart](https://github.com/abey79/vpype-pixelart): plot pixel art
  - [hatched](https://github.com/abey79/hatched): half-toning with hatches
  - [vpype-flow-imager](https://github.com/serycjon/vpype-flow-imager): convert images to flow-line-based designs
  - [occult](https://github.com/LoicGoulefert/occult): perform hidden line removal
+ - [deduplicate](https://github.com/LoicGoulefert/deduplicate): remove duplicate lines
  - [vpype-explorations](https://github.com/abey79/vpype-explorations): my personal grab bag of experiments and utilities
  - [vpype-gcode](https://github.com/tatarize/vpype-gcode/): flexible export command for gcode and other text-based format
  - [vpype-dxf](https://github.com/tatarize/vpype-dxf/): read dxf files

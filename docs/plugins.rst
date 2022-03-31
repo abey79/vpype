@@ -15,6 +15,13 @@ Thanks to the CLI library which underlies *vpype* (`Click <https://click.pallets
 
 Here are a few existing plug-ins to illustrate the possibilities:
 
+* `vpype-perspective <https://github.com/abey79/vpype-perspective>`__: put your art in perspective
+
+  .. image:: https://raw.githubusercontent.com/abey79/vpype-perspective/main/examples/images/wobbley_cylinders_like_1_plotted.jpg
+     :height: 400px
+  .. image:: https://raw.githubusercontent.com/abey79/vpype-perspective/main/examples/images/boxes1_like_1_doubled_in_perspective.jpeg
+     :height: 400px
+
 * `vpype-gcode <https://github.com/plottertools/vpype-gcode>`__: flexible export to gcode or any other text-based format
 * `vpype-embroidery <https://github.com/EmbroidePy/vpype-embroidery>`__: convert to/from common embroidery file formats
 * `vpype-dxf <https://github.com/tatarize/vpype-dxf>`__: read from DXF
