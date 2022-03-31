@@ -169,7 +169,12 @@ Examples:
     "--restore-attribs",
     is_flag=True,
     default=False,
-    help="[SVG only] attempt to restore SVG attributes from properties",
+    help="[SVG only] attempt to restore SVG attributes from properties.",
+)
+@click.option(
+    "--dont-set-date",
+    is_flag=True,
+    help="[SVG only] do not add date metadata (useful for auto-generated SVG under VCS).",
 )
 @click.option(
     "-d", "--device", type=TextType(), help="[HPGL only] Type of the plotter device."
@@ -203,6 +208,7 @@ def write(
     center: bool,
     layer_label: str | None,
     restore_attribs: bool,
+    dont_set_date: bool,
     pen_up: bool,
     color_mode: str,
     device: str | None,
@@ -238,6 +244,7 @@ def write(
             show_pen_up=pen_up,
             color_mode=color_mode,
             use_svg_metadata=restore_attribs,
+            set_date=not dont_set_date,
         )
     elif file_format == "hpgl":
         if not page_size:

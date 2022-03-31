@@ -494,3 +494,15 @@ def test_read_by_attr_stdin_sets_source_properties(monkeypatch):
     doc = vpype_cli.execute(f"read -a stroke -a fill -")
     assert vp.METADATA_FIELD_SOURCE not in doc.metadata
     assert doc.sources == set()
+
+
+def test_write_set_date(capsys):
+    vpype_cli.execute("line 0 0 10 10 write -f svg -")
+    output = capsys.readouterr().out
+    assert "<dc:date>" in output
+
+
+def test_write_dont_set_date(capsys):
+    vpype_cli.execute("line 0 0 10 10 write -f svg --dont-set-date -")
+    output = capsys.readouterr().out
+    assert "<dc:date>" not in output
