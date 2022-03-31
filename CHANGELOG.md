@@ -23,6 +23,7 @@ Release date: UNRELEASED
 ### Other changes
 
 * Added support for Python 3.10 and dropped support for Python 3.7 (#417)
+* Miscellaneous code cleaning and fixes (#440, 906087b)
 * Updated installation instructions to use pipx (#428)
 * Updated documentation template (#428)
 * Updated code base with modern typing syntax (using [pyupgrade](https://github.com/asottile/pyupgrade)) (#427)
