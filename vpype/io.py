@@ -621,6 +621,7 @@ def write_svg(
     show_pen_up: bool = False,
     color_mode: str = "default",
     use_svg_metadata: bool = False,
+    set_date: bool = True,
 ) -> None:
     """Create a SVG from a :py:class:`Document` instance.
 
@@ -665,6 +666,8 @@ def write_svg(
         color_mode: "default" (system property), "none" (no formatting), "layer" (one color per
             layer), "path" (one color per path)
         use_svg_metadata: apply ``svg_``-prefixed properties as SVG attributes
+        set_date: controls whether the current date and time is set in the SVG's metadata
+            (disabling it is useful for auto-generated SVG under VCS)
     """
 
     # compute bounds
@@ -713,8 +716,9 @@ def write_svg(
     fmt.text = "image/svg+xml"
     source = ElementTree.SubElement(work, "dc:source")
     source.text = source_string
-    date = ElementTree.SubElement(work, "dc:date")
-    date.text = datetime.datetime.now().isoformat()
+    if set_date:
+        date = ElementTree.SubElement(work, "dc:date")
+        date.text = datetime.datetime.now().isoformat()
     dwg.set_metadata(metadata)
 
     color_idx = 0
