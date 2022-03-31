@@ -221,13 +221,14 @@ def forlayer(state: State, processors: Iterable[ProcessorType]) -> None:
     orig_doc = state.document
     new_doc: vp.Document = orig_doc.clone()
 
-    for i, lid in enumerate(list(orig_doc.layers)):
+    lids = list(orig_doc.layers)
+    for i, lid in enumerate(lids):
         with state.temp_document(keep_layer=False) as doc:
             doc.add(orig_doc.pop(lid), lid, with_metadata=True)
             variables = {
                 "_lid": lid,
                 "_i": i,
-                "_n": len(doc.layers),
+                "_n": len(lids),
                 "_name": doc.layers[lid].property(vp.METADATA_FIELD_NAME) or "",
                 "_color": doc.layers[lid].property(vp.METADATA_FIELD_COLOR),
                 "_pen_width": doc.layers[lid].property(vp.METADATA_FIELD_PEN_WIDTH),
