@@ -779,7 +779,7 @@ def write_svg(
             # affected by whether or not previous layer have their color defined
             color_idx += 1
 
-        group.attribs["stroke"] = color.as_rgb_hes()
+        group.attribs["stroke"] = color.as_rgb_hex()
         if color.alpha < 255:
             group.attribs["stroke-opacity"] = f"{color.alpha/255:.3f}"
         group.attribs["style"] = "display:inline"

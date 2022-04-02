@@ -571,7 +571,7 @@ def test_read_command_page_size(
         args += f"--display-size {default[0]:.3f}x{default[1]:.3f} "
         if default[0] > default[1]:
             args += f"--display-landscape"
-    doc = vpype_cli.execute(f"read {args} {path}")
+    doc = vpype_cli.execute(f"read {args} '{path}'")
 
     assert doc.page_size == pytest.approx(target)
 

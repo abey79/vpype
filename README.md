@@ -254,7 +254,7 @@ and much more.
 
 #### Metadata
 
-- Adjust layer **color**, **pen width** and **name** ([`color`](https://vpype.readthedocs.io/en/latest/reference.html#color), [`penwidth`](https://vpype.readthedocs.io/en/latest/reference.html#penwidth), [`name`](https://vpype.readthedocs.io/en/latest/reference.html#name)).
+- Adjust layer **color**, **alpha**, **pen width** and **name** ([`color`](https://vpype.readthedocs.io/en/latest/reference.html#color), [`alpha`](https://vpype.readthedocs.io/en/latest/reference.html#alpha), [`penwidth`](https://vpype.readthedocs.io/en/latest/reference.html#penwidth), [`name`](https://vpype.readthedocs.io/en/latest/reference.html#name)).
 - Apply provided or fully customisable **pen configurations** ([`pens`](https://vpype.readthedocs.io/en/latest/reference.html#pens)).
 - Manipulate global and per-layer **properties** ([`propset`](https://vpype.readthedocs.io/en/latest/reference.html#propset), [`propget`](https://vpype.readthedocs.io/en/latest/reference.html#propget), [`proplist`](https://vpype.readthedocs.io/en/latest/reference.html#proplist), [`propdel`](https://vpype.readthedocs.io/en/latest/reference.html#propdel), [`propclear`](https://vpype.readthedocs.io/en/latest/reference.html#propclear)).
 

@@ -184,7 +184,7 @@ Although there is in general no constraint on the number, name, and type of prop
   * ``vp_source`` (:class:`pathlib.Path`): the input file from which the geometries are created (global and/or layer property)
   * ``vp_sources`` (:class:`set` of :class:`pathlib.Path`): list of all input files from which geometries are created (global property)
 
-Many commands act on these properties. For example, the :ref:`cmd_read` command sets these properties according to the imported SVG file's content. The :ref:`cmd_color`, :ref:`cmd_penwidth`, :ref:`cmd_name`, and :ref:`cmd_pens` commands can set these properties to arbitrary values. In particular, the :ref:`cmd_pens` commands can apply a predefined set of values on multiple layers at once, for example to apply a CMYK color scheme (see :ref:`faq_custom_pen_config` for more information). The page size global property is set by the :ref:`cmd_pagesize` and :ref:`cmd_layout` commands, and used by the :ref:`cmd_write` command.
+Many commands act on these properties. For example, the :ref:`cmd_read` command sets these properties according to the imported SVG file's content. The :ref:`cmd_color`, :ref:`cmd_alpha`, :ref:`cmd_penwidth`, :ref:`cmd_name`, and :ref:`cmd_pens` commands can set these properties to arbitrary values. In particular, the :ref:`cmd_pens` commands can apply a predefined set of values on multiple layers at once, for example to apply a CMYK color scheme (see :ref:`faq_custom_pen_config` for more information). The page size global property is set by the :ref:`cmd_pagesize` and :ref:`cmd_layout` commands, and used by the :ref:`cmd_write` command.
 
 .. note::
 

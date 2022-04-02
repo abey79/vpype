@@ -84,6 +84,7 @@ MINIMAL_COMMANDS = [
     Command("text 'hello wold'"),
     Command("penwidth 0.15mm", preserves_metadata=False),
     Command("color red", preserves_metadata=False),
+    Command("alpha 0.5", preserves_metadata=False),
     Command("name my_name", preserves_metadata=False),
     Command("propset -g prop:global hello", preserves_metadata=False),
     Command("propset -l 1 prop:local hello", preserves_metadata=False),
@@ -727,3 +728,21 @@ def test_help(runner):
     assert res.exit_code == 0
     assert "Execute the sequence of commands passed in argument." in res.stdout
     assert "multipass" in res.stdout
+
+
+def test_alpha():
+    assert vpype_cli.execute("random alpha 0.5").layers[1].property(
+        vp.METADATA_FIELD_COLOR
+    ) == vp.Color(0, 0, 0, 127)
+
+    assert vpype_cli.execute("random alpha 1").layers[1].property(
+        vp.METADATA_FIELD_COLOR
+    ) == vp.Color(0, 0, 0, 255)
+
+    assert vpype_cli.execute("random alpha 0").layers[1].property(
+        vp.METADATA_FIELD_COLOR
+    ) == vp.Color(0, 0, 0, 0)
+
+    assert vpype_cli.execute("random color red alpha 0.5").layers[1].property(
+        vp.METADATA_FIELD_COLOR
+    ) == vp.Color(255, 0, 0, 127)
