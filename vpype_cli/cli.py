@@ -116,6 +116,9 @@ class _BrokenCommand(click.Command):  # pragma: no cover
         return args
 
 
+_PLUGINS_LOADED = False
+
+
 # noinspection PyUnusedLocal
 @click.group(cls=GroupedGroup, chain=True, invoke_without_command=True)
 @click.version_option(version=vp.__version__, message="%(prog)s %(version)s")
@@ -134,7 +137,13 @@ class _BrokenCommand(click.Command):  # pragma: no cover
 )
 @click.pass_context
 def cli(
-    ctx, help_flag: bool, verbose: int, include: bool, history: bool, seed: int, config: str
+    ctx: click.Context,
+    help_flag: bool,
+    verbose: int,
+    include: bool,
+    history: bool,
+    seed: int,
+    config: str,
 ):
     """Execute the sequence of commands passed in argument.
 
@@ -186,15 +195,18 @@ def cli(
     # 1) Deferred plug-in loading avoid circular import between vpype and vpype_cli when plug-
     #    in uses deprecated APIs.
     # 2) Avoids the PyCharm type error with CliRunner.invoke()
-    for entry_point in iter_entry_points("vpype.plugins"):
-        # noinspection PyBroadException
-        try:
-            ctx.command.add_command(entry_point.load())
-        except Exception:
-            # Catch this so a busted plugin doesn't take down the CLI.
-            # Handled by registering a dummy command that does nothing
-            # other than explain the error.
-            ctx.command.add_command(_BrokenCommand(entry_point.name))
+    global _PLUGINS_LOADED
+    if not _PLUGINS_LOADED:
+        _PLUGINS_LOADED = True
+        for entry_point in iter_entry_points("vpype.plugins"):
+            # noinspection PyBroadException
+            try:
+                cast(click.Group, ctx.command).add_command(entry_point.load())
+            except Exception:
+                # Catch this so a busted plugin doesn't take down the CLI.
+                # Handled by registering a dummy command that does nothing
+                # other than explain the error.
+                cast(click.Group, ctx.command).add_command(_BrokenCommand(entry_point.name))
 
     # Manual handling of the help to work around circular import issues.
     # Background: when importing plug-ins in the style of `click-plugin` (decorator, so plug-
