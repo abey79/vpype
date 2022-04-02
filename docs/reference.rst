@@ -11,6 +11,10 @@ CLI reference
 .. click:: vpype_cli:cli
    :prog: vpype
 
+.. _cmd_alpha:
+.. click:: vpype_cli:alpha
+   :prog: alpha
+
 .. _cmd_arc:
 .. click:: vpype_cli:arc
    :prog: arc

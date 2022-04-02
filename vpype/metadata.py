@@ -60,7 +60,7 @@ class Color:
         """Return a standard, hexadecimal representation of the instance."""
         return svgelements.Color(self.red, self.green, self.blue, self.alpha).hex
 
-    def as_rgb_hes(self) -> str:
+    def as_rgb_hex(self) -> str:
         """Return a standard, hexadecimal representation of the instance, ignoring alpha."""
         return svgelements.Color(self.red, self.green, self.blue).hexrgb
 

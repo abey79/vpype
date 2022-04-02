@@ -9,7 +9,14 @@ import vpype as vp
 
 from .cli import cli
 from .decorators import global_processor, layer_processor
-from .types import LayerType, LengthType, TextType, multiple_to_layer_ids
+from .types import (
+    FloatRangeType,
+    FloatType,
+    LayerType,
+    LengthType,
+    TextType,
+    multiple_to_layer_ids,
+)
 
 __all__ = (
     "propset",
@@ -298,6 +305,9 @@ def color(layer: vp.LineCollection, color: str) -> vp.LineCollection:
     By default, this commands sets the color for all layers. Use the `--layer` option to set
     the color of one (or more) specific layer(s).
 
+    Note: the opacity of a layer may be set without changing the base color with the `alpha`
+    command.
+
     Examples:
 
         Set the color for all layers:
@@ -310,6 +320,38 @@ def color(layer: vp.LineCollection, color: str) -> vp.LineCollection:
     """
 
     layer.set_property(vp.METADATA_FIELD_COLOR, vp.Color(color))
+    return layer
+
+
+# noinspection PyShadowingNames
+@cli.command(group="Metadata")
+@click.argument("alpha", metavar="ALPHA", type=FloatRangeType(min=0.0, max=1.0, clamp=True))
+@layer_processor
+def alpha(layer: vp.LineCollection, alpha: float) -> vp.LineCollection:
+    """Set the opacity of one or more layers.
+
+    Assign the opacity ALPHA to the target layer(s) without changing its based color. If the
+    base color is undefined, it is set to black.
+
+    By default, this commands operate on all layers. Use the `--layer` option to specify one or
+    more target layer(s)
+
+    Examples:
+
+        Set all layer to 50% red:
+
+            $ vpype [...] color red alpha .5 [...]
+
+        Set the opacity for a specific layer:
+
+            $ vpype [...] alpha --layer 2 .5 [...]
+    """
+
+    if (color := layer.property(vp.METADATA_FIELD_COLOR)) is None:
+        color = vp.Color("black")
+    layer.set_property(
+        vp.METADATA_FIELD_COLOR, vp.Color(color.red, color.green, color.blue, int(alpha * 255))
+    )
     return layer
 
 

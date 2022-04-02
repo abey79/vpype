@@ -240,10 +240,17 @@ class FileType(_DelegatedDeferredEvaluatorType):
 
 
 class IntRangeType(_DelegatedDeferredEvaluatorType):
-    """:class:`click.File` clone which performs substitution on input."""
+    """:class:`click.IntRange` clone which performs substitution on input."""
 
     name = "float"
     _delegate_class = click.IntRange
+
+
+class FloatRangeType(_DelegatedDeferredEvaluatorType):
+    """:class:`click.FloatRange` clone which performs substitution on input."""
+
+    name = "float"
+    _delegate_class = click.FloatRange
 
 
 class ChoiceType(_DelegatedDeferredEvaluatorType):
