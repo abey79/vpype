@@ -719,3 +719,11 @@ def test_pagerotate_error(caplog):
     doc = vpype_cli.execute("random pagerotate")
     assert doc.page_size is None
     assert "page size is not defined, page not rotated" in caplog.text
+
+
+def test_help(runner):
+    res = runner.invoke(cli, "--help")
+
+    assert res.exit_code == 0
+    assert "Execute the sequence of commands passed in argument." in res.stdout
+    assert "multipass" in res.stdout

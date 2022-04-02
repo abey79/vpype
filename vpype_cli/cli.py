@@ -116,9 +116,13 @@ class _BrokenCommand(click.Command):  # pragma: no cover
         return args
 
 
-# noinspection PyUnusedLocal,PyUnresolvedReferences
-@click.group(cls=GroupedGroup, chain=True)
+_PLUGINS_LOADED = False
+
+
+# noinspection PyUnusedLocal
+@click.group(cls=GroupedGroup, chain=True, invoke_without_command=True)
 @click.version_option(version=vp.__version__, message="%(prog)s %(version)s")
+@click.option("-h", "--help", "help_flag", is_flag=True, help="Show this message and exit.")
 @click.option("-v", "--verbose", count=True)
 @click.option("-I", "--include", type=click.Path(), help="Load commands from a command file.")
 @click.option(
@@ -132,7 +136,15 @@ class _BrokenCommand(click.Command):  # pragma: no cover
     "-c", "--config", type=click.Path(exists=True), help="Load an additional config file."
 )
 @click.pass_context
-def cli(ctx, verbose, include, history, seed, config):
+def cli(
+    ctx: click.Context,
+    help_flag: bool,
+    verbose: int,
+    include: bool,
+    history: bool,
+    seed: int,
+    config: str,
+):
     """Execute the sequence of commands passed in argument.
 
     The available commands are listed below. Information on each command may be obtained using:
@@ -183,15 +195,30 @@ def cli(ctx, verbose, include, history, seed, config):
     # 1) Deferred plug-in loading avoid circular import between vpype and vpype_cli when plug-
     #    in uses deprecated APIs.
     # 2) Avoids the PyCharm type error with CliRunner.invoke()
-    for entry_point in iter_entry_points("vpype.plugins"):
-        # noinspection PyBroadException
-        try:
-            ctx.command.add_command(entry_point.load())
-        except Exception:
-            # Catch this so a busted plugin doesn't take down the CLI.
-            # Handled by registering a dummy command that does nothing
-            # other than explain the error.
-            ctx.command.add_command(_BrokenCommand(entry_point.name))
+    global _PLUGINS_LOADED
+    if not _PLUGINS_LOADED:
+        _PLUGINS_LOADED = True
+        for entry_point in iter_entry_points("vpype.plugins"):
+            # noinspection PyBroadException
+            try:
+                cast(click.Group, ctx.command).add_command(entry_point.load())
+            except Exception:
+                # Catch this so a busted plugin doesn't take down the CLI.
+                # Handled by registering a dummy command that does nothing
+                # other than explain the error.
+                cast(click.Group, ctx.command).add_command(_BrokenCommand(entry_point.name))
+
+    # Manual handling of the help to work around circular import issues.
+    # Background: when importing plug-ins in the style of `click-plugin` (decorator, so plug-
+    # ins are loaded during the loading of `cli` itself), plug-in may not import things from
+    # `vpype_cli` since it is still partially loaded. Plug-ins are thus loaded when `cli` is
+    # actually executed (see previous lines). As a result, the Click's default behaviour for
+    # handling `--help` (i.e. print and exit *before* even executing `cli`) is unable to list
+    # the plug-ins. This is addressed by manually handling the top-level `--help` parameter
+    # *after* plug-ins are loaded.
+    if help_flag:
+        print(ctx.command.get_help(ctx))
+        sys.exit(0)
 
     # We use the command string as context object, mainly for the purpose of the `write`
     # command. This is a bit of a hack, and will need to be updated if we ever need more state
@@ -218,9 +245,9 @@ if TYPE_CHECKING:  # pragma: no cover
     cli = cast(GroupedGroup, cli)
 
 
-# noinspection PyShadowingNames,PyUnusedLocal
+# noinspection PyUnusedLocal
 @cli.result_callback()
-def process_pipeline(processors, verbose, include, history, seed, config):
+def process_pipeline(processors, help_flag, verbose, include, history, seed, config):
     execute_processors(processors, State())
 
 
