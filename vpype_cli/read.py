@@ -64,7 +64,6 @@ __all__ = ("read",)
     "-ds",
     "--display-size",
     type=PageSizeType(),
-    default="a4",
     help=(
         "Display size to use for SVG with width/height expressed as percentage or missing "
         "altogether (see `write` command for possible format)."
@@ -89,7 +88,7 @@ def read(
     simplify: bool,
     parallel: bool,
     no_crop: bool,
-    display_size: tuple[float, float],
+    display_size: tuple[float, float] | None,
     display_landscape: bool,
 ) -> vp.Document:
     """Extract geometries from a SVG file.
@@ -144,9 +143,9 @@ of appearance.
     In general, SVG boundaries are determined by the `width` and `height` of the top-level
     <svg> tag. However, the some SVG may have their width and/or height specified as percent
     value or even miss them altogether (in which case they are assumed to be set to 100%). In
-    these cases, vpype considers by default that 100% corresponds to a A4 page in portrait
-    orientation. The options `--display-size FORMAT` and `--display-landscape` can be used
-    to specify a different format.
+    these cases, vpype attempts to use the `viewBox` attribute to determine the page size, or
+    revert to a 1000x1000px default. The options `--display-size FORMAT` and
+    `--display-landscape` can be used to specify a different format in such instances.
 
     When importing the SVG, the `read` commands attempts to extract the SVG attributes that
     are common to all paths within a layer. The "stroke", "stroke-width" and "inkscape:label"
@@ -186,9 +185,11 @@ of appearance.
             vpype read --no-crop input_file.svg [...]
     """
 
-    width, height = display_size
-    if display_landscape:
-        width, height = height, width
+    default_width = default_height = None
+    if display_size is not None:
+        default_width, default_height = display_size
+        if display_landscape and default_width < default_height:
+            default_width, default_height = default_height, default_width
 
     if file == "-":
         file = sys.stdin
@@ -214,8 +215,8 @@ of appearance.
             crop=not no_crop,
             simplify=simplify,
             parallel=parallel,
-            default_width=width,
-            default_height=height,
+            default_width=default_width,
+            default_height=default_height,
         )
 
         document.add(lc, single_to_layer_id(layer, document), with_metadata=True)
@@ -232,8 +233,8 @@ of appearance.
                 crop=not no_crop,
                 simplify=simplify,
                 parallel=parallel,
-                default_width=width,
-                default_height=height,
+                default_width=default_width,
+                default_height=default_height,
             )
         else:
             doc = vp.read_svg_by_attributes(
@@ -243,8 +244,8 @@ of appearance.
                 crop=not no_crop,
                 simplify=simplify,
                 parallel=parallel,
-                default_width=width,
-                default_height=height,
+                default_width=default_width,
+                default_height=default_height,
             )
         document.extend(doc)
 

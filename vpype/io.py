@@ -44,10 +44,6 @@ __all__ = [
 ]
 
 
-_DEFAULT_WIDTH = 1000
-_DEFAULT_HEIGHT = 1000
-
-
 class _ComplexStack:
     """Complex number stack implemented with a numpy array"""
 
@@ -383,14 +379,20 @@ def read_svg(
     crop: bool = True,
     simplify: bool = False,
     parallel: bool = False,
-    default_width: float = _DEFAULT_WIDTH,
-    default_height: float = _DEFAULT_HEIGHT,
+    default_width: float | None = None,
+    default_height: float | None = None,
 ) -> tuple[LineCollection, float, float]:
     """Read a SVG file an return its content as a :class:`LineCollection` instance.
 
     All curved geometries are chopped in segments no longer than the value of *quantization*.
     Optionally, the geometries are simplified using Shapely, using the value of *quantization*
     as tolerance.
+
+    The page size is set based on the ``width`` and ``height`` attributes of the ``<svg>`` tag.
+    If these attributes are missing or expressed in percent, ``svgelements`` attempts to use
+    the ``viewBox`` attribute instead, or reverts to a 1000x1000px page size. This behaviour
+    can be overridden by providing values for the ``default_width`` and ``default_height``
+    arguments.
 
     Args:
         file: path of the SVG file or stream object
@@ -429,8 +431,8 @@ def read_multilayer_svg(
     crop: bool = True,
     simplify: bool = False,
     parallel: bool = False,
-    default_width: float = _DEFAULT_WIDTH,
-    default_height: float = _DEFAULT_HEIGHT,
+    default_width: float | None = None,
+    default_height: float | None = None,
 ) -> Document:
     """Read a multilayer SVG file and return its content as a :class:`Document` instance
     retaining the SVG's layer structure and its dimension.
@@ -446,6 +448,12 @@ def read_multilayer_svg(
     All curved geometries are chopped in segments no longer than the value of *quantization*.
     Optionally, the geometries are simplified using Shapely, using the value of *quantization*
     as tolerance.
+
+    The page size is set based on the ``width`` and ``height`` attributes of the ``<svg>`` tag.
+    If these attributes are missing or expressed in percent, ``svgelements`` attempts to use
+    the ``viewBox`` attribute instead, or reverts to a 1000x1000px page size. This behaviour
+    can be overridden by providing values for the ``default_width`` and ``default_height``
+    arguments.
 
     Args:
         file: path of the SVG file or stream object
@@ -534,14 +542,20 @@ def read_svg_by_attributes(
     crop: bool = True,
     simplify: bool = False,
     parallel: bool = False,
-    default_width: float = _DEFAULT_WIDTH,
-    default_height: float = _DEFAULT_HEIGHT,
+    default_width: float | None = None,
+    default_height: float | None = None,
 ) -> Document:
     """Read a SVG file by sorting geometries by unique combination of provided attributes.
 
     All curved geometries are chopped in segments no longer than the value of *quantization*.
     Optionally, the geometries are simplified using Shapely, using the value of *quantization*
     as tolerance.
+
+    The page size is set based on the ``width`` and ``height`` attributes of the ``<svg>`` tag.
+    If these attributes are missing or expressed in percent, ``svgelements`` attempts to use
+    the ``viewBox`` attribute instead, or reverts to a 1000x1000px page size. This behaviour
+    can be overridden by providing values for the ``default_width`` and ``default_height``
+    arguments.
 
     Args:
         file: path of the SVG file or stream object

@@ -8,6 +8,9 @@ Release date: UNRELEASED
 
 * Added HPGL configuration for the Calcomp Artisan plotter (thanks to Andee Collard and @ithinkido) (#418)
 * Added the `--dont-set-date` option to the `write` command (#442)
+* The `read` command now better handles SVGs with missing `width` or `height` attributes (#446)
+
+  When the `width` or `height` attribute is missing or expressed as percent, the `read` command now attempts to use the `viewBox` attribute to set the page size, defaulting to 1000x1000px if missing. This behavior can be overridden with the `--display-size` and the `--display-landscape` parameters. 
 
 
 ### Bug fixes
@@ -23,6 +26,7 @@ Release date: UNRELEASED
 * Added `vpype_cli.FloatType()`, `vpype_cli.IntRangeType()`, and `vpype_cli.ChoiceType()` (#430)
 * Changed `vpype.Document.add_to_sources()` to also modify the `vp_source` property (#431)
 * Added a `set_date:bool = True` argument to `vpype.write_svg()` (#442)
+* Changed the default value of `default_width` and `default_height` arguments of `vpype.read_svg()` (and friends) to `None` to allow `svgelement` better handle missing `width`/`height` attributes (#446)
 
 
 ### Other changes
