@@ -6,6 +6,7 @@ Release date: UNRELEASED
 
 ### New features and improvements
 
+* Added the `alpha` command to set layer opacity without changing the base color (#447) 
 * Added HPGL configuration for the Calcomp Artisan plotter (thanks to Andee Collard and @ithinkido) (#418)
 * Added the `--dont-set-date` option to the `write` command (#442)
 * The `read` command now better handles SVGs with missing `width` or `height` attributes (#446)
@@ -23,7 +24,7 @@ Release date: UNRELEASED
 
 ### API changes
 
-* Added `vpype_cli.FloatType()`, `vpype_cli.IntRangeType()`, and `vpype_cli.ChoiceType()` (#430)
+* Added `vpype_cli.FloatType()`, `vpype_cli.IntRangeType()`, `vpype_cli.FloatRangeType()`, and `vpype_cli.ChoiceType()` (#430, #447)
 * Changed `vpype.Document.add_to_sources()` to also modify the `vp_source` property (#431)
 * Added a `set_date:bool = True` argument to `vpype.write_svg()` (#442)
 * Changed the default value of `default_width` and `default_height` arguments of `vpype.read_svg()` (and friends) to `None` to allow `svgelement` better handle missing `width`/`height` attributes (#446)

@@ -9,14 +9,7 @@ import vpype as vp
 
 from .cli import cli
 from .decorators import global_processor, layer_processor
-from .types import (
-    FloatRangeType,
-    FloatType,
-    LayerType,
-    LengthType,
-    TextType,
-    multiple_to_layer_ids,
-)
+from .types import FloatRangeType, LayerType, LengthType, TextType, multiple_to_layer_ids
 
 __all__ = (
     "propset",
@@ -26,6 +19,7 @@ __all__ = (
     "propclear",
     "penwidth",
     "color",
+    "alpha",
     "name",
     "pens",
 )
