@@ -185,7 +185,7 @@ of appearance.
             vpype read --no-crop input_file.svg [...]
     """
 
-    display_width = display_height = None
+    default_width = default_height = None
     if display_size is not None:
         default_width, default_height = display_size
         if display_landscape and default_width < default_height:
