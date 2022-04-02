@@ -289,7 +289,7 @@ class QtViewer(QWidget):
         act = view_mode_menu.addAction("Preview Mode Options:")
         act.setEnabled(False)
         # pen width
-        pen_width_menu = view_mode_menu.addMenu("Pen Width")
+        pen_width_menu = view_mode_menu.addMenu("Default Pen Width")
         act_grp = PenWidthActionGroup(0.3, parent=pen_width_menu)
         act_grp.triggered.connect(self.set_pen_width_mm)
         pen_width_menu.addActions(act_grp.actions())
