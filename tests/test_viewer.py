@@ -27,9 +27,11 @@ RENDER_KWARGS = [
     pytest.param({"view_mode": ViewMode.OUTLINE, "show_pen_up": True}, id="outline_pen_up"),
     pytest.param({"view_mode": ViewMode.PREVIEW, "show_pen_up": True}, id="preview_pen_up"),
     pytest.param(
-        {"view_mode": ViewMode.PREVIEW, "pen_opacity": 0.3}, id="preview_transparent"
+        {"view_mode": ViewMode.PREVIEW, "default_pen_opacity": 0.3}, id="preview_transparent"
     ),
-    pytest.param({"view_mode": ViewMode.PREVIEW, "pen_width": 4.0}, id="preview_thick"),
+    pytest.param(
+        {"view_mode": ViewMode.PREVIEW, "default_pen_width": 4.0}, id="preview_thick"
+    ),
     pytest.param(
         {"view_mode": ViewMode.OUTLINE, "show_ruler": True, "unit_type": UnitType.PIXELS},
         id="outline_pixels",
@@ -54,39 +56,51 @@ def test_viewer_engine_properties(assert_image_similarity):
     renderer = ImageRenderer((640, 480))
 
     doc = vp.Document()
+    assert hasattr(renderer.engine, "document")
     renderer.engine.document = doc
     assert renderer.engine.document is doc
 
+    assert hasattr(renderer.engine, "scale")
     renderer.engine.scale = 3.0
     assert renderer.engine.scale == 3.0
 
+    assert hasattr(renderer.engine, "origin")
     renderer.engine.origin = (10.0, 20.0)
     assert renderer.engine.origin == (10.0, 20.0)
 
+    assert hasattr(renderer.engine, "view_mode")
     renderer.engine.view_mode = ViewMode.OUTLINE_COLORFUL
     assert renderer.engine.view_mode == ViewMode.OUTLINE_COLORFUL
 
+    assert hasattr(renderer.engine, "show_pen_up")
     renderer.engine.show_pen_up = True
     assert renderer.engine.show_pen_up
 
+    assert hasattr(renderer.engine, "show_points")
     renderer.engine.show_points = True
     assert renderer.engine.show_points
 
-    renderer.engine.pen_width = 0.5
-    assert renderer.engine.pen_width == 0.5
+    assert hasattr(renderer.engine, "default_pen_width")
+    renderer.engine.default_pen_width = 0.5
+    assert renderer.engine.default_pen_width == 0.5
 
-    renderer.engine.pen_opacity = 0.5
-    assert renderer.engine.pen_opacity == 0.5
+    assert hasattr(renderer.engine, "default_pen_opacity")
+    renderer.engine.default_pen_opacity = 0.5
+    assert renderer.engine.default_pen_opacity == 0.5
 
+    assert hasattr(renderer.engine, "debug")
     renderer.engine.debug = True
     assert renderer.engine.debug
 
+    assert hasattr(renderer.engine, "unit_type")
     renderer.engine.unit_type = UnitType.IMPERIAL
     assert renderer.engine.unit_type == UnitType.IMPERIAL
 
+    assert hasattr(renderer.engine, "pixel_factor")
     renderer.engine.pixel_factor = 2.0
     assert renderer.engine.pixel_factor == 2.0
 
+    assert hasattr(renderer.engine, "show_rulers")
     renderer.engine.show_rulers = False
     assert not renderer.engine.show_rulers
 
@@ -166,7 +180,7 @@ def test_viewer_uninitialized(assert_image_similarity):
     engine.view_mode = ViewMode.OUTLINE_COLORFUL
     engine.show_pen_up = True
     engine.show_points = True
-    engine.pen_width = 0.5
+    engine.default_pen_width = 0.5
     engine.pen_opacity = 0.5
     engine.debug = True
     engine.show_rulers = True

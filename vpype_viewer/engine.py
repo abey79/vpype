@@ -50,7 +50,9 @@ class Engine:
         show_points: bool = False,
         show_rulers: bool = True,
         default_pen_width: float = DEFAULT_PEN_WIDTH,
-        pen_opacity: float = DEFAULT_PEN_OPACITY,
+        default_pen_opacity: float = DEFAULT_PEN_OPACITY,
+        override_pen_width: bool = False,
+        override_pen_opacity: bool = False,
         render_cb: Callable[[], None] = lambda: None,
     ):
         """Constructor.
@@ -61,7 +63,11 @@ class Engine:
             show_points: render points if True
             show_rulers: display the rulers
             default_pen_width: pen width (preview only)
-            pen_opacity: pen opacity (preview only)
+            default_pen_opacity: pen opacity (preview only)
+            override_pen_width: disregard pen width from properties and use
+                ``default_pen_width`` instead (preview only)
+            override_pen_opacity: disregard pen opacity from properties and use
+                ``default_pen_opacity`` instead (preview only)
             render_cb: callback that will be called when rendering is required
         """
 
@@ -72,7 +78,9 @@ class Engine:
         self._show_points = show_points
         self._show_rulers = show_rulers
         self._default_pen_width = default_pen_width
-        self._pen_opacity = pen_opacity
+        self._default_pen_opacity = default_pen_opacity
+        self._override_pen_width = override_pen_width
+        self._override_pen_opacity = override_pen_opacity
         self._render_cb = render_cb
         self._unit_type = UnitType.METRIC
         self._scale_threshold = 100.0  # min size for a major tick in rulers
@@ -217,23 +225,43 @@ class Engine:
         self._update(False)
 
     @property
-    def pen_width(self) -> float:
+    def default_pen_width(self) -> float:
         """Pen width used for rendering (preview only)."""
         return self._default_pen_width
 
-    @pen_width.setter
-    def pen_width(self, pen_width: float):
+    @default_pen_width.setter
+    def default_pen_width(self, pen_width: float):
         self._default_pen_width = pen_width
         self._update()
 
     @property
-    def pen_opacity(self) -> float:
+    def default_pen_opacity(self) -> float:
         """Pen opacity used for rendering (preview only)."""
-        return self._pen_opacity
+        return self._default_pen_opacity
 
-    @pen_opacity.setter
-    def pen_opacity(self, pen_opacity: float):
-        self._pen_opacity = pen_opacity
+    @default_pen_opacity.setter
+    def default_pen_opacity(self, pen_opacity: float):
+        self._default_pen_opacity = pen_opacity
+        self._update()
+
+    @property
+    def override_pen_width(self) -> bool:
+        """Disregard pen opacity from properties (preview only)."""
+        return self._override_pen_width
+
+    @override_pen_width.setter
+    def override_pen_width(self, override: bool):
+        self._override_pen_width = override
+        self._update()
+
+    @property
+    def override_pen_opacity(self) -> bool:
+        """Disregard pen opacity from properties (preview only)."""
+        return self._override_pen_opacity
+
+    @override_pen_opacity.setter
+    def override_pen_opacity(self, override: bool):
+        self._override_pen_opacity = override
         self._update()
 
     @property
@@ -417,10 +445,22 @@ class Engine:
         if self._document is not None:
             color_index = 0
             for layer_id in sorted(self._document.layers):
-                layer_color: ColorType = vp.METADATA_DEFAULT_COLOR_SCHEME[
+                default_color = vp.METADATA_DEFAULT_COLOR_SCHEME[
                     color_index % len(vp.METADATA_DEFAULT_COLOR_SCHEME)
-                ].as_floats()
+                ]
                 color_index += 1
+                layer_color: ColorType = vp.Color(
+                    default_color.red,
+                    default_color.green,
+                    default_color.blue,
+                    int(self.default_pen_opacity * 255),
+                ).as_floats()
+                layer_color_no_transparency = (
+                    layer_color[0],
+                    layer_color[1],
+                    layer_color[2],
+                    1.0,
+                )
 
                 lc = self._document.layers[layer_id]
                 if lc.is_empty():
@@ -429,10 +469,14 @@ class Engine:
                 if vp.METADATA_FIELD_COLOR in lc.metadata:
                     color = lc.metadata[vp.METADATA_FIELD_COLOR]
                     layer_color = color.as_floats()
+                    if self.override_pen_opacity:
+                        layer_color = layer_color[0:3] + (self.default_pen_opacity,)
 
                 if self.view_mode == ViewMode.OUTLINE:
                     self._layer_painters[layer_id].append(
-                        LineCollectionFastPainter(self._ctx, lc=lc, color=layer_color)
+                        LineCollectionFastPainter(
+                            self._ctx, lc=lc, color=layer_color_no_transparency
+                        )
                     )
                 elif self.view_mode == ViewMode.OUTLINE_COLORFUL:
                     self._layer_painters[layer_id].append(
@@ -441,20 +485,15 @@ class Engine:
                         )
                     )
                 elif self.view_mode == ViewMode.PREVIEW:
-                    pen_width = lc.metadata.get(
-                        vp.METADATA_FIELD_PEN_WIDTH, self._default_pen_width
-                    )
+                    if self.override_pen_width:
+                        pen_width = self._default_pen_width
+                    else:
+                        pen_width = lc.metadata.get(
+                            vp.METADATA_FIELD_PEN_WIDTH, self._default_pen_width
+                        )
                     self._layer_painters[layer_id].append(
                         LineCollectionPreviewPainter(
-                            self._ctx,
-                            lc=lc,
-                            pen_width=pen_width,
-                            color=(
-                                layer_color[0],
-                                layer_color[1],
-                                layer_color[2],
-                                self._pen_opacity,
-                            ),
+                            self._ctx, lc=lc, pen_width=pen_width, color=layer_color
                         )
                     )
 
@@ -464,7 +503,9 @@ class Engine:
                     )
                 if self.show_points and self.view_mode != ViewMode.OUTLINE_COLORFUL:
                     self._layer_painters[layer_id].append(
-                        LineCollectionPointsPainter(self._ctx, lc=lc, color=layer_color)
+                        LineCollectionPointsPainter(
+                            self._ctx, lc=lc, color=layer_color_no_transparency
+                        )
                     )
 
             page_size = self._document.page_size
