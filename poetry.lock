@@ -581,7 +581,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
 name = "svgelements"
-version = "1.6.11"
+version = "1.6.12"
 description = "Svg Elements Parsing"
 category = "main"
 optional = false
@@ -1255,8 +1255,8 @@ six = [
     {file = "six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
 ]
 svgelements = [
-    {file = "svgelements-1.6.11-py2.py3-none-any.whl", hash = "sha256:f6ba9d03fa3587a7f75664d43683ec941bb293bb3c53cb1dfeddf9230ff06f76"},
-    {file = "svgelements-1.6.11.tar.gz", hash = "sha256:73d4adb3d0eed05c7404015c45212aa0aa724e397ce487732819352bc38a603b"},
+    {file = "svgelements-1.6.12-py2.py3-none-any.whl", hash = "sha256:f59717490852a26f420726277952c94edd5faecf3ff79d0079ae73999ff7032a"},
+    {file = "svgelements-1.6.12.tar.gz", hash = "sha256:9f57b9eab52dbabdf67c420ff0bb5b52b67f929ffd8bd8f1390bd03d0de4ab46"},
 ]
 svgwrite = [
     {file = "svgwrite-1.4.2-py3-none-any.whl", hash = "sha256:ca63d76396d1f6f099a2b2d8cf1419e1c1de8deece9a2b7f4da0632067d71d43"},
