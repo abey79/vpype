@@ -7,6 +7,12 @@ Release date: UNRELEASED
 ### New features and improvements
 
 * Added the `alpha` command to set layer opacity without changing the base color (#447) 
+* Improved support for layer pen width and opacity in the viewer (#448)
+
+  * The "Pen Width" and "Pen Opacity" menus are now named "Default Pen Width" and "Default Pen Opacity". 
+  * The layer opacity is now used for display by default. It can be overridden by the default pen opacity by checking the "Override" item from the "Default Pen Opacity" menu.
+  * The layer pen width is now used for display by default as well. Likewise, it can be overridden by checking the "Override" item from the "Default Pen Width" menu.
+
 * Added HPGL configuration for the Calcomp Artisan plotter (thanks to Andee Collard and @ithinkido) (#418)
 * Added the `--dont-set-date` option to the `write` command (#442)
 * The `read` command now better handles SVGs with missing `width` or `height` attributes (#446)
@@ -19,11 +25,14 @@ Release date: UNRELEASED
 * Fixed an issue with `forlayer` where the `_n` variable was set improperly (#443)
 * Fixed an issue with `write` where layer opacity was included in the `stroke` attribute instead of using `stroke-opacity`, which, although compliant, was not compatible with Inkscape (#429)
 * Fixed an issue with `vpype --help` where commands from plug-ins would not be listed (#444)
-* Fixed a minor issue where plug-ins would be reloaded each time `vpype_cli.execute()` is called (#444) 
+* Fixed a minor issue where plug-ins would be reloaded each time `vpype_cli.execute()` is called (#444)
+* Fixed a rendering inconsistency in the viewer where the ruler width could vary by one pixel depending on the OpenGL driver/GPU/OS combination (#448)
 
 
 ### API changes
 
+* Changed the parameter name of both `vpype_viewer.Engine()` and `vpype_viewer.render_image()` from `pen_width` and `pen_opacity` to `default_pen_width` and `default_pen_opacity` (breaking change) (#448)
+* Added `override_pen_width` and `override_pen_opacity` boolean parameters to both `vpype_viewer.Engine()` and `vpype_viewer.render_image()` (#448)
 * Added `vpype_cli.FloatType()`, `vpype_cli.IntRangeType()`, `vpype_cli.FloatRangeType()`, and `vpype_cli.ChoiceType()` (#430, #447)
 * Changed `vpype.Document.add_to_sources()` to also modify the `vp_source` property (#431)
 * Added a `set_date:bool = True` argument to `vpype.write_svg()` (#442)
