@@ -48,6 +48,33 @@ RENDER_KWARGS = [
         },
         id="outline_imperial",
     ),
+    pytest.param(
+        {
+            "view_mode": ViewMode.PREVIEW,
+            "show_ruler": True,
+            "unit_type": UnitType.IMPERIAL,
+            "override_pen_width": True,
+        },
+        id="preview_imperial_override_pen_width",
+    ),
+    pytest.param(
+        {
+            "view_mode": ViewMode.PREVIEW,
+            "show_ruler": True,
+            "unit_type": UnitType.IMPERIAL,
+            "override_pen_opacity": True,
+        },
+        id="preview_imperial_override_pen_opacity",
+    ),
+    pytest.param(
+        {
+            "view_mode": ViewMode.PREVIEW,
+            "show_ruler": True,
+            "unit_type": UnitType.IMPERIAL,
+            "override_pen_opacity": True,
+        },
+        id="preview_imperial_override_pen_width_opacity",
+    ),
 ]
 
 
@@ -112,7 +139,11 @@ def test_viewer_engine_properties(assert_image_similarity):
 
 @pytest.mark.parametrize(
     "file",
-    ["misc/empty.svg", "misc/multilayer.svg", "issue_124/plotter.svg"],
+    [
+        "misc/empty.svg",
+        "misc/multilayer.svg",
+        "issue_124/plotter.svg",
+    ],
     ids=lambda s: os.path.splitext(s)[0],
 )
 @pytest.mark.parametrize("render_kwargs", RENDER_KWARGS)
@@ -120,6 +151,23 @@ def test_viewer(assert_image_similarity, file, render_kwargs):
     # Note: this test relies on lack of metadata
     doc = vp.read_multilayer_svg(str(TEST_FILE_DIRECTORY / file), 0.4)
     doc.clear_layer_metadata()
+
+    # noinspection PyArgumentList
+    assert_image_similarity(render_image(doc, (1024, 1024), **render_kwargs))
+
+
+@pytest.mark.parametrize(
+    "file",
+    [
+        "misc/multilayer.svg",
+        "misc/color_width_opacity.svg",
+    ],
+    ids=lambda s: os.path.splitext(s)[0],
+)
+@pytest.mark.parametrize("render_kwargs", RENDER_KWARGS)
+def test_viewer_with_metadata(assert_image_similarity, file, render_kwargs):
+    # Note: this test relies on lack of metadata
+    doc = vp.read_multilayer_svg(str(TEST_FILE_DIRECTORY / file), 0.4)
 
     # noinspection PyArgumentList
     assert_image_similarity(render_image(doc, (1024, 1024), **render_kwargs))

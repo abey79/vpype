@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:xlink="http://www.w3.org/1999/xlink" baseProfile="tiny" height="10.0cm" version="1.2" viewBox="0 0 377.95275590551176 377.95275590551176" width="10.0cm">
+  <metadata>
+    <rdf:RDF>
+      <cc:Work>
+        <dc:format>image/svg+xml</dc:format>
+        <dc:source>vpype random -l1 -a 10cm 10cm random -l2 -a 10cm 10cm random -l3 -a 10cm 10cm pagesize 10x10cm color -l1,2 blue alpha -l2 .3 penwidth -l1 1mm penwidth -l2 .5mm write tests/data/test_svg/misc/color_width_opacity.svg
+</dc:source>
+        <dc:date>2022-04-05T17:18:27.871009</dc:date>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs/>
+  <g fill="none" id="layer1" inkscape:groupmode="layer" inkscape:label="1" stroke="#0000ff" stroke-width="3.7795" style="display:inline">
+    <line x1="128.7693" x2="315.0403" y1="130.9339" y2="75.5714"/>
+    <line x1="366.2895" x2="372.5273" y1="147.4272" y2="118.4501"/>
+    <line x1="278.7353" x2="111.7204" y1="233.7844" y2="135.6255"/>
+    <line x1="324.6457" x2="353.7544" y1="333.5802" y2="186.0981"/>
+    <line x1="194.3118" x2="50.2945" y1="140.3685" y2="208.8896"/>
+    <line x1="140.5918" x2="122.1178" y1="275.5077" y2="6.8743"/>
+    <line x1="182.5918" x2="345.7169" y1="136.4592" y2="69.9181"/>
+    <line x1="37.5603" x2="137.0048" y1="38.2508" y2="97.1911"/>
+    <line x1="242.6384" x2="123.0278" y1="39.0849" y2="184.6861"/>
+    <line x1="317.0517" x2="67.7107" y1="45.5041" y2="106.3566"/>
+  </g>
+  <g fill="none" id="layer2" inkscape:groupmode="layer" inkscape:label="2" stroke="#0000ff" stroke-opacity="0.298" stroke-width="1.8898" style="display:inline">
+    <line x1="136.2394" x2="170.6465" y1="139.7332" y2="348.6156"/>
+    <line x1="89.3785" x2="374.7264" y1="361.8371" y2="349.0548"/>
+    <line x1="223.101" x2="76.8979" y1="328.2957" y2="179.9327"/>
+    <line x1="201.9028" x2="369.7092" y1="216.0146" y2="136.2683"/>
+    <line x1="365.8377" x2="2.6134" y1="309.705" y2="294.9174"/>
+    <line x1="76.5457" x2="168.8562" y1="368.0022" y2="305.1532"/>
+    <line x1="224.0953" x2="14.4945" y1="217.7008" y2="327.8659"/>
+    <line x1="279.8496" x2="315.6057" y1="15.1066" y2="296.9676"/>
+    <line x1="232.4945" x2="329.2375" y1="68.767" y2="213.7787"/>
+    <line x1="228.0135" x2="11.2814" y1="152.8002" y2="126.5739"/>
+  </g>
+  <g fill="none" id="layer3" inkscape:groupmode="layer" inkscape:label="3" stroke="#ff0000" style="display:inline">
+    <line x1="10.2609" x2="66.168" y1="86.7117" y2="320.5749"/>
+    <line x1="167.956" x2="161.0999" y1="129.3166" y2="63.6641"/>
+    <line x1="248.0214" x2="162.7421" y1="239.4011" y2="98.4406"/>
+    <line x1="152.5691" x2="296.1713" y1="369.6412" y2="328.2079"/>
+    <line x1="376.7211" x2="140.2888" y1="39.4419" y2="8.9514"/>
+    <line x1="230.7777" x2="275.7915" y1="192.2338" y2="153.7755"/>
+    <line x1="16.9381" x2="264.2847" y1="176.5907" y2="349.725"/>
+    <line x1="248.0943" x2="181.0924" y1="97.0687" y2="209.0699"/>
+    <line x1="143.5601" x2="291.7154" y1="10.4073" y2="159.7677"/>
+    <line x1="372.3653" x2="157.1082" y1="254.0375" y2="247.4172"/>
+  </g>
+</svg>

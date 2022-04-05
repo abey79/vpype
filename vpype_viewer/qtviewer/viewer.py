@@ -303,9 +303,7 @@ class QtViewer(QWidget):
         pen_opacity_menu = view_mode_menu.addMenu("Default Pen Opacity")
         act = pen_opacity_menu.addAction("Override")
         act.setCheckable(True)
-        act.setChecked(True)
         act.toggled.connect(self.set_override_pen_opacity)
-        self._viewer_widget.engine.override_pen_opacity = True
         pen_opacity_menu.addSeparator()
         act_grp = PenOpacityActionGroup(0.8, parent=pen_opacity_menu)
         act_grp.triggered.connect(self.set_default_pen_opacity)
