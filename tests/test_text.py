@@ -64,7 +64,10 @@ def test_text_block_render(assert_image_similarity, font_name, align, line_spaci
             justify=justify,
         )
     )
-    doc[1].append(vp.line(500, -20, 500, 500))
+
+    # the X coordinate is chosen such as not to yield an integer screen-space coordinate, which
+    # leads to unpredictable, half-pixel rounding errors
+    doc[1].append(vp.line(500.1, -20, 500.1, 500))
     renderer = ImageRenderer((1024, 1024))
     renderer.engine.document = doc
     renderer.engine.show_rulers = True

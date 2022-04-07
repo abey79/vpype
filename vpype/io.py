@@ -108,7 +108,7 @@ def _extract_metadata_from_element(
     - SVG attributes (e.g. `elem.values["attributes"]`) which are
 
     The strategy is as follows:
-    - attributes are mapped directly to system metadata (i.e. "vp.color" and "vp.pen_width" --
+    - attributes are mapped directly to system metadata (i.e. "vp_color" and "vp_pen_width" --
       "vp.name" is handled by read_multilayer_svg())
     - values are whitelisted and added as `"svg_"` namespace
     - XML-namespaced values are also added as `svg_` namespace (e.g. `"svg_inkscape:label"`

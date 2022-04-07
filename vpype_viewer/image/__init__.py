@@ -50,8 +50,10 @@ def render_image(
     view_mode: ViewMode = ViewMode.PREVIEW,
     show_pen_up: bool = False,
     show_points: bool = False,
-    pen_width: float = DEFAULT_PEN_WIDTH,
-    pen_opacity: float = DEFAULT_PEN_OPACITY,
+    default_pen_width: float = DEFAULT_PEN_WIDTH,
+    default_pen_opacity: float = DEFAULT_PEN_OPACITY,
+    override_pen_width: bool = False,
+    override_pen_opacity: bool = False,
     show_ruler: bool = False,
     pixel_factor: float = 1.0,
     unit_type: UnitType = UnitType.METRIC,
@@ -69,8 +71,10 @@ def render_image(
         view_mode: :class:`ViewMode` to use
         show_pen_up: render pen-up trajectories
         show_points: render points
-        pen_width: pen width (``ViewMode.PREVIEW`` only)
-        pen_opacity: pen opacity (``ViewMode.PREVIEW`` only)
+        default_pen_width: pen width (``ViewMode.PREVIEW`` only)
+        default_pen_opacity: pen opacity (``ViewMode.PREVIEW`` only)
+        override_pen_width: override pen width property (``ViewMode.PREVIEW`` only)
+        override_pen_opacity: override pen opacity property (``ViewMode.PREVIEW`` only)
         show_ruler: display the rulers
         pixel_factor: pixel factor (HiDPI screen support)
         unit_type: type of unit to use for the ruler
@@ -87,8 +91,10 @@ def render_image(
     renderer.engine.view_mode = view_mode
     renderer.engine.show_pen_up = show_pen_up
     renderer.engine.show_points = show_points
-    renderer.engine.pen_width = pen_width
-    renderer.engine.pen_opacity = pen_opacity
+    renderer.engine.default_pen_width = default_pen_width
+    renderer.engine.default_pen_opacity = default_pen_opacity
+    renderer.engine.override_pen_width = override_pen_width
+    renderer.engine.override_pen_opacity = override_pen_opacity
     renderer.engine.show_rulers = show_ruler
     renderer.engine.pixel_factor = pixel_factor
     renderer.engine.unit_type = unit_type

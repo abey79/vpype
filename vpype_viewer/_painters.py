@@ -347,7 +347,7 @@ class RulersPainter(Painter):
         super().__init__(ctx)
 
         # this also sets the font size
-        self._thickness = 20.0
+        self._thickness = 19.5  # ensures the line is aligned with the pixel grid
         self._font_size = 7.0
 
         self._prog = load_program("ruler_patch", ctx)

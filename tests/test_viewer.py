@@ -27,9 +27,11 @@ RENDER_KWARGS = [
     pytest.param({"view_mode": ViewMode.OUTLINE, "show_pen_up": True}, id="outline_pen_up"),
     pytest.param({"view_mode": ViewMode.PREVIEW, "show_pen_up": True}, id="preview_pen_up"),
     pytest.param(
-        {"view_mode": ViewMode.PREVIEW, "pen_opacity": 0.3}, id="preview_transparent"
+        {"view_mode": ViewMode.PREVIEW, "default_pen_opacity": 0.3}, id="preview_transparent"
     ),
-    pytest.param({"view_mode": ViewMode.PREVIEW, "pen_width": 4.0}, id="preview_thick"),
+    pytest.param(
+        {"view_mode": ViewMode.PREVIEW, "default_pen_width": 4.0}, id="preview_thick"
+    ),
     pytest.param(
         {"view_mode": ViewMode.OUTLINE, "show_ruler": True, "unit_type": UnitType.PIXELS},
         id="outline_pixels",
@@ -46,6 +48,33 @@ RENDER_KWARGS = [
         },
         id="outline_imperial",
     ),
+    pytest.param(
+        {
+            "view_mode": ViewMode.PREVIEW,
+            "show_ruler": True,
+            "unit_type": UnitType.IMPERIAL,
+            "override_pen_width": True,
+        },
+        id="preview_imperial_override_pen_width",
+    ),
+    pytest.param(
+        {
+            "view_mode": ViewMode.PREVIEW,
+            "show_ruler": True,
+            "unit_type": UnitType.IMPERIAL,
+            "override_pen_opacity": True,
+        },
+        id="preview_imperial_override_pen_opacity",
+    ),
+    pytest.param(
+        {
+            "view_mode": ViewMode.PREVIEW,
+            "show_ruler": True,
+            "unit_type": UnitType.IMPERIAL,
+            "override_pen_opacity": True,
+        },
+        id="preview_imperial_override_pen_width_opacity",
+    ),
 ]
 
 
@@ -54,39 +83,51 @@ def test_viewer_engine_properties(assert_image_similarity):
     renderer = ImageRenderer((640, 480))
 
     doc = vp.Document()
+    assert hasattr(renderer.engine, "document")
     renderer.engine.document = doc
     assert renderer.engine.document is doc
 
+    assert hasattr(renderer.engine, "scale")
     renderer.engine.scale = 3.0
     assert renderer.engine.scale == 3.0
 
+    assert hasattr(renderer.engine, "origin")
     renderer.engine.origin = (10.0, 20.0)
     assert renderer.engine.origin == (10.0, 20.0)
 
+    assert hasattr(renderer.engine, "view_mode")
     renderer.engine.view_mode = ViewMode.OUTLINE_COLORFUL
     assert renderer.engine.view_mode == ViewMode.OUTLINE_COLORFUL
 
+    assert hasattr(renderer.engine, "show_pen_up")
     renderer.engine.show_pen_up = True
     assert renderer.engine.show_pen_up
 
+    assert hasattr(renderer.engine, "show_points")
     renderer.engine.show_points = True
     assert renderer.engine.show_points
 
-    renderer.engine.pen_width = 0.5
-    assert renderer.engine.pen_width == 0.5
+    assert hasattr(renderer.engine, "default_pen_width")
+    renderer.engine.default_pen_width = 0.5
+    assert renderer.engine.default_pen_width == 0.5
 
-    renderer.engine.pen_opacity = 0.5
-    assert renderer.engine.pen_opacity == 0.5
+    assert hasattr(renderer.engine, "default_pen_opacity")
+    renderer.engine.default_pen_opacity = 0.5
+    assert renderer.engine.default_pen_opacity == 0.5
 
+    assert hasattr(renderer.engine, "debug")
     renderer.engine.debug = True
     assert renderer.engine.debug
 
+    assert hasattr(renderer.engine, "unit_type")
     renderer.engine.unit_type = UnitType.IMPERIAL
     assert renderer.engine.unit_type == UnitType.IMPERIAL
 
+    assert hasattr(renderer.engine, "pixel_factor")
     renderer.engine.pixel_factor = 2.0
     assert renderer.engine.pixel_factor == 2.0
 
+    assert hasattr(renderer.engine, "show_rulers")
     renderer.engine.show_rulers = False
     assert not renderer.engine.show_rulers
 
@@ -98,7 +139,11 @@ def test_viewer_engine_properties(assert_image_similarity):
 
 @pytest.mark.parametrize(
     "file",
-    ["misc/empty.svg", "misc/multilayer.svg", "issue_124/plotter.svg"],
+    [
+        "misc/empty.svg",
+        "misc/multilayer.svg",
+        "issue_124/plotter.svg",
+    ],
     ids=lambda s: os.path.splitext(s)[0],
 )
 @pytest.mark.parametrize("render_kwargs", RENDER_KWARGS)
@@ -106,6 +151,23 @@ def test_viewer(assert_image_similarity, file, render_kwargs):
     # Note: this test relies on lack of metadata
     doc = vp.read_multilayer_svg(str(TEST_FILE_DIRECTORY / file), 0.4)
     doc.clear_layer_metadata()
+
+    # noinspection PyArgumentList
+    assert_image_similarity(render_image(doc, (1024, 1024), **render_kwargs))
+
+
+@pytest.mark.parametrize(
+    "file",
+    [
+        "misc/multilayer.svg",
+        "misc/color_width_opacity.svg",
+    ],
+    ids=lambda s: os.path.splitext(s)[0],
+)
+@pytest.mark.parametrize("render_kwargs", RENDER_KWARGS)
+def test_viewer_with_metadata(assert_image_similarity, file, render_kwargs):
+    # Note: this test relies on lack of metadata
+    doc = vp.read_multilayer_svg(str(TEST_FILE_DIRECTORY / file), 0.4)
 
     # noinspection PyArgumentList
     assert_image_similarity(render_image(doc, (1024, 1024), **render_kwargs))
@@ -166,7 +228,7 @@ def test_viewer_uninitialized(assert_image_similarity):
     engine.view_mode = ViewMode.OUTLINE_COLORFUL
     engine.show_pen_up = True
     engine.show_points = True
-    engine.pen_width = 0.5
+    engine.default_pen_width = 0.5
     engine.pen_opacity = 0.5
     engine.debug = True
     engine.show_rulers = True

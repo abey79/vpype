@@ -289,17 +289,27 @@ class QtViewer(QWidget):
         act = view_mode_menu.addAction("Preview Mode Options:")
         act.setEnabled(False)
         # pen width
-        pen_width_menu = view_mode_menu.addMenu("Pen Width")
+        pen_width_menu = view_mode_menu.addMenu("Default Pen Width")
+        act = pen_width_menu.addAction("Override")
+        act.setCheckable(True)
+        act.toggled.connect(self.set_override_pen_width)
+        pen_width_menu.addSeparator()
         act_grp = PenWidthActionGroup(0.3, parent=pen_width_menu)
-        act_grp.triggered.connect(self.set_pen_width_mm)
+        act_grp.triggered.connect(self.set_default_pen_width_mm)
         pen_width_menu.addActions(act_grp.actions())
-        self.set_pen_width_mm(0.3)
+        self.set_default_pen_width_mm(0.3)
+
         # pen opacity
-        pen_opacity_menu = view_mode_menu.addMenu("Pen Opacity")
+        pen_opacity_menu = view_mode_menu.addMenu("Default Pen Opacity")
+        act = pen_opacity_menu.addAction("Override")
+        act.setCheckable(True)
+        act.toggled.connect(self.set_override_pen_opacity)
+        pen_opacity_menu.addSeparator()
         act_grp = PenOpacityActionGroup(0.8, parent=pen_opacity_menu)
-        act_grp.triggered.connect(self.set_pen_opacity)
+        act_grp.triggered.connect(self.set_default_pen_opacity)
         pen_opacity_menu.addActions(act_grp.actions())
-        self.set_pen_opacity(0.8)
+        self.set_default_pen_opacity(0.8)
+
         # debug view
         if _DEBUG_ENABLED:
             act = view_mode_menu.addAction("Debug View")
@@ -426,15 +436,21 @@ class QtViewer(QWidget):
     def set_show_points(self, show_points: bool) -> None:
         self._viewer_widget.engine.show_points = show_points
 
-    def set_pen_width_mm(self, value: float | QAction) -> None:
+    def set_default_pen_width_mm(self, value: float | QAction) -> None:
         if isinstance(value, QAction):
             value = value.data()
-        self._viewer_widget.engine.pen_width = value / 25.4 * 96.0
+        self._viewer_widget.engine.default_pen_width = value / 25.4 * 96.0
 
-    def set_pen_opacity(self, value: float | QAction) -> None:
+    def set_default_pen_opacity(self, value: float | QAction) -> None:
         if isinstance(value, QAction):
             value = value.data()
-        self._viewer_widget.engine.pen_opacity = value
+        self._viewer_widget.engine.default_pen_opacity = value
+
+    def set_override_pen_width(self, value: bool) -> None:
+        self._viewer_widget.engine.override_pen_width = value
+
+    def set_override_pen_opacity(self, value: bool) -> None:
+        self._viewer_widget.engine.override_pen_opacity = value
 
     def set_debug(self, debug: bool) -> None:
         self._viewer_widget.engine.debug = debug
