@@ -2,7 +2,7 @@
 
 ## 1.10
 
-Release date: UNRELEASED
+Release date: 2022-04-07
 
 ### New features and improvements
 
@@ -22,7 +22,7 @@ Release date: UNRELEASED
 
 ### Bug fixes
 
-* Fixed an issue with `forlayer` where the `_n` variable was set improperly (#443)
+* Fixed an issue with `forlayer` where the `_n` variable was improperly set (#443)
 * Fixed an issue with `write` where layer opacity was included in the `stroke` attribute instead of using `stroke-opacity`, which, although compliant, was not compatible with Inkscape (#429)
 * Fixed an issue with `vpype --help` where commands from plug-ins would not be listed (#444)
 * Fixed a minor issue where plug-ins would be reloaded each time `vpype_cli.execute()` is called (#444)
