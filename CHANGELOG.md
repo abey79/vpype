@@ -6,7 +6,7 @@ Release date: UNRELEASED
 
 ### New features and improvements
 
-* Added the `alpha` command to set layer opacity without changing the base color (#447) 
+* Added the `alpha` command to set layer opacity without changing the base color (#447, #451)
 * Improved support for layer pen width and opacity in the viewer (#448)
 
   * The "Pen Width" and "Pen Opacity" menus are now named "Default Pen Width" and "Default Pen Opacity". 
@@ -44,7 +44,7 @@ Release date: UNRELEASED
 * Added support for Python 3.10 and dropped support for Python 3.7 (#417)
 * Miscellaneous code cleaning and fixes (#440, 906087b)
 * Updated installation instructions to use pipx (#428)
-* Updated documentation template (#428)
+* Updated the [documentation](https://vpype.readthedocs.io/en/latest/) template (#428)
 * Updated code base with modern typing syntax (using [pyupgrade](https://github.com/asottile/pyupgrade)) (#427)
 
 

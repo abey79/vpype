@@ -50,7 +50,7 @@ class Color:
         object.__setattr__(self, "red", int(red or 0))  # type: ignore
         object.__setattr__(self, "green", int(green or 0))
         object.__setattr__(self, "blue", int(blue or 0))
-        object.__setattr__(self, "alpha", int(alpha or 255))
+        object.__setattr__(self, "alpha", int(alpha if alpha is not None else 255))
 
     def as_floats(self) -> tuple[float, float, float, float]:
         """Returns a float representation of the instance."""
