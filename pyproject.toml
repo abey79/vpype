@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "vpype"
-version = "1.10.0"
+version = "1.11.0-alpha.0"
 description = "The Swiss Army knife of vector graphics for pen plotters"
 authors = ["Antoine Beyeler <abeyeler@ab-ware.com>"]
 license = "MIT"

@@ -1,8 +1,31 @@
 # Change log
 
+## 1.11
+
+Release date: UNRELEASED
+
+### New features and improvements
+
+* ...
+
+### Bug fixes
+
+* ...
+
+### API changes
+
+* ...
+
+### Other changes
+
+* ...
+
+
 ## 1.10
 
 Release date: 2022-04-07
+
+[Annotated Release Notes](https://bylr.info/articles/2022/04/07/annotated-release-notes-vpype-1.10/)
 
 ### New features and improvements
 
@@ -52,7 +75,7 @@ Release date: 2022-04-07
 
 Release date: 2022-03-03
 
-A commented version of these release notes is available [here](https://bylr.info/articles/2022/03/03/annotated-release-notes-vpype-1.9/).
+[Annotated Release Notes](https://bylr.info/articles/2022/03/03/annotated-release-notes-vpype-1.9/)
 
 **Note**: This is the last version of *vpype* to support Python 3.7.
 
