@@ -6,7 +6,7 @@ Release date: UNRELEASED
 
 ### New features and improvements
 
-* Added the `alpha` command to set layer opacity without changing the base color (#447) 
+* Added the `alpha` command to set layer opacity without changing the base color (#447, #451)
 * Improved support for layer pen width and opacity in the viewer (#448)
 
   * The "Pen Width" and "Pen Opacity" menus are now named "Default Pen Width" and "Default Pen Opacity". 
