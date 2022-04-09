@@ -14,9 +14,8 @@ from .utils import *
 
 
 def _get_version() -> str:
-    import pkg_resources
-
-    return pkg_resources.get_distribution("vpype").version
+    from importlib.metadata import version
+    return version(__name__)
 
 
 __version__ = _get_version()
