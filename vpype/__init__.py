@@ -15,6 +15,7 @@ from .utils import *
 
 def _get_version() -> str:
     from importlib.metadata import version
+
     return version(__name__)
 
 
