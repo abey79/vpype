@@ -2,6 +2,6 @@ furo==2022.4.7
 sphinx==4.5.0
 sphinx-autobuild==2021.3.14
 sphinx-click==4.0.0
-myst_parser==0.17.0
+myst_parser==0.17.1
 sphinx-autodoc-typehints==1.18.1
 sphinx-copybutton==0.5.0
