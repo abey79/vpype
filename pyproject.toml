@@ -38,7 +38,7 @@ cachetools = ">=4.2.2"
 click = ">=8.0.1,<8.2.0"
 multiprocess = ">=0.70.11"
 numpy = ">=1.20"
-pnoise = ">=0.1.0"
+pnoise = ">=0.2.0"
 Shapely = {extras = ["vectorized"], version = ">=1.8.1.post1"}  # 1.8.1 breaks win installer
 scipy = ">=1.6"
 svgelements = ">=1.6.10"
