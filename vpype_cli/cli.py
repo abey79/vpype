@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.metadata
 import logging
 import os
 import random
@@ -10,7 +11,6 @@ from typing import TYPE_CHECKING, Any, Callable, Iterable, TextIO, Union, cast
 
 import click
 import numpy as np
-from pkg_resources import iter_entry_points
 
 import vpype as vp
 
@@ -198,7 +198,7 @@ def cli(
     global _PLUGINS_LOADED
     if not _PLUGINS_LOADED:
         _PLUGINS_LOADED = True
-        for entry_point in iter_entry_points("vpype.plugins"):
+        for entry_point in importlib.metadata.entry_points().get("vpype.plugins", []):
             # noinspection PyBroadException
             try:
                 cast(click.Group, ctx.command).add_command(entry_point.load())

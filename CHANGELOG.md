@@ -18,7 +18,7 @@ Release date: UNRELEASED
 
 ### Other changes
 
-* ...
+* Removed dependence on `setuptools` (#454, #468)
 
 
 ## 1.10
