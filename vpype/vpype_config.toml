@@ -203,3 +203,58 @@ rotate_180 = true
 origin_location = ["416mm", "297mm"]
 final_pu_params = "-16068,11303"
 info = "Paper should be loaded in portrait"
+
+
+[device.dmp_161]
+name = "Houston Instrument DMP-161"
+plotter_unit_length = "0.02488mm"
+pen_count = 8 # with pen changer (1 without)
+info = "Plotter set to auto rotation, this will plot a drawing in portrait layout regardless of the physical layout of the paper when loaded into the plotter."
+
+[[device.dmp_161.paper]]
+name = "a4"
+aka_names = ["A4"]
+paper_size = ["297mm", "210mm"]
+x_range = [-5379, 5379]
+y_range = [-3648, 3648]
+origin_location = ["148.5mm", "105mm"]
+rotate_180 = true
+y_axis_up = true
+final_pu_params = "0,0"
+info = "The paper is loaded in landscape. All scaling turned off."
+
+[[device.dmp_161.paper]]
+name = "a3"
+aka_names = ["A3"]
+paper_size = ["420mm", "297mm"]
+x_range = [-7861, 7861]
+y_range = [-5373, 5373]
+origin_location = ["210mm", "148.5mm"]
+rotate_180 = false
+y_axis_up = true
+final_pu_params = "0,0"
+info = "The paper is loaded in portrait. All scaling turned off."
+
+[[device.dmp_161.paper]]
+name = "a2"
+aka_names = ["A2"]
+paper_size = ["594mm", "420mm"]
+x_range = [-11301, 11301]
+y_range = [-7824, 7824]
+origin_location = ["297mm", "210mm"]
+rotate_180 = true
+y_axis_up = true
+final_pu_params = "0,0"
+info = "The paper is loaded in landscape. All scaling turned off."
+
+[[device.dmp_161.paper]]
+name = "a1"
+aka_names = ["A1"]
+paper_size = ["841mm", "594mm"]
+x_range = [-16182, 16182]
+y_range = [-11313, 11313]
+origin_location = ["420mm", "297mm"]
+rotate_180 = false
+y_axis_up = true
+final_pu_params = "0,0"
+info = "The paper is loaded in portrait. All scaling turned off."
