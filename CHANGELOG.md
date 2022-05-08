@@ -6,7 +6,7 @@ Release date: UNRELEASED
 
 ### New features and improvements
 
-* ...
+* Added HPGL configuration for the Houston Instrument DMP-161 plotter (thanks to @jimmykl and @ithinkido) (#472)
 
 ### Bug fixes
 
