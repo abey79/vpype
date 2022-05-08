@@ -29,6 +29,7 @@ pen_count = 6
 
 [[device.hp7475a.paper]]
 name = "a4"
+aka_names = ["A4"]
 info = "The plotter must be configured in Metric mode."
 paper_size = ["297mm", "210mm"]
 x_range = [0, 11040]
@@ -40,6 +41,7 @@ set_ps = 4
 
 [[device.hp7475a.paper]]
 name = "a3"
+aka_names = ["A3"]
 info = "The plotter must be configured in Metric mode."
 paper_size = ["420mm", "297mm"]
 x_range = [0, 16158]
@@ -72,6 +74,7 @@ y_axis_up = true
 origin_location = ["15mm", "287mm"]
 final_pu_params = "0,10365"
 set_ps = 0
+
 
 [device.designmate]
 name = "Calcomp Designmate"
@@ -134,6 +137,7 @@ rotate_180 = true
 final_pu_params = "0,0"
 info = "A3 paper loaded in landscape orientation in the plotter. Does NOT affect drawing orientation, only page margins."
 
+
 [device.hp7440a]
 name = "HP 7440a"
 plotter_unit_length = "0.02488mm"
@@ -149,6 +153,7 @@ y_axis_up = true
 origin_location = ["15mm", "200mm"]
 final_pu_params = "0,7721"
 info = "The plotter dip switches must be set to Metric paper sizes mode."
+
 
 [device.artisan]
 name = "Calcomp Artisan"
@@ -166,7 +171,6 @@ rotate_180 = true
 origin_location = ["144mm", "105mm"]
 final_pu_params = "-5146,3746"
 info = "Paper should be loaded in portrait"
-
 
 [[device.artisan.paper]]
 name = "a3"
@@ -258,3 +262,159 @@ rotate_180 = false
 y_axis_up = true
 final_pu_params = "0,0"
 info = "The paper is loaded in portrait. All scaling turned off."
+
+
+[device.hp7550]
+name = "HP 7550a"
+plotter_unit_length = "0.02488mm"
+pen_count = 8
+
+[[device.hp7550.paper]]
+name = "a4"
+info = "The plotter must be configured in Metric mode."
+paper_size = ["297mm", "210mm"]
+x_range = [0, 10870]
+y_range = [0, 7600]
+y_axis_up = true
+origin_location = ["12mm", "206mm"]
+final_pu_params = "10870,7600"
+set_ps = 4
+
+[[device.hp7550.paper]]
+name = "a3"
+info = "The plotter must be configured in Metric mode."
+paper_size = ["420mm", "297mm"]
+x_range = [0, 15970]
+y_range = [0, 10870]
+y_axis_up = true
+origin_location = ["20mm", "285mm"]
+final_pu_params = "0,10870"
+set_ps = 0
+
+[[device.hp7550.paper]]
+name = "a"
+aka_names = ["ansi_a", "letter", "A"]
+info = "The plotter must be configured in Imperal mode."
+paper_size = ["11in", "8.5in"]
+x_range = [0, 10170]
+y_range = [0, 7840]
+y_axis_up = true
+origin_location = ["12mm", "211mm"]
+final_pu_params = "10170,7840"
+set_ps = 4
+
+[[device.hp7550.paper]]
+name = "b"
+aka_names = ["ansi_b", "tabloid", "B"]
+info = "The plotter must be configured in Imperal mode."
+paper_size = ["17in", "11in"]
+x_range = [0, 16540]
+y_range = [0, 10170]
+y_axis_up = true
+origin_location = ["20mm", "285mm"]
+final_pu_params = "0,10170"
+set_ps = 0
+
+
+[device.dxy]
+name = "Roland DXY 1xxx"
+plotter_unit_length = "0.025mm"
+pen_count = 8
+info = "\nThis profile is for use with Expanded Plot Area as set via the dip switches.\nPage edge should be aligned with X=0 and Y=0."
+
+[[device.dxy.paper]]
+name = "a4"
+aka_names = ["A4"]
+info = "A4 Paper should be loaded landscape orientation on the plot bed"
+paper_size = ["297mm", "210mm"]
+x_range = [0, 11880]
+y_range = [0, 8400]
+y_axis_up = true
+origin_location = ["0mm", "210mm"]
+final_pu_params = "0,6040"
+
+[[device.dxy.paper]]
+name = "a4p"
+aka_names = ["A4P", "A4p"]
+info = "A4 Paper should be loaded portrait orientation on the plot bed"
+paper_size = ["210mm", "297mm"]
+x_range = [0, 8400]
+y_range = [0, 11880]
+y_axis_up = true
+origin_location = ["0mm", "297mm"]
+final_pu_params = "0,6040"
+
+[[device.dxy.paper]]
+name = "a3"
+aka_names = ["A3"]
+info = "A3 Paper should be loaded landscape orientation on the plot bed."
+paper_size = ["420mm", "297mm"]
+x_range = [0, 16800]
+y_range = [0, 11880]
+y_axis_up = true
+origin_location = ["0mm", "297mm"]
+final_pu_params = "0,6040"
+
+[[device.dxy.paper]]
+name = "a"
+aka_names = ["ansi_a", "letter", "A"]
+info = "ANSI A Paper should be loaded landscape orientation on the plot bed"
+paper_size = ["11in", "8.5in"]
+x_range = [0, 10365]
+y_range = [0, 7962]
+y_axis_up = true
+origin_location = ["0mm", "215mm"]
+final_pu_params = "0,6040"
+
+[[device.dxy.paper]]
+name = "ap"
+aka_names = ["AP","ansi_a_portrait", "Ap", "letter_p"]
+info = "A4 Paper should be loaded portrait orientation on the plot bed"
+paper_size = ["8.5in", "11in"]
+x_range = [0, 7962]
+y_range = [0, 10365]
+y_axis_up = true
+origin_location = ["0mm", "279mm"]
+final_pu_params = "0,6040"
+
+[[device.dxy.paper]]
+name = "b"
+aka_names = ["ansi_b", "tabloid"]
+info = "ANSI B Paper should be loaded landscape orientation on the plot bed"
+paper_size = ["17in", "11in"]
+x_range = [0, 16640]
+y_range = [0, 10365]
+y_axis_up = true
+origin_location = ["0mm", "279mm"]
+final_pu_params = "0,6040"
+
+
+[device.sketchmate]
+name = "Roland Sketchmate"
+plotter_unit_length = "0.025mm"
+pen_count = 8
+info = "\nThis profile is for use with Expanded Plot Area as set via the dip switches.\nPage edge should be aligned with X=0 and Y=0."
+
+[[device.sketchmate.paper]]
+name = "a4"
+aka_names = ["A4"]
+info = "A4 Paper will have a 10mm edge margin for holding strips"
+paper_size = ["297mm", "210mm"]
+x_range = [400, 11480]
+y_range = [400, 8000]
+y_axis_up = true
+rotate_180 = true
+origin_location = ["0mm", "210mm"]
+final_pu_params = "3000,8630"
+
+[[device.sketchmate.paper]]
+name = "a"
+aka_names = ["ansi_a", "letter", "A"]
+info = "ANSI A Paper will have a 10mm edge margin for holding strips"
+paper_size = ["11in", "8.5in"]
+x_range = [400, 10760]
+y_range = [400, 8240]
+y_axis_up = true
+rotate_180 = true
+origin_location = ["0mm", "216mm"]
+final_pu_params = "3000,8630"
