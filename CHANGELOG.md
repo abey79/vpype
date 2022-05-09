@@ -19,6 +19,7 @@ Release date: UNRELEASED
 ### Other changes
 
 * Removed dependence on `setuptools` (#454, #468)
+* Pinned Shapely to 1.8.2, which is the first release in a long time to have binaries for most platforms/Python release combination (including Apple-silicon Macs and Python 3.10) (#475)
 
 
 ## 1.10
