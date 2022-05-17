@@ -408,7 +408,7 @@ hook_testing = ["pytest (>=2.7.3)", "execnet (>=1.5.0)", "psutil"]
 
 [[package]]
 name = "pyinstaller-hooks-contrib"
-version = "2022.4"
+version = "2022.5"
 description = "Community maintained hooks for PyInstaller"
 category = "dev"
 optional = false
@@ -646,7 +646,7 @@ all = ["matplotlib", "glcontext", "moderngl", "Pillow", "PySide2"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8, <3.11"
-content-hash = "934be76e644d445ef1ea789c224ba187f401343771a886457b4eefa14974803b"
+content-hash = "a1770c380012a3110d0f25ec991a5175ffb430e54f98f07c77e7ca6dcdd03f57"
 
 [metadata.files]
 altgraph = [
@@ -1148,8 +1148,8 @@ pyinstaller = [
     {file = "pyinstaller-5.0.1.tar.gz", hash = "sha256:25f5f758b005c66471af0d452c90ec328179116afe9d5bd82f5fb06d9416267b"},
 ]
 pyinstaller-hooks-contrib = [
-    {file = "pyinstaller-hooks-contrib-2022.4.tar.gz", hash = "sha256:b7f7da20e5b83c22219a21b8f849525e5f735197975313208f4e07ff9549cdaf"},
-    {file = "pyinstaller_hooks_contrib-2022.4-py2.py3-none-any.whl", hash = "sha256:b57a90bb8520d6e1dbbaaae416875e28fa5a3b74d2e40e330d02d1ccadacc38c"},
+    {file = "pyinstaller-hooks-contrib-2022.5.tar.gz", hash = "sha256:90a05207ceea2f8c166f12c3add46e24c0ed6a78234e5f99320f8683d56e0dec"},
+    {file = "pyinstaller_hooks_contrib-2022.5-py2.py3-none-any.whl", hash = "sha256:d0ff4c13eda0104db6eb43c60641c19cdf2bc2d6a2a1f0855d26629c3dacc8b7"},
 ]
 pyparsing = [
     {file = "pyparsing-3.0.8-py3-none-any.whl", hash = "sha256:ef7b523f6356f763771559412c0d7134753f037822dad1b16945b7b846f7ad06"},
