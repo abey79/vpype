@@ -705,9 +705,11 @@ def reverse(line_collection: vp.LineCollection) -> vp.LineCollection:
     help="Target layer(s).",
 )
 @global_processor
-def splitdist(document: vp.Document, dist: float, layer: Optional[Union[int, List[int]]]) -> vp.Document:
+def splitdist(
+    document: vp.Document, dist: float, layer: Optional[Union[int, List[int]]]
+) -> vp.Document:
     """Split lines by drawing distance.
-    
+
     TODO
     """
     new_doc = document.clone(keep_layers=True)
@@ -727,7 +729,7 @@ def splitdist(document: vp.Document, dist: float, layer: Optional[Union[int, Lis
             split_lines.append(line)
             cumulative_length += current_line_length
 
-            if cumulative_length >= dist or i == num_lines-1:
+            if cumulative_length >= dist or i == num_lines - 1:
                 if new_doc.layers[layer_id].is_empty():
                     new_doc.add(split_lines, layer_id)
                 else:
