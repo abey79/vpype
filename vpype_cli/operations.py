@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import logging
 import math
-from typing import cast
+from typing import List, Optional, Union, cast
 
 import click
 import numpy as np
 
 import vpype as vp
+from vpype.geometry import line_length
+from vpype.model import LineCollection
 
 from .cli import cli
 from .decorators import global_processor, layer_processor
@@ -27,6 +29,7 @@ __all__ = (
     "reverse",
     "snap",
     "splitall",
+    "splitdist",
     "trim",
 )
 
@@ -690,3 +693,46 @@ def reverse(line_collection: vp.LineCollection) -> vp.LineCollection:
 
     line_collection.reverse()
     return line_collection
+
+
+@cli.command(group="Operations")
+@click.argument("dist", type=LengthType(), required=True)
+@click.option(
+    "-l",
+    "--layer",
+    type=LayerType(accept_multiple=True),
+    default="all",
+    help="Target layer(s).",
+)
+@global_processor
+def splitdist(document: vp.Document, dist: float, layer: Optional[Union[int, List[int]]]) -> vp.Document:
+    """Split lines by drawing distance.
+    
+    TODO
+    """
+    new_doc = document.clone(keep_layers=True)
+    layer_ids = multiple_to_layer_ids(layer, document)
+
+    for layer_id, lines in document.layers.items():
+        if layer_id not in layer_ids:
+            new_doc.add(lines, layer_id)
+            continue
+
+        cumulative_length = 0
+        split_lines = lines.clone()
+        num_lines = len(lines)
+
+        for i, line in enumerate(lines):
+            current_line_length = np.sum(np.abs(np.diff(line)))
+            split_lines.append(line)
+            cumulative_length += current_line_length
+
+            if cumulative_length >= dist or i == num_lines-1:
+                if new_doc.layers[layer_id].is_empty():
+                    new_doc.add(split_lines, layer_id)
+                else:
+                    new_doc.add(split_lines, new_doc.free_id())
+                split_lines = lines.clone()
+                cumulative_length = 0
+
+    return new_doc
