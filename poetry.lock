@@ -8,11 +8,17 @@ python-versions = "*"
 
 [[package]]
 name = "asteval"
-version = "0.9.26"
+version = "0.9.27"
 description = "Safe, minimalistic evaluator of python expression using ast module"
 category = "main"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
+
+[package.extras]
+all = ["build", "twine", "coverage", "pytest", "pytest-cov", "sphinx"]
+dev = ["build", "twine"]
+doc = ["sphinx"]
+test = ["coverage", "pytest", "pytest-cov"]
 
 [[package]]
 name = "atomicwrites"
@@ -654,7 +660,8 @@ altgraph = [
     {file = "altgraph-0.17.2.tar.gz", hash = "sha256:ebf2269361b47d97b3b88e696439f6e4cbc607c17c51feb1754f90fb79839158"},
 ]
 asteval = [
-    {file = "asteval-0.9.26.tar.gz", hash = "sha256:36125613ec21ed3e33e370ca8960a1f1e8a2324d78a8016bfa5ad76f1e16ef05"},
+    {file = "asteval-0.9.27-py3-none-any.whl", hash = "sha256:c31678db0e1c758a47d776c693a63709eb898f8af8065eb6201c65d68c3f7a3f"},
+    {file = "asteval-0.9.27.tar.gz", hash = "sha256:de838c33aed4c9bb25737eadbb7d1edaaf875e2bab505cc079f1a4b35de03e47"},
 ]
 atomicwrites = [
     {file = "atomicwrites-1.4.0-py2.py3-none-any.whl", hash = "sha256:6d1784dea7c0c8d4a5172b6c620f40b6e4cbfdf96d783691f2e1302a7b88e197"},
