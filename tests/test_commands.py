@@ -763,3 +763,9 @@ def test_splitdist(lines, expected_layer_count):
     doc = vpype_cli.execute(lines + " splitdist 1cm")
 
     assert len(doc.layers) == expected_layer_count
+
+
+def test_splitdist_ignore_layer():
+    doc = vpype_cli.execute("line 0 0 0 2cm line -l 2 0 2cm 2cm 2cm splitdist -l 1 1cm")
+
+    assert len(doc.layers) == 2
