@@ -102,6 +102,7 @@ MINIMAL_COMMANDS = [
     Command("eval x=2 eval %y=3 eval z=4% eval %w=5%"),
     Command("forlayer text '%_lid% (%_i%/%_n%): %_name%' end"),
     Command("pagerotate", keeps_page_size=False),
+    Command("splitdist 1cm"),
 ]
 
 # noinspection SpellCheckingInspection
@@ -746,3 +747,19 @@ def test_alpha():
     assert vpype_cli.execute("random color red alpha 0.5").layers[1].property(
         vp.METADATA_FIELD_COLOR
     ) == vp.Color(255, 0, 0, 127)
+
+
+@pytest.mark.parametrize(
+    ("lines", "expected_layer_count"),
+    [
+        ("line 0 0 0 5cm", 1),
+        ("line 0 0 0.5cm 0 line 1cm 1cm 1.5cm 1cm", 1),
+        ("line 0 0 0 2cm line 0 2cm 2cm 2cm", 2),
+        ("line 0 0 0 2cm line -l 2 0 2cm 2cm 2cm", 2),
+        ("line 0 0 0 2cm line -l 2 0 2cm 2cm 2cm line -l 2 0 4cm 2cm 4cm", 3),
+    ],
+)
+def test_splitdist(lines, expected_layer_count):
+    doc = vpype_cli.execute(lines + " splitdist 1cm")
+
+    assert len(doc.layers) == expected_layer_count
