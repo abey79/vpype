@@ -710,7 +710,10 @@ def splitdist(
 ) -> vp.Document:
     """Split lines by drawing distance.
 
-    TODO
+    This command will keep the n first lines whose cumulated length is less than dist.
+    The remaining lines are spread to the next available layers.
+    This command works at the line level; calling `splitall` beforehand is required
+    if one wants to work at segment level.
     """
     new_doc = document.clone(keep_layers=True)
     layer_ids = multiple_to_layer_ids(layer, document)
