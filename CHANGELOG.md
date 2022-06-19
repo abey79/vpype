@@ -6,6 +6,7 @@ Release date: UNRELEASED
 
 ### New features and improvements
 
+* Improved the `linemerge` algorithm by making it less dependent on line order (#496)
 * Added HPGL configurations for the Houston Instrument DMP-161, HP7550, Roland DXY 1xxxseries and sketchmate plotters (thanks to @jimmykl and @ithinkido) (#472, #474)
 
 ### Bug fixes
