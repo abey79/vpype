@@ -273,6 +273,7 @@ and much more.
 - **Squiggle** filter for shaky-hand or liquid-like styling ([`squiggles`](https://vpype.readthedocs.io/en/latest/reference.html#squiggles))
 - Support for **splitting** all lines to their constituent segments ([`splitall`](https://vpype.readthedocs.io/en/latest/reference.html#splitall)).
 - Support for **reversing** order of paths within their layers ([`reverse`](https://vpype.readthedocs.io/en/latest/reference.html#reverse)).
+- Support for **splitting** layers by drawing distance ([`splitdist`](https://vpype.readthedocs.io/en/latest/reference.html#splitdist))
 
 #### Generation
  
@@ -305,7 +306,6 @@ and much more.
  - [vpype-dxf](https://github.com/tatarize/vpype-dxf/): read dxf files
  - [vpype-embroidery](https://github.com/EmbroidePy/vpype-embroidery): various embroidery-related utilities, including read from/write to most embroidery formats 
  - [vpype-vectrace](https://github.com/tatarize/vpype-vectrace): create outlines from images with vector tracing
- - [deduplicate](https://github.com/LoicGoulefert/deduplicate): remove overlapping lines
  
  
  ## Contributing

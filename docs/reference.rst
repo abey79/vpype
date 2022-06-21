@@ -207,6 +207,10 @@ CLI reference
 .. click:: vpype_cli:splitall
    :prog: splitall
 
+.. _cmd_splitdist:
+.. click:: vpype_cli:splitdist
+   :prog: splitdist
+
 .. _cmd_squiggles:
 .. click:: vpype_cli:squiggles
    :prog: squiggles
