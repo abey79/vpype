@@ -326,6 +326,20 @@ removed thanks to the :ref:`cmd_filter` command::
   $ vpype read input.svg filter --min-length 0.5mm write output.svg
 
 
+Splitting layers by drawing distance
+------------------------------------
+
+Certain medium such as paintbrush or `Posca <https://www.posca.com>`__ pens require manual intervention after a certain drawing distance.
+One way to achieve this is to ensure that the cumulative distance of the lines within each layer remains below that drawing distance.
+This can be achieved using the :ref:`cmd_splitdist` command::
+
+  $ vpype read input.svg splitdist 50cm write output.svg
+
+A finer-grained approach consists of splitting all lines into their constituent segments using the :ref:`cmd_splitall` command and subsequently using the :ref:`cmd_linemerge` to put everything back together::
+
+  $ vpype read input.svg splitall splitdist 50cm linemerge write output.svg
+
+
 HPGL export recipes
 ===================
 

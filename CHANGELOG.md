@@ -6,9 +6,9 @@ Release date: UNRELEASED
 
 ### New features and improvements
 
+* Added the `splitdist` command to split layers by drawing distance (thanks to @LoicGoulefert) (#487)
 * Improved the `linemerge` algorithm by making it less dependent on line order (#496)
 * Added HPGL configurations for the Houston Instrument DMP-161, HP7550, Roland DXY 1xxxseries and sketchmate plotters (thanks to @jimmykl and @ithinkido) (#472, #474)
-* Added the `splitdist` command to split lines by drawing distance (#487)
 
 ### Bug fixes
 

@@ -545,15 +545,16 @@ numpy = ">=1.17.3,<1.25.0"
 
 [[package]]
 name = "setuptools-scm"
-version = "6.4.2"
+version = "7.0.0"
 description = "the blessed package to manage your versions by scm tags"
 category = "main"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [package.dependencies]
 packaging = ">=20.0"
 tomli = ">=1.0.0"
+typing-extensions = "*"
 
 [package.extras]
 test = ["pytest (>=6.2)", "virtualenv (>20)"]
@@ -617,7 +618,7 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "types-cachetools"
-version = "5.0.2"
+version = "5.2.0"
 description = "Typing stubs for cachetools"
 category = "dev"
 optional = false
@@ -643,7 +644,7 @@ python-versions = "*"
 name = "typing-extensions"
 version = "4.2.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 
@@ -1231,8 +1232,8 @@ scipy = [
     {file = "scipy-1.8.1.tar.gz", hash = "sha256:9e3fb1b0e896f14a85aa9a28d5f755daaeeb54c897b746df7a55ccb02b340f33"},
 ]
 setuptools-scm = [
-    {file = "setuptools_scm-6.4.2-py3-none-any.whl", hash = "sha256:acea13255093849de7ccb11af9e1fb8bde7067783450cee9ef7a93139bddf6d4"},
-    {file = "setuptools_scm-6.4.2.tar.gz", hash = "sha256:6833ac65c6ed9711a4d5d2266f8024cfa07c533a0e55f4c12f6eff280a5a9e30"},
+    {file = "setuptools_scm-7.0.0-py3-none-any.whl", hash = "sha256:187cd31d78998d8226b68d4066dbfbf9c1fa8b61c10ff65cebe950379d3b9175"},
+    {file = "setuptools_scm-7.0.0.tar.gz", hash = "sha256:136fe07547645fee2dcc7d21b192dad95932e70aa4b603f45b8907ed78f44a11"},
 ]
 shapely = [
     {file = "Shapely-1.8.2-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:7c9e3400b716c51ba43eea1678c28272580114e009b6c78cdd00c44df3e325fa"},
@@ -1295,8 +1296,8 @@ tomli = [
     {file = "tomli-2.0.1.tar.gz", hash = "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"},
 ]
 types-cachetools = [
-    {file = "types-cachetools-5.0.2.tar.gz", hash = "sha256:bf22b2e9f9243983914f6510e43a1873f012afb8c3fc5e09a59b0ccbe3ab0f35"},
-    {file = "types_cachetools-5.0.2-py3-none-any.whl", hash = "sha256:4291c3b6ae10e7b0d7ae3c4cb7d9daa6b21d4b7deb64d193e44bcec7ca5c4095"},
+    {file = "types-cachetools-5.2.0.tar.gz", hash = "sha256:f8ae68aa6502c5c93bbf6ae51ca60fefa9f6a5896846baf7981067809977a61a"},
+    {file = "types_cachetools-5.2.0-py3-none-any.whl", hash = "sha256:ccbcc5e72084c015e2405cb629d769116f7c10f918e3f02d409a94d0167ffaae"},
 ]
 types-pkg-resources = [
     {file = "types-pkg_resources-0.1.3.tar.gz", hash = "sha256:834a9b8d3dbea343562fd99d5d3359a726f6bf9d3733bccd2b4f3096fbab9dae"},

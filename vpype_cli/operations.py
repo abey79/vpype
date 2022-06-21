@@ -706,14 +706,15 @@ def reverse(line_collection: vp.LineCollection) -> vp.LineCollection:
 )
 @global_processor
 def splitdist(
-    document: vp.Document, dist: float, layer: Optional[Union[int, List[int]]]
+    document: vp.Document, dist: float, layer: int | list[int] | None
 ) -> vp.Document:
-    """Split lines by drawing distance.
+    """Split layers by drawing distance.
 
-    This command will keep the n first lines whose cumulated length is less than dist.
+    This command will keep the N first lines whose cumulated length is less than DIST.
     The remaining lines are spread to the next available layers.
-    This command works at the line level; calling `splitall` beforehand is required
-    if one wants to work at segment level.
+
+    This command works at the line level. A finer-grained result can be obtained at the segment
+    level using the `splitall splitdist linemerge` sequence of commands.
     """
     new_doc = document.clone(keep_layers=True)
     layer_ids = multiple_to_layer_ids(layer, document)
