@@ -67,7 +67,7 @@ class LineIndex:
         """Find the closest line, assuming a maximum admissible distance.
         Returns a tuple of (idx, reverse), where `idx` may be None if nothing is found.
         `reverse` indicates whether or not a line ending has been matched instead of a start.
-        False is always returned if index was created with `reverse=False`.s
+        False is always returned if index was created with `reverse=False`.
         """
 
         ridx = None

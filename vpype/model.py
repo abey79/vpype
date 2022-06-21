@@ -393,24 +393,42 @@ class LineCollection(_MetadataMixin):
         if len(self) < 2:
             return
 
-        index = LineIndex(self.lines, reverse=flip)
+        # prepending with flip=False requires that we index line endings as well
+        index = LineIndex(self.lines, reverse=True)
         new_lines = LineCollection()
+
+        def _merge_line(
+            line: np.ndarray, idx: int, *, reverse=False, prepend=False
+        ) -> np.ndarray:
+            """Append or prepend a line from the index to `line`, optionally reversing it
+            beforehand."""
+            new_line = cast(np.ndarray, index.pop(idx))
+            if reverse:
+                new_line = np.flip(new_line)
+            if prepend:
+                return np.hstack([new_line, line])
+            else:
+                return np.hstack([line, new_line])
 
         while len(index) > 0:
             line = index.pop_front()
 
             # we append to `line` until we dont find anything to add
             while True:
+                # try appending
                 idx, reverse = index.find_nearest_within(line[-1], tolerance)
-                if idx is None and flip:
-                    idx, reverse = index.find_nearest_within(line[0], tolerance)
-                    line = np.flip(line)
-                if idx is None:
-                    break
-                new_line = cast(np.ndarray, index.pop(idx))
-                if reverse:
-                    new_line = np.flip(new_line)
-                line = np.hstack([line, new_line])
+                if idx is not None and (not reverse or flip):
+                    line = _merge_line(line, idx, reverse=reverse)
+                    continue
+
+                # try pre-pending
+                idx, reverse = index.find_nearest_within(line[0], tolerance)
+                if idx is not None and (reverse or flip):
+                    line = _merge_line(line, idx, prepend=True, reverse=not reverse)
+                    continue
+
+                # if everything fails we break from the loop and store the line as is
+                break
 
             new_lines.append(line)
 

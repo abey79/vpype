@@ -34,8 +34,14 @@ EMPTY_LINE_COLLECTION = [
 ]
 
 
-def _line_set(lc: Iterable[Sequence[complex]]) -> set[tuple[complex, ...]]:
+def _line_set_unoriented(lc: Iterable[Sequence[complex]]) -> set[tuple[complex, ...]]:
+    """Set of lines with consistent flipping to ignore direction in comparison"""
     return {tuple(line if abs(line[0]) > abs(line[-1]) else reversed(line)) for line in lc}
+
+
+def _line_set_oriented(lc: Iterable[Sequence[complex]]) -> set[tuple[complex, ...]]:
+    """Set of lines without flipping"""
+    return {tuple(line) for line in lc}
 
 
 @pytest.mark.parametrize("lines", LINE_COLLECTION_TWO_LINES)
@@ -313,7 +319,35 @@ def test_line_collection_merge(lines, merge_lines):
     lc = LineCollection(lines)
     lc.merge(0.1)
 
-    assert _line_set(lc) == _line_set(merge_lines)
+    assert _line_set_unoriented(lc) == _line_set_unoriented(merge_lines)
+
+
+@pytest.mark.parametrize(
+    ["lines", "merge_lines"],
+    [
+        (
+            [(0, 100), (100, 200 + 100j)],
+            [(0, 100, 100, 200 + 100j)],
+        ),
+        (
+            [(100, 200 + 100j), (0, 100)],
+            [(0, 100, 100, 200 + 100j)],
+        ),
+        (  # first line needs flipping to match
+            [(100, 0), (100, 200 + 100j)],
+            [(100, 0), (100, 200 + 100j)],
+        ),
+        (
+            [(100, 200 + 100j), (100, 0)],
+            [(100, 0), (100, 200 + 100j)],
+        ),
+    ],
+)
+def test_line_collection_merge_no_flip(lines, merge_lines):
+    lc = LineCollection(lines)
+    lc.merge(0.1, flip=False)
+
+    assert _line_set_oriented(lc) == _line_set_oriented(merge_lines)
 
 
 def test_document_clone():
