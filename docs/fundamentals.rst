@@ -144,7 +144,7 @@ Like the SVG format, the default unit used by *vpype* is the CSS pixel, which is
 
   $ vpype circle 0 0 96
 
-Because the pixel is not the best unit to use with physical media, most commands understand other CSS units including ``in``, ``cm``, ``mm``, ``pt`` and ``pc``. The 1-inch-radius circle can therefore also be generated like this::
+Because the pixel is not the best unit to use with physical media, most commands understand other CSS units including ``in``, ``ft``, ``mm``, ``cm``, ``m``, ``pt`` and ``pc``. The 1-inch-radius circle can therefore also be generated like this::
 
   $ vpype circle 0 0 1in
 
