@@ -1,4 +1,4 @@
-furo==2022.06.04.1
+furo==2022.6.21
 sphinx==5.0.2
 sphinx-autobuild==2021.3.14
 sphinx-click==4.2.0
