@@ -67,8 +67,7 @@ packaging = ">=20.8"
 pytest-mpl = ">=0.12"
 mypy = ">=0.901"
 types-cachetools = ">=4.2.4"
-types-toml = ">=0.1.1"
-types-pkg-resources = ">=0.1.2"
+types-setuptools = ">=57.4.17"
 
 [tool.poetry.extras]
 all = ["matplotlib", "glcontext", "moderngl", "Pillow", "PySide2"]

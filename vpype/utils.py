@@ -22,18 +22,22 @@ def _mm_to_px(x: float, y: float) -> tuple[float, float]:
     return x * 96.0 / 25.4, y * 96.0 / 25.4
 
 
+# NOTE: order matters due to the implementation of _convert_unit()
+
 UNITS = {
     "px": 1.0,
     "in": 96.0,
+    "ft": 12.0 * 96.0,
     "mm": 96.0 / 25.4,
     "cm": 96.0 / 2.54,
+    "m": 100.0 * 96.0 / 2.54,
     "pc": 16.0,
     "pt": 96.0 / 72.0,
 }
 
 ANGLE_UNITS = {
     "deg": 1.0,
-    "grad": 9.0 / 10.0,  # note: must be before "rad"!
+    "grad": 9.0 / 10.0,
     "rad": 180.0 / math.pi,
     "turn": 360.0,
 }
