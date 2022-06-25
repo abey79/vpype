@@ -735,9 +735,9 @@ def splitdist(
 
             if cumulative_length >= dist or i == num_lines - 1:
                 if new_doc.layers[layer_id].is_empty():
-                    new_doc.add(split_lines, layer_id)
+                    new_doc.add(split_lines, layer_id, with_metadata=True)
                 else:
-                    new_doc.add(split_lines, new_doc.free_id())
+                    new_doc.add(split_lines, new_doc.free_id(), with_metadata=True)
                 split_lines = lines.clone()
                 cumulative_length = 0
 

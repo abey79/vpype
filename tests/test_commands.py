@@ -769,3 +769,16 @@ def test_splitdist_ignore_layer():
     doc = vpype_cli.execute("line 0 0 0 2cm line -l 2 0 2cm 2cm 2cm splitdist -l 1 1cm")
 
     assert len(doc.layers) == 2
+
+
+def test_splitdist_preserves_metadata():
+    doc = vpype_cli.execute(
+        "random -n 200 -a 10cm 10cm name hello color red penwidth 5mm splitdist 10cm"
+    )
+
+    for layer in doc.layers.values():
+        assert layer.metadata[vp.METADATA_FIELD_NAME] == "hello"
+        assert layer.metadata[vp.METADATA_FIELD_COLOR] == vp.Color("red")
+        assert layer.metadata[vp.METADATA_FIELD_PEN_WIDTH] == pytest.approx(
+            vp.convert_length("5mm")
+        )
