@@ -618,7 +618,7 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "types-cachetools"
-version = "5.2.0"
+version = "5.2.1"
 description = "Typing stubs for cachetools"
 category = "dev"
 optional = false
@@ -1288,8 +1288,8 @@ tomli = [
     {file = "tomli-2.0.1.tar.gz", hash = "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"},
 ]
 types-cachetools = [
-    {file = "types-cachetools-5.2.0.tar.gz", hash = "sha256:f8ae68aa6502c5c93bbf6ae51ca60fefa9f6a5896846baf7981067809977a61a"},
-    {file = "types_cachetools-5.2.0-py3-none-any.whl", hash = "sha256:ccbcc5e72084c015e2405cb629d769116f7c10f918e3f02d409a94d0167ffaae"},
+    {file = "types-cachetools-5.2.1.tar.gz", hash = "sha256:069cfc825697cd51445c1feabbe4edc1fae2b2315870e7a9a179a7c4a5851bee"},
+    {file = "types_cachetools-5.2.1-py3-none-any.whl", hash = "sha256:b496b7e364ba050c4eaadcc6582f2c9fbb04f8ee7141eb3b311a8589dbd4506a"},
 ]
 types-setuptools = [
     {file = "types-setuptools-57.4.17.tar.gz", hash = "sha256:9d556fcaf6808a1cead4aaa41e5c07a61f0152a875811e1239738eba4e0b7b16"},
