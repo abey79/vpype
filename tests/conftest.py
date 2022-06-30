@@ -235,6 +235,17 @@ def _read_svg_lines(path: pathlib.Path) -> list[str]:
     return [line for line in lines if "<dc:source" not in line and "<dc:date" not in line]
 
 
+def _write_reference_svg_fail_report(
+    ref_lines: list[str],
+    test_lines: list[str],
+    test_id: str,
+) -> None:
+    report_dir = pathlib.Path(__file__).parent.parent / "test_report_reference_svg" / test_id
+    report_dir.mkdir(parents=True, exist_ok=True)
+    (report_dir / "reference.svg").write_text("\n".join(ref_lines))
+    (report_dir / "test.svg").write_text("\n".join(test_lines))
+
+
 @pytest.fixture
 def reference_svg(request, tmp_path) -> Callable:
     """Compare a SVG output to a saved reference.
@@ -281,6 +292,8 @@ def reference_svg(request, tmp_path) -> Callable:
                     tofile=str(ref_path.relative_to(pathlib.Path(REFERENCE_IMAGES_DIR))),
                     lineterm="",
                 )
+
+                _write_reference_svg_fail_report(ref_lines, temp_lines, request.node.name)
 
                 pytest.fail(f"generated SVG does not match reference:\n" + "\n".join(delta))
 

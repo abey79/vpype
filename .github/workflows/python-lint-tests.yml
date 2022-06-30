@@ -70,12 +70,18 @@ jobs:
       run: |
         poetry run pytest --skip-image-similarity
       if: matrix.os != 'macos-latest'
-    - name: Upload test results
+    - name: Upload image comparison test results
       if: always()
       uses: actions/upload-artifact@v2
       with:
         name: test_report_img_sim_${{ runner.os }}_${{ matrix.python-version }}
         path: test_report_img_sim/**/*
+    - name: Upload SVG comparison test results
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: test_report_reference_svg_${{ runner.os }}_${{ matrix.python-version }}
+        path: test_report_reference_svg/**/*
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
       with:
