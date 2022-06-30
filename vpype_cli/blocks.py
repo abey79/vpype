@@ -28,22 +28,34 @@ __all__ = ("grid", "repeat", "forfile", "forlayer")
     metavar="DX DY",
     help="Offset between columns and rows.",
 )
+@click.option(
+    "-k",
+    "--keep-page-size",
+    "keep_page_size",
+    is_flag=True,
+    help="Do not change the page size.",
+)
 @block_processor
 def grid(
     state: State,
     processors: Iterable[ProcessorType],
     number: tuple[int, int],
     offset: tuple[float, float],
+    keep_page_size: bool,
 ) -> None:
     """Creates a NX by NY grid of geometry
 
     The number of column and row must always be specified. By default, 10mm offsets are used
-    in both directions. Use the `--offset` option to override these values.
+    in both directions. Use the `--offset DX DY` option to override these values.
 
     The nested commands are exposed to a pipeline which does not contain any geometry but
     retains the layer structure and metadata. The properties created and modified by the
     nested commands are applied on the pipeline. However, the properties deleted by the nested
     commands are not deleted from the outer pipeline.
+
+    By default, the `grid` block changes the current page size according to its geometry (e.g.
+    it sets the page size to (NxDX, MxDY). This can be prevented using the `--keep-page-size`
+    option.
 
     The following variables are set by `grid` and available for expressions:
 
@@ -67,9 +79,11 @@ def grid(
     """
 
     nx, ny = number
+    orig_doc = state.document
 
     for j in range(ny):
         for i in range(nx):
+            state.document = orig_doc.clone(keep_layers=True)
             variables = {
                 "_nx": nx,
                 "_ny": ny,
@@ -78,11 +92,14 @@ def grid(
                 "_y": j,
                 "_i": i + j * nx,
             }
-            with state.temp_document() as doc, state.expression_variables(variables):
+            with state.expression_variables(variables):
                 execute_processors(processors, state)
-            doc.translate(offset[0] * i, offset[1] * j)
-            state.document.extend(doc)
-    if nx > 0 and ny > 0:
+            state.document.translate(offset[0] * i, offset[1] * j)
+            orig_doc.extend(state.document)
+
+    state.document = orig_doc
+
+    if nx > 0 and ny > 0 and not keep_page_size:
         state.document.page_size = (nx * offset[0], ny * offset[1])
 
 
@@ -112,11 +129,14 @@ def repeat(state: State, processors: Iterable[ProcessorType], number: int) -> No
             $ vpype begin repeat 3 random --layer %_i+1% end show
     """
 
+    orig_doc = state.document
     for i in range(number):
+        state.document = orig_doc.clone(keep_layers=True)
         variables = {"_n": number, "_i": i}
-        with state.temp_document() as doc, state.expression_variables(variables):
+        with state.expression_variables(variables):
             execute_processors(processors, state)
-        state.document.extend(doc)
+        orig_doc.extend(state.document)
+    state.document = orig_doc
 
 
 @cli.command(group="Block processors")
@@ -129,6 +149,11 @@ def forfile(state: State, processors: Iterable[ProcessorType], files: str) -> No
     would. In particular, wildcards (`*` and `**`) are expended, environmental variables are
     substituted (`$ENVVAR`), and the `~` expended to the user directory. It then executes the
     nested commands once for each file.
+
+    The nested commands are exposed to a pipeline which does not contain any geometry but
+    retains the layer structure and metadata. The properties created and modified by the
+    nested commands are applied on the pipeline. However, the properties deleted by the nested
+    commands are not deleted from the outer pipeline.
 
     The following variables are set by `forfile` and available for expressions:
 
@@ -151,8 +176,10 @@ def forfile(state: State, processors: Iterable[ProcessorType], files: str) -> No
     """
 
     file_list = glob.glob(os.path.expandvars(os.path.expanduser(files)))
+    orig_document = state.document
 
     for i, file in enumerate(file_list):
+        state.document = orig_document.clone(keep_layers=True)
         path = pathlib.Path(file)
         variables = {
             "_path": path,
@@ -163,9 +190,11 @@ def forfile(state: State, processors: Iterable[ProcessorType], files: str) -> No
             "_i": i,
             "_n": len(files),
         }
-        with state.temp_document() as doc, state.expression_variables(variables):
+        with state.expression_variables(variables):
             execute_processors(processors, state)
-        state.document.extend(doc)
+        orig_document.extend(state.document)
+
+    state.document = orig_document
 
 
 class _MetadataProxy:
@@ -223,22 +252,20 @@ def forlayer(state: State, processors: Iterable[ProcessorType]) -> None:
 
     lids = list(orig_doc.layers)
     for i, lid in enumerate(lids):
-        with state.temp_document(keep_layer=False) as doc:
-            doc.add(orig_doc.pop(lid), lid, with_metadata=True)
-            variables = {
-                "_lid": lid,
-                "_i": i,
-                "_n": len(lids),
-                "_name": doc.layers[lid].property(vp.METADATA_FIELD_NAME) or "",
-                "_color": doc.layers[lid].property(vp.METADATA_FIELD_COLOR),
-                "_pen_width": doc.layers[lid].property(vp.METADATA_FIELD_PEN_WIDTH),
-                "_prop": _MetadataProxy(doc.layers[lid].metadata),
-            }
-            with state.expression_variables(variables):
-                execute_processors(processors, state)
-        new_doc.extend(doc)
+        state.document = orig_doc.clone()
+        state.document.add(orig_doc.pop(lid), lid, with_metadata=True)
 
-    # The original document's content has been entirely popped and can be restored.
-    # Note: we *cannot* replace state.document by new_doc, as this interferes with
-    # state.temp_document() and ultimately breaks nested blocks
-    state.document.extend(new_doc)
+        variables = {
+            "_lid": lid,
+            "_i": i,
+            "_n": len(lids),
+            "_name": state.document.layers[lid].property(vp.METADATA_FIELD_NAME) or "",
+            "_color": state.document.layers[lid].property(vp.METADATA_FIELD_COLOR),
+            "_pen_width": state.document.layers[lid].property(vp.METADATA_FIELD_PEN_WIDTH),
+            "_prop": _MetadataProxy(state.document.layers[lid].metadata),
+        }
+        with state.expression_variables(variables):
+            execute_processors(processors, state)
+        new_doc.extend(state.document)
+
+    state.document = new_doc

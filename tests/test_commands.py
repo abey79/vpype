@@ -33,6 +33,7 @@ MINIMAL_COMMANDS = [
     Command("begin grid 0 0 line 0 0 10 10 end"),  # doesn't update page size
     Command("begin repeat 2 line 0 0 10 10 end"),
     Command("grid 2 2 line 0 0 10 10 end", keeps_page_size=False),  # implicit `begin`
+    Command("grid -k 2 2 line 0 0 10 10 end"),  # keep page size option
     Command("grid 2 2 repeat 2 random -n 1 end end", keeps_page_size=False),  # nested block
     Command("frame"),
     Command("random"),
@@ -676,37 +677,6 @@ def test_property_commands(runner, cmd, expected_output):
     res = runner.invoke(cli, cmd)
     assert res.exit_code == 0
     assert res.stdout.strip() == expected_output.strip()
-
-
-def test_forlayer_command_property_accessor():
-    doc = vpype_cli.execute(
-        "pens rgb forlayer eval '_prop.test=_i;_prop.test2=_prop.test' end"
-    )
-    for i in range(3):
-        assert doc.layers[i + 1].property("test") == i
-        assert doc.layers[i + 1].property("test2") == i
-
-    doc = vpype_cli.execute(
-        'pens rgb forlayer eval \'_prop["test"]=_i;_prop["test2"]=_prop["test"]\' end'
-    )
-    for i in range(3):
-        assert doc.layers[i + 1].property("test") == i
-        assert doc.layers[i + 1].property("test2") == i
-
-
-def test_forlayer_vars():
-    vpype_cli.execute(
-        """
-        repeat 5
-            random -l new
-        end 
-        eval 'cnt=0'
-        forlayer
-            eval 'assert _lid==cnt+1'
-            eval 'assert _i==cnt;cnt += 1'
-            eval 'assert _n==5'
-        end"""
-    )
 
 
 def test_pagerotate():

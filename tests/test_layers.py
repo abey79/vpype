@@ -9,6 +9,7 @@ import numpy as np
 import pytest
 
 import vpype as vp
+import vpype_cli.cli
 from vpype_cli import cli, execute
 from vpype_cli.debug import DebugData
 
@@ -127,6 +128,19 @@ def test_lmove_prob_zero(big_doc):
 
     assert 2 not in doc.layers
     assert len(doc.layers[1]) == 1000
+
+
+def test_lmove_keep_order(make_line_collection, tmp_path_factory):
+    lc = make_line_collection(line_count=3)
+    doc = vp.Document()
+    for i in range(3):
+        doc.add(
+            vp.LineCollection(lc[i : i + 1], metadata=lc.metadata), i + 1, with_metadata=True
+        )
+
+    doc = vpype_cli.execute("lmove all 2", document=doc)
+
+    assert doc.layers[2] == lc
 
 
 def test_ldelete(big_doc):

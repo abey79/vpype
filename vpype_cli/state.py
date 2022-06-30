@@ -148,40 +148,6 @@ class State:
         self.__class__._current_state = None
 
     @contextmanager
-    def temp_document(self, keep_layer: bool = True) -> Generator[vp.Document, None, None]:
-        """Context manager to temporarily clear the state's document.
-
-        This context manager is typically used by block processor to temporarily clear the
-        document of line data while retaining its structure when executing nested processors.
-        The context manager returns the temporary document instance. It is typically used by
-        block processors to extend the original document after running the nested commands.
-
-        Args:
-            keep_layer: keep the layer structure
-
-        Returns:
-            the temporary document instance
-
-        Example::
-
-            >>> import vpype_cli
-            >>> @vpype_cli.cli.command()
-            ... @vpype_cli.block_processor
-            ... def clean_block(state, processors):
-            ...     with state.temp_document() as temp_doc:
-            ...         # state.document is now empty but has the same structure as the
-            ...         # original document
-            ...         vpype_cli.execute_processors(processors, state)
-            ...     # update the original document with the temporary one
-            ...     state.document.extend(temp_doc)
-        """
-
-        original_doc = self.document
-        self.document = original_doc.clone(keep_layers=keep_layer)
-        yield self.document
-        self.document = original_doc
-
-    @contextmanager
     def expression_variables(self, variables: dict[str, Any]) -> Generator[None, None, None]:
         """Context manager to temporarily set expression variables.
 

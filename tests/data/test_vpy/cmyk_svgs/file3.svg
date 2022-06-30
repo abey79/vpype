@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:xlink="http://www.w3.org/1999/xlink" baseProfile="tiny" height="6.43750348cm" version="1.2" viewBox="0 0 154.724493 243.307218" width="4.09375221cm">
+  <metadata>
+    <rdf:RDF>
+      <cc:Work>
+        <dc:format>image/svg+xml</dc:format>
+        <dc:source>vpype read file3.svg lmove 4 1 write file3.svg
+</dc:source>
+        <dc:date>2022-06-29T19:31:04.670280</dc:date>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs/>
+  <g fill="none" id="layer1" inkscape:groupmode="layer" inkscape:label="black" stroke="#000000" stroke-width="1.0" style="display:inline">
+    <line x1="79.1339" x2="79.1339" y1="218.504" y2="243.3072"/>
+    <line x1="90.9449" x2="79.1339" y1="226.7718" y2="238.5828"/>
+    <line x1="83.8583" x2="92.126" y1="233.8584" y2="243.3072"/>
+  </g>
+  <g fill="none" id="layer2" inkscape:groupmode="layer" inkscape:label="magenta" stroke="#ff00ff" stroke-width="1.0" style="display:inline">
+    <line x1="105.1182" x2="105.1182" y1="75.5906" y2="92.126"/>
+    <polyline points="105.1182,80.315 108.6615,76.7717 111.0237,75.5906 114.567,75.5906 116.9292,76.7717 118.1103,80.315 118.1103,92.126"/>
+    <polyline points="128.7403,67.3228 128.7403,87.4016 129.9214,90.9449 132.2836,92.126 134.6458,92.126"/>
+    <line x1="125.197" x2="133.4647" y1="75.5906" y2="75.5906"/>
+  </g>
+  <g fill="none" id="layer3" inkscape:groupmode="layer" inkscape:label="yellow" stroke="#ffff00" stroke-width="1.0" style="display:inline">
+    <polygon points="67.3228,151.1812 64.9606,152.3623 62.5984,154.7245 61.4173,158.2678 61.4173,160.63 62.5984,164.1733 64.9606,166.5355 67.3228,167.7166 70.8661,167.7166 73.2283,166.5355 75.5906,164.1733 76.7717,160.63 76.7717,158.2678 75.5906,154.7245 73.2283,152.3623 70.8661,151.1812"/>
+    <line x1="83.8583" x2="88.5827" y1="151.1812" y2="167.7166"/>
+    <line x1="93.3072" x2="88.5827" y1="151.1812" y2="167.7166"/>
+    <line x1="93.3072" x2="98.0316" y1="151.1812" y2="167.7166"/>
+    <line x1="102.756" x2="98.0316" y1="151.1812" y2="167.7166"/>
+  </g>
+</svg>

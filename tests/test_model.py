@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import sys
 from typing import Iterable, Sequence
 
@@ -387,3 +388,61 @@ def test_document_add_to_sources(tmp_path):
 
     with pytest.raises(Exception):
         doc.add_to_sources(sys.stdin)
+
+
+def test_line_collection_equality(make_line_collection):
+    lc = make_line_collection()
+    assert lc == lc
+    assert lc == copy.deepcopy(lc)
+
+    lc_clone = lc.clone()
+    lc_clone.extend(lc)
+    assert lc == lc_clone
+
+    lc_no_metadata = copy.deepcopy(lc)
+    lc_no_metadata.metadata = {}
+    assert lc != lc_no_metadata
+
+    lc_new_metadata = copy.deepcopy(lc)
+    lc_new_metadata.set_property("test_line_collection_equality_prop", "hello")
+    assert lc != lc_new_metadata
+
+    lc_miss_one_line = lc.clone()
+    lc_miss_one_line.extend(lc[:-1])
+    assert lc != lc_miss_one_line
+
+    lc_one_more_line = copy.deepcopy(lc)
+    lc_one_more_line.append(np.array([0, 100, 100j]))
+    assert lc != lc_one_more_line
+
+
+def test_document_equality(make_document, make_line_collection):
+    doc = make_document()
+
+    assert doc == doc
+    assert doc == copy.deepcopy(doc)
+
+    doc_clone = doc.clone()
+    for lid, layer in doc.layers.items():
+        doc_clone.add(copy.deepcopy(layer), lid, with_metadata=True)
+    assert doc == doc_clone
+
+    doc_no_metadata = copy.deepcopy(doc)
+    doc.metadata = {}
+    assert doc != doc_no_metadata
+
+    doc_new_metadata = copy.deepcopy(doc)
+    doc_new_metadata.set_property("test_document_equality_prop", "hello")
+    assert doc != doc_new_metadata
+
+    doc_miss_one_layer = copy.deepcopy(doc)
+    del doc_miss_one_layer.layers[1]
+    assert doc != doc_miss_one_layer
+
+    doc_one_more_layer = copy.deepcopy(doc)
+    doc_one_more_layer.add(make_line_collection())
+    assert doc != doc_one_more_layer
+
+    doc_one_more_line = copy.deepcopy(doc)
+    doc_one_more_line.layers[1].append(np.array([0, 100, 100j]))
+    assert doc != doc_one_more_line

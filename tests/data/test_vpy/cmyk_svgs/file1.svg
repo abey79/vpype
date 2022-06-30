@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   height="6.4375cm"
+   version="1.2"
+   viewBox="0 0 154.7244094488189 243.30708661417322"
+   width="4.09375cm"
+   id="svg97"
+   sodipodi:docname="file1.svg"
+   inkscape:version="1.2 (dc2aeda, 2022-05-15)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:ns="http://www.w3.org/1999/02/22-rdf-syntax-ns"
+   xmlns:ns0="http://creativecommons.org/ns">
+  <sodipodi:namedview
+     id="namedview99"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="cm"
+     showgrid="false"
+     inkscape:zoom="1.779461"
+     inkscape:cx="116.04638"
+     inkscape:cy="160.16086"
+     inkscape:current-layer="layer1" />
+  <metadata
+     id="metadata9">
+    <ns:RDF>
+      <ns0:Work>
+        <dc:format>image/svg+xml</dc:format>
+        <dc:source>vpype text -l1 -s 1cm cyan name -l1 cyan color -l1 cyan text -l2 -s 1cm -p 0 2cm magenta name -l2 magenta color -l2 magenta text -l3 -s 1cm -p 0 4cm yellow name -l3 yellow color -l3 yellow text -l4 -s 1cm -p 0 6cm black name -l4 black color -l4 black write tmp.svg
+</dc:source>
+        <dc:date>2022-06-29T19:26:52.790243</dc:date>
+      </ns0:Work>
+    </ns:RDF>
+  </metadata>
+  <defs
+     id="defs11" />
+  <g
+     fill="none"
+     id="layer1"
+     inkscape:groupmode="layer"
+     inkscape:label="cyan"
+     stroke="#00ffff"
+     style="display:inline">
+    <polyline
+       points="16.5354,3.5433 14.1732,1.1811 11.811,0.0 8.2677,0.0 5.9055,1.1811 3.5433,3.5433 2.3622,7.0866 2.3622,9.4488 3.5433,12.9921 5.9055,15.3543 8.2677,16.5354 11.811,16.5354 14.1732,15.3543 16.5354,12.9921"
+       id="polyline13" />
+    <line
+       x1="22.4409"
+       x2="29.5276"
+       y1="0.0"
+       y2="16.5354"
+       id="line15" />
+    <polyline
+       points="36.6142,0.0 29.5276,16.5354 27.1654,21.2598 24.8031,23.622 22.4409,24.8031 21.2598,24.8031"
+       id="polyline17" />
+  </g>
+  <g
+     fill="none"
+     id="layer2"
+     inkscape:groupmode="layer"
+     inkscape:label="magenta"
+     stroke="#ff00ff"
+     style="display:inline">
+    <line
+       x1="3.5433"
+       x2="3.5433"
+       y1="75.5906"
+       y2="92.126"
+       id="line28" />
+    <polyline
+       points="3.5433,80.315 7.0866,76.7717 9.4488,75.5906 12.9921,75.5906 15.3543,76.7717 16.5354,80.315 16.5354,92.126"
+       id="polyline30" />
+    <polyline
+       points="16.5354,80.315 20.0787,76.7717 22.4409,75.5906 25.9843,75.5906 28.3465,76.7717 29.5276,80.315 29.5276,92.126"
+       id="polyline32" />
+    <line
+       x1="51.9685"
+       x2="51.9685"
+       y1="75.5906"
+       y2="92.126"
+       id="line34" />
+    <polyline
+       points="51.9685,79.1339 49.6063,76.7717 47.2441,75.5906 43.7008,75.5906 41.3386,76.7717 38.9764,79.1339 37.7953,82.6772 37.7953,85.0394 38.9764,88.5827 41.3386,90.9449 43.7008,92.126 47.2441,92.126 49.6063,90.9449 51.9685,88.5827"
+       id="polyline36" />
+  </g>
+  <g
+     fill="none"
+     id="layer3"
+     inkscape:groupmode="layer"
+     inkscape:label="yellow"
+     stroke="#ffff00"
+     style="display:inline">
+    <line
+       x1="1.1811"
+       x2="8.2677"
+       y1="151.1811"
+       y2="167.7165"
+       id="line57" />
+    <polyline
+       points="15.3543,151.1811 8.2677,167.7165 5.9055,172.4409 3.5433,174.8031 1.1811,175.9843 0.0,175.9843"
+       id="polyline59" />
+    <polyline
+       points="21.2598,158.2677 35.4331,158.2677 35.4331,155.9055 34.252,153.5433 33.0709,152.3622 30.7087,151.1811 27.1654,151.1811 24.8031,152.3622 22.4409,154.7244 21.2598,158.2677 21.2598,160.6299 22.4409,164.1732 24.8031,166.5354 27.1654,167.7165 30.7087,167.7165 33.0709,166.5354 35.4331,164.1732"
+       id="polyline61" />
+  </g>
+  <g
+     fill="none"
+     id="layer4"
+     inkscape:groupmode="layer"
+     inkscape:label="black"
+     stroke="#000000"
+     style="display:inline">
+    <line
+       x1="3.5433"
+       x2="3.5433"
+       y1="218.5039"
+       y2="243.3071"
+       id="line78" />
+    <polyline
+       points="3.5433,230.315 5.9055,227.9528 8.2677,226.7717 11.811,226.7717 14.1732,227.9528 16.5354,230.315 17.7165,233.8583 17.7165,236.2205 16.5354,239.7638 14.1732,242.126 11.811,243.3071 8.2677,243.3071 5.9055,242.126 3.5433,239.7638"
+       id="polyline80" />
+    <line
+       x1="25.9843"
+       x2="25.9843"
+       y1="218.5039"
+       y2="243.3071"
+       id="line82" />
+  </g>
+</svg>

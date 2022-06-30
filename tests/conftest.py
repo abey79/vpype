@@ -5,8 +5,10 @@ import difflib
 import hashlib
 import os
 import pathlib
+import random
+import string
 import sys
-from typing import Callable
+from typing import Callable, Protocol
 from xml.dom import minidom
 from xml.etree import ElementTree
 
@@ -32,6 +34,16 @@ def config_manager():
     return vp.ConfigManager()
 
 
+@contextlib.contextmanager
+def set_current_directory(path: pathlib.Path):
+    origin = path.absolute()
+    try:
+        os.chdir(path)
+        yield
+    finally:
+        os.chdir(origin)
+
+
 @pytest.fixture(scope="session")
 def config_file_factory(tmpdir_factory):
     def _make_config_file(text: str) -> str:
@@ -41,6 +53,86 @@ def config_file_factory(tmpdir_factory):
         return path
 
     return _make_config_file
+
+
+class LineCollectionMaker(Protocol):
+    def __call__(
+        self, line_count: int | None = ..., with_metadata: bool = ...
+    ) -> vp.LineCollection:
+        ...
+
+
+@pytest.fixture
+def make_line_collection() -> LineCollectionMaker:
+    def _make_line_collection(
+        line_count: int | None = None, with_metadata: bool = True
+    ) -> vp.LineCollection:
+        if line_count is None:
+            line_count = random.randint(1, 10)
+        if with_metadata:
+            metadata = {
+                vp.METADATA_FIELD_COLOR: vp.Color(
+                    random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
+                ),
+                vp.METADATA_FIELD_NAME: "".join(
+                    random.choice(string.ascii_letters) for i in range(10)
+                ),
+                vp.METADATA_FIELD_PEN_WIDTH: vp.convert_length(f"{random.random()}mm"),
+            }
+        else:
+            metadata = {}
+
+        lc = vp.LineCollection(metadata=metadata)
+        for _ in range(line_count):
+            lc.append(
+                [
+                    random.random() * 100 + random.random() * 100j
+                    for _ in range(random.randint(2, 10))
+                ]
+            )
+        return lc
+
+    return _make_line_collection
+
+
+def test_make_line_collection(make_line_collection):
+    lc = make_line_collection(with_metadata=False)
+    assert lc.metadata == {}
+    assert len(lc) > 0
+
+    lc = make_line_collection(with_metadata=True)
+    assert vp.METADATA_FIELD_NAME in lc.metadata
+    assert isinstance(lc.metadata[vp.METADATA_FIELD_COLOR], vp.Color)
+    assert isinstance(lc.metadata[vp.METADATA_FIELD_PEN_WIDTH], float)
+    assert len(lc) > 0
+
+
+class DocumentMaker(Protocol):
+    def __call__(self, layer_count: int = ...) -> vp.Document:
+        ...
+
+
+@pytest.fixture
+def make_document(make_line_collection) -> DocumentMaker:
+    def _make_document(layer_count: int = 1) -> vp.Document:
+        doc = vp.Document()
+        doc.page_size = 1000.0 * random.random(), 1000.0 * random.random()
+        for _ in range(layer_count):
+            doc.add(make_line_collection(), with_metadata=True)
+        return doc
+
+    return _make_document
+
+
+def test_make_document(make_document):
+    doc = make_document(layer_count=3)
+    assert len(doc.layers) == 3
+    assert doc.page_size is not None
+    for lc in doc.layers.values():
+        assert vp.METADATA_FIELD_NAME in lc.metadata
+        assert isinstance(lc.metadata[vp.METADATA_FIELD_COLOR], vp.Color)
+        assert isinstance(lc.metadata[vp.METADATA_FIELD_PEN_WIDTH], float)
+        assert len(lc) > 0
 
 
 # IMAGE COMPARE SUPPORT

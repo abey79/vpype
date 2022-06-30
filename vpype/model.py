@@ -252,6 +252,16 @@ class LineCollection(_MetadataMixin):
     def __repr__(self):
         return f"LineCollection({self._lines})"
 
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, LineCollection):
+            return (
+                len(self) == len(other)
+                and self.metadata == other.metadata
+                and all(np.array_equal(a, b) for a, b in zip(self, other))
+            )
+        else:
+            return NotImplemented
+
     def as_mls(self) -> MultiLineString:
         """Converts the LineCollection to a :py:class:`MultiLineString`.
 
@@ -556,6 +566,17 @@ class Document(_MetadataMixin):
 
         if line_collection:
             self.add(line_collection, 1)
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Document):
+            # absence of vp_sources is the same as presence of an empty vp_sources
+            default: dict[str, Any] = {METADATA_FIELD_SOURCE_LIST: set()}
+            return {**default, **self.metadata} == {
+                **default,
+                **other.metadata,
+            } and self.layers == other.layers
+        else:
+            return NotImplemented
 
     def clone(self, keep_layers: bool = False) -> Document:
         """Create an empty copy of this document with the same metadata.

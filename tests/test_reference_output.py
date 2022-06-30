@@ -4,6 +4,11 @@ import pytest
 
 import vpype_cli
 
+from .conftest import set_current_directory
+from .utils import TESTS_DIRECTORY
+
+TEST_VPY_DIR = TESTS_DIRECTORY / "data" / "test_vpy"
+
 
 @pytest.mark.parametrize(
     "cmd",
@@ -26,3 +31,10 @@ def test_reference_output_fail(reference_svg, runner):
         res = runner.invoke(vpype_cli.cli, f"line 0 0 10 0 write '{path}'")
         assert res.exit_code == 0
         path.write_text(path.read_text().replace("</svg>", "<path d='M0,0 l100,0' /></svg>"))
+
+
+@pytest.mark.parametrize("vpy_path", TEST_VPY_DIR.glob("*.vpy"))
+def test_reference_output_vpy(vpy_path, reference_svg, runner):
+    with reference_svg() as path, set_current_directory(TEST_VPY_DIR):
+        res = runner.invoke(vpype_cli.cli, f"-I {vpy_path} write {path}")
+        assert res.exit_code == 0

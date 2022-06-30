@@ -126,8 +126,10 @@ def lmove(document, sources, dest, prob: float | None, no_prop: bool):
     src_lids = multiple_to_layer_ids(sources, document)
     dest_lid = single_to_layer_id(dest, document)
 
-    if dest_lid in src_lids:
-        src_lids.remove(dest_lid)
+    if dest_lid in document.layers:
+        dest_lc = document.layers[dest_lid].clone()
+    else:
+        dest_lc = vp.LineCollection()
 
     move_metadata = len(src_lids) == 1 and prob is None and not no_prop
     source_metadata = document.layers[src_lids[0]].metadata if move_metadata else {}
@@ -149,12 +151,14 @@ def lmove(document, sources, dest, prob: float | None, no_prop: bool):
                 document.pop(lid)
 
             if len(moving_lines) > 0:
-                document.add(moving_lines, dest_lid)
+                dest_lc.extend(moving_lines)
         else:
-            document.add(document.pop(lid), dest_lid)
+            dest_lc.extend(document.pop(lid))
             if move_metadata:
-                document.layers[dest_lid].metadata.update(source_metadata)
+                dest_lc.metadata.update(source_metadata)
 
+    if len(dest_lc) > 0:
+        document.add(dest_lc, dest_lid, with_metadata=True)
     return document
 
 
