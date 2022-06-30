@@ -75,7 +75,7 @@ def make_line_collection() -> LineCollectionMaker:
                     random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
                 ),
                 vp.METADATA_FIELD_NAME: "".join(
-                    random.choice(string.ascii_letters) for i in range(10)
+                    random.choice(string.ascii_letters) for _ in range(10)
                 ),
                 vp.METADATA_FIELD_PEN_WIDTH: vp.convert_length(f"{random.random()}mm"),
             }

@@ -36,5 +36,5 @@ def test_reference_output_fail(reference_svg, runner):
 @pytest.mark.parametrize("vpy_path", TEST_VPY_DIR.glob("*.vpy"))
 def test_reference_output_vpy(vpy_path, reference_svg, runner):
     with reference_svg() as path, set_current_directory(TEST_VPY_DIR):
-        res = runner.invoke(vpype_cli.cli, f"-I {vpy_path} write {path}")
+        res = runner.invoke(vpype_cli.cli, f"-I '{vpy_path}' write '{path}'")
         assert res.exit_code == 0
