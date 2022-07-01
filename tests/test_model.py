@@ -415,6 +415,8 @@ def test_line_collection_equality(make_line_collection):
     lc_one_more_line.append(np.array([0, 100, 100j]))
     assert lc != lc_one_more_line
 
+    assert lc != "wrong type"
+
 
 def test_document_equality(make_document, make_line_collection):
     doc = make_document()
@@ -446,3 +448,5 @@ def test_document_equality(make_document, make_line_collection):
     doc_one_more_line = copy.deepcopy(doc)
     doc_one_more_line.layers[1].append(np.array([0, 100, 100j]))
     assert doc != doc_one_more_line
+
+    assert doc != "wrong type"
