@@ -175,7 +175,9 @@ def forfile(state: State, processors: Iterable[ProcessorType], files: str) -> No
                 write "optimized/%basename(_path)%" end
     """
 
-    file_list = glob.glob(os.path.expandvars(os.path.expanduser(files)))
+    file_list = sorted(
+        glob.glob(os.path.expandvars(os.path.expanduser(files))), key=os.path.basename
+    )
     orig_document = state.document
 
     for i, file in enumerate(file_list):
