@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import importlib.metadata
 import logging
 import os
@@ -459,19 +460,19 @@ def execute(
     """
 
     if document:
-
+        # noinspection PyUnusedLocal
         @cli.command()
         @global_processor
         def vsketchinput(doc):
-            doc.extend(document)
-            return doc
+            return copy.deepcopy(document)
 
     out_doc = vp.Document()
 
     @cli.command()
     @global_processor
     def vsketchoutput(doc):
-        out_doc.extend(doc)
+        nonlocal out_doc
+        out_doc = doc
         return doc
 
     args = " ".join(

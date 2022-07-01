@@ -253,7 +253,9 @@ class SubstitutionHelper:
         }
         # disabling numpy as its math functions such as `ceil` do not convert to int.
         self._interpreter = asteval.Interpreter(
-            usersyms=symtable, readonly_symbols=symtable.keys(), use_numpy=False
+            usersyms=symtable,
+            readonly_symbols=symtable.keys() - vp.UNITS.keys(),
+            use_numpy=False,
         )
 
     @property

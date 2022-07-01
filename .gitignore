@@ -145,6 +145,7 @@ cython_debug/
 /W3C_SVG_11_TestSuite
 /my_work
 /pip-wheel-metadata
-/test_report_img_sim/
+/test_report_img_sim
+/test_report_reference_svg
 /*.svg
 

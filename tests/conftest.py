@@ -5,8 +5,10 @@ import difflib
 import hashlib
 import os
 import pathlib
+import random
+import string
 import sys
-from typing import Callable
+from typing import Callable, Protocol
 from xml.dom import minidom
 from xml.etree import ElementTree
 
@@ -32,6 +34,16 @@ def config_manager():
     return vp.ConfigManager()
 
 
+@contextlib.contextmanager
+def set_current_directory(path: pathlib.Path):
+    origin = path.absolute()
+    try:
+        os.chdir(path)
+        yield
+    finally:
+        os.chdir(origin)
+
+
 @pytest.fixture(scope="session")
 def config_file_factory(tmpdir_factory):
     def _make_config_file(text: str) -> str:
@@ -41,6 +53,63 @@ def config_file_factory(tmpdir_factory):
         return path
 
     return _make_config_file
+
+
+class LineCollectionMaker(Protocol):
+    def __call__(
+        self, line_count: int | None = ..., with_metadata: bool = ...
+    ) -> vp.LineCollection:
+        ...
+
+
+@pytest.fixture
+def make_line_collection() -> LineCollectionMaker:
+    def _make_line_collection(
+        line_count: int | None = None, with_metadata: bool = True
+    ) -> vp.LineCollection:
+        if line_count is None:
+            line_count = random.randint(1, 10)
+        if with_metadata:
+            metadata = {
+                vp.METADATA_FIELD_COLOR: vp.Color(
+                    random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
+                ),
+                vp.METADATA_FIELD_NAME: "".join(
+                    random.choice(string.ascii_letters) for _ in range(10)
+                ),
+                vp.METADATA_FIELD_PEN_WIDTH: vp.convert_length(f"{random.random()}mm"),
+            }
+        else:
+            metadata = {}
+
+        lc = vp.LineCollection(metadata=metadata)
+        for _ in range(line_count):
+            lc.append(
+                [
+                    random.random() * 100 + random.random() * 100j
+                    for _ in range(random.randint(2, 10))
+                ]
+            )
+        return lc
+
+    return _make_line_collection
+
+
+class DocumentMaker(Protocol):
+    def __call__(self, layer_count: int = ...) -> vp.Document:
+        ...
+
+
+@pytest.fixture
+def make_document(make_line_collection) -> DocumentMaker:
+    def _make_document(layer_count: int = 1) -> vp.Document:
+        doc = vp.Document()
+        doc.page_size = 1000.0 * random.random(), 1000.0 * random.random()
+        for _ in range(layer_count):
+            doc.add(make_line_collection(), with_metadata=True)
+        return doc
+
+    return _make_document
 
 
 # IMAGE COMPARE SUPPORT
@@ -143,6 +212,17 @@ def _read_svg_lines(path: pathlib.Path) -> list[str]:
     return [line for line in lines if "<dc:source" not in line and "<dc:date" not in line]
 
 
+def _write_reference_svg_fail_report(
+    ref_lines: list[str],
+    test_lines: list[str],
+    test_id: str,
+) -> None:
+    report_dir = pathlib.Path(__file__).parent.parent / "test_report_reference_svg" / test_id
+    report_dir.mkdir(parents=True, exist_ok=True)
+    (report_dir / "reference.svg").write_text("\n".join(ref_lines))
+    (report_dir / "test.svg").write_text("\n".join(test_lines))
+
+
 @pytest.fixture
 def reference_svg(request, tmp_path) -> Callable:
     """Compare a SVG output to a saved reference.
@@ -189,6 +269,8 @@ def reference_svg(request, tmp_path) -> Callable:
                     tofile=str(ref_path.relative_to(pathlib.Path(REFERENCE_IMAGES_DIR))),
                     lineterm="",
                 )
+
+                _write_reference_svg_fail_report(ref_lines, temp_lines, request.node.name)
 
                 pytest.fail(f"generated SVG does not match reference:\n" + "\n".join(delta))
 

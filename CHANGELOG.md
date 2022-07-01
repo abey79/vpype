@@ -7,17 +7,22 @@ Release date: UNRELEASED
 ### New features and improvements
 
 * Added the `splitdist` command to split layers by drawing distance (thanks to @LoicGoulefert) (#487, #501)
+* Added `--keep-page-size` option to `grid` command (#506)
 * Added meters (`m`) and feet (`ft`) to the supported units (#498)
 * Improved the `linemerge` algorithm by making it less dependent on line order (#496)
 * Added HPGL configurations for the Houston Instrument DMP-161, HP7550, Roland DXY 1xxxseries and sketchmate plotters (thanks to @jimmykl and @ithinkido) (#472, #474)
+* The `forfile` command now sorts the files by their name before processing them (#506)
 
 ### Bug fixes
 
-* ...
+* Fixed an issue with blocks where certain nested commands could lead totally unexpected results (#506)
+* Fixed an issue with the `lmove` command where order would not be respected in certain cases such as `lmove all 2` (the content of layer 2 was placed before that of layer 1) (#506)
+* Fixed an issue with expressions where some variable names corresponding to units (e.g. `m`) could not be used (expressions may now reuse these names) (#506)
 
 ### API changes
 
-* ...
+* Removed the fault `temp_document()` context manager from `vpype_cli.State()` (#506)
+* Added equality operator to `vpype.LineCollection` and `vpype.Document` (#506)
 
 ### Other changes
 

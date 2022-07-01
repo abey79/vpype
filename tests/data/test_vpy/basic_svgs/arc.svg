@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:xlink="http://www.w3.org/1999/xlink" baseProfile="tiny" height="2.0cm" version="1.2" viewBox="0 0 75.59055118110234 75.59055118110236" width="2.0cm">
+  <metadata>
+    <rdf:RDF>
+      <cc:Work>
+        <dc:format>image/svg+xml</dc:format>
+        <dc:source>vpype arc 15cm 4cm 2cm 2cm 0 90 write arc.svg
+</dc:source>
+        <dc:date>2022-06-29T18:54:33.155028</dc:date>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs/>
+  <g fill="none" id="layer1" inkscape:groupmode="layer" inkscape:label="1" stroke="#0000ff" style="display:inline">
+    <polyline points="75.5906,75.5906 75.4995,71.8815 75.2266,68.1814 74.7724,64.4991 74.1381,60.8436 73.3252,57.2235 72.3356,53.6478 71.1718,50.1249 69.8366,46.6633 68.333,43.2714 66.6649,39.9574 64.8362,36.7292 62.8512,33.5947 60.7149,30.5613 58.4323,27.6364 56.0089,24.827 53.4506,22.14 50.7635,19.5816 47.9541,17.1583 45.0292,14.8757 41.9959,12.7393 38.8613,10.7544 35.6331,8.9256 32.3191,7.2575 28.9273,5.754 25.4657,4.4187 21.9428,3.2549 18.367,2.2654 14.747,1.4525 11.0914,0.8182 7.4092,0.364 3.7091,0.0911 0.0,0.0"/>
+  </g>
+</svg>

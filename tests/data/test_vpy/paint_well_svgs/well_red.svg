@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:xlink="http://www.w3.org/1999/xlink" baseProfile="tiny" height="10.0cm" version="1.2" viewBox="0 0 529.1338582677165 377.95275590551176" width="14.0cm">
+  <metadata>
+    <rdf:RDF>
+      <cc:Work>
+        <dc:format>image/svg+xml</dc:format>
+        <dc:source>vpype circle 12cm 2cm 0.5cm pagesize -l 14x10cm write paint_well_svgs/well_red.svg
+</dc:source>
+        <dc:date>2022-06-29T21:35:28.747675</dc:date>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs/>
+  <g fill="none" id="layer1" inkscape:groupmode="layer" inkscape:label="1" stroke="#0000ff" style="display:inline">
+    <polygon points="472.4409,75.5906 472.0778,71.9038 471.0024,68.3587 469.2561,65.0916 466.906,62.2279 464.0423,59.8777 460.7751,58.1314 457.2301,57.056 453.5433,56.6929 449.8566,57.056 446.3115,58.1314 443.0443,59.8777 440.1807,62.2279 437.8305,65.0916 436.0842,68.3587 435.0088,71.9038 434.6457,75.5906 435.0088,79.2773 436.0842,82.8224 437.8305,86.0895 440.1807,88.9532 443.0443,91.3034 446.3115,93.0497 449.8566,94.1251 453.5433,94.4882 457.2301,94.1251 460.7751,93.0497 464.0423,91.3034 466.906,88.9532 469.2561,86.0895 471.0024,82.8224 472.0778,79.2773"/>
+  </g>
+</svg>
