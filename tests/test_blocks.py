@@ -1,5 +1,4 @@
 import copy
-import os
 
 import pytest
 
@@ -9,7 +8,7 @@ import vpype_cli
 from .test_commands import EXAMPLE_SVG_DIR
 
 BLOCKS = [
-    f"forfile {EXAMPLE_SVG_DIR}" + os.path.sep + "*.svg",
+    f"forfile '{EXAMPLE_SVG_DIR / '*.svg'}'",
     f"forlayer",
     f"grid -k 2 2",
     f"repeat 3",
