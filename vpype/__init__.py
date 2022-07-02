@@ -1,6 +1,5 @@
 """This module contains vpype core and its API."""
 
-from ._deprecated import *
 from .config import *
 from .filters import *
 from .geometry import *
