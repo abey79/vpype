@@ -8,7 +8,7 @@ Release date: UNRELEASED
 
 * Added the `splitdist` command to split layers by drawing distance (thanks to @LoicGoulefert) (#487, #501)
 * Added `--keep-page-size` option to `grid` command (#506)
-* Added meters (`m`) and feet (`ft`) to the supported units (#498)
+* Added meters (`m`) and feet (`ft`) to the supported units (#498, #508)
 * Improved the `linemerge` algorithm by making it less dependent on line order (#496)
 * Added HPGL configurations for the Houston Instrument DMP-161, HP7550, Roland DXY 1xxxseries and sketchmate plotters (thanks to @jimmykl and @ithinkido) (#472, #474)
 * The `forfile` command now sorts the files by their name before processing them (#506)
