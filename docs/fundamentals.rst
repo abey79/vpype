@@ -346,9 +346,9 @@ In addition, the following *vpype*-specific symbols are available:
 
   These special objects provide access to the global or current-layer properties. Properties may be accessed by attribute (e.g. ``%prop.vp_name%``) or indexation (e.g. ``%prop['vp_name']%``). The ``gprop`` object provides access to global properties. The ``lprop`` object provides access to the current layer's properties if available (i.e. within  :ref:`generator <fundamentals_generators>` and :ref:`layer processor <fundamentals_layer_processors>` commands). The ``prop`` object looks first for current-layer properties, if any, and then for global properties.
 
-* Units constants (``px``, ``in``, ``mm``, ``cm``, ``pc``, ``pt``).
+* Units constants (``px``, ``in``, ``ft``, ``mm``, ``cm``, ``m``, ``pc``, ``pt``).
 
-  These constants may be used to convert values to CSS pixels unit, which *vpype* uses internally. For example, the expression ``%(3+4)*cm%`` evaluates to the pixel equivalent of 7 centimeters (e.g. ~264.6 pixels).
+  These variables may be used to convert values to CSS pixels unit, which *vpype* uses internally. For example, the expression ``%(3+4)*cm%`` evaluates to the pixel equivalent of 7 centimeters (e.g. ~264.6 pixels). (Note that expressions may overwrite these variables, e.g. to use the ``m`` variable for another purpose.)
 
 * The ``glob(pattern)`` function.
 
