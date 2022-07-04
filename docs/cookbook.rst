@@ -340,6 +340,31 @@ A finer-grained approach consists of splitting all lines into their constituent 
   $ vpype read input.svg splitall splitdist 50cm linemerge write output.svg
 
 
+Inserting regular "dipping" patterns for plotting with paint
+------------------------------------------------------------
+
+Plotting with paint is a tricky process where the brush must be regularly dipped in a paint bucket. This can be achieved by using the :ref:`cmd_splitdist` command::
+
+  $ vpype \
+      read input.svg \
+      forlayer \
+        lmove %_lid% 1 \
+        splitdist 1m \
+        forlayer \
+          lmove %_lid% "%_lid*2%" \
+          read -l "%_lid*2-1%" dip_%_name%.svg \
+        end \
+      lmove all %_lid% \
+      name -l %_lid% %_name% \
+      color -l %_lid% %_color% \
+    end \
+    write output.svg
+
+For this to work, the layers in ``input.svg`` must be named after their respective color and, for each such color, a file named ``dip_COLORNAME.svg`` must exist. For example, if ``input.svg`` has two layers named "red" and "blue", then the ``dip_red.svg`` and ``dip_blue.svg`` files must exist.
+
+The output file will have the same layers as the input file, but they will start with the corresponding dipping pattern, which will also be interspersed regularly based on the cummulative drawing distance provided to the :ref:`cmd_splitdist` command.
+
+
 HPGL export recipes
 ===================
 

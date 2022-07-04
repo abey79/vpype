@@ -21,7 +21,7 @@ Release date: UNRELEASED
 
 ### API changes
 
-* Removed the fault `temp_document()` context manager from `vpype_cli.State()` (#506)
+* Removed the faulty `temp_document()` context manager from `vpype_cli.State()` (#506)
 * Added equality operator to `vpype.LineCollection` and `vpype.Document` (#506)
 
 ### Other changes
