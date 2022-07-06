@@ -2,7 +2,7 @@
 
 ## 1.11
 
-Release date: UNRELEASED
+Release date: 2022-07-06
 
 ### New features and improvements
 
