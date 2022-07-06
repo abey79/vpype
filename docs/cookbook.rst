@@ -362,7 +362,7 @@ Plotting with paint is a tricky process where the brush must be regularly dipped
 
 For this to work, the layers in ``input.svg`` must be named after their respective color and, for each such color, a file named ``dip_COLORNAME.svg`` must exist. For example, if ``input.svg`` has two layers named "red" and "blue", then the ``dip_red.svg`` and ``dip_blue.svg`` files must exist.
 
-The output file will have the same layers as the input file, but they will start with the corresponding dipping pattern, which will also be interspersed regularly based on the cummulative drawing distance provided to the :ref:`cmd_splitdist` command.
+The output file will have the same layers as the input file, but they will start with the corresponding dipping pattern, which will also be interspersed regularly based on the cumulative drawing distance provided to the :ref:`cmd_splitdist` command.
 
 
 HPGL export recipes
