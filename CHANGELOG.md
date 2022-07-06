@@ -1,8 +1,27 @@
 # Change log
 
+## 1.12
+
+Release date: UNRELEASED
+
+### New features and improvements
+
+* ...
+
+### Bug fixes
+
+* ...
+
+### API changes
+
+* ...
+
+
 ## 1.11
 
 Release date: 2022-07-06
+
+[Annotated Release Notes](https://bylr.info/articles/2022/07/06/annotated-release-notes-vpype-1.11/)
 
 ### New features and improvements
 
