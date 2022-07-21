@@ -626,7 +626,7 @@ python-versions = "*"
 
 [[package]]
 name = "types-setuptools"
-version = "57.4.18"
+version = "63.2.1"
 description = "Typing stubs for setuptools"
 category = "dev"
 optional = false
@@ -1312,8 +1312,8 @@ types-cachetools = [
     {file = "types_cachetools-5.2.1-py3-none-any.whl", hash = "sha256:b496b7e364ba050c4eaadcc6582f2c9fbb04f8ee7141eb3b311a8589dbd4506a"},
 ]
 types-setuptools = [
-    {file = "types-setuptools-57.4.18.tar.gz", hash = "sha256:8ee03d823fe7fda0bd35faeae33d35cb5c25b497263e6a58b34c4cfd05f40bcf"},
-    {file = "types_setuptools-57.4.18-py3-none-any.whl", hash = "sha256:9660b8774b12cd61b448e2fd87a667c02e7ec13ce9f15171f1d49a4654c4df6a"},
+    {file = "types-setuptools-63.2.1.tar.gz", hash = "sha256:2957a40addfca5c7125fd8d386a9efda5379098c6e66a08e02257fd1cea42131"},
+    {file = "types_setuptools-63.2.1-py3-none-any.whl", hash = "sha256:eca7cbdd8db15e0ec37174a7dcfc9c8cbc87106f453066340e31729ec853cd63"},
 ]
 typing-extensions = [
     {file = "typing_extensions-4.3.0-py3-none-any.whl", hash = "sha256:25642c956049920a5aa49edcdd6ab1e06d7e5d467fc00e0506c44ac86fbfca02"},
