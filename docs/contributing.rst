@@ -37,17 +37,22 @@ Development environment
 .. highlight:: bash
 
 *vpype* uses `Poetry <https://python-poetry.org>`_ for packaging and dependency management and its `installation
-<https://python-poetry.org/docs/#installation>`_ is required to prepare the development environment::
+<https://python-poetry.org/docs/#installation>`_ is required to prepare the development environment. It can be
+installed either using an install script, or using pipx. Run this command to use the install script::
 
-  $ curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+  $ curl -sSL https://install.python-poetry.org | python3 -
+  
+Run this command for a pipx install::
 
-(See Poetry's documentation for alternative means of installation.)
+  $ pipx install poetry
+
+See Poetry's `installation instructions <https://python-poetry.org/docs/#installation>`__ for more information.
 
 You can then download *vpype*, prepare a virtual environment and install all dependencies with a few commands::
 
   $ git clone https://github.com/abey79/vpype.git
   $ cd vpype
-  $ poetry install
+  $ poetry install -E all
 
 You can execute *vpype* (which installed in the project's virtual environment managed by Poetry) with the ``poetry
 run`` command::
