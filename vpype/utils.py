@@ -72,9 +72,9 @@ PAGE_SIZES = {
 _FLOAT_WITH_UNIT_RE = re.compile(r"^([+\-0-9.e]*)([a-z]*)$", flags=re.IGNORECASE)
 
 
-def _convert_unit(value: str | float, units: dict[str, float]) -> float:
+def _convert_unit(value: str | float | int, units: dict[str, float]) -> float:
     """Converts a string with unit to a value"""
-    if isinstance(value, float):
+    if isinstance(value, (float, int)):
         return value
 
     mo = _FLOAT_WITH_UNIT_RE.match(value.strip().lower())
@@ -84,7 +84,7 @@ def _convert_unit(value: str | float, units: dict[str, float]) -> float:
         number = mo.groups()[0]
         unit = mo.groups()[1]
         return (float(number) if number else 1.0) * (units[unit] if unit else 1.0)
-    except ValueError:
+    except (ValueError, KeyError):
         raise ValueError(f"cannot convert value '{value}'")
 
 
