@@ -79,6 +79,8 @@ def _convert_unit(value: str | float, units: dict[str, float]) -> float:
 
     mo = _FLOAT_WITH_UNIT_RE.match(value.strip().lower())
     try:
+        if mo is None:
+            raise ValueError
         number = mo.groups()[0]
         unit = mo.groups()[1]
         return (float(number) if number else 1.0) * (units[unit] if unit else 1.0)

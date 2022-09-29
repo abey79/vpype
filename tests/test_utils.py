@@ -14,7 +14,7 @@ import vpype as vp
         ("6in", ".5ft"),
         ("-18in", "-.5yd"),
         ("1mi", "63360in"),
-        ("69in", "69inch")
+        ("69in", "69inch"),
     ],
 )
 def test_convert_length(lf, rt):
