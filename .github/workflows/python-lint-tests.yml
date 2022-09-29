@@ -38,7 +38,6 @@ jobs:
     - name: Install and configure Poetry
       uses: snok/install-poetry@v1
       with:
-        version: 1.1.13
         virtualenvs-create: true
         virtualenvs-in-project: true
     - name: Set up cache
@@ -112,7 +111,6 @@ jobs:
     - name: Install and configure Poetry
       uses: snok/install-poetry@v1
       with:
-        version: 1.1.13
         virtualenvs-create: true
         virtualenvs-in-project: true
     - name: Install dependencies
@@ -145,7 +143,6 @@ jobs:
     - name: Install and configure Poetry
       uses: snok/install-poetry@v1
       with:
-        version: 1.1.13
         virtualenvs-create: true
         virtualenvs-in-project: true
     - name: Install vpype and run PyInstaller
