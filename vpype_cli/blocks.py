@@ -9,6 +9,7 @@ import click
 
 import vpype as vp
 
+from . import _print as pp
 from .cli import ProcessorType, cli, execute_processors
 from .decorators import block_processor
 from .state import State
@@ -83,19 +84,20 @@ def grid(
 
     for j in range(ny):
         for i in range(nx):
-            state.document = orig_doc.clone(keep_layers=True)
-            variables = {
-                "_nx": nx,
-                "_ny": ny,
-                "_n": nx * ny,
-                "_x": i,
-                "_y": j,
-                "_i": i + j * nx,
-            }
-            with state.expression_variables(variables):
-                execute_processors(processors, state)
-            state.document.translate(offset[0] * i, offset[1] * j)
-            orig_doc.extend(state.document)
+            with pp.context(f"cell ({i},{j})"):
+                state.document = orig_doc.clone(keep_layers=True)
+                variables = {
+                    "_nx": nx,
+                    "_ny": ny,
+                    "_n": nx * ny,
+                    "_x": i,
+                    "_y": j,
+                    "_i": i + j * nx,
+                }
+                with state.expression_variables(variables), pp.htable.nest():
+                    execute_processors(processors, state)
+                state.document.translate(offset[0] * i, offset[1] * j)
+                orig_doc.extend(state.document)
 
     state.document = orig_doc
 
@@ -131,11 +133,12 @@ def repeat(state: State, processors: Iterable[ProcessorType], number: int) -> No
 
     orig_doc = state.document
     for i in range(number):
-        state.document = orig_doc.clone(keep_layers=True)
-        variables = {"_n": number, "_i": i}
-        with state.expression_variables(variables):
-            execute_processors(processors, state)
-        orig_doc.extend(state.document)
+        with pp.context(f"iteration {i}"):
+            state.document = orig_doc.clone(keep_layers=True)
+            variables = {"_n": number, "_i": i}
+            with state.expression_variables(variables), pp.nest():
+                execute_processors(processors, state)
+            orig_doc.extend(state.document)
     state.document = orig_doc
 
 
@@ -181,20 +184,21 @@ def forfile(state: State, processors: Iterable[ProcessorType], files: str) -> No
     orig_document = state.document
 
     for i, file in enumerate(file_list):
-        state.document = orig_document.clone(keep_layers=True)
-        path = pathlib.Path(file)
-        variables = {
-            "_path": path,
-            "_name": path.name,
-            "_parent": path.parent,
-            "_ext": path.suffix,
-            "_stem": path.stem,
-            "_i": i,
-            "_n": len(files),
-        }
-        with state.expression_variables(variables):
-            execute_processors(processors, state)
-        orig_document.extend(state.document)
+        with pp.context(f"file {file}"):
+            state.document = orig_document.clone(keep_layers=True)
+            path = pathlib.Path(file)
+            variables = {
+                "_path": path,
+                "_name": path.name,
+                "_parent": path.parent,
+                "_ext": path.suffix,
+                "_stem": path.stem,
+                "_i": i,
+                "_n": len(files),
+            }
+            with state.expression_variables(variables), pp.nest():
+                execute_processors(processors, state)
+            orig_document.extend(state.document)
 
     state.document = orig_document
 
@@ -254,20 +258,21 @@ def forlayer(state: State, processors: Iterable[ProcessorType]) -> None:
 
     lids = list(orig_doc.layers)
     for i, lid in enumerate(lids):
-        state.document = orig_doc.clone()
-        state.document.add(orig_doc.pop(lid), lid, with_metadata=True)
+        with pp.context(f"layer {lid}"):
+            state.document = orig_doc.clone()
+            state.document.add(orig_doc.pop(lid), lid, with_metadata=True)
 
-        variables = {
-            "_lid": lid,
-            "_i": i,
-            "_n": len(lids),
-            "_name": state.document.layers[lid].property(vp.METADATA_FIELD_NAME) or "",
-            "_color": state.document.layers[lid].property(vp.METADATA_FIELD_COLOR),
-            "_pen_width": state.document.layers[lid].property(vp.METADATA_FIELD_PEN_WIDTH),
-            "_prop": _MetadataProxy(state.document.layers[lid].metadata),
-        }
-        with state.expression_variables(variables):
-            execute_processors(processors, state)
-        new_doc.extend(state.document)
+            variables = {
+                "_lid": lid,
+                "_i": i,
+                "_n": len(lids),
+                "_name": state.document.layers[lid].property(vp.METADATA_FIELD_NAME) or "",
+                "_color": state.document.layers[lid].property(vp.METADATA_FIELD_COLOR),
+                "_pen_width": state.document.layers[lid].property(vp.METADATA_FIELD_PEN_WIDTH),
+                "_prop": _MetadataProxy(state.document.layers[lid].metadata),
+            }
+            with state.expression_variables(variables), pp.nest():
+                execute_processors(processors, state)
+            new_doc.extend(state.document)
 
     state.document = new_doc

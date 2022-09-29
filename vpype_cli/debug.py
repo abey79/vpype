@@ -3,15 +3,23 @@ Hidden debug commands to help testing.
 """
 from __future__ import annotations
 
+import functools
 import json
+import math
 from typing import Any, Iterable, Sequence
 
+import click
 import numpy as np
+from rich.console import RenderableType
+from rich.pretty import Pretty
+from rich.table import Table
 
 import vpype as vp
 
+from . import _print as pp
 from .cli import cli
 from .decorators import global_processor
+from .types import ChoiceType
 
 debug_data: list[dict[str, Any]] = []
 
@@ -129,52 +137,87 @@ class DebugData:
         return self.has_layers(lids) and len(self.layers.keys()) == len(lids)
 
 
+def _build_table(data: dict[str, RenderableType], title: str | None = None) -> Table:
+    table = Table(
+        title=title,
+        show_header=False,
+        min_width=len(title) if title else None,
+        title_justify="left",
+    )
+    table.add_column()
+
+    if data:
+        table.add_column()
+        for k, v in data.items():
+            table.add_row(k, v)
+    else:
+        table.add_row("[italic]n/a")
+
+    return table
+
+
 @cli.command(group="Output")
+@click.option(
+    "-u",
+    "--unit",
+    type=ChoiceType(tuple(vp.UNIT_SYSTEMS.keys()) + tuple(vp.UNITS.keys())),
+    default="metric",
+)
 @global_processor
-def stat(document: vp.Document):
+def stat(document: vp.Document, unit: str):
     """Print human-readable statistics on the current geometries."""
 
-    print("========= Stats ========= ")
-    print(f"Current page size: {document.page_size}")
     length_tot = 0.0
     pen_up_length_tot = 0.0
+
+    fmt = functools.partial(vp.format_length, unit=unit, full_precision=False)
+
     for layer_id in sorted(document.layers.keys()):
         layer = document.layers[layer_id]
         length = layer.length()
         pen_up_length, pen_up_mean, pen_up_median = layer.pen_up_length()
         length_tot += length
         pen_up_length_tot += pen_up_length
-        print(f"Layer {layer_id}")
-        print(f"  Length: {length}")
-        print(f"  Pen-up length: {pen_up_length}")
-        print(f"  Total length: {length + pen_up_length}")
-        print(f"  Mean pen-up length: {pen_up_mean}")
-        print(f"  Median pen-up length: {pen_up_median}")
-        print(f"  Path count: {len(layer)}")
-        print(f"  Segment count: {layer.segment_count()}")
-        print(
-            f"  Mean segment length:",
-            str(length / layer.segment_count() if layer.segment_count() else "n/a"),
+
+        layer_data = {
+            "Length": fmt(length),
+            "Pen-up length": fmt(pen_up_length),
+            "Total length": fmt(length + pen_up_length),
+            "Mean pen-up length": fmt(pen_up_mean),
+            "Median pen-up length": fmt(pen_up_median),
+            "Path count": str(len(layer)),
+            "Segment count": str(layer.segment_count()),
+            "Mean segment length": (
+                fmt(length / layer.segment_count()) if layer.segment_count() else "n/a"
+            ),
+            "Bounds": str(layer.bounds()),
+        }
+        pp.print(_build_table(layer_data, title=f"Layer {layer_id} statistics"))
+        pp.print(
+            _build_table(
+                {k: Pretty(v) for k, v in layer.metadata.items()},
+                title=f"Layer {layer_id} properties",
+            )
         )
-        print(f"  Bounds: {layer.bounds()}")
-        print("  Properties:")
-        for key, value in layer.metadata.items():
-            print(f"    {key}: {value!r}")
-    print(f"Totals")
-    print(f"  Layer count: {len(document.layers)}")
-    print(f"  Length: {length_tot}")
-    print(f"  Pen-up length: {pen_up_length_tot}")
-    print(f"  Total length: {length_tot + pen_up_length_tot}")
-    print(f"  Path count: {sum(len(layer) for layer in document.layers.values())}")
-    print(f"  Segment count: {document.segment_count()}")
-    print(
-        f"  Mean segment length:",
-        str(length_tot / document.segment_count() if document.segment_count() else "n/a"),
+
+    global_data = {
+        "Layer count": str(len(document.layers)),
+        "Length": fmt(length_tot),
+        "Pen-up length": fmt(pen_up_length_tot),
+        "Total length": fmt(length_tot + pen_up_length_tot),
+        "Path count": str(sum(len(layer) for layer in document.layers.values())),
+        "Segment count": str(document.segment_count()),
+        "Mean segment length": (
+            fmt(length_tot / document.segment_count()) if document.segment_count() else "n/a"
+        ),
+        "Bounds": str(document.bounds()),
+    }
+
+    pp.print(_build_table(global_data, title="Global statistics"))
+    pp.print(
+        _build_table(
+            {k: Pretty(v) for k, v in document.metadata.items()}, title="Global properties"
+        )
     )
-    print(f"  Bounds: {document.bounds()}")
-    print(f"  Global properties:")
-    for key, value in document.metadata.items():
-        print(f"    {key}: {value!r}")
-    print("========================= ")
 
     return document

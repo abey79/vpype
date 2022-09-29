@@ -12,9 +12,11 @@ from typing import TYPE_CHECKING, Any, Callable, Iterable, TextIO, Union, cast
 
 import click
 import numpy as np
+from rich.live import Live
 
 import vpype as vp
 
+from . import _print as pp
 from .decorators import global_processor
 from .state import State
 
@@ -249,7 +251,14 @@ if TYPE_CHECKING:  # pragma: no cover
 # noinspection PyUnusedLocal
 @cli.result_callback()
 def process_pipeline(processors, help_flag, verbose, include, history, seed, config):
-    execute_processors(processors, State())
+    with Live(
+        pp.htable.table,
+        refresh_per_second=10,
+        vertical_overflow="visible",
+        redirect_stderr=False,
+        redirect_stdout=False,
+    ):
+        execute_processors(processors, State())
 
 
 def execute_processors(processors: Iterable[ProcessorType], state: State) -> None:

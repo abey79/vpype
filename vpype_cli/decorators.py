@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import datetime
-import logging
 import math
 from functools import update_wrapper
 from typing import TYPE_CHECKING, Iterable
 
 import click
 
+from . import _print as pp
 from .state import State
 from .types import LayerType, multiple_to_layer_ids, single_to_layer_id
 
@@ -75,30 +75,23 @@ def layer_processor(f):
         default="all",
         help="Target layer(s) or 'all'.",
     )
-    def new_func(*args, **kwargs):
+    @click.pass_context
+    def new_func(context, *args, **kwargs):
         layers = kwargs.pop("layer", [])
+        command = context.command
 
         # noinspection PyShadowingNames
         def layer_processor(state: State) -> None:
-            layers_eval = state.preprocess_argument(layers)
-
-            for lid in multiple_to_layer_ids(layers_eval, state.document):
-                start = datetime.datetime.now()
-                with state.current():
-                    state.current_layer_id = lid
-                    new_args, new_kwargs = state.preprocess_arguments(args, kwargs)
-                    logging.info(
-                        f"executing layer processor `{f.__name__}` on layer {lid} "
-                        f"(kwargs: {new_kwargs})"
-                    )
-                    state.document[lid] = f(state.document[lid], *new_args, **new_kwargs)
-                    state.current_layer_id = None
-                stop = datetime.datetime.now()
-
-                logging.info(
-                    f"layer processor `{f.__name__}` execution complete "
-                    f"({_format_timedelta(stop - start)})"
-                )
+            with pp.command(command) as cmd:
+                layers_eval = state.preprocess_argument(layers)
+                layer_ids = multiple_to_layer_ids(layers_eval, state.document)
+                for lid in layer_ids:
+                    with state.current():
+                        state.current_layer_id = lid
+                        new_args, new_kwargs = state.preprocess_arguments(args, kwargs)
+                        cmd.add_subcontext(f"layer {lid}", new_kwargs)
+                        state.document[lid] = f(state.document[lid], *new_args, **new_kwargs)
+                        state.current_layer_id = None
 
         return layer_processor
 
@@ -146,22 +139,16 @@ def global_processor(f):
         my_global_processor.help_group = "My Plugins"
     """
 
-    def new_func(*args, **kwargs):
+    @click.pass_context
+    def new_func(context, *args, **kwargs):
+        command = context.command
+
         # noinspection PyShadowingNames
         def global_processor(state: State) -> None:
-            start = datetime.datetime.now()
-            with state.current():
+            with state.current(), pp.command(command) as cmd:
                 new_args, new_kwargs = state.preprocess_arguments(args, kwargs)
-                logging.info(
-                    f"executing global processor `{f.__name__}` (kwargs: {new_kwargs})"
-                )
+                cmd.set_kwargs(new_kwargs)
                 state.document = f(state.document, *new_args, **new_kwargs)
-            stop = datetime.datetime.now()
-
-            logging.info(
-                f"global processor `{f.__name__}` execution complete "
-                f"({_format_timedelta(stop - start)})"
-            )
 
         return global_processor
 
@@ -183,32 +170,22 @@ def generator(f):
         default=None,
         help="Target layer or 'new'.",
     )
-    def new_func(*args, **kwargs):
-        layer = kwargs.pop("layer", None)
+    @click.pass_context
+    def new_func(context, *args, **kwargs):
+        command = context.command
 
         # noinspection PyShadowingNames
         def generator(state: State) -> None:
-            with state.current():
-                layer_eval = state.preprocess_argument(layer)
-                target_layer = single_to_layer_id(layer_eval, state.document)
-
-                start = datetime.datetime.now()
-                state.current_layer_id = target_layer
+            with state.current(), pp.command(command) as cmd:
                 new_args, new_kwargs = state.preprocess_arguments(args, kwargs)
-                logging.info(
-                    f"executing generator `{f.__name__}` to layer {target_layer} "
-                    f"(kwargs: {new_kwargs})"
-                )
+                layer = new_kwargs.pop("layer", None)
+                target_layer = single_to_layer_id(layer, state.document)
+                cmd.set_kwargs(dict(layer=target_layer, **new_kwargs))
+
+                state.current_layer_id = target_layer
                 state.document.add(f(*new_args, **new_kwargs), target_layer)
                 state.current_layer_id = None
-                stop = datetime.datetime.now()
-
-            state.target_layer_id = target_layer
-
-            logging.info(
-                f"generator `{f.__name__}` execution complete "
-                f"({_format_timedelta(stop - start)})"
-            )
+                state.target_layer_id = target_layer
 
         return generator
 
@@ -239,19 +216,16 @@ def block_processor(f):
         my_block_processor.help_group = "My Plugins"
     """
 
-    def new_func(*args, **kwargs):
+    @click.pass_context
+    def new_func(context, *args, **kwargs):
+        command = context.command
+
         # noinspection PyShadowingNames
         def block_processor(state: State, processors: Iterable[ProcessorType]) -> None:
-            start = datetime.datetime.now()
-            new_args, new_kwargs = state.preprocess_arguments(args, kwargs)
-            logging.info(f"executing block processor `{f.__name__}` (kwargs: {new_kwargs})")
-            f(state, processors, *new_args, **new_kwargs)
-            stop = datetime.datetime.now()
-
-            logging.info(
-                f"block processor `{f.__name__}` execution complete "
-                f"({_format_timedelta(stop - start)})"
-            )
+            with pp.command(command) as cmd, pp.nest():
+                new_args, new_kwargs = state.preprocess_arguments(args, kwargs)
+                cmd.set_kwargs(new_kwargs)
+                f(state, processors, *new_args, **new_kwargs)
 
         # mark processor as being a block processor, needed by execute_processors()
         block_processor.__vpype_block_processor__ = True

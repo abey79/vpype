@@ -7,6 +7,7 @@ import click
 
 import vpype as vp
 
+from ._print import format_length, format_number
 from .state import State, _DeferredEvaluator
 
 
@@ -132,6 +133,10 @@ class LengthType(_DeferredEvaluatorType):
     name = "length"
     _evaluator_class = _LengthDeferredEvaluator
 
+    # noinspection PyMethodMayBeStatic
+    def format_value(self, value: Any) -> str:
+        return format_length(value)
+
 
 class AngleType(_DeferredEvaluatorType):
     """:class:`click.ParamType` sub-class to automatically converts a user-provided angle.
@@ -159,6 +164,10 @@ class AngleType(_DeferredEvaluatorType):
     name = "angle"
     _evaluator_class = _AngleDeferredEvaluator
 
+    # noinspection PyMethodMayBeStatic
+    def format_value(self, value: Any) -> str:
+        return format_number(value) + "deg"
+
 
 class PageSizeType(_DeferredEvaluatorType):
     """:class:`click.ParamType` sub-class to automatically converts a user-provided page size.
@@ -185,6 +194,10 @@ class PageSizeType(_DeferredEvaluatorType):
 
     name = "pagesize"
     _evaluator_class = _PageSizeDeferredEvaluator
+
+    # noinspection PyMethodMayBeStatic
+    def format_value(self, value: Any) -> str:
+        return format_number(value[0]) + "x" + format_length(value[1])
 
 
 class _DelegatedDeferredEvaluatorType(click.ParamType):
