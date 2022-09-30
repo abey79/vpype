@@ -6,7 +6,8 @@ Release date: UNRELEASED
 
 ### New features and improvements
 
-* ...
+* Added new units (`yd`, `mi`, and `km`) (#541)
+* Added `inch` unit as a synonym to `in`, useful for expressions (in which `in` is a reserved keyword) (#541)
 
 ### Bug fixes
 
@@ -14,7 +15,12 @@ Release date: UNRELEASED
 
 ### API changes
 
-* ...
+* Added `vpype.format_length()` to convert pixel length into human-readable string with units (#541)
+
+### Other changes
+
+* [Poetry](https://python-poetry.org) 1.2 or later is not required (developer only) (#541)
+* A `justfile` is now provided for most common operations (install, build the documentation, etc.) (#541) 
 
 
 ## 1.11

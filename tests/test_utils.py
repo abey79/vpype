@@ -25,6 +25,12 @@ def test_convert_length_fail():
     with pytest.raises(ValueError):
         vp.convert_length("invalid")
 
+    with pytest.raises(ValueError):
+        vp.convert_length("")
+
+    with pytest.raises(ValueError):
+        vp.convert_length("3in3")
+
 
 def test_format_length():
     assert vp.format_length(1_000.12345657, "metric") == "26.461599788414585cm"
@@ -41,3 +47,8 @@ def test_format_length():
 
 def test_format_length_zero():
     assert vp.format_length(0, "px") == "0.0px"
+
+
+def test_format_length_fail():
+    with pytest.raises(ValueError):
+        vp.format_length(50, "au")
