@@ -111,7 +111,7 @@ def global_processor(f):
 
     This type of command implement a global, multi-layer processing and should be used for
     processors which cannot be applied layer-by-layer independently (in which case, using
-    a :func:`layer_processor` is advised.
+    a :func:`layer_processor` is advised).
 
     No option is automatically added to global processors. In cases where the user should be
     able to control on which layer(s) the processing must be applied, it is advised to
@@ -173,7 +173,7 @@ def generator(f):
 
     Generator do not have input, have automatically a "-l, --layer" option added to them, and
     must return a LineCollection structure, which will be added to a new layer or an existing
-    one depending the option.
+    one depending on the option.
     """
 
     @click.option(

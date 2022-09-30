@@ -1,6 +1,8 @@
 import os
 import sys
 
+import vpype as vp
+
 # let sphinx find vpype packages
 sys.path.insert(0, os.path.abspath("../"))
 
@@ -65,6 +67,16 @@ intersphinx_mapping = {
 # -- Napoleon options
 
 napoleon_include_init_with_doc = True
+
+# -- Substitutions
+
+UNIT_STRINGS = ", ".join(f"``{s}``" for s in sorted(vp.UNITS.keys()))
+UNIT_EXPR_STRINGS = ", ".join(f"``{s}``" for s in sorted(vp.UNITS.keys()) if s != "in")
+
+rst_prolog = f"""
+.. |units| replace:: {UNIT_STRINGS}
+.. |units_expr| replace:: {UNIT_EXPR_STRINGS}
+"""
 
 
 # noinspection PyUnusedLocal
