@@ -71,7 +71,7 @@ napoleon_include_init_with_doc = True
 # -- Substitutions
 
 UNIT_STRINGS = ", ".join(f"``{s}``" for s in sorted(vp.UNITS.keys()))
-UNIT_EXPR_STRINGS = ", ".join(f"``{s}``" for s in sorted(vp.UNITS.keys()) if s is not "in")
+UNIT_EXPR_STRINGS = ", ".join(f"``{s}``" for s in sorted(vp.UNITS.keys()) if s != "in")
 
 rst_prolog = f"""
 .. |units| replace:: {UNIT_STRINGS}
