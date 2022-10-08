@@ -79,6 +79,11 @@ rst_prolog = f"""
 """
 
 
+# -- Plausible support
+ENABLE_PLAUSIBLE = os.environ.get("READTHEDOCS_VERSION_TYPE", "") in ["branch", "tag"]
+html_context = {"enable_plausible": ENABLE_PLAUSIBLE}
+
+
 # noinspection PyUnusedLocal
 def autodoc_skip_member(app, what, name, obj, skip, options):
     # noinspection PyBroadException

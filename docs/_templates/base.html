@@ -1,0 +1,7 @@
+{% extends "!base.html" %}
+{% block extrahead %}
+    {% if enable_plausible %}
+        <script defer data-domain="vpype.readthedocs.io" data-api="https://sta.abeyeler.workers.dev/sta/event" src="https://sta.abeyeler.workers.dev/sta/script.js"></script>
+    {% endif %}
+    {{ super() }}
+{% endblock %}

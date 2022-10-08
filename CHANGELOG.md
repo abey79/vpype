@@ -20,7 +20,8 @@ Release date: UNRELEASED
 ### Other changes
 
 * [Poetry](https://python-poetry.org) 1.2 or later is not required (developer only) (#541)
-* A `justfile` is now provided for most common operations (install, build the documentation, etc.) (#541) 
+* A `justfile` is now provided for most common operations (install, build the documentation, etc.) (#541)
+* Migrated to [Plausible.io](https://plausible.io) (from Google Analytics) for [vpype.readthedocs.io](https://vpype.readthedocs.io) (#546)
 
 
 ## 1.11
