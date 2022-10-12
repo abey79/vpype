@@ -10,12 +10,18 @@ import os
 import sys
 
 import moderngl as mgl
-from PySide2.QtCore import QEvent, QSettings, QSize, Qt, Signal
-from PySide2.QtGui import QScreen, QWheelEvent
-from PySide2.QtOpenGL import QGLFormat, QGLWidget
-from PySide2.QtWidgets import (
+from PySide6.QtCore import QEvent, QSettings, QSize, Qt, Signal
+from PySide6.QtGui import (
     QAction,
     QActionGroup,
+    QMouseEvent,
+    QNativeGestureEvent,
+    QScreen,
+    QSurfaceFormat,
+    QWheelEvent,
+)
+from PySide6.QtOpenGLWidgets import QOpenGLWidget
+from PySide6.QtWidgets import (
     QApplication,
     QHBoxLayout,
     QLabel,
@@ -48,8 +54,15 @@ def _configure_ui_scaling():
 
 _configure_ui_scaling()
 
+# set default format
+default_format = QSurfaceFormat()
+default_format.setVersion(3, 2)
+default_format.setProfile(QSurfaceFormat.CoreProfile)
+default_format.setSamples(4)
+QSurfaceFormat.setDefaultFormat(default_format)
 
-class QtViewerWidget(QGLWidget):
+
+class QtViewerWidget(QOpenGLWidget):
     """QGLWidget wrapper around :class:`Engine` to display a :class:`vpype.Document` in
     Qt GUI."""
 
@@ -61,11 +74,8 @@ class QtViewerWidget(QGLWidget):
             document: the document to display
             parent: QWidget parent
         """
-        fmt = QGLFormat()
-        fmt.setVersion(3, 3)
-        fmt.setProfile(QGLFormat.CoreProfile)
-        fmt.setSampleBuffers(True)
-        super().__init__(fmt, parent=parent)
+
+        super().__init__(parent=parent)
 
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
@@ -80,12 +90,11 @@ class QtViewerWidget(QGLWidget):
 
         # deferred initialization in initializeGL()
         self._ctx: mgl.Context | None = None
-        self._screen = None
+        self._framebuffer = None
+        self._inited = False
         self.engine = Engine(
             view_mode=ViewMode.OUTLINE, show_pen_up=False, render_cb=self.update
         )
-
-        self.windowHandle().screenChanged.connect(self.on_screen_changed)
 
         # print diagnostic information
         screen = self.screen()
@@ -117,12 +126,22 @@ class QtViewerWidget(QGLWidget):
             round(self.geometry().height() * self._factor),
         )
 
-    def initializeGL(self):
+    def _initializeGL(self):
+        """Initialize ModernGL context.
+
+        This used to be an override of QGLWidget.initializeGL() with PySide2. However, as per
+        PySide6 documentation, "the framebuffer is not yet available at this stage". We thus
+        defer the initialization to the first call of QOpenGLWidget.paintGL().
+        """
+
+        # this fails in __init__() (windowHandle() returns None)
+        self.window().windowHandle().screenChanged.connect(self.on_screen_changed)
+
         self._ctx = mgl.create_context()
         logging.info(f"Context info: {self._ctx.info}")
 
-        self._screen = self._ctx.detect_framebuffer()
-        self._screen.viewport = (
+        self._framebuffer = self._ctx.detect_framebuffer()
+        self._framebuffer.viewport = (
             0,
             0,
             int(self._factor * self.width()),
@@ -137,36 +156,43 @@ class QtViewerWidget(QGLWidget):
         self.engine.fit_to_viewport()
 
     def paintGL(self):
-        self._screen.use()
+        if not self._inited:
+            self._initializeGL()
+            self._inited = True
+
+        self._framebuffer.use()
         self.engine.render()
 
     def resizeGL(self, w: int, h: int) -> None:
         self.engine.resize(w, h)
 
-        if self._screen:
-            self._screen.viewport = (0, 0, int(w), int(h))
+        if self._framebuffer:
+            self._framebuffer.viewport = (0, 0, int(w), int(h))
 
-    def mousePressEvent(self, evt):
-        self._last_mouse_x = evt.x()
-        self._last_mouse_y = evt.y()
+    def mousePressEvent(self, evt: QMouseEvent):
+        pos = evt.position()
+        self._last_mouse_x = pos.x()
+        self._last_mouse_y = pos.y()
         self._mouse_drag = True
 
-    def mouseMoveEvent(self, evt):
+    def mouseMoveEvent(self, evt: QMouseEvent):
+        pos = evt.position()
+
         if self._mouse_drag:
             self.engine.pan(
-                self._factor * (evt.x() - self._last_mouse_x),
-                self._factor * (evt.y() - self._last_mouse_y),
+                self._factor * (pos.x() - self._last_mouse_x),
+                self._factor * (pos.y() - self._last_mouse_y),
             )
-            self._last_mouse_x = evt.x()
-            self._last_mouse_y = evt.y()
+            self._last_mouse_x = pos.x()
+            self._last_mouse_y = pos.y()
 
         # update mouse coordinate display
-        if evt.x() < 0 or evt.x() > self.width() or evt.y() < 0 or evt.y() > self.height():
+        if pos.x() < 0 or pos.x() > self.width() or pos.y() < 0 or pos.y() > self.height():
             # noinspection PyUnresolvedReferences
             self.mouse_coords.emit("")
         else:
             x, y = self.engine.viewport_to_model(
-                self._factor * evt.x(), self._factor * evt.y()
+                self._factor * pos.x(), self._factor * pos.y()
             )
             spec = self.engine.scale_spec
             decimals = max(0, math.ceil(-math.log10(1 / spec.to_px / self.engine.scale)))
@@ -191,14 +217,15 @@ class QtViewerWidget(QGLWidget):
         else:
             # mouse wheel
             zoom_delta = event.angleDelta().y()
+            pos = event.position()
             self.engine.zoom(
-                zoom_delta / 500.0, self._factor * event.x(), self._factor * event.y()
+                zoom_delta / 500.0, self._factor * pos.x(), self._factor * pos.y()
             )
 
     def event(self, event: QEvent) -> bool:
         # handle pinch zoom on mac
         if (
-            event.type() == QEvent.Type.NativeGesture
+            isinstance(event, QNativeGestureEvent)
             and event.gestureType() == Qt.NativeGestureType.ZoomNativeGesture
         ):
             self.engine.zoom(
@@ -249,19 +276,27 @@ class QtViewer(QWidget):
             act = view_mode_grp.addAction("None")
             act.setCheckable(True)
             act.setChecked(view_mode == ViewMode.NONE)
-            act.triggered.connect(functools.partial(self.set_view_mode, ViewMode.NONE))
+            act.triggered.connect(  # type:ignore
+                functools.partial(self.set_view_mode, ViewMode.NONE)
+            )
         act = view_mode_grp.addAction("Outline Mode")
         act.setCheckable(True)
         act.setChecked(view_mode == ViewMode.OUTLINE)
-        act.triggered.connect(functools.partial(self.set_view_mode, ViewMode.OUTLINE))
+        act.triggered.connect(  # type:ignore
+            functools.partial(self.set_view_mode, ViewMode.OUTLINE)
+        )
         act = view_mode_grp.addAction("Outline Mode (Colorful)")
         act.setCheckable(True)
         act.setChecked(view_mode == ViewMode.OUTLINE_COLORFUL)
-        act.triggered.connect(functools.partial(self.set_view_mode, ViewMode.OUTLINE_COLORFUL))
+        act.triggered.connect(  # type:ignore
+            functools.partial(self.set_view_mode, ViewMode.OUTLINE_COLORFUL)
+        )
         act = view_mode_grp.addAction("Preview Mode")
         act.setCheckable(True)
         act.setChecked(view_mode == ViewMode.PREVIEW)
-        act.triggered.connect(functools.partial(self.set_view_mode, ViewMode.PREVIEW))
+        act.triggered.connect(  # type:ignore
+            functools.partial(self.set_view_mode, ViewMode.PREVIEW)
+        )
         self.set_view_mode(view_mode)
 
         # VIEW MODE
@@ -276,13 +311,13 @@ class QtViewer(QWidget):
         act = view_mode_menu.addAction("Show Pen-Up Trajectories")
         act.setCheckable(True)
         act.setChecked(show_pen_up)
-        act.toggled.connect(self.set_show_pen_up)
+        act.toggled.connect(self.set_show_pen_up)  # type:ignore
         self._viewer_widget.engine.show_pen_up = show_pen_up
         # show points
         act = view_mode_menu.addAction("Show Points")
         act.setCheckable(True)
         act.setChecked(show_points)
-        act.toggled.connect(self.set_show_points)
+        act.toggled.connect(self.set_show_points)  # type:ignore
         self._viewer_widget.engine.show_points = show_points
         # preview mode options
         view_mode_menu.addSeparator()
@@ -292,10 +327,10 @@ class QtViewer(QWidget):
         pen_width_menu = view_mode_menu.addMenu("Default Pen Width")
         act = pen_width_menu.addAction("Override")
         act.setCheckable(True)
-        act.toggled.connect(self.set_override_pen_width)
+        act.toggled.connect(self.set_override_pen_width)  # type:ignore
         pen_width_menu.addSeparator()
         act_grp = PenWidthActionGroup(0.3, parent=pen_width_menu)
-        act_grp.triggered.connect(self.set_default_pen_width_mm)
+        act_grp.triggered.connect(self.set_default_pen_width_mm)  # type:ignore
         pen_width_menu.addActions(act_grp.actions())
         self.set_default_pen_width_mm(0.3)
 
@@ -303,10 +338,10 @@ class QtViewer(QWidget):
         pen_opacity_menu = view_mode_menu.addMenu("Default Pen Opacity")
         act = pen_opacity_menu.addAction("Override")
         act.setCheckable(True)
-        act.toggled.connect(self.set_override_pen_opacity)
+        act.toggled.connect(self.set_override_pen_opacity)  # type:ignore
         pen_opacity_menu.addSeparator()
         act_grp = PenOpacityActionGroup(0.8, parent=pen_opacity_menu)
-        act_grp.triggered.connect(self.set_default_pen_opacity)
+        act_grp.triggered.connect(self.set_default_pen_opacity)  # type:ignore
         pen_opacity_menu.addActions(act_grp.actions())
         self.set_default_pen_opacity(0.8)
 
@@ -314,14 +349,14 @@ class QtViewer(QWidget):
         if _DEBUG_ENABLED:
             act = view_mode_menu.addAction("Debug View")
             act.setCheckable(True)
-            act.toggled.connect(self.set_debug)
+            act.toggled.connect(self.set_debug)  # type:ignore
         # rulers
         view_mode_menu.addSeparator()
         act = view_mode_menu.addAction("Show Rulers")
         act.setCheckable(True)
         val = bool(self._settings.value("show_rulers", True))
         act.setChecked(val)
-        act.toggled.connect(self.set_show_rulers)
+        act.toggled.connect(self.set_show_rulers)  # type:ignore
         self._viewer_widget.engine.show_rulers = val
         # units
         units_menu = view_mode_menu.addMenu("Units")
@@ -339,7 +374,7 @@ class QtViewer(QWidget):
         act.setCheckable(True)
         act.setChecked(unit_type == UnitType.PIXELS)
         act.setData(UnitType.PIXELS)
-        unit_action_grp.triggered.connect(self.set_unit_type)
+        unit_action_grp.triggered.connect(self.set_unit_type)  # type:ignore
         units_menu.addActions(unit_action_grp.actions())
         self._viewer_widget.engine.unit_type = unit_type
 
@@ -363,7 +398,7 @@ class QtViewer(QWidget):
 
         # FIT TO PAGE
         fit_act = self._toolbar.addAction(load_icon("fit-to-page-outline.svg"), "Fit")
-        fit_act.triggered.connect(self._viewer_widget.engine.fit_to_viewport)
+        fit_act.triggered.connect(self._viewer_widget.engine.fit_to_viewport)  # type:ignore
 
         # RULER
         # TODO: not implemented yet
@@ -371,7 +406,7 @@ class QtViewer(QWidget):
 
         # MOUSE COORDINATES
         self._mouse_coord_lbl = QLabel("")
-        self._mouse_coord_lbl.setMargin(6)
+        self._mouse_coord_lbl.setContentsMargins(6, 6, 6, 6)
         self._mouse_coord_lbl.setAlignment(Qt.AlignVCenter | Qt.AlignRight)
         self._mouse_coord_lbl.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         self._toolbar.addWidget(self._mouse_coord_lbl)
@@ -381,7 +416,7 @@ class QtViewer(QWidget):
         # setup horizontal layout for optional side widgets
         self._hlayout = QHBoxLayout()
         self._hlayout.setSpacing(0)
-        self._hlayout.setMargin(0)
+        self._hlayout.setContentsMargins(0, 0, 0, 0)
         self._hlayout.addWidget(self._viewer_widget)
         widget = QWidget()
         widget.setLayout(self._hlayout)
@@ -389,7 +424,7 @@ class QtViewer(QWidget):
         # setup global vertical layout
         layout = QVBoxLayout()
         layout.setSpacing(0)
-        layout.setMargin(0)
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self._toolbar)
         layout.addWidget(widget)
         self.setLayout(layout)
@@ -438,12 +473,12 @@ class QtViewer(QWidget):
 
     def set_default_pen_width_mm(self, value: float | QAction) -> None:
         if isinstance(value, QAction):
-            value = value.data()
+            value = float(value.data())
         self._viewer_widget.engine.default_pen_width = value / 25.4 * 96.0
 
     def set_default_pen_opacity(self, value: float | QAction) -> None:
         if isinstance(value, QAction):
-            value = value.data()
+            value = float(value.data())
         self._viewer_widget.engine.default_pen_opacity = value
 
     def set_override_pen_width(self, value: bool) -> None:
@@ -489,13 +524,12 @@ def show(
     if argv is None and len(sys.argv) > 0:
         argv = [sys.argv[0]]
 
-    if not QApplication.instance():
+    app = QApplication.instance()
+    if not app or not isinstance(app, QApplication):
         app = QApplication(argv)
         app.setOrganizationName("abey79")
         app.setOrganizationDomain("abey79.github.io")
         app.setApplicationName("vpype")
-    else:
-        app = QApplication.instance()
     app.setAttribute(Qt.AA_UseHighDpiPixmaps)
 
     widget = QtViewer(
@@ -512,6 +546,6 @@ def show(
         QApplication.quit()
 
     with set_sigint_handler(sigint_handler):
-        res = app.exec_()
+        res = app.exec()
 
     return res

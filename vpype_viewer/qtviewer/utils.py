@@ -6,10 +6,9 @@ import socket
 from contextlib import contextmanager
 from typing import Callable
 
-from PySide2 import QtNetwork
-from PySide2.QtCore import QCoreApplication
-from PySide2.QtGui import QIcon, QPalette
-from PySide2.QtWidgets import QAction, QActionGroup
+from PySide6 import QtNetwork
+from PySide6.QtCore import QCoreApplication
+from PySide6.QtGui import QAction, QActionGroup, QGuiApplication, QIcon, QPalette
 
 
 def load_icon(path: str) -> QIcon:
@@ -18,7 +17,12 @@ def load_icon(path: str) -> QIcon:
     )
 
     # check if dark mode is enabled
-    base_color = QCoreApplication.instance().palette().color(QPalette.Base)
+    app = QGuiApplication.instance()
+
+    if app is None or not isinstance(app, QGuiApplication):
+        raise EnvironmentError("no Qt application available")
+
+    base_color = app.palette().color(QPalette.Base)
     if base_color.lightnessF() < 0.5:
         file, ext = os.path.splitext(path)
         path = file + "-dark" + ext
@@ -83,10 +87,10 @@ class PenOpacityActionGroup(QActionGroup):
 
 
 class SignalWatchdog(QtNetwork.QAbstractSocket):
-    """This object notify PySide2's event loop of an incoming signal and makes it process it.
+    """This object notify PySide6's event loop of an incoming signal and makes it process it.
 
     The python interpreter flags incoming signals and triggers the handler only upon the next
-    bytecode is processed. Since PySide2's C++ event loop function never/rarely returns when
+    bytecode is processed. Since PySide6's C++ event loop function never/rarely returns when
     the UX is in the background, the Python interpreter doesn't have a chance to run and call
     the handler.
 
@@ -101,7 +105,7 @@ class SignalWatchdog(QtNetwork.QAbstractSocket):
         self.writer.setblocking(False)
         signal.set_wakeup_fd(self.writer.fileno())
         self.setSocketDescriptor(self.reader.fileno())
-        self.readyRead.connect(lambda: None)
+        self.readyRead.connect(lambda: None)  # type: ignore
 
 
 @contextmanager
