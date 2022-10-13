@@ -512,6 +512,8 @@ SIZE may be one of:
 
     {', '.join(vp.PAGE_SIZES.keys())}
 
+Note that `tight` is special case, see below.
+
 Alternatively, a custom size can be specified in the form of WIDTHxHEIGHT. WIDTH and
 HEIGHT may include units. If only one has an unit, the other is assumed to have the
 same unit. If none have units, both are assumed to be pixels by default. Here are some
@@ -531,13 +533,24 @@ alignment can be adjusted using the `--align`, resp. `--valign` options.
 Optionally, this command can scale the geometries to fit specified margins with the
 `--fit-to-margins` option.
 
+When SIZE is `tight`, the page size is set to fit the width and height of the existing
+geometries. If `--fit-to-margins` is used, the page size is increased to accommodate the
+margin. By construction, `--align` and `--valign` have no effect with `tight`.
+
+On an empty pipeline, `layout` simply sets the page size to SIZE, unless `tight` is used. In
+this case, `layout` has no effect at all.   
+
 Examples:
 
 \b
     Fit the geometries to 3cm margins with top alignment (a generally
     pleasing arrangement for square designs on portrait-oriented pages):
 
-        vpype read input.svg layout --fit-to-margins 3cm --valign top a4 write.svg
+        vpype read input.svg layout --fit-to-margins 3cm --valign top a4 write output.svg
+        
+    Set the page size to the geometries' boundary, with a 1cm margin:
+    
+        vpype read input.svg layout --fit-to-margins 3cm tight write output.svg
 """
 
 
@@ -578,17 +591,26 @@ def layout(
     """Layout command"""
 
     size = _normalize_page_size(size, landscape)
-
-    document.page_size = size
     bounds = document.bounds()
+    tight = size == vp.PAGE_SIZES["tight"]
 
+    # handle empty geometry special cases
     if bounds is None:
-        # nothing to layout
+        if not tight:
+            document.page_size = size
         return document
 
     min_x, min_y, max_x, max_y = bounds
     width = max_x - min_x
     height = max_y - min_y
+
+    # handle "tight" special case
+    if tight:
+        extra = 2 * (margin or 0.0)
+        size = width + extra, height + extra
+
+    document.page_size = size
+
     if margin is not None:
         document.translate(-min_x, -min_y)
         scale = min((size[0] - 2 * margin) / width, (size[1] - 2 * margin) / height)

@@ -546,23 +546,43 @@ def test_splitall_filter_duplicates(line, expected):
         ("-m 3cm -h right 10x20cm", (3, 8, 7, 12)),
         ("-m 3cm -h right -l 20x10cm", (13, 3, 17, 7)),
         ("-m 3cm -h right -l 10x20cm", (13, 3, 17, 7)),
+        ("tight", (0, 0, 1, 1)),
+        ("-m 1cm tight", (1, 1, 2, 2)),
     ],
 )
-def test_layout(runner, args, expected_bounds):
-    document = vp.Document()
+def test_layout(args, expected_bounds):
+    doc = vpype_cli.execute(f"random -n 100 rect 0 0 1cm 1cm layout {args}")
+    assert doc.bounds() == pytest.approx([i * CM for i in expected_bounds])
 
-    @cli.command()
-    @global_processor
-    def sample(doc: vp.Document):
-        nonlocal document
-        document = doc
 
-    res = runner.invoke(cli, f"random -n 100 rect 0 0 1cm 1cm layout {args} sample")
-    assert res.exit_code == 0
-    bounds = document.bounds()
-    assert bounds is not None
-    for act, exp in zip(bounds, expected_bounds):
-        assert act == pytest.approx(exp * CM)
+def test_layout_tight():
+    """`layout tight` fits tightly the page size around the geometry, accommodating for margins
+    if provided"""
+
+    doc = vpype_cli.execute("rect 5cm 10cm 2cm 3cm layout tight")
+    assert doc.bounds() == pytest.approx((0, 0, 2 * CM, 3 * CM))
+    assert doc.page_size == pytest.approx((2 * CM, 3 * CM))
+
+    doc = vpype_cli.execute("rect 5cm 10cm 2cm 3cm layout -m 1cm tight")
+    assert doc.bounds() == pytest.approx((CM, CM, 3 * CM, 4 * CM))
+    assert doc.page_size == pytest.approx((4 * CM, 5 * CM))
+
+
+def test_layout_empty():
+    """page size is set to size provided to layout, unless it's tight, in which case it is
+    unchanged"""
+
+    doc = vpype_cli.execute("layout 10x12cm")
+    assert doc.page_size == pytest.approx((10 * CM, 12 * CM))
+
+    doc = vpype_cli.execute("pagesize a3 layout 10x12cm")
+    assert doc.page_size == pytest.approx((10 * CM, 12 * CM))
+
+    doc = vpype_cli.execute("layout tight")
+    assert doc.page_size is None
+
+    doc = vpype_cli.execute("pagesize 10x12cm layout tight")
+    assert doc.page_size == pytest.approx((10 * CM, 12 * CM))
 
 
 @pytest.mark.parametrize("font_name", vp.FONT_NAMES)
