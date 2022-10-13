@@ -54,6 +54,12 @@ jobs:
         poetry run isort --check --diff vpype vpype_cli vpype_viewer tests
         poetry run black --check --diff vpype vpype_cli vpype_viewer tests
         poetry run mypy
+    # needed for tests to work on ubuntu (libEGL.so.1)
+    - name: Install EGL mesa
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update -y -qq
+        sudo apt-get install -y -qq libegl1-mesa libegl1-mesa-dev
     # PYTEST STRATEGY
     # macOS is the only runner who has working ModernGL behaviour
     # macOS + 3.10 is used for code coverage

@@ -8,6 +8,7 @@ Release date: UNRELEASED
 
 * Added new units (`yd`, `mi`, and `km`) (#541)
 * Added `inch` unit as a synonym to `in`, useful for expressions (in which `in` is a reserved keyword) (#541)
+* Migrated to PySide6 (from PySide2), which simplifies installation on Apple silicon Macs (#552)
 
 ### Bug fixes
 
