@@ -300,7 +300,7 @@ class Engine:
         if self._document is None:
             return
 
-        if self._document.page_size is not None:
+        if self._document.page_size is not None and 0 not in self._document.page_size:
             x1, y1 = 0.0, 0.0
             x2, y2 = self._document.page_size
         else:
