@@ -12,7 +12,7 @@ Release date: UNRELEASED
 
 ### Bug fixes
 
-* ...
+* Fixed a viewer issue where page width/height of 0 would lead to errors and a blank display (#555)
 
 ### API changes
 
