@@ -6,6 +6,7 @@ Release date: UNRELEASED
 
 ### New features and improvements
 
+* The `layout` command now properly handles the `tight` special case by fitting the page size around the existing geometries, accommodating for a margin if provided (#556)
 * Added new units (`yd`, `mi`, and `km`) (#541)
 * Added `inch` unit as a synonym to `in`, useful for expressions (in which `in` is a reserved keyword) (#541)
 * Migrated to PySide6 (from PySide2), which simplifies installation on Apple silicon Macs (#552)
