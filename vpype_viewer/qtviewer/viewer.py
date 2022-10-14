@@ -121,10 +121,7 @@ class QtViewerWidget(QOpenGLWidget):
         self.engine.pixel_factor = self._factor
 
         # force an update and reset of viewport's dimensions
-        self.resizeGL(
-            round(self.geometry().width() * self._factor),
-            round(self.geometry().height() * self._factor),
-        )
+        self.resizeGL(round(self.geometry().width()), round(self.geometry().height()))
 
     def _initializeGL(self):
         """Initialize ModernGL context.
@@ -164,10 +161,12 @@ class QtViewerWidget(QOpenGLWidget):
         self.engine.render()
 
     def resizeGL(self, w: int, h: int) -> None:
-        self.engine.resize(w, h)
+        width = int(w * self._factor)
+        height = int(h * self._factor)
+        self.engine.resize(width, height)
 
         if self._framebuffer:
-            self._framebuffer.viewport = (0, 0, int(w), int(h))
+            self._framebuffer.viewport = (0, 0, width, height)
 
     def mousePressEvent(self, evt: QMouseEvent):
         pos = evt.position()
