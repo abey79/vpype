@@ -7,7 +7,6 @@ from contextlib import contextmanager
 from typing import Callable
 
 from PySide6 import QtNetwork
-from PySide6.QtCore import QCoreApplication
 from PySide6.QtGui import QAction, QActionGroup, QGuiApplication, QIcon, QPalette
 
 
@@ -22,7 +21,7 @@ def load_icon(path: str) -> QIcon:
     if app is None or not isinstance(app, QGuiApplication):
         raise EnvironmentError("no Qt application available")
 
-    base_color = app.palette().color(QPalette.Base)
+    base_color = app.palette().color(QPalette.ColorRole.Base)
     if base_color.lightnessF() < 0.5:
         file, ext = os.path.splitext(path)
         path = file + "-dark" + ext
