@@ -7,7 +7,6 @@ from contextlib import contextmanager
 from typing import Callable
 
 from PySide6 import QtNetwork
-from PySide6.QtCore import QCoreApplication
 from PySide6.QtGui import QAction, QActionGroup, QGuiApplication, QIcon, QPalette
 
 
