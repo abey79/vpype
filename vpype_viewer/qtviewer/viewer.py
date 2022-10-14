@@ -57,7 +57,7 @@ _configure_ui_scaling()
 # set default format
 default_format = QSurfaceFormat()
 default_format.setVersion(3, 2)
-default_format.setProfile(QSurfaceFormat.CoreProfile)
+default_format.setProfile(QSurfaceFormat.OpenGLContextProfile.CoreProfile)
 default_format.setSamples(4)
 QSurfaceFormat.setDefaultFormat(default_format)
 
@@ -77,7 +77,7 @@ class QtViewerWidget(QOpenGLWidget):
 
         super().__init__(parent=parent)
 
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
         self.setMouseTracking(True)
 
@@ -380,7 +380,7 @@ class QtViewer(QWidget):
         view_mode_btn.setMenu(view_mode_menu)
         view_mode_btn.setIcon(load_icon("eye-outline.svg"))
         view_mode_btn.setText("View")
-        view_mode_btn.setPopupMode(QToolButton.InstantPopup)
+        view_mode_btn.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         view_mode_btn.setStyleSheet("QToolButton::menu-indicator { image: none; }")
         self._toolbar.addWidget(view_mode_btn)
 
@@ -389,7 +389,7 @@ class QtViewer(QWidget):
         self._layer_visibility_btn.setIcon(load_icon("layers-triple-outline.svg"))
         self._layer_visibility_btn.setText("Layer")
         self._layer_visibility_btn.setMenu(QMenu(self._layer_visibility_btn))
-        self._layer_visibility_btn.setPopupMode(QToolButton.InstantPopup)
+        self._layer_visibility_btn.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         self._layer_visibility_btn.setStyleSheet(
             "QToolButton::menu-indicator { image: none; }"
         )
@@ -406,8 +406,12 @@ class QtViewer(QWidget):
         # MOUSE COORDINATES
         self._mouse_coord_lbl = QLabel("")
         self._mouse_coord_lbl.setContentsMargins(6, 6, 6, 6)
-        self._mouse_coord_lbl.setAlignment(Qt.AlignVCenter | Qt.AlignRight)
-        self._mouse_coord_lbl.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self._mouse_coord_lbl.setAlignment(
+            Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignRight
+        )
+        self._mouse_coord_lbl.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
+        )
         self._toolbar.addWidget(self._mouse_coord_lbl)
         # noinspection PyUnresolvedReferences
         self._viewer_widget.mouse_coords.connect(self.set_mouse_coords)  # type: ignore
@@ -529,7 +533,7 @@ def show(
         app.setOrganizationName("abey79")
         app.setOrganizationDomain("abey79.github.io")
         app.setApplicationName("vpype")
-    app.setAttribute(Qt.AA_UseHighDpiPixmaps)
+    app.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
 
     widget = QtViewer(
         document, view_mode=view_mode, show_pen_up=show_pen_up, show_points=show_points
