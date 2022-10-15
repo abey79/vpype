@@ -40,7 +40,6 @@ jobs:
       with:
         draft: true
         artifacts: dist/vpype-${{ env.version }}-setup.exe
-        fail_on_unmatched_files: true
 
 
   # ----------------------------------------
@@ -60,9 +59,7 @@ jobs:
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          repository_url: https://test.pypi.org/legacy/
-          password: ${{ secrets.TEST_PYPI_TOKEN }}
-          # FIXME
-          #password: ${{ secrets.PYPI_TOKEN }}
-          # skip_existing: true
+          # repository_url: https://test.pypi.org/legacy/
+          # password: ${{ secrets.TEST_PYPI_TOKEN }}
+          password: ${{ secrets.PYPI_TOKEN }}
           verbose: true
