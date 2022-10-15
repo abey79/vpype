@@ -1,5 +1,7 @@
 name: Benchmarks
 
+# NOTE: manually disabled on GitHub. Most likely needs work to get running again.
+
 on:
   schedule:
     # * is a special character in YAML so you have to quote this string
