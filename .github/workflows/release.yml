@@ -31,7 +31,7 @@ jobs:
         echo "version=${VERSION}" >> $GITHUB_ENV
         poetry run ${GITHUB_WORKSPACE}\\scripts\\build.bat
     - name: Create NSIS installer
-      uses: joncloud/makensis-action@v3
+      uses: joncloud/makensis-action@v3.7
       with:
         script-file: scripts\\installer_win.nsi
         arguments: /V4 /DVERSION=${{ env.version }}
