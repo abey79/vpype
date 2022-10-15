@@ -22,7 +22,7 @@ jobs:
       id: tag
       run: |
         echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -47,7 +47,7 @@ jobs:
     needs: job_release
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python 3.10
       uses: actions/setup-python@v2
       with:
@@ -89,7 +89,7 @@ jobs:
     # do not run if windows installer failed
     needs: [job_release, job_win_installer]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python 3.10
         uses: actions/setup-python@v2
         with:

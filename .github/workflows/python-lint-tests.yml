@@ -1,4 +1,4 @@
-name: Lint and Tests
+name: Checks, Tests and Installer
 
 on:
   push:
@@ -11,49 +11,52 @@ on:
       - release/*
 
 jobs:
-  #################
-  # TESTS & LINTS #
-  #################
+
+  # ----------------------------------------
+  code-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install poetry
+        run: pipx install poetry
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'poetry'
+      - name: Install project
+        run: poetry install -E all
+      - name: Lint and static analysis
+        run: |
+          poetry run isort --check --diff vpype vpype_cli vpype_viewer tests
+          poetry run black --check --diff vpype vpype_cli vpype_viewer tests
+          poetry run mypy
+
+
+  # ----------------------------------------
   tests:
+    needs: ['code-checks']
     strategy:
       fail-fast: true
       matrix:
         python-version: [3.8, 3.9, '3.10']
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
     defaults:
       run:
         shell: bash
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
+    - name: Install poetry
+      run: pipx install poetry
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Get full python version
-      id: full-python-version
-      run: |
-        echo ::set-output name=version::$(python -c "import sys; print('-'.join(str(v) for v in sys.version_info[:3]))")
-    - name: Install and configure Poetry
-      uses: snok/install-poetry@v1
-      with:
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-    - name: Set up cache
-      uses: actions/cache@v2
-      id: cached-poetry-dependencies
-      with:
-        path: .venv
-        key: venv-${{ runner.os }}-${{ steps.full-python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
-    - name: Install dependencies
+        cache: 'poetry'
+    - name: Install project
       run: poetry install -E all
-      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-    - name: Lint and static analysis
-      run: |
-        poetry run isort --check --diff vpype vpype_cli vpype_viewer tests
-        poetry run black --check --diff vpype vpype_cli vpype_viewer tests
-        poetry run mypy
     # needed for tests to work on ubuntu (libEGL.so.1)
     - name: Install EGL mesa
       if: matrix.os == 'ubuntu-latest'
@@ -70,70 +73,29 @@ jobs:
     - name: Pytest
       run: |
         poetry run pytest
-      if: matrix.os == 'macos-latest' && matrix.python-version != '3.10'
+      if: (matrix.os == 'macos-latest' && matrix.python-version != '3.10') || (matrix.os == 'ubuntu-latest')  # img similarity work with linux?
     - name: Pytest (no image similarity check)
       run: |
         poetry run pytest --skip-image-similarity
       if: matrix.os != 'macos-latest'
-    - name: Upload image comparison test results
-      if: always()
-      uses: actions/upload-artifact@v2
+    - name: Upload comparison test results
+      if: failure()
+      uses: actions/upload-artifact@v3
       with:
-        name: test_report_img_sim_${{ runner.os }}_${{ matrix.python-version }}
-        path: test_report_img_sim/**/*
-    - name: Upload SVG comparison test results
-      if: always()
-      uses: actions/upload-artifact@v2
-      with:
-        name: test_report_reference_svg_${{ runner.os }}_${{ matrix.python-version }}
-        path: test_report_reference_svg/**/*
+        name: test_report_${{ runner.os }}_${{ matrix.python-version }}
+        path:
+          - test_report_img_sim/**/*
+          - test_report_reference_svg/**/*
+        if-no-files-found: ignore
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v3
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         file: ./coverage.xml
       if: matrix.os == 'macos-latest' && matrix.python-version == '3.10'
 
 
-  #################
-  # TESTS WINDOWS #
-  #################
-  tests-windows:
-    strategy:
-      fail-fast: true
-      matrix:
-        python-version: [3.8, 3.9, '3.10']
-    defaults:
-      run:
-        shell: bash
-    runs-on: windows-latest
-
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install and configure Poetry
-      uses: snok/install-poetry@v1
-      with:
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-    - name: Install dependencies
-      run: poetry install -E all
-    - name: Pytest
-      run: |
-        poetry run pytest --skip-image-similarity
-    - name: Upload test results
-      if: always()
-      uses: actions/upload-artifact@v2
-      with:
-        name: test_report_img_sim_${{ runner.os }}_${{ matrix.python-version }}
-        path: test_report_img_sim/**/*
-
-  #####################
-  # INSTALLER WINDOWS #
-  #####################
+  # ----------------------------------------
   windows-installer:
     defaults:
       run:
@@ -141,30 +103,27 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v2
+    - uses: actions/checkout@v3
+    - name: Install poetry
+      run: pipx install poetry
+    - name: Set up Python
+      uses: actions/setup-python@v4
       with:
         python-version: '3.10'
-    - name: Install and configure Poetry
-      uses: snok/install-poetry@v1
-      with:
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-    - name: Install vpype and run PyInstaller
-      id: vpype
+        cache: 'poetry'
+    - name: Install project
+      run: poetry install -E all
+    - name: Run PyInstaller
       run: | 
-        poetry install -E all
         VERSION="`poetry version --short`-${GITHUB_SHA}"
-        echo ::set-output name=version::${VERSION}
-        source $VENV
-        scripts/build.bat
+        echo "version=${VERSION}" >> $GITHUB_ENV
+        poetry run scripts/build.bat
     - name: Create NSIS installer
       uses: joncloud/makensis-action@v3.3
       with:
         script-file: scripts\installer_win.nsi
-        arguments: /V4 /DVERSION=${{ steps.vpype.outputs.version }}
-    - uses: actions/upload-artifact@v2
+        arguments: /V4 /DVERSION=${{ env.version }}
+    - uses: actions/upload-artifact@v3
       with:
-        name: vpype-${{ steps.vpype.outputs.version }}-setup.exe
-        path: dist/vpype-${{ steps.vpype.outputs.version }}-setup.exe
+        name: vpype-${{ env.version }}-setup.exe
+        path: dist/vpype-${{ env.version }}-setup.exe
