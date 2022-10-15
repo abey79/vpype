@@ -40,7 +40,7 @@ jobs:
       fail-fast: true
       matrix:
         python-version: [3.8, 3.9, '3.10']
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest] # FIXME:, windows-latest]
     defaults:
       run:
         shell: bash
@@ -117,11 +117,11 @@ jobs:
       run: | 
         VERSION="`poetry version --short`-${GITHUB_SHA}"
         echo "version=${VERSION}" >> $GITHUB_ENV
-        poetry run scripts/build.bat
+        poetry run $GITHUB_WORKSPACE\vpype\scripts\build.bat
     - name: Create NSIS installer
       uses: joncloud/makensis-action@v3.3
       with:
-        script-file: scripts\installer_win.nsi
+        script-file: $GITHUB_WORKSPACE\vpype\scripts\installer_win.nsi
         arguments: /V4 /DVERSION=${{ env.version }}
     - uses: actions/upload-artifact@v3
       with:
