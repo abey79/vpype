@@ -36,10 +36,10 @@ jobs:
         script-file: scripts\\installer_win.nsi
         arguments: /V4 /DVERSION=${{ env.version }}
     - name: Make GH Release
-      uses: softprops/action-gh-release@v1
+      uses: ncipollo/release-action@v1
       with:
         draft: true
-        files: dist/vpype-${{ env.version }}-setup.exe
+        artifacts: dist/vpype-${{ env.version }}-setup.exe
         fail_on_unmatched_files: true
 
 
