@@ -1,4 +1,4 @@
-name: Checks, Tests and Installer
+name: CI
 
 on:
   push:
@@ -13,29 +13,7 @@ on:
 jobs:
 
   # ----------------------------------------
-  code-checks:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install poetry
-        run: pipx install poetry
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-          cache: 'poetry'
-      - name: Install project
-        run: poetry install -E all
-      - name: Lint and static analysis
-        run: |
-          poetry run isort --check --diff vpype vpype_cli vpype_viewer tests
-          poetry run black --check --diff vpype vpype_cli vpype_viewer tests
-          poetry run mypy
-
-
-  # ----------------------------------------
-  tests:
-    needs: ['code-checks']
+  lint-tests:
     strategy:
       fail-fast: true
       matrix:
@@ -57,6 +35,12 @@ jobs:
         cache: 'poetry'
     - name: Install project
       run: poetry install -E all
+    - name: Lint and static analysis
+      if:  matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10'  # no need to run that 9x
+      run: |
+        poetry run isort --check --diff vpype vpype_cli vpype_viewer tests
+        poetry run black --check --diff vpype vpype_cli vpype_viewer tests
+        poetry run mypy
     # needed for tests to work on ubuntu (libEGL.so.1)
     - name: Install EGL mesa
       if: matrix.os == 'ubuntu-latest'
@@ -121,7 +105,7 @@ jobs:
     - name: Create NSIS installer
       uses: joncloud/makensis-action@v3.3
       with:
-        script-file: ${GITHUB_WORKSPACE}\\scripts\\installer_win.nsi
+        script-file: scripts\\installer_win.nsi
         arguments: /V4 /DVERSION=${{ env.version }}
     - uses: actions/upload-artifact@v3
       with:
