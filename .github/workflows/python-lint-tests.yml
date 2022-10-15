@@ -73,7 +73,7 @@ jobs:
     - name: Pytest
       run: |
         poetry run pytest
-      if: (matrix.os == 'macos-latest' && matrix.python-version != '3.10') || (matrix.os == 'ubuntu-latest')  # img similarity work with linux?
+      if: matrix.os == 'macos-latest' && matrix.python-version != '3.10'
     - name: Pytest (no image similarity check)
       run: |
         poetry run pytest --skip-image-similarity
@@ -117,11 +117,11 @@ jobs:
       run: | 
         VERSION="`poetry version --short`-${GITHUB_SHA}"
         echo "version=${VERSION}" >> $GITHUB_ENV
-        poetry run $GITHUB_WORKSPACE\vpype\scripts\build.bat
+        poetry run $GITHUB_WORKSPACE\\vpype\\scripts\\build.bat
     - name: Create NSIS installer
       uses: joncloud/makensis-action@v3.3
       with:
-        script-file: $GITHUB_WORKSPACE\vpype\scripts\installer_win.nsi
+        script-file: $GITHUB_WORKSPACE\\vpype\\scripts\\installer_win.nsi
         arguments: /V4 /DVERSION=${{ env.version }}
     - uses: actions/upload-artifact@v3
       with:
