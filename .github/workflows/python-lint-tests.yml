@@ -83,9 +83,9 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: test_report_${{ runner.os }}_${{ matrix.python-version }}
-        path:
-          - test_report_img_sim/**/*
-          - test_report_reference_svg/**/*
+        path: |
+          test_report_img_sim/**/*
+          test_report_reference_svg/**/*
         if-no-files-found: ignore
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
