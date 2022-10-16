@@ -14,6 +14,7 @@ Release date: UNRELEASED
 ### Bug fixes
 
 * Fixed a viewer issue where page width/height of 0 would lead to errors and a blank display (#555)
+* Fixed a viewer issue where fitting the document bounds would be lost when bounds change (*vsketch* only) (#564)
 
 ### API changes
 
