@@ -126,6 +126,11 @@ class Engine:
     def document(self, document: vp.Document | None) -> None:
         self._document = document
         self._layer_visibility.clear()
+
+        # keep fitted to the viewport
+        if self._fit_to_viewport_flag:
+            self.fit_to_viewport()
+
         self._update()
 
     @property
