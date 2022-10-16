@@ -56,7 +56,7 @@ _configure_ui_scaling()
 
 # set default format
 default_format = QSurfaceFormat()
-default_format.setVersion(3, 2)
+default_format.setVersion(3, 3)
 default_format.setProfile(QSurfaceFormat.CoreProfile)
 default_format.setSamples(4)
 QSurfaceFormat.setDefaultFormat(default_format)
