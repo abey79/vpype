@@ -587,6 +587,14 @@ python-versions = ">=3.6"
 numpy = ">=1.19"
 
 [[package]]
+name = "py"
+version = "1.11.0"
+description = "library with cross-python path, ini-parsing, io, code, log facilities"
+category = "dev"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+
+[[package]]
 name = "py-cpuinfo"
 version = "8.0.0"
 description = "Get CPU info with pure Python 2 & 3"
@@ -1162,7 +1170,7 @@ all = ["matplotlib", "glcontext", "moderngl", "Pillow", "PySide6"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8, <3.11"
-content-hash = "5e1178fbefeba9fbd8e83211391f784d0604e5ad23ba51d0afe7c467f7339ee7"
+content-hash = "21eeed94d93e7ee7d193184dca91553b5417420791e070ffa8d110323d323fcf"
 
 [metadata.files]
 alabaster = [
@@ -1841,6 +1849,10 @@ pluggy = [
 pnoise = [
     {file = "pnoise-0.2.0-py3-none-any.whl", hash = "sha256:953afe8710033b5a0fc5578ba67c2e6cee8e9669b4dffe7680b641acc46f87a3"},
     {file = "pnoise-0.2.0.tar.gz", hash = "sha256:76383310d602bcc7ed2355cd334f8ebc5b88e71d5bfdfee32d1b93d3981972cf"},
+]
+py = [
+    {file = "py-1.11.0-py2.py3-none-any.whl", hash = "sha256:607c53218732647dff4acdfcd50cb62615cedf612e72d1724fb1a0cc6405b378"},
+    {file = "py-1.11.0.tar.gz", hash = "sha256:51c75c4126074b472f746a24399ad32f6053d1b34b68d2fa41e558e6f4a98719"},
 ]
 py-cpuinfo = [
     {file = "py-cpuinfo-8.0.0.tar.gz", hash = "sha256:5f269be0e08e33fd959de96b34cd4aeeeacac014dd8305f70eb28d06de2345c5"},
