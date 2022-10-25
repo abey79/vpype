@@ -2,7 +2,7 @@
 
 ## 1.12
 
-Release date: UNRELEASED
+Release date: 2022-10-25
 
 ### New features and improvements
 
