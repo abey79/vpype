@@ -9,12 +9,12 @@ Release date: UNRELEASED
 * The `layout` command now properly handles the `tight` special case by fitting the page size around the existing geometries, accommodating for a margin if provided (#556)
 * Added new units (`yd`, `mi`, and `km`) (#541)
 * Added `inch` unit as a synonym to `in`, useful for expressions (in which `in` is a reserved keyword) (#541)
-* Migrated to PySide6 (from PySide2), which simplifies installation on Apple silicon Macs (#552, #559)
+* Migrated to PySide6 (from PySide2), which simplifies installation on Apple silicon Macs (#552, #559, #567)
 
 ### Bug fixes
 
 * Fixed a viewer issue where page width/height of 0 would lead to errors and a blank display (#555)
-* Fixed a viewer issue where fitting the document bounds would be lost when bounds change (*vsketch* only) (#564)
+* Fixed a viewer issue where fitting the view to the document would not adjust when page size changes (*vsketch* only) (#564)
 
 ### API changes
 

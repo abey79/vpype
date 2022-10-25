@@ -194,14 +194,13 @@ TL;DR:
   ```bash
   pipx install "vpype[all]"
   ```
-- Installing on M1 Mac requires special care — check the [installation instruction](https://vpype.readthedocs.io/en/latest/install.html#installing-using-pipx-apple-silicon-m1).
-- A Windows installer is available [here](https://github.com/abey79/vpype/releases) (plug-ins cannot be installed
-when using this installation method).
+- A Windows installer is available [here](https://github.com/abey79/vpype/releases), but plug-ins cannot be installed
+when using this method).
 - A CLI-only version of *vpype* can be installed using the following command:
   ```bash
   pipx install vpype
   ```
-  This version does not include the [`show`](https://vpype.readthedocs.io/en/latest/reference.html#show) command but does not require some of the dependencies which are more difficult or impossible to install on some platforms (such as matplotlib, PySide2, and ModernGL).
+  This version does not include the [`show`](https://vpype.readthedocs.io/en/latest/reference.html#show) command but does not require some of the dependencies which are more difficult or impossible to install on some platforms (such as matplotlib, PySide6, and ModernGL).
 
 
 ## Documentation
