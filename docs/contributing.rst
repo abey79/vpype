@@ -11,7 +11,7 @@ Contributions are most welcome and there  are many ways you can help regardless 
 
 * First and foremost, do provide feedback on what you do with *vpype* and how you do it, either on the `DrawingBots Discord server`_ or by filling an `issue`_. This knowledge is critically important to improve *vpype*.
 * Write an `issue`_ for any problem or friction point you encounter during the installation or use of *vpype* or for any feature you feel is missing.
-* Make the present documentation better by fixing typos and improve the quality of the text (English is *not* the main author's native language).
+* Make the present documentation better by fixing typos and improve the quality of the text (English is *not* the main author's native language). `This issue <https://github.com/abey79/vpype/issues/400>`__ maintains a list of possible improvements.
 * Write cookbook recipes for new workflows.
 * Improving the test coverage and contributing to CI/CD aspects is welcome — and a good way to become familiar with the code.
 * Improve existing features or contribute entirely new ones with a `pull request`_. If you plan on creating new commands, consider making a :ref:`plugin <plugins>` first — it will be easy to integrate it into *vpype*'s codebase later on if it makes sense.
@@ -40,33 +40,34 @@ Development environment
 <https://python-poetry.org/docs/#installation>`_ is required to prepare the development environment. It can be
 installed either using an install script, or using pipx. Run this command to use the install script::
 
-  $ curl -sSL https://install.python-poetry.org | python3 -
+  curl -sSL https://install.python-poetry.org | python3 -
   
 Run this command for a pipx install::
 
-  $ pipx install poetry
+  pipx install poetry
 
 See Poetry's `installation instructions <https://python-poetry.org/docs/#installation>`__ for more information.
 
 You can then download *vpype*, prepare a virtual environment and install all dependencies with a few commands::
 
-  $ git clone https://github.com/abey79/vpype.git
-  $ cd vpype
-  $ poetry install -E all
+  git clone https://github.com/abey79/vpype
+  cd vpype
+  poetry install -E all --with docs
 
 You can execute *vpype* (which installed in the project's virtual environment managed by Poetry) with the ``poetry
 run`` command::
 
-  $ poetry run vpype --help
+  poetry run vpype --help
 
 Alternatively, you can activate the virtual environment and then directly use *vpype*::
 
-  $ poetry shell
-  $ vpype --help
+  poetry shell
+  vpype --help
 
 Running the tests
 =================
 
 You can run tests with the following command::
 
-  $ poetry run pytest
+  poetry run pytest
+
