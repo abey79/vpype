@@ -58,8 +58,7 @@ PySide6 = { version = ">=6.3.2,<6.4.0", optional = true }  # 6.4.0 incompatible 
 coverage = {extras = ["toml"], version = ">=5.4"}
 pytest = ">=6.2.3"
 pytest-cov = ">=2.11.0"
-pytest-benchmark = ">=3.2.3"
-py = ">=1.11.0"  # required by pytest-benchmark, to be removed when pytest-benchmark is updated (https://github.com/ionelmc/pytest-benchmark/issues/226)
+pytest-benchmark = ">=4.0.0"
 black = ">=22.3.0"
 isort = ">=5.8.0"
 pyinstaller = ">=4.3"
