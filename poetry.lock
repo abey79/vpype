@@ -587,17 +587,9 @@ python-versions = ">=3.6"
 numpy = ">=1.19"
 
 [[package]]
-name = "py"
-version = "1.11.0"
-description = "library with cross-python path, ini-parsing, io, code, log facilities"
-category = "dev"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-
-[[package]]
 name = "py-cpuinfo"
-version = "8.0.0"
-description = "Get CPU info with pure Python 2 & 3"
+version = "9.0.0"
+description = "Get CPU info with pure Python"
 category = "dev"
 optional = false
 python-versions = "*"
@@ -615,7 +607,7 @@ plugins = ["importlib-metadata"]
 
 [[package]]
 name = "pyinstaller"
-version = "5.6"
+version = "5.6.1"
 description = "PyInstaller bundles a Python application and all its dependencies into a single package."
 category = "dev"
 optional = false
@@ -710,11 +702,11 @@ testing = ["argcomplete", "hypothesis (>=3.56)", "mock", "nose", "pygments (>=2.
 
 [[package]]
 name = "pytest-benchmark"
-version = "3.4.1"
+version = "4.0.0"
 description = "A ``pytest`` fixture for benchmarking code. It will group the tests into rounds that are calibrated to the chosen timer."
 category = "dev"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+python-versions = ">=3.7"
 
 [package.dependencies]
 py-cpuinfo = "*"
@@ -1170,7 +1162,7 @@ all = ["matplotlib", "glcontext", "moderngl", "Pillow", "PySide6"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8, <3.11"
-content-hash = "21eeed94d93e7ee7d193184dca91553b5417420791e070ffa8d110323d323fcf"
+content-hash = "ce9e02a20e3cbf91a7085a21e860abc1234e420549b733d1805dad1415408d36"
 
 [metadata.files]
 alabaster = [
@@ -1831,29 +1823,26 @@ pnoise = [
     {file = "pnoise-0.2.0-py3-none-any.whl", hash = "sha256:953afe8710033b5a0fc5578ba67c2e6cee8e9669b4dffe7680b641acc46f87a3"},
     {file = "pnoise-0.2.0.tar.gz", hash = "sha256:76383310d602bcc7ed2355cd334f8ebc5b88e71d5bfdfee32d1b93d3981972cf"},
 ]
-py = [
-    {file = "py-1.11.0-py2.py3-none-any.whl", hash = "sha256:607c53218732647dff4acdfcd50cb62615cedf612e72d1724fb1a0cc6405b378"},
-    {file = "py-1.11.0.tar.gz", hash = "sha256:51c75c4126074b472f746a24399ad32f6053d1b34b68d2fa41e558e6f4a98719"},
-]
 py-cpuinfo = [
-    {file = "py-cpuinfo-8.0.0.tar.gz", hash = "sha256:5f269be0e08e33fd959de96b34cd4aeeeacac014dd8305f70eb28d06de2345c5"},
+    {file = "py-cpuinfo-9.0.0.tar.gz", hash = "sha256:3cdbbf3fac90dc6f118bfd64384f309edeadd902d7c8fb17f02ffa1fc3f49690"},
+    {file = "py_cpuinfo-9.0.0-py3-none-any.whl", hash = "sha256:859625bc251f64e21f077d099d4162689c762b5d6a4c3c97553d56241c9674d5"},
 ]
 pygments = [
     {file = "Pygments-2.13.0-py3-none-any.whl", hash = "sha256:f643f331ab57ba3c9d89212ee4a2dabc6e94f117cf4eefde99a0574720d14c42"},
     {file = "Pygments-2.13.0.tar.gz", hash = "sha256:56a8508ae95f98e2b9bdf93a6be5ae3f7d8af858b43e02c5a2ff083726be40c1"},
 ]
 pyinstaller = [
-    {file = "pyinstaller-5.6-py3-none-macosx_10_13_universal2.whl", hash = "sha256:9e2138877321211cbf302f6fb930614aa2070ccf01b97ef4d4ed9e219c57b3b6"},
-    {file = "pyinstaller-5.6-py3-none-manylinux2014_aarch64.whl", hash = "sha256:bccacd5f14ebd2cd3a34ffc9c9dc31feef72c077acf06be4035d5153d24f782b"},
-    {file = "pyinstaller-5.6-py3-none-manylinux2014_i686.whl", hash = "sha256:0458585457d458abe9eafd0c4c4289054448349f2a2b2a7fcf876a4796a99a53"},
-    {file = "pyinstaller-5.6-py3-none-manylinux2014_ppc64le.whl", hash = "sha256:dca5625bccf8c98bb2a1e2760022de2f1a1a1be8744182fd3e640bc7bae75e30"},
-    {file = "pyinstaller-5.6-py3-none-manylinux2014_s390x.whl", hash = "sha256:692c479f679f4cc4f41a6a6ef4742176ca1f62338e5a3318601cf62d60cd0832"},
-    {file = "pyinstaller-5.6-py3-none-manylinux2014_x86_64.whl", hash = "sha256:72830fa5d2702bb7c1af5e2d55467e0c0c89738fc302f49870ed273ec494371f"},
-    {file = "pyinstaller-5.6-py3-none-musllinux_1_1_aarch64.whl", hash = "sha256:1eca0a42088580880ade5dca45fca81cbbb18e65ceb90684d57e6ceb699b013b"},
-    {file = "pyinstaller-5.6-py3-none-musllinux_1_1_x86_64.whl", hash = "sha256:d76de14a8b8370d47d69fab92c098299eac38a99ce603ddc3a42bd5681dfcaff"},
-    {file = "pyinstaller-5.6-py3-none-win32.whl", hash = "sha256:76bc9f87f256427a578eda27916d85acb291a292ca631326f4b22f623bd0d391"},
-    {file = "pyinstaller-5.6-py3-none-win_amd64.whl", hash = "sha256:3c980d673a29f2a7f8194497bcb91bf17a649f481590727952f1b583859324bd"},
-    {file = "pyinstaller-5.6.tar.gz", hash = "sha256:2a0455e4cc4d54ff760f99fb6194ab68862d3552e970740a2dfa36edbc05251b"},
+    {file = "pyinstaller-5.6.1-py3-none-macosx_10_13_universal2.whl", hash = "sha256:0465edb7a5b2bc74ac983d419fd980fd2e4c7d49f4c013edd4befb6ca70d3c2b"},
+    {file = "pyinstaller-5.6.1-py3-none-manylinux2014_aarch64.whl", hash = "sha256:556750250bba85cf7ede168994fe70fcdeeba8d22f51eaedfd94b3efb6faa6ce"},
+    {file = "pyinstaller-5.6.1-py3-none-manylinux2014_i686.whl", hash = "sha256:2abb74b008f01a8d9b54c27ea51aa6d59ea6137d507de9d580f79b934e0ca7b8"},
+    {file = "pyinstaller-5.6.1-py3-none-manylinux2014_ppc64le.whl", hash = "sha256:bb3faba1a29686e1c2d71a939bc6d1a57ca218d6968f43620591df42058635e0"},
+    {file = "pyinstaller-5.6.1-py3-none-manylinux2014_s390x.whl", hash = "sha256:b8dc59b00bc09053ed0476b47423373fafb8f4d57618e9eff7047cda8942e1c4"},
+    {file = "pyinstaller-5.6.1-py3-none-manylinux2014_x86_64.whl", hash = "sha256:14a0bb008966ba074e173f94b5bffd78a4d84e4a21fafc63c1b72851a40a918d"},
+    {file = "pyinstaller-5.6.1-py3-none-musllinux_1_1_aarch64.whl", hash = "sha256:8c423556f0aac7651cda813db0d215c36c51717c4079e407136a4d9f730d38b0"},
+    {file = "pyinstaller-5.6.1-py3-none-musllinux_1_1_x86_64.whl", hash = "sha256:a64a5472ee36f63e773be63535817b6d8aea1c1cf9acd18858c22c66fe575043"},
+    {file = "pyinstaller-5.6.1-py3-none-win32.whl", hash = "sha256:fc734eb91e08c75fc7505170d765a49d781dad9e49dd641ebe4f8a82782f0be2"},
+    {file = "pyinstaller-5.6.1-py3-none-win_amd64.whl", hash = "sha256:ec9d9491681ac55e369a5226833694bf299ddeaeab6df4ef9d44758d4342f10a"},
+    {file = "pyinstaller-5.6.1.tar.gz", hash = "sha256:a7fac3fa8f75bce2839e0ab910baf0e935ff2b5f327c32aedade563e1b610967"},
 ]
 pyinstaller-hooks-contrib = [
     {file = "pyinstaller-hooks-contrib-2022.10.tar.gz", hash = "sha256:e5edd4094175e78c178ef987b61be19efff6caa23d266ade456fc753e847f62e"},
@@ -1883,8 +1872,8 @@ pytest = [
     {file = "pytest-7.2.0.tar.gz", hash = "sha256:c4014eb40e10f11f355ad4e3c2fb2c6c6d1919c73f3b5a433de4708202cade59"},
 ]
 pytest-benchmark = [
-    {file = "pytest-benchmark-3.4.1.tar.gz", hash = "sha256:40e263f912de5a81d891619032983557d62a3d85843f9a9f30b98baea0cd7b47"},
-    {file = "pytest_benchmark-3.4.1-py2.py3-none-any.whl", hash = "sha256:36d2b08c4882f6f997fd3126a3d6dfd70f3249cde178ed8bbc0b73db7c20f809"},
+    {file = "pytest-benchmark-4.0.0.tar.gz", hash = "sha256:fb0785b83efe599a6a956361c0691ae1dbb5318018561af10f3e915caa0048d1"},
+    {file = "pytest_benchmark-4.0.0-py3-none-any.whl", hash = "sha256:fdb7db64e31c8b277dff9850d2a2556d8b60bcb0ea6524e36e28ffd7c87f71d6"},
 ]
 pytest-cov = [
     {file = "pytest-cov-4.0.0.tar.gz", hash = "sha256:996b79efde6433cdbd0088872dbc5fb3ed7fe1578b68cdbba634f14bb8dd0470"},
