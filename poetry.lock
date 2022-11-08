@@ -16,7 +16,7 @@ python-versions = "*"
 
 [[package]]
 name = "asteval"
-version = "0.9.27"
+version = "0.9.28"
 description = "Safe, minimalistic evaluator of python expression using ast module"
 category = "main"
 optional = false
@@ -1174,8 +1174,7 @@ altgraph = [
     {file = "altgraph-0.17.3.tar.gz", hash = "sha256:ad33358114df7c9416cdb8fa1eaa5852166c505118717021c6a8c7c7abbd03dd"},
 ]
 asteval = [
-    {file = "asteval-0.9.27-py3-none-any.whl", hash = "sha256:c31678db0e1c758a47d776c693a63709eb898f8af8065eb6201c65d68c3f7a3f"},
-    {file = "asteval-0.9.27.tar.gz", hash = "sha256:de838c33aed4c9bb25737eadbb7d1edaaf875e2bab505cc079f1a4b35de03e47"},
+    {file = "asteval-0.9.28-py3-none-any.whl", hash = "sha256:c263d25bcc76d5fbeae68b7954b6f7bb16067232b515e4da01e3653e2ec01341"},
 ]
 attrs = [
     {file = "attrs-22.1.0-py2.py3-none-any.whl", hash = "sha256:86efa402f67bf2df34f51a335487cf46b1ec130d02b8d39fd248abfd30da551c"},
