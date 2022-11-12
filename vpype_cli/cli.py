@@ -205,7 +205,7 @@ def cli(
         # Not using it yields a deprecation warning in some circumstances.
         if sys.version_info >= (3, 10):
             entry_points = importlib.metadata.entry_points().select(group="vpype.plugins")
-        else:
+        else:  # pragma: no cover
             entry_points = importlib.metadata.entry_points().get("vpype.plugins", [])
         for entry_point in entry_points:
             # noinspection PyBroadException
