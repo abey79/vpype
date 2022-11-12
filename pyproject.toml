@@ -49,7 +49,7 @@ asteval = ">=0.9.26"
 # additional dependencies for the viewer and the `show` command
 matplotlib = { version = ">=3.3.2", optional = true }
 glcontext = { version = ">=2.3.2", optional = true }  # 2.3.2 needed to fix #200
-moderngl = { version = ">=5.6.2", optional = true }
+moderngl = { version = ">=5.6.2,!=5.7.1,!=5.7.2", optional = true }  # see moderngl/moderngl#525
 Pillow = { version = ">=9.0.1", optional = true }
 PySide6 = { version = ">=6.3.2,<6.4.0", optional = true }  # 6.4.0 incompatible with matplotlib
 
