@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        python-version: [3.8, 3.9, '3.10']
+        python-version: [3.9, '3.10', '3.11']
         os: [ubuntu-latest, macos-latest, windows-latest]
     defaults:
       run:
@@ -36,7 +36,7 @@ jobs:
     - name: Install project
       run: poetry install -E all
     - name: Lint and static analysis
-      if:  matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10'  # no need to run that 9x
+      if:  matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'  # no need to run that 9x
       run: |
         poetry run isort --check --diff vpype vpype_cli vpype_viewer tests
         poetry run black --check --diff vpype vpype_cli vpype_viewer tests
@@ -49,15 +49,15 @@ jobs:
         sudo apt-get install -y -qq libegl1-mesa libegl1-mesa-dev
     # PYTEST STRATEGY
     # macOS is the only runner who has working ModernGL behaviour
-    # macOS + 3.10 is used for code coverage
+    # macOS + 3.11 is used for code coverage
     - name: Pytest (code coverage)
       run: |
         poetry run pytest --cov=./ --cov-report=xml
-      if: matrix.os == 'macos-latest' && matrix.python-version == '3.10'
+      if: matrix.os == 'macos-latest' && matrix.python-version == '3.11'
     - name: Pytest
       run: |
         poetry run pytest
-      if: matrix.os == 'macos-latest' && matrix.python-version != '3.10'
+      if: matrix.os == 'macos-latest' && matrix.python-version != '3.11'
     - name: Pytest (no image similarity check)
       run: |
         poetry run pytest --skip-image-similarity
@@ -76,7 +76,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         file: ./coverage.xml
-      if: matrix.os == 'macos-latest' && matrix.python-version == '3.10'
+      if: matrix.os == 'macos-latest' && matrix.python-version == '3.11'
 
 
   # ----------------------------------------
@@ -93,7 +93,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: '3.11'
         cache: 'poetry'
     - name: Install project
       run: poetry install -E all
