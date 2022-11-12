@@ -167,7 +167,7 @@ class ConfigManager:
     loaded using the :func:`load_config_file` method.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._config: dict = {}
 
     def load_config_file(self, path: str) -> None:

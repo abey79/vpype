@@ -440,7 +440,7 @@ class Engine:
             self._rebuild_needed = True
         self._render_cb()
 
-    def _rebuild(self):
+    def _rebuild(self) -> None:
         self._layer_painters.clear()
         self._paper_bounds_painter = None
 
@@ -515,8 +515,6 @@ class Engine:
 
             page_size = self._document.page_size
             if page_size is not None:
-                self._paper_bounds_painter = PaperBoundsPainter(
-                    self._ctx, self._document.page_size
-                )
+                self._paper_bounds_painter = PaperBoundsPainter(self._ctx, page_size)
 
         self._rebuild_needed = False

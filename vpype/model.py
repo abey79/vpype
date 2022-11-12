@@ -548,7 +548,7 @@ class Document(_MetadataMixin):
 
     def __init__(
         self,
-        line_collection: LineCollection = None,
+        line_collection: LineCollection | None = None,
         metadata: dict[str, Any] | None = None,
         page_size: tuple[float, float] | None = None,
     ):
