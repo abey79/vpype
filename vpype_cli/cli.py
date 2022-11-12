@@ -193,8 +193,8 @@ def cli(
         logging.getLogger().setLevel(logging.DEBUG)
 
     # Plug-in loading logic. This approach is preferred because:
-    # 1) Deferred plug-in loading avoid circular import between vpype and vpype_cli when plug-
-    #    in uses deprecated APIs.
+    # 1) Deferred plugin loading avoid circular import between vpype and vpype_cli when plugin
+    #    uses deprecated APIs.
     # 2) Avoids the PyCharm type error with CliRunner.invoke()
     global _PLUGINS_LOADED
     if not _PLUGINS_LOADED:
@@ -218,8 +218,8 @@ def cli(
                 cast(click.Group, ctx.command).add_command(_BrokenCommand(entry_point.name))
 
     # Manual handling of the help to work around circular import issues.
-    # Background: when importing plug-ins in the style of `click-plugin` (decorator, so plug-
-    # ins are loaded during the loading of `cli` itself), plug-in may not import things from
+    # Background: when importing plug-ins in the style of `click-plugin` (decorator, so plugins
+    # are loaded during the loading of `cli` itself), plug-in may not import things from
     # `vpype_cli` since it is still partially loaded. Plug-ins are thus loaded when `cli` is
     # actually executed (see previous lines). As a result, the Click's default behaviour for
     # handling `--help` (i.e. print and exit *before* even executing `cli`) is unable to list
@@ -352,7 +352,7 @@ class BeginBlock:
 def begin():
     """Marks the start of a block.
 
-    A `begin` command must be followed by a block processor command (eg. `grid` or `repeat`),
+    A `begin` command must be followed by a block processor command (e.g. `grid` or `repeat`),
     which indicates how the block is processed. Blocks must be ended by a `end` command.
 
     Blocks can be nested.
@@ -439,7 +439,7 @@ def execute(
 
     This function serves as a Python API to vpype's pipeline. It can be used from a regular
     Python script (as opposed to the ``vpype`` CLI which must be used from a console or via
-    :func:`os.system`.
+    :func:`os.system`).
 
     If a :class:`vpype.Document` instance is provided, it will be preloaded in the pipeline
     before the first command executes. The pipeline's content after the last command is
@@ -447,7 +447,7 @@ def execute(
 
     Examples:
 
-        Read a SVG file, optimize it and return the result as a :class:`vpype.Document`
+        Read an SVG file, optimize it and return the result as a :class:`vpype.Document`
         instance::
 
             >>> doc = execute("read input.svg linemerge linesimplify linesort")
