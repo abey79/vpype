@@ -66,7 +66,7 @@ pyinstaller = ">=4.3"
 pyinstaller-hooks-contrib = ">=2022.3"  # fix for shapely 1.8.1
 packaging = ">=20.8"
 pytest-mpl = ">=0.12"
-mypy = ">=0.901"
+mypy = "==0.982"
 types-cachetools = ">=4.2.4"
 types-setuptools = ">=57.4.17"
 
