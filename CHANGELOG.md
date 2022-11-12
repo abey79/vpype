@@ -1,5 +1,14 @@
 # Change log
 
+## 1.12.1
+
+Release date: 2022-11-12
+
+### Bug fixes
+
+* Pinned ModernGL to 5.7.0 or earlier to avoid an [issue](https://github.com/moderngl/moderngl/issues/525) introduced in 5.7.1 (18f98c3)
+
+
 ## 1.12
 
 Release date: 2022-10-25
