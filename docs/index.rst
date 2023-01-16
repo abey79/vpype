@@ -29,7 +29,7 @@ when using this installation method).
 For other platforms, and when plug-ins are required, *vpype* can be installed from the `Python Package Index <https://pypi.org>`_
 using pipx::
 
-  $ pipx install vpype
+  $ pipx install "vpype[all]"
 
 Check the :ref:`installation instruction <install>` for step-by-step explanations.
 
