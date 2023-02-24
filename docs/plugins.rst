@@ -26,6 +26,7 @@ Here are a few existing plug-ins to illustrate the possibilities:
 * `vpype-embroidery <https://github.com/EmbroidePy/vpype-embroidery>`__: convert to/from common embroidery file formats
 * `vpype-dxf <https://github.com/tatarize/vpype-dxf>`__: read from DXF
 * `vpype-vectrace <https://github.com/tatarize/vpype-vectrace>`__: trace from bitmap images
+* `vpype-ttf <https://github.com/johnbentcope/vpype-ttf>`__: create text outlines with TTF fonts
 * `occult <https://github.com/LoicGoulefert/occult>`__: perform hidden line removal with closed geometry
 
   .. image:: https://raw.githubusercontent.com/LoicGoulefert/occult/master/img/example8.png
