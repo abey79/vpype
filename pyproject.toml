@@ -39,7 +39,7 @@ click = ">=8.0.1,<8.2.0"
 multiprocess = ">=0.70.11"
 numpy = ">=1.20"
 pnoise = ">=0.2.0"
-Shapely = {extras = ["vectorized"], version = ">=1.8.2"}
+Shapely = ">=2.0.0"
 scipy = ">=1.6"
 svgelements = ">=1.6.10"
 svgwrite = "~1.4"
@@ -129,7 +129,7 @@ exclude_lines = [
 
 [tool.black]
 line-length = 95
-target-version = ["py36", "py37", "py38"]
+target-version = ["py310"]
 
 [tool.isort]
 profile = "black"
