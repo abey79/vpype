@@ -101,7 +101,7 @@ def propset(
             vpype [...] propset --global --type int my_prop 10 [...]
 
         Set the layer property of type `float` (this is equivalent to using the `penwidth`
-        command:
+        command):
 
             vpype [...] propset --layer 1 --type float vp_pen_width 0.5mm [...]
 
@@ -399,7 +399,6 @@ command. Check the documentation for more information on creating custom pen con
 @click.argument("pen_config", metavar="CONF", type=TextType())
 @global_processor
 def pens(document: vp.Document, pen_config: str) -> vp.Document:
-
     # the CONF parameter must be checked explicitly (instead of using click.Choice()) because
     # additional config file (potentially containing pen configs) may be added at runtime
     config = vp.config_manager.config.get("pen_config", {})
