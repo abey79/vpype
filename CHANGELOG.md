@@ -6,7 +6,7 @@ Release date: UNRELEASED
 
 ### New features and improvements
 
-* ...
+* Added support for Python 3.11 and dropped support for Python 3.8 (#581)
 
 ### Bug fixes
 
@@ -16,9 +16,16 @@ Release date: UNRELEASED
 
 * ...
 
+### Known issue
+
+* As of PySide 6.4.2, a refresh issue arises on macOS when the viewer window is resized by a window manager (#603)
+
+
 ## 1.12.1
 
 Release date: 2022-11-12
+
+**Note**: This is the last version of *vpype* to support Python 3.7.
 
 ### Bug fixes
 

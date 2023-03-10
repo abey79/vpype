@@ -33,19 +33,18 @@ def load_program(name: str, ctx: mgl.Context) -> mgl.Program:
         the loaded program
     """
 
-    def _load_shader(path: str) -> str | None:
-        try:
-            with open(path) as fp:
-                return fp.read()
-        except OSError:
+    def _load_shader(path: pathlib.Path) -> str | None:
+        if path.exists():
+            return path.read_text()
+        else:
             return None
 
-    full_path = os.path.dirname(__file__) + os.path.sep + "shaders" + os.path.sep + name
+    full_path = pathlib.Path(__file__).parent / "shaders"
 
     return ctx.program(
-        vertex_shader=_load_shader(full_path + "_vertex.glsl"),
-        fragment_shader=_load_shader(full_path + "_fragment.glsl"),
-        geometry_shader=_load_shader(full_path + "_geometry.glsl"),
+        vertex_shader=(full_path / f"{name}_vertex.glsl").read_text(),
+        fragment_shader=_load_shader(full_path / f"{name}_fragment.glsl"),
+        geometry_shader=_load_shader(full_path / f"{name}_geometry.glsl"),
     )
 
 
