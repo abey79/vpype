@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any, Union, cast
 
 import moderngl as mgl
 import numpy as np
@@ -87,16 +87,16 @@ class PaperBoundsPainter(Painter):
         )
 
     def render(self, engine: Engine, projection: np.ndarray) -> None:
-        self._prog["projection"].write(projection)
+        cast(mgl.Uniform, self._prog["projection"]).write(projection)
 
-        self._prog["color"].value = (0, 0, 0, 0.25)
-        self._shading_vao.render(mgl.TRIANGLES, first=6, vertices=12)
+        cast(mgl.Uniform, self._prog["color"]).value = (0, 0, 0, 0.25)
+        self._shading_vao.render(mgl.TRIANGLES, first=6, vertices=12)  # type:ignore
 
-        self._prog["color"].value = (1, 1, 1, 1)
-        self._shading_vao.render(mgl.TRIANGLES, first=0, vertices=6)
+        cast(mgl.Uniform, self._prog["color"]).value = (1, 1, 1, 1)
+        self._shading_vao.render(mgl.TRIANGLES, first=0, vertices=6)  # type:ignore
 
-        self._prog["color"].value = self._color
-        self._bounds_vao.render(mgl.LINE_LOOP)
+        cast(mgl.Uniform, self._prog["color"]).value = self._color
+        self._bounds_vao.render(mgl.LINE_LOOP)  # type:ignore
 
 
 class LineCollectionFastPainter(Painter):
@@ -112,9 +112,9 @@ class LineCollectionFastPainter(Painter):
         self._vao = ctx.vertex_array(self._prog, [(vbo, "2f4", "in_vert")], index_buffer=ibo)
 
     def render(self, engine: Engine, projection: np.ndarray) -> None:
-        self._prog["projection"].write(projection)
-        self._prog["color"].value = self._color
-        self._vao.render(mgl.LINE_STRIP)
+        cast(mgl.Uniform, self._prog["projection"]).write(projection)
+        cast(mgl.Uniform, self._prog["color"]).value = self._color
+        self._vao.render(mgl.LINE_STRIP)  # type:ignore
 
     @staticmethod
     def _build_buffers(lc: vp.LineCollection) -> tuple[np.ndarray, np.ndarray]:
@@ -153,7 +153,9 @@ class LineCollectionFastColorfulPainter(Painter):
 
         # TODO: hacked color table size is not ideal, this will need to be changed when
         # implementing color themes
-        self._prog["colors"].write(np.concatenate(self.COLORS).astype("f4").tobytes())
+        cast(mgl.Uniform, self._prog["colors"]).write(
+            np.concatenate(self.COLORS).astype("f4").tobytes()
+        )
 
         vertices, indices = self._build_buffers(lc)
         vbo = self.buffer(vertices.tobytes())
@@ -166,10 +168,10 @@ class LineCollectionFastColorfulPainter(Painter):
         )
 
     def render(self, engine: Engine, projection: np.ndarray) -> None:
-        self._prog["projection"].write(projection)
-        self._vao.render(mgl.LINE_STRIP)
+        cast(mgl.Uniform, self._prog["projection"]).write(projection)
+        self._vao.render(mgl.LINE_STRIP)  # type:ignore
         if self._show_points:
-            self._vao.render(mgl.POINTS)
+            self._vao.render(mgl.POINTS)  # type:ignore
 
     @classmethod
     def _build_buffers(cls, lc: vp.LineCollection) -> tuple[np.ndarray, np.ndarray]:
@@ -231,9 +233,9 @@ class LineCollectionPointsPainter(Painter):
         self._vao = ctx.vertex_array(self._prog, [(vbo, "2f4", "position")])
 
     def render(self, engine: Engine, projection: np.ndarray) -> None:
-        self._prog["projection"].write(projection)
-        self._prog["color"].value = self._color
-        self._vao.render(mgl.POINTS)
+        cast(mgl.Uniform, self._prog["projection"]).write(projection)
+        cast(mgl.Uniform, self._prog["color"]).value = self._color
+        self._vao.render(mgl.POINTS)  # type:ignore
 
     @staticmethod
     def _build_buffers(lc: vp.LineCollection) -> np.ndarray:
@@ -267,15 +269,17 @@ class LineCollectionPenUpPainter(Painter):
 
         if len(vertices) > 0:
             vbo = self.buffer(np.array(vertices, dtype="f4").tobytes())
-            self._vao = ctx.vertex_array(self._prog, [(vbo, "2f4", "in_vert")])
+            self._vao: mgl.VertexArray | None = ctx.vertex_array(
+                self._prog, [(vbo, "2f4", "in_vert")]
+            )
         else:
             self._vao = None
 
     def render(self, engine: Engine, projection: np.ndarray) -> None:
         if self._vao is not None:
-            self._prog["color"].value = self._color
-            self._prog["projection"].write(projection)
-            self._vao.render(mgl.LINES)
+            cast(mgl.Uniform, self._prog["color"]).value = self._color
+            cast(mgl.Uniform, self._prog["projection"]).write(projection)
+            self._vao.render(mgl.LINES)  # type:ignore
 
 
 class LineCollectionPreviewPainter(Painter):
@@ -294,27 +298,27 @@ class LineCollectionPreviewPainter(Painter):
         self._vao = ctx.vertex_array(self._prog, [(vbo, "2f4", "position")], ibo)
 
     def render(self, engine: Engine, projection: np.ndarray) -> None:
-        self._prog["color"].value = self._color
-        self._prog["pen_width"].value = self._pen_width
-        self._prog["antialias"].value = 1.5 / engine.scale
-        self._prog["projection"].write(projection)
+        cast(mgl.Uniform, self._prog["color"]).value = self._color
+        cast(mgl.Uniform, self._prog["pen_width"]).value = self._pen_width
+        cast(mgl.Uniform, self._prog["antialias"]).value = 1.5 / engine.scale
+        cast(mgl.Uniform, self._prog["projection"]).write(projection)
 
         if engine.debug:
-            self._prog["kill_frag_shader"].value = False
-            self._prog["debug_view"].value = True
-            self._prog["color"].value = self._color[0:3] + (0.3,)
-            self._vao.render(mgl.LINE_STRIP_ADJACENCY)
+            cast(mgl.Uniform, self._prog["kill_frag_shader"]).value = False
+            cast(mgl.Uniform, self._prog["debug_view"]).value = True
+            cast(mgl.Uniform, self._prog["color"]).value = self._color[0:3] + (0.3,)
+            self._vao.render(mgl.LINE_STRIP_ADJACENCY)  # type:ignore
 
-            self._prog["kill_frag_shader"].value = True
-            self._prog["debug_view"].value = False
-            self._prog["color"].value = (0, 1, 0, 1)
+            cast(mgl.Uniform, self._prog["kill_frag_shader"]).value = True
+            cast(mgl.Uniform, self._prog["debug_view"]).value = False
+            cast(mgl.Uniform, self._prog["color"]).value = (0, 1, 0, 1)
             self._ctx.wireframe = True
-            self._vao.render(mgl.LINE_STRIP_ADJACENCY)
+            self._vao.render(mgl.LINE_STRIP_ADJACENCY)  # type:ignore
             self._ctx.wireframe = False
         else:
-            self._prog["kill_frag_shader"].value = False
-            self._prog["debug_view"].value = False
-            self._vao.render(mgl.LINE_STRIP_ADJACENCY)
+            cast(mgl.Uniform, self._prog["kill_frag_shader"]).value = False
+            cast(mgl.Uniform, self._prog["debug_view"]).value = False
+            self._vao.render(mgl.LINE_STRIP_ADJACENCY)  # type:ignore
 
     @staticmethod
     def _build_buffers(lc: vp.LineCollection):
@@ -414,7 +418,7 @@ class RulersPainter(Painter):
         self._texture = load_texture_array("VeraMono.png", ctx, (77, 159, 190), 4)
         self._text_prog = load_program("ruler_text", ctx)
         self._aspect_ratio = 159.0 / 77.0
-        self._text_prog["color"].value = (0, 0, 0, 1.0)
+        cast(mgl.Uniform, self._text_prog["color"]).value = (0, 0, 0, 1.0)
         self._text_vao = ctx.vertex_array(self._text_prog, [])
 
         # unit label
@@ -430,8 +434,8 @@ class RulersPainter(Painter):
 
         self._prog["ruler_width"] = 2 * self._thickness * engine.pixel_factor / engine.width
         self._prog["ruler_height"] = 2 * self._thickness * engine.pixel_factor / engine.height
-        self._prog["color"].value = (1.0, 1.0, 1.0, 1.0)
-        self._fill_vao.render(mode=mgl.TRIANGLES, first=6)
+        cast(mgl.Uniform, self._prog["color"]).value = (1.0, 1.0, 1.0, 1.0)
+        self._fill_vao.render(mode=mgl.TRIANGLES, first=6)  # type:ignore
 
         # ===========================
         # render ticks
@@ -462,7 +466,7 @@ class RulersPainter(Painter):
         self._ticks_prog["offset"] = (engine.origin[1] % spec.scale_px) * engine.scale
         self._ticks_prog["ruler_thickness"] = 2 * thickness / engine.width
         self._ticks_prog["start_number"] = start_number_vert
-        self._ticks_vao.render(mode=mgl.POINTS, vertices=vertical_tick_count)
+        self._ticks_vao.render(mode=mgl.POINTS, vertices=vertical_tick_count)  # type:ignore
 
         # render horizontal ruler
         self._ticks_prog["vertical"] = False
@@ -471,7 +475,7 @@ class RulersPainter(Painter):
         self._ticks_prog["offset"] = (engine.origin[0] % spec.scale_px) * engine.scale
         self._ticks_prog["ruler_thickness"] = 2 * thickness / engine.height
         self._ticks_prog["start_number"] = start_number_horiz
-        self._ticks_vao.render(mode=mgl.POINTS, vertices=horiz_tick_count)
+        self._ticks_vao.render(mode=mgl.POINTS, vertices=horiz_tick_count)  # type:ignore
 
         # ===========================
         # render glyph
@@ -484,32 +488,32 @@ class RulersPainter(Painter):
         self._text_prog["viewport_dim"] = engine.width
         self._text_prog["document_dim"] = doc_width / spec.to_px
         self._text_prog["offset"] = (engine.origin[0] % spec.scale_px) * engine.scale
-        self._text_prog["glyph_size"].value = (
+        cast(mgl.Uniform, self._text_prog["glyph_size"]).value = (
             font_size * 2.0 / engine.width,
             font_size * 2.0 * self._aspect_ratio / engine.height,
         )
         self._text_prog["start_number"] = start_number_horiz
-        self._text_vao.render(mode=mgl.POINTS, vertices=horiz_tick_count)
+        self._text_vao.render(mode=mgl.POINTS, vertices=horiz_tick_count)  # type:ignore
 
         # vertical
         self._text_prog["vertical"] = True
         self._text_prog["viewport_dim"] = engine.height
         self._text_prog["document_dim"] = doc_height / spec.to_px
         self._text_prog["offset"] = (engine.origin[1] % spec.scale_px) * engine.scale
-        self._text_prog["glyph_size"].value = (
+        cast(mgl.Uniform, self._text_prog["glyph_size"]).value = (
             font_size * 2.0 * self._aspect_ratio / engine.width,
             font_size * 2.0 / engine.height,
         )
         self._text_prog["start_number"] = start_number_vert
-        self._text_vao.render(mode=mgl.POINTS, vertices=vertical_tick_count)
+        self._text_vao.render(mode=mgl.POINTS, vertices=vertical_tick_count)  # type:ignore
 
         # ===========================
         # render units corner
 
-        self._prog["color"].value = (1.0, 1.0, 1.0, 1.0)
-        self._fill_vao.render(mode=mgl.TRIANGLES, vertices=6)
-        self._prog["color"].value = (0.0, 0.0, 0.0, 1.0)
-        self._stroke_vao.render(mode=mgl.LINES)
+        cast(mgl.Uniform, self._prog["color"]).value = (1.0, 1.0, 1.0, 1.0)
+        self._fill_vao.render(mode=mgl.TRIANGLES, vertices=6)  # type:ignore
+        cast(mgl.Uniform, self._prog["color"]).value = (0.0, 0.0, 0.0, 1.0)
+        self._stroke_vao.render(mode=mgl.LINES)  # type:ignore
 
         self._unit_label.font_size = font_size
         self._unit_label.position = (thickness / 7.0, thickness / 8.0)
@@ -555,14 +559,14 @@ class LabelPainter(Painter):
 
     def render(self, engine: Engine, projection: np.ndarray) -> None:
         self._texture.use(0)
-        self._prog["color"].value = self._color
-        self._prog["position"].value = (
+        cast(mgl.Uniform, self._prog["color"]).value = self._color
+        cast(mgl.Uniform, self._prog["position"]).value = (
             -1.0 + 2.0 * self.position[0] / engine.width,
             1.0 - 2.0 * self.position[1] / engine.height,
         )
-        self._prog["glyph_size"].value = (
+        cast(mgl.Uniform, self._prog["glyph_size"]).value = (
             self.font_size * 2.0 / engine.width,
             self.font_size * 2.0 * self._aspect_ratio / engine.height,
         )
 
-        self._vao.render(mode=mgl.POINTS, vertices=self._size)
+        self._vao.render(mode=mgl.POINTS, vertices=self._size)  # type:ignore

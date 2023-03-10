@@ -108,7 +108,7 @@ class Engine:
         """Post-init configuration to provide a GL context."""
 
         self._ctx = ctx
-        self._ctx.enable_only(mgl.BLEND | mgl.PROGRAM_POINT_SIZE)
+        self._ctx.enable_only(mgl.BLEND | mgl.PROGRAM_POINT_SIZE)  # type:ignore
 
         self._rulers_painter = RulersPainter(self._ctx)
 

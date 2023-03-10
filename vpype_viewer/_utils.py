@@ -33,12 +33,12 @@ def load_program(name: str, ctx: mgl.Context) -> mgl.Program:
         the loaded program
     """
 
-    def _load_shader(path: str) -> str | None:
+    def _load_shader(path: str) -> str:
         try:
             with open(path) as fp:
                 return fp.read()
         except OSError:
-            return None
+            raise RuntimeError(f"could not load shader at `{path}`")
 
     full_path = os.path.dirname(__file__) + os.path.sep + "shaders" + os.path.sep + name
 

@@ -141,8 +141,8 @@ def pytest_addoption(parser):
 
 
 def write_image_similarity_fail_report(
-    image: Image,
-    reference_image: Image,
+    image: Image.Image,
+    reference_image: Image.Image,
     image_array: np.ndarray,
     reference_image_array: np.ndarray,
     test_id: str,
@@ -171,7 +171,7 @@ def assert_image_similarity(request) -> Callable:
     test_id = test_id.replace("[", "-").replace("]", "-").replace("/", "_").rstrip("-")
     path = REFERENCE_IMAGES_DIR + os.path.sep + test_id + ".png"
 
-    def _assert_image_similarity(img: Image) -> None:
+    def _assert_image_similarity(img: Image.Image) -> None:
         nonlocal store_ref_image, test_id, path
 
         if store_ref_image:  # pragma: no cover

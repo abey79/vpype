@@ -33,7 +33,7 @@ class ImageRenderer:
         self.engine = Engine()
         self.engine.post_init(ctx, *size)
 
-    def render(self) -> Image:
+    def render(self) -> Image.Image:
         """Render to a :class:`PIL.Image.Image` instance.
 
         Returns:
@@ -59,7 +59,7 @@ def render_image(
     unit_type: UnitType = UnitType.METRIC,
     scale: float | None = None,
     origin: tuple[float, float] | None = None,
-) -> Image:
+) -> Image.Image:
     """Render a :class:`vpype.Document` instance as a Pillow :class:`PIL.Image.Image`.
 
     By default, the document is scaled and offset to entirely fit in the image. This behaviour
