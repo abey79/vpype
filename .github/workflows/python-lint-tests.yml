@@ -36,7 +36,7 @@ jobs:
     - name: Install project
       run: poetry install -E all
     - name: Lint and static analysis
-      if:  matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'  # no need to run that 9x
+      if:  matrix.os == 'macos-latest' && matrix.python-version == '3.11'  # no need to run that 9x
       run: |
         poetry run isort --check --diff vpype vpype_cli vpype_viewer tests
         poetry run black --check --diff vpype vpype_cli vpype_viewer tests
