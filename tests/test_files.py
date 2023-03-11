@@ -614,3 +614,39 @@ def test_read_svg_by_attributes_default_page_size(
     )
 
     assert doc.page_size == pytest.approx(target)
+
+
+def test_read_layer_id_extraction():
+    from vpype.io import _extract_digit_group
+
+    assert _extract_digit_group("") is None
+    assert _extract_digit_group("layer") is None
+    assert _extract_digit_group("11layer") == "11"
+    assert _extract_digit_group("11layer332") == "11"
+    assert _extract_digit_group("lay11er332") == "11"
+    assert _extract_digit_group("layer332") == "332"
+
+
+@pytest.mark.parametrize(
+    ("attr", "exp"),
+    [
+        ("", 1),
+        ('id="5"', 5),
+        ('id="56adf5"', 56),
+        ('id="asdf53adf5"', 53),
+        ('inkscape:label="5" id="6"', 5),
+        ('inkscape:label="hello" id="world6"', 6),
+        ('inkscape:label="47hello25" id="world6"', 47),
+    ],
+)
+def test_read_layer_id_from_svg(attr, exp):
+    svg = f"""<?xml version="1.0"?><svg width="500" height="300" 
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">
+        <g {attr}>
+                <line x1="0" y1="0" x2="10" y2="10" fill="red" />
+        </g>
+    </svg>"""
+
+    doc = vp.read_multilayer_svg(io.StringIO(svg), 0.1)
+    assert doc.layers.keys() == {exp}
+    assert len(doc.layers[exp]) == 1

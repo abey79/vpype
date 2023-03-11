@@ -165,7 +165,7 @@ def _merge_metadata(
 
 
 def _element_to_paths(elem: svgelements.SVGElement) -> _PathType | None:
-    """Convert a SVG element into a path object that can be processed by
+    """Convert an SVG element into a path object that can be processed by
     :func:`_flattened_paths_to_line_collection`
 
     Args:
@@ -382,7 +382,7 @@ def read_svg(
     default_width: float | None = None,
     default_height: float | None = None,
 ) -> tuple[LineCollection, float, float]:
-    """Read a SVG file an return its content as a :class:`LineCollection` instance.
+    """Read an SVG file and return its content as a :class:`LineCollection` instance.
 
     All curved geometries are chopped in segments no longer than the value of *quantization*.
     Optionally, the geometries are simplified using Shapely, using the value of *quantization*
@@ -425,6 +425,21 @@ def read_svg(
     return lc, svg.width, svg.height
 
 
+_LID_RE = re.compile(r"\d+")
+
+
+def _extract_digit_group(label: str) -> str | None:
+    """Extract a layer ID from a label.
+
+    The first continuous group of digit, if any, is returned.
+    """
+    match = _LID_RE.search(label)
+    if match is not None:
+        return match.group()
+    else:
+        return None
+
+
 def read_multilayer_svg(
     file: str | TextIO,
     quantization: float,
@@ -441,9 +456,9 @@ def read_multilayer_svg(
     in layer 1.
 
     Groups are matched to layer ID according their `inkscape:label` attribute, their `id`
-    attribute or their appearing order, in that order of priority. Labels are stripped of
-    non-numeric characters and the remaining is used as layer ID. Lacking numeric characters,
-    the appearing order is used. If the label is 0, its changed to 1.
+    attribute or their appearing order, in that order of priority. The first contiguous group
+    of digits in the label is used as layer ID. Lacking numeric characters, the appearing order
+    is used. If the label is 0, it is changed to 1.
 
     All curved geometries are chopped in segments no longer than the value of *quantization*.
     Optionally, the geometries are simplified using Shapely, using the value of *quantization*
@@ -467,8 +482,8 @@ def read_multilayer_svg(
             provided
 
     Returns:
-         :class:`Document` instance with the imported geometries and its page size set the the
-         SVG dimensions
+         :class:`Document` instance with the imported geometries and its page size set the SVG
+         dimensions
     """
 
     svg = svgelements.SVG.parse(file, width=default_width, height=default_height)
@@ -491,9 +506,9 @@ def read_multilayer_svg(
         layer_name = g.values.get("{http://www.inkscape.org/namespaces/inkscape}label", None)
 
         # compute a decent layer ID
-        lid_str = re.sub("[^0-9]", "", layer_name or "")
+        lid_str = _extract_digit_group(layer_name or "")
         if not lid_str:
-            lid_str = re.sub("[^0-9]", "", g.values.get("id") or "")
+            lid_str = _extract_digit_group(g.values.get("id") or "")
         if lid_str:
             lid = int(lid_str)
             if lid == 0:
@@ -545,7 +560,7 @@ def read_svg_by_attributes(
     default_width: float | None = None,
     default_height: float | None = None,
 ) -> Document:
-    """Read a SVG file by sorting geometries by unique combination of provided attributes.
+    """Read an SVG file by sorting geometries by unique combination of provided attributes.
 
     All curved geometries are chopped in segments no longer than the value of *quantization*.
     Optionally, the geometries are simplified using Shapely, using the value of *quantization*
@@ -570,8 +585,8 @@ def read_svg_by_attributes(
             provided
 
     Returns:
-         :class:`Document` instance with the imported geometries and its page size set the the
-         SVG dimensions
+         :class:`Document` instance with the imported geometries and its page size set the SVG
+         dimensions
     """
 
     svg = svgelements.SVG.parse(file, width=default_width, height=default_height)
@@ -637,10 +652,10 @@ def write_svg(
     use_svg_metadata: bool = False,
     set_date: bool = True,
 ) -> None:
-    """Create a SVG from a :py:class:`Document` instance.
+    """Create an SVG from a :py:class:`Document` instance.
 
     If no page size is provided (or (0, 0) is passed), the SVG generated has bounds tightly
-    fitted around the geometries. Otherwise the provided size (in pixel) is used. The width
+    fitted around the geometries. Otherwise, the provided size (in pixel) is used. The width
     and height is capped to a minimum of 1 pixel.
 
     By default, no translation is applied on the geometry. If `center=True`, geometries are
@@ -776,7 +791,7 @@ def write_svg(
             color = Color(layer.property(METADATA_FIELD_COLOR))
 
             # we want to avoid a subsequent layer whose color is undefined to have its color
-            # affected by whether or not previous layer have their color defined
+            # affected by whether previous layer have their color defined
             color_idx += 1
 
         group.attribs["stroke"] = color.as_rgb_hex()
@@ -841,7 +856,7 @@ def write_hpgl(
     absolute: bool = False,
     quiet: bool = False,
 ) -> None:
-    """Create a HPGL file from the :class:`Document` instance.
+    """Create an HPGL file from the :class:`Document` instance.
 
     The ``device``/``page_size`` combination must be defined in the built-in or user-provided
     config files or an exception will be raised.
@@ -857,7 +872,7 @@ def write_hpgl(
         page_size: page size string (it must be configured for the selected device)
         landscape: if True, the geometries are generated in landscape orientation
         center: center geometries on page before export
-        device: name of the device to use (the corresponding config must exists). If not
+        device: name of the device to use (the corresponding config must exist). If not
             provided, a default device must be configured, which will be used.
         velocity: if provided, a VS command will be generated with the corresponding value
         absolute: if True, only use absolute coordinates
@@ -879,7 +894,7 @@ def write_hpgl(
 
     # Handle flex paper size.
     # If paper_size is not provided by the config, the paper size is then assumed to be the
-    # same a the current page size. In this case, the config should provide paper_orientation
+    # same as the current page size. In this case, the config should provide paper_orientation
     # since it may not be the same as the document's page size
     paper_size = paper_config.paper_size
     if paper_size is None:
