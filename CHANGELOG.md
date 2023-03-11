@@ -7,6 +7,7 @@ Release date: UNRELEASED
 ### New features and improvements
 
 * Added support for Python 3.11 and dropped support for Python 3.8 (#581)
+* Added the `lid` built-in expression variable for generator and layer processor commands (#605)
 
 ### Bug fixes
 

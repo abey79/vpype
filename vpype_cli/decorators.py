@@ -86,7 +86,8 @@ def layer_processor(f):
                 start = datetime.datetime.now()
                 with state.current():
                     state.current_layer_id = lid
-                    new_args, new_kwargs = state.preprocess_arguments(args, kwargs)
+                    with state.expression_variables({"lid": lid}):
+                        new_args, new_kwargs = state.preprocess_arguments(args, kwargs)
                     logging.info(
                         f"executing layer processor `{f.__name__}` on layer {lid} "
                         f"(kwargs: {new_kwargs})"
@@ -194,7 +195,8 @@ def generator(f):
 
                 start = datetime.datetime.now()
                 state.current_layer_id = target_layer
-                new_args, new_kwargs = state.preprocess_arguments(args, kwargs)
+                with state.expression_variables({"lid": target_layer}):
+                    new_args, new_kwargs = state.preprocess_arguments(args, kwargs)
                 logging.info(
                     f"executing generator `{f.__name__}` to layer {target_layer} "
                     f"(kwargs: {new_kwargs})"

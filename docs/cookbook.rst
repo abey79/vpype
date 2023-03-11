@@ -599,6 +599,20 @@ The above pen configuration can be used by referring to its name, in this case `
 Miscellaneous recipes
 =====================
 
+Batch renaming layers
+---------------------
+
+The :ref:`cmd_name` command can be used to assign a new name to a given layer. It is typically used as follows::
+
+  $ vpype [...] name --layer 3 "Layer 3" [...]
+
+If the :option:`--layer <name --layer>` option is omitted, the provided name is assigned to *all* layers. This behaviour can be useful when combined with the ``lid`` :ref:`expression built-in variable <fundamentals_expr_builtins>`::
+
+  $ vpype random --layer 1 random --layer 3  name "Layer %lid%"  write output.svg
+
+Here, two layers with IDs 1 and 3 are created with some random lines (e.g. to simulate loading a multi-layer file). Then, these layers are renamed with "Layer 1" and "Layer 3", respectively, and the result written to the ``output.svg`` file. The layer names can be verified by opening ``output.svg`` in Inkscape.
+
+
 .. _faq_interactive_pipelines:
 
 Create interactive scripts with ``input()``
