@@ -12,7 +12,7 @@ Release date: UNRELEASED
 ### Bug fixes
 
 * Fixed a design issue with the `read` command where disjoints groups of digit in layer names would be used to determine layer IDs. Only the first contiguous group of digit is used, so a layer named "01-layer1" would now have layer ID of 1 instead of 11 (#606)
-* Fixed an issue on Wayland-based Linux distribution where using the viewer (e.g. with the `show` command) would crash
+* Fixed an issue on Wayland-based Linux distribution where using the viewer (e.g. with the `show` command) would crash (#607)
 
 ### API changes
 
