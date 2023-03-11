@@ -242,3 +242,10 @@ def test_expression_dict_of_prop(state_factory, state_type):
     state.substitute("%dict(prop)%")
     state.substitute("%dict(gprop)%")
     state.substitute("%dict(lprop)%")
+
+
+def test_expression_lid_builtin():
+    doc = vpype_cli.execute("random -l 1 random -l 3 name 'layer %lid%'")
+    assert {1, 3} == doc.layers.keys()
+    assert doc.layers[1].metadata[vp.METADATA_FIELD_NAME] == "layer 1"
+    assert doc.layers[3].metadata[vp.METADATA_FIELD_NAME] == "layer 3"

@@ -346,6 +346,14 @@ In addition, the following *vpype*-specific symbols are available:
 
   These special objects provide access to the global or current-layer properties. Properties may be accessed by attribute (e.g. ``%prop.vp_name%``) or indexation (e.g. ``%prop['vp_name']%``). The ``gprop`` object provides access to global properties. The ``lprop`` object provides access to the current layer's properties if available (i.e. within  :ref:`generator <fundamentals_generators>` and :ref:`layer processor <fundamentals_layer_processors>` commands). The ``prop`` object looks first for current-layer properties, if any, and then for global properties.
 
+* The ``lid`` variable (in supported commands).
+
+  This variable contains the layer ID of the currently processed layer. It is available only for :ref:`generator <fundamentals_generators>` and :ref:`layer processor <fundamentals_layer_processors>` commands.
+
+  .. caution::
+
+    This variable should not be confused with the ``_lid`` variable set by the :ref:`cmd_forlayer` block processor.
+
 * Units constants (|units_expr|).
 
   These variables may be used to convert values to CSS pixels unit, which *vpype* uses internally. For example, the expression ``%(3+4)*cm%`` evaluates to the pixel equivalent of 7 centimeters (e.g. ~264.6 pixels). (Note that expressions may overwrite these variables, e.g. to use the ``m`` variable for another purpose.)
