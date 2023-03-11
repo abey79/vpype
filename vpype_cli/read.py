@@ -91,9 +91,9 @@ def read(
     display_size: tuple[float, float] | None,
     display_landscape: bool,
 ) -> vp.Document:
-    """Extract geometries from a SVG file.
+    """Extract geometries from an SVG file.
 
-    FILE may be a file path path or a dash (-) to read from the standard input instead.
+    FILE may be a file path or a dash (-) to read from the standard input instead.
 
     By default, the `read` command attempts to preserve the layer structure of the SVG. In this
     context, top-level groups (<g>) are each considered a layer. If any, all non-group,
@@ -102,9 +102,9 @@ def read(
     The following logic is used to determine in which layer each SVG top-level group is
     imported:
 
-        - If a `inkscape:label` attribute is present and contains digit characters, it is \
-stripped of non-digit characters the resulting number is used as target layer. If the \
-resulting number is 0, layer 1 is used instead.
+        - If a `inkscape:label` attribute is present and contains digit characters, the first \
+group of contiguous digits is used as target layer. If the resulting number is 0, layer 1 is \
+used instead.
 
         - If the previous step fails, the same logic is applied to the `id` attribute.
 
@@ -141,7 +141,7 @@ of appearance.
     length attributes. The crop operation can be disabled with the `--no-crop` option.
 
     In general, SVG boundaries are determined by the `width` and `height` of the top-level
-    <svg> tag. However, the some SVG may have their width and/or height specified as percent
+    <svg> tag. However, some SVGs may have their width and/or height specified as percent
     value or even miss them altogether (in which case they are assumed to be set to 100%). In
     these cases, vpype attempts to use the `viewBox` attribute to determine the page size, or
     revert to a 1000x1000px default. The options `--display-size FORMAT` and
