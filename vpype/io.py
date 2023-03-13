@@ -9,7 +9,8 @@ import datetime
 import math
 import pathlib
 import re
-from typing import Any, Iterable, Iterator, List, TextIO, Union, cast
+from collections.abc import Iterable, Iterator
+from typing import Any, List, TextIO, Union, cast
 from xml.etree import ElementTree
 
 import click
@@ -87,9 +88,9 @@ _PathType = Union[
     # for actual paths and shapes transformed into paths
     svgelements.Path,
     # for the special case of Polygon and Polylines
-    List[Union[svgelements.PathSegment, svgelements.Polygon, svgelements.Polyline]],
+    list[Union[svgelements.PathSegment, svgelements.Polygon, svgelements.Polyline]],
 ]
-_PathListType = List[_PathType]
+_PathListType = list[_PathType]
 
 
 _NAMESPACED_PROPERTY_RE = re.compile(r"{([-a-zA-Z0-9@:%._+~#=/]+)}([a-zA-Z_][a-zA-Z0-9\-_.]*)")

@@ -21,7 +21,8 @@ import logging
 import math
 import os
 import pathlib
-from typing import Any, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any
 
 import tomli
 

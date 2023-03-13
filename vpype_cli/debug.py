@@ -4,7 +4,8 @@ Hidden debug commands to help testing.
 from __future__ import annotations
 
 import json
-from typing import Any, Iterable, Sequence
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 import numpy as np
 

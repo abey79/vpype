@@ -3,7 +3,8 @@ from __future__ import annotations
 import glob
 import os
 import pathlib
-from typing import Any, Iterable
+from collections.abc import Iterable
+from typing import Any
 
 import click
 

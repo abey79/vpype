@@ -10,11 +10,11 @@ import moderngl as mgl
 import numpy as np
 from PIL import Image
 
-ColorType = Tuple[float, float, float, float]
+ColorType = tuple[float, float, float, float]
 
 
 @cachetools.cached(
-    cache=cast(Dict[Any, Any], {}),
+    cache=cast(dict[Any, Any], {}),
     key=lambda name, ctx: cachetools.keys.hashkey((name, id(ctx))),
 )
 def load_program(name: str, ctx: mgl.Context) -> mgl.Program:
@@ -49,7 +49,7 @@ def load_program(name: str, ctx: mgl.Context) -> mgl.Program:
 
 
 @cachetools.cached(
-    cache=cast(Dict[Any, Any], {}),
+    cache=cast(dict[Any, Any], {}),
     key=lambda name, ctx, size, components: cachetools.keys.hashkey(
         (name, id(ctx), size, components)
     ),

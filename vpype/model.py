@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import math
 import pathlib
-from typing import Any, Callable, Iterable, Iterator, Optional, Tuple, Union, cast
+from collections.abc import Iterable, Iterator
+from typing import Any, Callable, Optional, Tuple, Union, cast
 
 import numpy as np
 from shapely.geometry import LinearRing, LineString, MultiLineString
@@ -615,7 +616,7 @@ class Document(_MetadataMixin):
         return self.property(METADATA_FIELD_PAGE_SIZE)
 
     @page_size.setter
-    def page_size(self, page_size=Optional[Tuple[float, float]]) -> None:
+    def page_size(self, page_size=Optional[tuple[float, float]]) -> None:
         """Sets the page size to a new value."""
         self.set_property(METADATA_FIELD_PAGE_SIZE, page_size)
 
