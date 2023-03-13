@@ -74,7 +74,7 @@ types-pillow = "^9.4.0.17"
 optional = true
 
 [tool.poetry.group.docs.dependencies]
-furo = "2022.6.21"
+furo = "2022.12.7"
 sphinx = ">=5.0.2"
 sphinx-autobuild = ">=2021.3.14"
 sphinx-click = ">=4.3.0"
