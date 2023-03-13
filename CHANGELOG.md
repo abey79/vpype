@@ -2,7 +2,7 @@
 
 ## 1.13
 
-Release date: UNRELEASED
+Release date: 2023-03-13
 
 ### New features and improvements
 
@@ -11,12 +11,8 @@ Release date: UNRELEASED
 
 ### Bug fixes
 
-* Fixed a design issue with the `read` command where disjoints groups of digit in layer names would be used to determine layer IDs. Only the first contiguous group of digit is used, so a layer named "01-layer1" would now have layer ID of 1 instead of 11 (#606)
-* Fixed an issue on Wayland-based Linux distribution where using the viewer (e.g. with the `show` command) would crash (#607)
-
-### API changes
-
-* ...
+* Fixed a design issue with the `read` command where disjoint groups of digits in layer names could be used to determine layer IDs. Only the first contiguous group of digits is used now, so a layer named "01-layer1" has layer ID of 1 instead of 11 (#606)
+* Fixed an issue on Wayland-based Linux distributions where using the viewer (e.g. with the `show` command) would crash (#607)
 
 ### Known issue
 
