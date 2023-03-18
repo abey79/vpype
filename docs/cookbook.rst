@@ -613,6 +613,12 @@ If the :option:`--layer <name --layer>` option is omitted, the provided name is 
 Here, two layers with IDs 1 and 3 are created with some random lines (e.g. to simulate loading a multi-layer file). Then, these layers are renamed with "Layer 1" and "Layer 3", respectively, and the result written to the ``output.svg`` file. The layer names can be verified by opening ``output.svg`` in Inkscape.
 
 
+Controlling the AxiDraw plotting process using layer names
+----------------------------------------------------------
+
+See `this article <https://bylr.info/articles/2023/03/17/layer-names/>`_.
+
+
 .. _faq_interactive_pipelines:
 
 Create interactive scripts with ``input()``
