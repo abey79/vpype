@@ -35,7 +35,7 @@ def _compute_origin(
             0.5 * (bounds[1] + bounds[3]),
         )
 
-    return cast(Tuple[float, float], origin), layer_ids, bounds
+    return cast(tuple[float, float], origin), layer_ids, bounds
 
 
 @cli.command(group="Transforms")

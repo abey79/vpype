@@ -3,8 +3,9 @@ from __future__ import annotations
 import datetime
 import logging
 import math
+from collections.abc import Iterable
 from functools import update_wrapper
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING
 
 import click
 
