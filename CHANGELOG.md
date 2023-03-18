@@ -17,6 +17,8 @@ Release date: UNRELEASED
 
 Release date: 2023-03-13
 
+[Annotated Release Notes](https://bylr.info/articles/2023/03/13/annotated-release-notes-vpype-1.13/)
+
 ### New features and improvements
 
 * Added support for Python 3.11 and dropped support for Python 3.8 (#581)
