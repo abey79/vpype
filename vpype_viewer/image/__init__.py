@@ -28,10 +28,13 @@ class ImageRenderer:
         Args:
             size: image size
         """
-        ctx = moderngl.create_standalone_context()
-        self._fbo = ctx.simple_framebuffer(size)
+        self._ctx = moderngl.create_context(standalone=True)
+        self._fbo = self._ctx.simple_framebuffer(size)
         self.engine = Engine()
-        self.engine.post_init(ctx, *size)
+        self.engine.post_init(self._ctx, *size)
+
+    def __del__(self):
+        self._ctx.release()
 
     def render(self) -> Image.Image:
         """Render to a :class:`PIL.Image.Image` instance.
