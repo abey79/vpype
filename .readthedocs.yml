@@ -16,6 +16,6 @@ build:
     python: "3.10"
   jobs:
     post_install:
-      - pip install poetry>=1.2.1
+      - pip install poetry!=1.4.1
       - poetry config virtualenvs.create false
       - poetry install -E all --with docs
