@@ -5,7 +5,7 @@ _to be completed_
 #### Checklist
 
 - [ ] feature/fix implemented
-- [ ] code formatting ok (`black` and `isort`)
+- [ ] code formatting ok (`black` and `ruff check .`)
 - [ ] `mypy` returns no error
 - [ ] tests added/updated and `pytest` succeeds
 - [ ] documentation added/updated

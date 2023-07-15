@@ -60,7 +60,6 @@ pytest = ">=6.2.3"
 pytest-cov = ">=2.11.0"
 pytest-benchmark = ">=4.0.0"
 black = ">=22.3.0"
-isort = ">=5.8.0"
 ruff = ">=0.0.277"
 pyinstaller = ">=4.3"
 pyinstaller-hooks-contrib = ">=2022.3"  # fix for shapely 1.8.1
