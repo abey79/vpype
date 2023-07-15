@@ -67,7 +67,7 @@ def layer_processor(f):
             return lines
 
         my_processor.help_group = "My Plugins"
-    """
+    """  # noqa: D412
 
     @click.option(
         "-l",

@@ -44,7 +44,7 @@ def grid(
     offset: tuple[float, float],
     keep_page_size: bool,
 ) -> None:
-    """Creates a NX by NY grid of geometry
+    r"""Creates a NX by NY grid of geometry
 
     The number of column and row must always be specified. By default, 10mm offsets are used
     in both directions. Use the `--offset DX DY` option to override these values.
@@ -69,7 +69,6 @@ def grid(
         _i: current cell (0 to _n-1)
 
     Examples:
-
         Create a grid of random line patches:
 
             $ vpype begin grid 3 4 random end show
@@ -108,7 +107,7 @@ def grid(
 @click.argument("number", type=IntegerType(), metavar="N")
 @block_processor
 def repeat(state: State, processors: Iterable[ProcessorType], number: int) -> None:
-    """Repeat geometries N times.
+    r"""Repeat geometries N times.
 
     Repeats the enclosed command N times, stacking their output on top of each other.
 
@@ -124,7 +123,6 @@ def repeat(state: State, processors: Iterable[ProcessorType], number: int) -> No
         _i: counter (0 to N-1)
 
     Examples:
-
         Create a patch of random lines of 3 different colors:
 
             $ vpype begin repeat 3 random --layer %_i+1% end show
@@ -144,7 +142,7 @@ def repeat(state: State, processors: Iterable[ProcessorType], number: int) -> No
 @click.argument("files", type=TextType(), metavar="FILES")
 @block_processor
 def forfile(state: State, processors: Iterable[ProcessorType], files: str) -> None:
-    """Iterate over a file list.
+    r"""Iterate over a file list.
 
     The `forfile` block processor expends the FILES pattern into a file list like a shell
     would. In particular, wildcards (`*` and `**`) are expended, environmental variables are
@@ -168,7 +166,6 @@ def forfile(state: State, processors: Iterable[ProcessorType], files: str) -> No
         _i (int): counter (0 to _n-1)
 
     Example:
-
         Process all SVGs in the current directory:
 
     \b
@@ -226,7 +223,7 @@ class _MetadataProxy:
 @cli.command(group="Block processors")
 @block_processor
 def forlayer(state: State, processors: Iterable[ProcessorType]) -> None:
-    """Iterate over each layer.
+    r"""Iterate over each layer.
 
     This block processor execute the nested pipeline once per layer. The nested pipeline is
     exclusively exposed to the current layer. In addition, if the nested commands create any
@@ -244,7 +241,6 @@ def forlayer(state: State, processors: Iterable[ProcessorType]) -> None:
         _n (int): number of layers
 
     Example:
-
         Export one file per layer:
 
             vpype read input.svg forlayer write output_%_name%.svg end

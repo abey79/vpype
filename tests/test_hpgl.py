@@ -89,7 +89,7 @@ def simple_printer_config(config_file_factory):
         name = "simple"
         plotter_unit_length = 1
         pen_count = 2
-        
+
         [[device.simple.paper]]
         name = "simple"
         aka_names = ["aka_simple"]
@@ -98,7 +98,7 @@ def simple_printer_config(config_file_factory):
         y_range = [0, 15]
         y_axis_up = false
         origin_location = [0, 0]
-        
+
         [[device.simple.paper]]
         name = "simple_landscape"
         paper_size = [15, 10]
@@ -106,7 +106,7 @@ def simple_printer_config(config_file_factory):
         y_range = [0, 10]
         y_axis_up = false
         origin_location = [0, 0]
-        
+
         [[device.simple.paper]]
         name = "simple_y_up"
         paper_size = [10, 15]
@@ -114,7 +114,7 @@ def simple_printer_config(config_file_factory):
         y_range = [0, 15]
         y_axis_up = true
         origin_location = [0, 15]
-        
+
         [[device.simple.paper]]
         name = "simple_ps10"
         paper_size = [10, 15]
@@ -123,7 +123,7 @@ def simple_printer_config(config_file_factory):
         y_axis_up = false
         origin_location = [0, 0]
         set_ps = 10
-        
+
         [[device.simple.paper]]
         name = "simple_rotate_180"
         paper_size = [10, 15]
@@ -132,7 +132,7 @@ def simple_printer_config(config_file_factory):
         y_axis_up = false
         origin_location = [0, 0]
         rotate_180 = true
-        
+
         [[device.simple.paper]]
         name = "simple_final_pu"
         paper_size = [10, 15]
@@ -141,7 +141,7 @@ def simple_printer_config(config_file_factory):
         y_axis_up = false
         origin_location = [0, 0]
         final_pu_params = "0,0"
-        
+
         [[device.simple.paper]]
         name = "simple_big"
         paper_size = [20, 30]
@@ -149,7 +149,7 @@ def simple_printer_config(config_file_factory):
         y_range = [0, 30]
         y_axis_up = false
         origin_location = [0, 0]
-        
+
         [[device.simple.paper]]
         name = "simple_botleft"
         paper_size = [10, 15]
@@ -158,7 +158,7 @@ def simple_printer_config(config_file_factory):
         y_axis_up = true
         origin_location = [1, 1]
         origin_location_reference = "botleft"
-        
+
         # test flex paper size
         [[device.simple.paper]]
         name = "simple_flex_portrait"
@@ -166,25 +166,25 @@ def simple_printer_config(config_file_factory):
         y_axis_up = true
         origin_location = [1, 1]
         origin_location_reference = "botleft"
-        
+
         [[device.simple.paper]]
         name = "simple_flex_landscape"
         y_axis_up = true
         paper_orientation = "landscape"
         origin_location = [1, 1]
         origin_location_reference = "botleft"
-        
+
         [[device.simple.paper]]
         name = "simple_flex_portrait_implicit"
         y_axis_up = true
         origin_location = [1, 1]
         origin_location_reference = "botleft"
-        
+
         [device.double]
         name = "simple"
         plotter_unit_length = 0.5
         pen_count = 1
-        
+
         [[device.double.paper]]
         name = "simple"
         paper_size = [10, 15]
@@ -192,14 +192,14 @@ def simple_printer_config(config_file_factory):
         y_range = [0, 30]
         y_axis_up = false
         origin_location = [0, 0]
-        
+
         # To test `info`.
         [device.info_device]
         name = "Info Device"
         info = "This is plotter information."
         plotter_unit_length = 0.5
         pen_count = 1
-        
+
         [[device.info_device.paper]]
         name = "simple"
         info = "This is paper information."
@@ -208,14 +208,14 @@ def simple_printer_config(config_file_factory):
         y_range = [0, 30]
         y_axis_up = false
         origin_location = [0, 0]
-        
+
         # To test failure modes
         [device.defective]
         name = "Defective Device"
         info = "This is plotter information."
         plotter_unit_length = 0.5
         pen_count = 1
-        
+
         [[device.defective.paper]]
         name = "wrong_ref"
         y_axis_up = false

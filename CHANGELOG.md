@@ -12,6 +12,10 @@ Release date: UNRELEASED
 
 * Fixed issue with ImageRenderer where the GL context wasn't released, ultimately causing a crash when running the test suite (which could involve many hundreds of context creation) (#616)
 
+### Other changes
+
+* The project now uses [Ruff](https://github.com/astral-sh/ruff) for linting (supersedes isort) (#646)
+
 
 ## 1.13
 

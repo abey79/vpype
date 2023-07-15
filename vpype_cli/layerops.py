@@ -44,7 +44,6 @@ def lcopy(document, sources, dest, prob: float | None, no_prop: bool):
     properties with the same name. This behaviour can be disabled with the `--no-prop` option.
 
     Examples:
-
         Copy layer 1 to a new layer:
 
             vpype [...] lcopy 1 new [...]  # duplicate layer 1
@@ -117,7 +116,6 @@ def lmove(document, sources, dest, prob: float | None, no_prop: bool):
     properties with the same name. This behaviour can be disabled with the `--no-prop` option.
 
     Examples:
-
         Merge layer 1 and 2 to layer 1 (the content of layer 1 is not duplicated):
 
             vpype [...] lmove 1,2 1 [...]  # merge layer 1 and 2 to layer 1
@@ -271,7 +269,6 @@ def lreverse(document: vp.Document, layers) -> vp.Document:
     (to refer to every exising layers).
 
     Examples:
-
         Delete layer one:
 
             $ vpype [...] ldelete 1 [...]

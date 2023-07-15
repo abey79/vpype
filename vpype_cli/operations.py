@@ -2,14 +2,12 @@ from __future__ import annotations
 
 import logging
 import math
-from typing import List, Optional, Union, cast
+from typing import cast
 
 import click
 import numpy as np
 
 import vpype as vp
-from vpype.geometry import line_length
-from vpype.model import LineCollection
 
 from .cli import cli
 from .decorators import global_processor, layer_processor
@@ -110,8 +108,7 @@ def trim(
 )
 @layer_processor
 def linemerge(lines: vp.LineCollection, tolerance: float, no_flip: bool = True):
-    """
-    Merge lines whose endings and starts overlap or are very close.
+    """Merge lines whose endings and starts overlap or are very close.
 
     By default, `linemerge` considers both directions of a stroke. If there is no additional
     start of a stroke within the provided tolerance, it also checks for ending points of
@@ -148,8 +145,7 @@ def linemerge(lines: vp.LineCollection, tolerance: float, no_flip: bool = True):
 )
 @layer_processor
 def linesort(lines: vp.LineCollection, no_flip: bool, two_opt: bool, passes: int):
-    """
-    Sort lines to minimize the pen-up travel distance.
+    """Sort lines to minimize the pen-up travel distance.
 
     This command reorders the paths within layers such as to minimize the total pen-up
     distance. By default, it will also invert the path direction if it can further optimize the
@@ -304,8 +300,7 @@ def linesort(lines: vp.LineCollection, no_flip: bool, two_opt: bool, passes: int
 )
 @layer_processor
 def linesimplify(lines: vp.LineCollection, tolerance):
-    """
-    Reduce the number of segments in the geometries.
+    """Reduce the number of segments in the geometries.
 
     The resulting geometries' points will be at a maximum distance from the original controlled
     by the `--tolerance` parameter (0.05mm by default).
@@ -361,8 +356,7 @@ def reloop(lines: vp.LineCollection, tolerance):
 )
 @layer_processor
 def multipass(lines: vp.LineCollection, count: int):
-    """
-    Add multiple passes to each line
+    """Add multiple passes to each line
 
     Each line is extended with a mirrored copy of itself, optionally multiple times. This is
     useful for pens that need several passes to ensure a good quality.
@@ -384,8 +378,7 @@ def multipass(lines: vp.LineCollection, count: int):
 @cli.command(group="Operations")
 @layer_processor
 def splitall(lines: vp.LineCollection) -> vp.LineCollection:
-    """
-    Split all paths into their constituent segments.
+    """Split all paths into their constituent segments.
 
     This command may be used together with `linemerge` for cases such as densely-connected
     meshes where the latter cannot optimize well enough by itself. This command will
@@ -488,7 +481,6 @@ def pagesize(document: vp.Document, size, landscape) -> vp.Document:
     geometries.
 
     Examples:
-
         Set the page size to A4:
 
             vpype [...] pagesize a4 [...]
@@ -538,7 +530,7 @@ geometries. If `--fit-to-margins` is used, the page size is increased to accommo
 margin. By construction, `--align` and `--valign` have no effect with `tight`.
 
 On an empty pipeline, `layout` simply sets the page size to SIZE, unless `tight` is used. In
-this case, `layout` has no effect at all.   
+this case, `layout` has no effect at all.
 
 Examples:
 
@@ -547,9 +539,9 @@ Examples:
     pleasing arrangement for square designs on portrait-oriented pages):
 
         vpype read input.svg layout --fit-to-margins 3cm --valign top a4 write output.svg
-        
+
     Set the page size to the geometries' boundary, with a 1cm margin:
-    
+
         vpype read input.svg layout --fit-to-margins 3cm tight write output.svg
 """
 
@@ -683,7 +675,6 @@ def snap(line_collection: vp.LineCollection, pitch: float) -> vp.LineCollection:
     path contains less than 2 points, it is discarded.
 
     Example:
-
         Snap all points to a grid of 3x3mm:
 
             vpype [...] snap 3mm [...]

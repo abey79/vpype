@@ -1,4 +1,5 @@
 """This module contains vpype core and its API."""
+from __future__ import annotations
 
 from .config import *
 from .filters import *

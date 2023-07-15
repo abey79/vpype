@@ -13,7 +13,6 @@ class ImageRenderer:
     """Viewer engine wrapper class to render to a :class:`PIL.Image.Image` instance.
 
     Example:
-
         >>> doc = vp.Document()
         # populate doc
         >>> renderer = ImageRenderer((640, 480))

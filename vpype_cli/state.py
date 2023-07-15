@@ -39,7 +39,8 @@ class _DeferredEvaluator(ABC):
     @abstractmethod
     def evaluate(self, state: State) -> Any:
         """Sub-class must override this function and return the converted value of
-        ``self._text``"""
+        ``self._text``
+        """
 
     def __str__(self):
         return self._text

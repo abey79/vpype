@@ -19,7 +19,7 @@ def load_icon(path: str) -> QIcon:
     app = QGuiApplication.instance()
 
     if app is None or not isinstance(app, QGuiApplication):
-        raise EnvironmentError("no Qt application available")
+        raise RuntimeError("no Qt application available")
 
     base_color = app.palette().color(QPalette.ColorRole.Base)
     if base_color.lightnessF() < 0.5:

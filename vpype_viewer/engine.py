@@ -1,6 +1,4 @@
-"""
-Generic viewer
-"""
+"""Generic viewer."""
 from __future__ import annotations
 
 import enum
@@ -147,7 +145,8 @@ class Engine:
     @property
     def origin(self) -> tuple[float, float]:
         """Current origin (document coordinates corresponding to the display window's top-left
-        corner."""
+        corner.
+        """
         return self._origin
 
     @origin.setter
@@ -301,7 +300,8 @@ class Engine:
 
     def fit_to_viewport(self):
         """Fit the current document in the viewport, allowing for a 2.5% margin on either
-        sides."""
+        sides.
+        """
         if self._document is None:
             return
 
@@ -339,6 +339,7 @@ class Engine:
 
     def resize(self, width: int, height: int) -> None:
         """Resizes the viewport.
+
         Args:
             width: new viewport width
             height: new viewport height
@@ -435,7 +436,6 @@ class Engine:
             self._rulers_painter.render(self, proj)
 
     def _update(self, rebuild=True):
-        """"""
         if rebuild:
             self._rebuild_needed = True
         self._render_cb()

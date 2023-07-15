@@ -1,6 +1,4 @@
-"""
-Qt Viewer
-"""
+"""Qt Viewer."""
 from __future__ import annotations
 
 import functools
@@ -64,12 +62,14 @@ QSurfaceFormat.setDefaultFormat(default_format)
 
 class QtViewerWidget(QOpenGLWidget):
     """QGLWidget wrapper around :class:`Engine` to display a :class:`vpype.Document` in
-    Qt GUI."""
+    Qt GUI.
+    """
 
     mouse_coords = Signal(str)
 
     def __init__(self, document: vp.Document | None = None, parent=None):
         """Constructor.
+
         Args:
             document: the document to display
             parent: QWidget parent
@@ -238,8 +238,9 @@ class QtViewerWidget(QOpenGLWidget):
 
 
 class QtViewer(QWidget):
-    """Full featured, stand-alone viewer suitable for displaying a :class:`vpype.Document` to
-    a user."""
+    """Full-featured, stand-alone viewer suitable for displaying a :class:`vpype.Document` to
+    a user.
+    """
 
     def __init__(
         self,

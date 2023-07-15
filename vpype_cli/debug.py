@@ -1,6 +1,4 @@
-"""
-Hidden debug commands to help testing.
-"""
+"""Hidden debug commands to help testing."""
 from __future__ import annotations
 
 import json
@@ -22,9 +20,7 @@ __all__ = ("dbsample", "dbdump", "stat", "DebugData")
 @cli.command(hidden=True)
 @global_processor
 def dbsample(document: vp.Document):
-    """
-    Show statistics on the current geometries in JSON format.
-    """
+    """Show statistics on the current geometries in JSON format."""
     global debug_data
 
     data: dict[str, Any] = {}
@@ -55,14 +51,11 @@ def dbdump(document: vp.Document):
 
 
 class DebugData:
-    """
-    Helper class to load
-    """
+    """Helper class to load"""
 
     @staticmethod
     def load(debug_output: str):
-        """
-        Create DebugData instance array from debug output
+        """Create DebugData instance array from debug output
         :param debug_output:
         :return:
         """
@@ -82,8 +75,7 @@ class DebugData:
             )
 
     def bounds_within(self, x: float, y: float, width: float, height: float) -> bool:
-        """
-        Test if coordinates are inside. If `x` and `y` are provided only, consider input as
+        """Test if coordinates are inside. If `x` and `y` are provided only, consider input as
         a point. If `width` and `height` are passed as well, consider input as rect.
         """
         if self.count == 0:
@@ -154,14 +146,14 @@ def stat(document: vp.Document):
         print(f"  Path count: {len(layer)}")
         print(f"  Segment count: {layer.segment_count()}")
         print(
-            f"  Mean segment length:",
+            "  Mean segment length:",
             str(length / layer.segment_count() if layer.segment_count() else "n/a"),
         )
         print(f"  Bounds: {layer.bounds()}")
         print("  Properties:")
         for key, value in layer.metadata.items():
             print(f"    {key}: {value!r}")
-    print(f"Totals")
+    print("Totals")
     print(f"  Layer count: {len(document.layers)}")
     print(f"  Length: {length_tot}")
     print(f"  Pen-up length: {pen_up_length_tot}")
@@ -169,11 +161,11 @@ def stat(document: vp.Document):
     print(f"  Path count: {sum(len(layer) for layer in document.layers.values())}")
     print(f"  Segment count: {document.segment_count()}")
     print(
-        f"  Mean segment length:",
+        "  Mean segment length:",
         str(length_tot / document.segment_count() if document.segment_count() else "n/a"),
     )
     print(f"  Bounds: {document.bounds()}")
-    print(f"  Global properties:")
+    print("  Global properties:")
     for key, value in document.metadata.items():
         print(f"    {key}: {value!r}")
     print("========================= ")

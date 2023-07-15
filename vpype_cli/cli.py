@@ -122,7 +122,9 @@ _PLUGINS_LOADED = False
 
 
 # noinspection PyUnusedLocal
-@click.group(cls=GroupedGroup, chain=True, invoke_without_command=True)
+@click.group(  # type: ignore[arg-type]
+    cls=GroupedGroup, chain=True, invoke_without_command=True
+)
 @click.version_option(version=vp.__version__, message="%(prog)s %(version)s")
 @click.option("-h", "--help", "help_flag", is_flag=True, help="Show this message and exit.")
 @click.option("-v", "--verbose", count=True)
@@ -447,7 +449,6 @@ def execute(
     returned as a :class:`vpype.Document` instance.
 
     Examples:
-
         Read an SVG file, optimize it and return the result as a :class:`vpype.Document`
         instance::
 

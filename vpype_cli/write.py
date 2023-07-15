@@ -51,7 +51,7 @@ Layers are labelled with their numbers by default. If an alternative naming is r
 template pattern can be provided using the `--layer-label` option. The provided pattern must
 contain a C-style format specifier such as `%d` which will be replaced by the layer number.
 
-By default, paths are colored according to the corresponding layer property (as set by the 
+By default, paths are colored according to the corresponding layer property (as set by the
 `color` or `read` commands). If the color property is not set, a default, per-layer color
 scheme is used. Alternative behaviours are available with the `--color-mode` option. Setting it
 to "none" disables coloring and black paths are generated. Setting it to "layer" applies the
@@ -125,7 +125,7 @@ Examples:
 """
 
 
-@cli.command(group="Output", help=WRITE_HELP)
+@cli.command(group="Output", help=WRITE_HELP)  # type: ignore[arg-type]
 @click.argument("output", type=FileType("w"))
 @click.option(
     "-f",

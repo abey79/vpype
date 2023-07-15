@@ -7,7 +7,6 @@ import os
 import pathlib
 import random
 import string
-import sys
 from typing import Callable, Protocol
 from xml.dom import minidom
 from xml.etree import ElementTree
@@ -225,7 +224,7 @@ def _write_reference_svg_fail_report(
 
 @pytest.fixture
 def reference_svg(request, tmp_path) -> Callable:
-    """Compare a SVG output to a saved reference.
+    """Compare an SVG output to a saved reference.
 
     Use `--store-ref-svg` to save reference SVGs.
 
@@ -235,9 +234,6 @@ def reference_svg(request, tmp_path) -> Callable:
             with reference_svg() as path:
                 export_svg_to(path)
     """
-
-    if sys.version_info < (3, 8):  # pragma: no cover
-        pytest.skip("requires Python 3.8 or higher")
 
     store_ref_svg = request.config.getoption("--store-ref-svg")
     test_id = "refsvg_" + hashlib.md5(request.node.name.encode()).hexdigest() + ".svg"
@@ -254,7 +250,7 @@ def reference_svg(request, tmp_path) -> Callable:
             ref_path.write_bytes(temp_file.read_bytes())
         else:
             if not ref_path.exists():  # pragma: no cover
-                pytest.fail(f"reference SVG does not exist")
+                pytest.fail("reference SVG does not exist")
 
             temp_lines = _read_svg_lines(temp_file)
             ref_lines = _read_svg_lines(ref_path)
@@ -272,6 +268,6 @@ def reference_svg(request, tmp_path) -> Callable:
 
                 _write_reference_svg_fail_report(ref_lines, temp_lines, request.node.name)
 
-                pytest.fail(f"generated SVG does not match reference:\n" + "\n".join(delta))
+                pytest.fail("generated SVG does not match reference:\n" + "\n".join(delta))
 
     return _reference_svg

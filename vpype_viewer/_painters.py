@@ -202,11 +202,11 @@ class LineCollectionPointsPainter(Painter):
 
         vertex = """
             #version 330
-            
+
             uniform mat4 projection;
-            
+
             in vec2 position;
-            
+
             void main() {
               gl_PointSize = 5.0;
               gl_Position = projection * vec4(position, 0.0, 1.0);
@@ -215,11 +215,11 @@ class LineCollectionPointsPainter(Painter):
 
         fragment = """
             #version 330
-            
+
             uniform vec4 color;
-            
+
             out vec4 out_color;
-            
+
             void main() {
                out_color = color;
             }
@@ -323,7 +323,8 @@ class LineCollectionPreviewPainter(Painter):
     @staticmethod
     def _build_buffers(lc: vp.LineCollection):
         """Prepare the buffers for multi-polyline rendering. Closed polyline must have their
-        last point identical to their first point."""
+        last point identical to their first point.
+        """
 
         indices = []
         reset_index = np.array([-1])

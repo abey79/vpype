@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 def _check_wayland():
     """Fix QT env variable on Wayland-based systems.
 
@@ -15,4 +18,4 @@ def _check_wayland():
 _check_wayland()
 
 
-from .viewer import *
+from .viewer import *  # noqa: E402

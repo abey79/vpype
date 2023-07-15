@@ -23,8 +23,7 @@ __all__ = ("frame",)
 @generator
 @pass_state
 def frame(state: State, offset: float):
-    """
-    Add a single-line frame around the geometry.
+    """Add a single-line frame around the geometry.
 
     By default, the frame shape is the current geometries' bounding box. An optional offset can
     be provided.

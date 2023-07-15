@@ -1,5 +1,5 @@
-"""File import/export functions.
-"""
+"""File import/export functions."""
+
 from __future__ import annotations
 
 import collections
@@ -10,7 +10,7 @@ import math
 import pathlib
 import re
 from collections.abc import Iterable, Iterator
-from typing import Any, List, TextIO, Union, cast
+from typing import Any, TextIO, Union, cast
 from xml.etree import ElementTree
 
 import click
@@ -980,7 +980,7 @@ def write_hpgl(
 
         # As per #310, we emit a single PU; between layers
         if not first_layer:
-            output.write(f"PU;")
+            output.write("PU;")
         else:
             first_layer = False
         output.write(f"SP{pen_id};")

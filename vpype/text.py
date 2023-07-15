@@ -1,5 +1,4 @@
-"""
-This code is adapted from https://github.com/fogleman/axi, which comes with the following
+"""This code is adapted from https://github.com/fogleman/axi, which comes with the following
 notice:
 
 Copyright (C) 2017 Michael Fogleman

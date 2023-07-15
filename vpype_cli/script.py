@@ -16,8 +16,7 @@ __all__ = ("script",)
 @click.argument("file", type=click.Path(exists=True, dir_okay=False))
 @generator
 def script(file) -> vp.LineCollection:
-    """
-    Call an external python script to generate geometries.
+    """Call an external python script to generate geometries.
 
     The script must contain a `generate()` function which will be called without arguments. It
     must return the generated geometries in one of the following format:
@@ -36,7 +35,7 @@ def script(file) -> vp.LineCollection:
             raise FileNotFoundError(f"file {file} not found")
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)  # type: ignore
-        return LineCollection(module.generate())  # type: ignore
+        return vp.LineCollection(module.generate())  # type: ignore
     except Exception as exc:
         raise click.ClickException(
             f"the file path must point to a Python script containing a `generate()`"
