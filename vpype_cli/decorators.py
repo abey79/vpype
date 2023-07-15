@@ -50,6 +50,7 @@ def layer_processor(f):
     Layer processors receive a :py:class:`LineCollection` as input and must return one.
 
     Example:
+
     .. code-block:: python3
 
         @click.command()
@@ -66,7 +67,7 @@ def layer_processor(f):
             return lines
 
         my_processor.help_group = "My Plugins"
-    """
+    """  # noqa: D412
 
     @click.option(
         "-l",
