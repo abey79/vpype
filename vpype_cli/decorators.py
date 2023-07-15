@@ -50,7 +50,6 @@ def layer_processor(f):
     Layer processors receive a :py:class:`LineCollection` as input and must return one.
 
     Example:
-
     .. code-block:: python3
 
         @click.command()

@@ -2,6 +2,8 @@
 rendering of :class:`vpype.Document` instances. It includes a Qt-based interactive backend as
 well as a Pillow-based offscreen rendering backend.
 """
+from __future__ import annotations
+
 from ._scales import DEFAULT_SCALE_SPEC, UnitType
 from .engine import *
 from .image import ImageRenderer, render_image

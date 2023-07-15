@@ -26,8 +26,7 @@ __all__ = ("random",)
 )
 @generator
 def random(n: int, area: tuple[float, float]):
-    """
-    Generate random lines.
+    """Generate random lines.
 
     By default, 10 lines are randomly placed in a square with corners at (0, 0) and
     (10mm, 10mm). Use the `--area` option to specify the destination area.

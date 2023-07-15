@@ -146,7 +146,7 @@ def test_read_svg_width_height(params, expected, tmp_path):
 def test_read_with_viewbox(tmp_path):
     path = _write_svg_file(
         tmp_path,
-        f"""<?xml version="1.0"?>
+        """<?xml version="1.0"?>
     <svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"
        width="100" height="100" viewBox="50 50 10 10">
        <line x1="50" y1="50" x2="60" y2="60" />
@@ -162,10 +162,10 @@ def test_read_with_viewbox(tmp_path):
 
 
 def test_read_stdin(runner):
-    svg = f"""<?xml version="1.0"?>
+    svg = """<?xml version="1.0"?>
     <svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"
         width="1000" height="1000">
-      <circle cx="500" cy="500" r="40"/>      
+      <circle cx="500" cy="500" r="40"/>
     </svg>
     """
 
@@ -472,7 +472,7 @@ def test_read_stdin_sets_source_properties(monkeypatch):
     test_file = TEST_FILE_DIRECTORY / "misc" / "multilayer.svg"
     monkeypatch.setattr("sys.stdin", io.StringIO(test_file.read_text()))
 
-    doc = vpype_cli.execute(f"read -")
+    doc = vpype_cli.execute("read -")
     assert vp.METADATA_FIELD_SOURCE not in doc.metadata
     assert doc.sources == set()
 
@@ -481,7 +481,7 @@ def test_read_single_layer_stdin_sets_source_properties(monkeypatch):
     test_file = TEST_FILE_DIRECTORY / "misc" / "multilayer.svg"
     monkeypatch.setattr("sys.stdin", io.StringIO(test_file.read_text()))
 
-    doc = vpype_cli.execute(f"read -l1 -")
+    doc = vpype_cli.execute("read -l1 -")
     assert vp.METADATA_FIELD_SOURCE not in doc.metadata
     assert vp.METADATA_FIELD_SOURCE not in doc.layers[1].metadata
     assert doc.sources == set()
@@ -491,7 +491,7 @@ def test_read_by_attr_stdin_sets_source_properties(monkeypatch):
     test_file = TEST_FILE_DIRECTORY / "misc" / "multilayer.svg"
     monkeypatch.setattr("sys.stdin", io.StringIO(test_file.read_text()))
 
-    doc = vpype_cli.execute(f"read -a stroke -a fill -")
+    doc = vpype_cli.execute("read -a stroke -a fill -")
     assert vp.METADATA_FIELD_SOURCE not in doc.metadata
     assert doc.sources == set()
 
@@ -570,7 +570,7 @@ def test_read_command_page_size(
     if default[0] is not None and default[1] is not None:
         args += f"--display-size {default[0]:.3f}x{default[1]:.3f} "
         if default[0] > default[1]:
-            args += f"--display-landscape"
+            args += "--display-landscape"
     doc = vpype_cli.execute(f"read {args} '{path}'")
 
     assert doc.page_size == pytest.approx(target)
@@ -640,7 +640,7 @@ def test_read_layer_id_extraction():
     ],
 )
 def test_read_layer_id_from_svg(attr, exp):
-    svg = f"""<?xml version="1.0"?><svg width="500" height="300" 
+    svg = f"""<?xml version="1.0"?><svg width="500" height="300"
     xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">
         <g {attr}>
                 <line x1="0" y1="0" x2="10" y2="10" fill="red" />

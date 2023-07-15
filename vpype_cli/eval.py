@@ -16,7 +16,7 @@ from .state import State
 @global_processor
 @pass_state
 def eval_cmd(state: State, document: vp.Document, expr: str):
-    """Evaluate an expression.
+    r"""Evaluate an expression.
 
     This command is a placeholder whose only purpose is to evaluate EXPR. It has no effect on
     the geometries, nor their properties. It is typically used at the beginning of a pipeline
@@ -26,7 +26,6 @@ def eval_cmd(state: State, document: vp.Document, expr: str):
     markers may be omitted.
 
     Example:
-
         Crop the geometry to a 1-cm margin.
 
     \b

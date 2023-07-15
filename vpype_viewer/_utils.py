@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-import os
 import pathlib
-from typing import Any, Dict, Tuple, cast
+from typing import Any, cast
 
 import cachetools
 import cachetools.keys

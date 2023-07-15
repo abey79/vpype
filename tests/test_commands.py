@@ -470,7 +470,7 @@ def test_linesort_reject_bad_opt(runner):
     res = runner.invoke(
         cli,
         "line 0 0 0 10 line 0 10 10 10 line 0 0 10 0 line 10 0 10 10 "
-        f"linesort --no-flip dbsample dbdump",
+        "linesort --no-flip dbsample dbdump",
     )
 
     # in this situation, the greedy optimizer is worse than the starting position, so its

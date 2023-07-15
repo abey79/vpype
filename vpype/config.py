@@ -181,7 +181,8 @@ class ConfigManager:
 
         def _update(d: dict, u: Mapping) -> dict:
             """This function must overwrite list member, UNLESS they are list of table, in
-            which case they must extend the list."""
+            which case they must extend the list.
+            """
             for k, v in u.items():
                 if isinstance(v, dict):
                     d[k] = _update(d.get(k, {}), v)

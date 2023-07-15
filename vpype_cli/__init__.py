@@ -2,6 +2,8 @@
 function.
 """
 # register all commands
+from __future__ import annotations
+
 from .blocks import *
 from .cli import *
 from .debug import *

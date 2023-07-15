@@ -11,7 +11,6 @@ class Color:
     """Simple, immutable, hashable color class with flexible construction.
 
     Examples:
-
         >>> Color()
         Color(red=0, green=0, blue=0, alpha=255)
         >>> Color(255, 0, 255)

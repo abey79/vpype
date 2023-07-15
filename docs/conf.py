@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import sys
 
@@ -90,7 +92,7 @@ def autodoc_skip_member(app, what, name, obj, skip, options):
     try:
         if "_deprecated" in str(obj.__module__):
             return True
-    except:
+    except:  # noqa: E722
         pass
 
     if name.startswith("__") and name.endswith("__"):

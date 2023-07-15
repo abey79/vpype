@@ -160,7 +160,6 @@ def convert_page_size(value: str) -> tuple[float, float]:
     a page size descriptor in the form of "WxH" where both W and H can have units.
 
     Examples:
-
         Using a know page size::
 
             >>> import vpype

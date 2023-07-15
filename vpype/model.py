@@ -1,11 +1,10 @@
-"""Implementation of vpype's data model
-"""
+"""Implementation of vpype's data model."""
 from __future__ import annotations
 
 import math
 import pathlib
 from collections.abc import Iterable, Iterator
-from typing import Any, Callable, Optional, Tuple, Union, cast
+from typing import Any, Callable, Optional, Union, cast
 
 import numpy as np
 from shapely.geometry import LinearRing, LineString, MultiLineString
@@ -99,9 +98,8 @@ class _MetadataMixin:
 
 # noinspection PyShadowingNames
 class LineCollection(_MetadataMixin):
-    """
-    :py:class:`LineCollection` encapsulate a list of piecewise linear lines (or paths). Lines
-    are implemented as 1D numpy arrays of complex numbers whose real and imaginary parts
+    """:py:class:`LineCollection` encapsulate a list of piecewise linear lines (or paths).
+    Lines are implemented as 1D numpy arrays of complex numbers whose real and imaginary parts
     represent the X, respectively Y, coordinates of point in the paths.
 
     An instance of :py:class:`LineCollection` is used to model a single layer in vpype's
@@ -365,7 +363,7 @@ class LineCollection(_MetadataMixin):
             if np.hypot(delta.real, delta.imag) <= tolerance:
                 self._lines[i] = reloop(line)
 
-    def crop(self, x1: float, y1: float, x2: float, y2: float) -> None:
+    def crop(self, x1: float, y1: float, x2: float, y2: float) -> None:  # noqa: D417
         """Crop all lines to a rectangular area.
 
         Args:
@@ -412,7 +410,8 @@ class LineCollection(_MetadataMixin):
             line: np.ndarray, idx: int, *, reverse=False, prepend=False
         ) -> np.ndarray:
             """Append or prepend a line from the index to `line`, optionally reversing it
-            beforehand."""
+            beforehand.
+            """
             new_line = cast(np.ndarray, index.pop(idx))
             if reverse:
                 new_line = np.flip(new_line)
@@ -557,6 +556,8 @@ class Document(_MetadataMixin):
 
         Args:
             line_collection: if provided, used as layer 1
+            metadata: if provided, used as global metadata
+            page_size: if provided, used as page size
         """
         super().__init__(metadata)
 
@@ -605,6 +606,7 @@ class Document(_MetadataMixin):
     @property
     def layers(self) -> dict[int, LineCollection]:
         """Returns a reference to the layer dictionary.
+
         Returns:
             the internal layer dictionary
         """
@@ -772,7 +774,7 @@ class Document(_MetadataMixin):
         Args:
             lines: line data to assign to the layer
             layer_id: layer ID of the layer whose content is to be replaced
-            with_metadata:
+            with_metadata: if `True`, replace metadata as well
         """
 
         if layer_id not in self._layers:
@@ -845,7 +847,8 @@ class Document(_MetadataMixin):
         """Returns True if all layers are empty.
 
         Returns:
-            True if all layers are empty"""
+            True if all layers are empty
+        """
         for layer in self.layers.values():
             if not layer.is_empty():
                 return False
@@ -866,7 +869,8 @@ class Document(_MetadataMixin):
         """Returns the total number of layers.
 
         Returns:
-            total number of layer"""
+            total number of layer
+        """
         return len(self._layers.keys())
 
     def translate(self, dx: float, dy: float) -> None:
@@ -937,7 +941,7 @@ class Document(_MetadataMixin):
         else:
             return None
 
-    def crop(self, x1: float, y1: float, x2: float, y2: float) -> None:
+    def crop(self, x1: float, y1: float, x2: float, y2: float) -> None:  # noqa: D417
         """Crop all layers to a rectangular area.
 
         Args:

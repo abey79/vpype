@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import copy
 
 import pytest
@@ -9,17 +11,17 @@ from .test_commands import EXAMPLE_SVG_DIR
 
 BLOCKS = [
     f"forfile '{EXAMPLE_SVG_DIR / '*.svg'}'",
-    f"forlayer",
-    f"grid -k 2 2",
-    f"repeat 3",
+    "forlayer",
+    "grid -k 2 2",
+    "repeat 3",
 ]
 
 
 @vpype_cli.cli.command()
 @vpype_cli.global_processor
 def doccopy(doc: vp.Document) -> vp.Document:
-    """This command has no effect on the pipeline, but creates completely new copies of the
-    pipeline's document and its content. This is useful to test the behaviour of blocks."""
+    # This command has no effect on the pipeline, but creates completely new copies of the
+    # pipeline's document and its content. This is useful to test the behaviour of blocks.
     return copy.deepcopy(doc)
 
 
@@ -65,7 +67,7 @@ def test_forlayer_vars():
         """
         repeat 5
             random -l new
-        end 
+        end
         eval 'cnt=0'
         forlayer
             eval 'assert _lid==cnt+1'
