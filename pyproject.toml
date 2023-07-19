@@ -68,7 +68,7 @@ pytest-mpl = ">=0.12"
 mypy = ">=0.901"
 types-cachetools = ">=4.2.4"
 types-setuptools = ">=57.4.17"
-types-pillow = "^9.4.0.17"
+types-pillow = ">=9.4.0.17,<11.0.0.0"
 
 [tool.poetry.group.docs]
 optional = true
