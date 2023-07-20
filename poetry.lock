@@ -24,13 +24,13 @@ files = [
 
 [[package]]
 name = "asteval"
-version = "0.9.30"
+version = "0.9.31"
 description = "Safe, minimalistic evaluator of python expression using ast module"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "asteval-0.9.30-py3-none-any.whl", hash = "sha256:8618aae5de09804cfec7d4838b27d1d5454aa40dc4bd477468e62f5a16d1879e"},
-    {file = "asteval-0.9.30.tar.gz", hash = "sha256:a3021215568186eb866bec4dce2730f0fda3863eef9ff79e2f7b6cc4a84c26df"},
+    {file = "asteval-0.9.31-py3-none-any.whl", hash = "sha256:2761750c184d97707c292b62df3b10e330a809a2201721acc435a2b89a114263"},
+    {file = "asteval-0.9.31.tar.gz", hash = "sha256:a2da066b6696dba9835c5f7dec63e0ffb5bd2b4e3bb5f0b9a604aeafb17d833d"},
 ]
 
 [package.extras]
