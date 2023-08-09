@@ -6,7 +6,7 @@ Release date: UNRELEASED
 
 ### New features and improvements
 
-* ...
+* Added an option to the `reverse` command to also flip the line direction (#654)
 
 ### Bug fixes
 
