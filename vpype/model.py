@@ -239,6 +239,10 @@ class LineCollection(_MetadataMixin):
         """Reverse order of the lines."""
         self._lines = list(reversed(self._lines))
 
+    def flip_lines(self) -> None:
+        """Flip the direction of all lines."""
+        self._lines = [np.flip(line) for line in self._lines]
+
     def __iter__(self):
         return self._lines.__iter__()
 

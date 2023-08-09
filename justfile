@@ -10,6 +10,10 @@ update-deps:
 test:
   pytest
 
+lint:
+  mypy
+  ruff check vpype vpype_cli vpype_viewer tests
+
 # run previously failed tests
 test-failed:
   pytest --last-failed

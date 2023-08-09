@@ -152,6 +152,14 @@ def test_line_collection_reverse():
         assert np.all(lc[i] == np.array(line))
 
 
+def test_line_collection_flip_lines():
+    line_arr = [(0, 100j, 1000, 10), (5j, 3, 25j), (3 + 3j, 100, 10j)]
+    lc = LineCollection(line_arr)
+    lc.flip_lines()
+    for i, line in enumerate(line_arr):
+        assert np.all(lc[i] == np.array(line[::-1]))
+
+
 def test_line_collection_clone():
     metadata = {"line_width": 0.3}
     lc = LineCollection(([0, 1, 10 + 10j], [0, 10]), metadata=metadata)

@@ -12,7 +12,7 @@ def test_float_type():
     @click.argument("arg", type=vpype_cli.FloatType())
     @vpype_cli.generator
     def cmd(arg: float) -> vp.LineCollection:
-        assert type(arg) is float
+        assert isinstance(arg, float)
         return vp.LineCollection()
 
     vpype_cli.execute("floatcmd 3.5")
@@ -25,7 +25,7 @@ def test_int_range_type():
     @click.argument("arg", type=vpype_cli.IntRangeType(min=10, max=14))
     @vpype_cli.generator
     def cmd(arg: int) -> vp.LineCollection:
-        assert type(arg) is int
+        assert isinstance(arg, int)
         assert 10 <= arg <= 14
         return vp.LineCollection()
 
