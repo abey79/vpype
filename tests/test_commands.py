@@ -80,6 +80,7 @@ MINIMAL_COMMANDS = [
     Command("stat"),
     Command("snap 1"),
     Command("reverse"),
+    Command("reverse --flip"),
     Command("layout a4", keeps_page_size=False),
     Command("squiggles"),
     Command("text 'hello wold'"),
