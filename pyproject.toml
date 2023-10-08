@@ -52,6 +52,7 @@ glcontext = { version = ">=2.3.2", optional = true }  # 2.3.2 needed to fix #200
 moderngl = { version = ">=5.6.2,!=5.7.1,!=5.7.2", optional = true }  # see moderngl/moderngl#525
 Pillow = { version = ">=9.0.1", optional = true }
 PySide6 = { version = ">=6.4.0.1", optional = true }
+pyphen = "^0.14.0"
 
 
 [tool.poetry.group.dev.dependencies]
