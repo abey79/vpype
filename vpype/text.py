@@ -146,7 +146,9 @@ def text_line(
     return lc
 
 
-def _word_wrap(paragraph: str, width: float, lang: str | None, measure_func: Callable[[str], float]):
+def _word_wrap(
+    paragraph: str, width: float, lang: str | None, measure_func: Callable[[str], float]
+):
     """Break text in multiple line."""
     dic = pyphen.Pyphen(lang=lang) if lang else None
     print(lang, dic)
@@ -165,16 +167,15 @@ def _word_wrap(paragraph: str, width: float, lang: str | None, measure_func: Cal
         for a, b in zip(fields[::2], fields[1::2]):
             w = measure_func(x + a)
             if w > width:
-                
-                for (aa, ab) in (dic.iterate(a) if dic else ()): # try hyphenating
-                    xa = x+aa+"\u002D" # our fonts don't have a true hyphen
+                for aa, ab in dic.iterate(a) if dic else ():  # try hyphenating
+                    xa = x + aa + "\u002D"  # our fonts don't have a true hyphen
                     w = measure_func(xa)
                     if w <= width:
                         result.append(xa)
-                        x = ab+b
+                        x = ab + b
                         break
-                else: # no fitting hyphenation
-                    if x == "": # single word exceeds width
+                else:  # no fitting hyphenation
+                    if x == "":  # single word exceeds width
                         result.append(a)
                         continue
                     else:
