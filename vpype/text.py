@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import itertools
 import pickle
+import pyphen
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
@@ -145,8 +146,9 @@ def text_line(
     return lc
 
 
-def _word_wrap(paragraph: str, width: float, measure_func: Callable[[str], float]):
+def _word_wrap(paragraph: str, width: float, lang: str, measure_func: Callable[[str], float]):
     """Break text in multiple line."""
+    dic = pyphen.Pyphen(lang=lang)
     result = []
     for line in paragraph.split("\n"):
         # handle empty lines
@@ -162,13 +164,23 @@ def _word_wrap(paragraph: str, width: float, measure_func: Callable[[str], float
         for a, b in zip(fields[::2], fields[1::2]):
             w = measure_func(x + a)
             if w > width:
-                if x == "":
-                    result.append(a)
-                    continue
-                else:
-                    result.append(x)
-                    x = ""
-            x += a + b
+                for (aa, ab) in dic.iterate(a): # try hyphenating
+                    xa = x+aa+"\u002D" # our fonts don't have a true hyphen
+                    w = measure_func(xa)
+                    if w <= width:
+                        result.append(xa)
+                        x = ab+b
+                        break
+                else: # no fitting hyphenation
+                    if x == "": # single word exceeds width
+                        result.append(a)
+                        continue
+                    else:
+                        result.append(x)
+                        x = ""
+                    x += a + b
+            else:
+                x += a + b
         if x != "":
             result.append(x + "\n")
     return result
@@ -195,6 +207,7 @@ def text_block(
     align: str = "left",
     line_spacing: float = 1,
     justify=False,
+    hyphenate="en",
 ) -> LineCollection:
     """Create a wrapped block of text using the provided width.
 
@@ -221,7 +234,7 @@ def text_block(
         bounds = _text_line(txt, font).bounds()
         return bounds[2] if bounds else 0.0
 
-    lines = _word_wrap(paragraph, width, measure)
+    lines = _word_wrap(paragraph, width, hyphenate, measure)
 
     lc_arr = [
         _justify_text(line, font, width)
