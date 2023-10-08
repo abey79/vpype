@@ -16,7 +16,7 @@ from .types import LengthType, TextType
 )
 @click.option("-s", "--size", type=LengthType(), default=18, help="Text size (default: 18).")
 @click.option("-w", "--wrap", type=LengthType(), help="Wrap to provided width.")
-@click.option("-h", "--hyphenate", type=TextType(), help="Wrap to provided width.")
+@click.option("-h", "--hyphenate", type=TextType(), help="Hyphenate wrapped words using the provided language.")
 @click.option("-j", "--justify", is_flag=True, help="Justify text block (wrap-mode only).")
 @click.option(
     "-p",
