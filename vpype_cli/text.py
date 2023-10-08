@@ -55,7 +55,8 @@ def text(
 
     In wrap mode, the text start at (0, 0) and expends left until it reach the specified width.
     The `--align` option controls how the text is laid out within the column and behaves as
-    typically expected.
+    typically expected. The `--hyphenate` options enables hyphenation using the provided
+    language code.
 
     To start the text at the different location than (0, 0), use the `--position` option.
     """
