@@ -23,10 +23,11 @@ from __future__ import annotations
 
 import itertools
 import pickle
-import pyphen
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
+
+import pyphen
 
 from .model import LineCollection
 
@@ -210,7 +211,7 @@ def text_block(
     align: str = "left",
     line_spacing: float = 1,
     justify=False,
-    hyphenate="en",
+    hyphenate=None,
 ) -> LineCollection:
     """Create a wrapped block of text using the provided width.
 
@@ -226,6 +227,7 @@ def text_block(
             left alignment)
         line_spacing: line spacing (default: 1.0)
         justify: should the text be justified (default: False)
+        hyphenate: wrapped text is hyphenated with the given language (default: None)
     """
 
     font = _Font.get(font_name)
