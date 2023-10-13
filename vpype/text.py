@@ -226,7 +226,7 @@ def text_block(
             left alignment)
         line_spacing: line spacing (default: 1.0)
         justify: should the text be justified (default: False)
-        hyphenate: wrapped text is hyphenated with the given language (en, nl, etc, default: None)
+        hyphenate: wrapped text is hyphenated with the given language (en, etc., default: None)
     """
 
     font = _Font.get(font_name)
