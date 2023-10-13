@@ -152,7 +152,6 @@ def _word_wrap(
 ):
     """Break text in multiple line."""
     dic = pyphen.Pyphen(lang=lang) if lang else None
-    print(lang, dic)
     result = []
     for line in paragraph.split("\n"):
         # handle empty lines
@@ -227,7 +226,7 @@ def text_block(
             left alignment)
         line_spacing: line spacing (default: 1.0)
         justify: should the text be justified (default: False)
-        hyphenate: wrapped text is hyphenated with the given language (default: None)
+        hyphenate: wrapped text is hyphenated with the given language (en, nl, etc, default: None)
     """
 
     font = _Font.get(font_name)

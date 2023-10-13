@@ -20,7 +20,7 @@ from .types import LengthType, TextType
     "-h",
     "--hyphenate",
     type=TextType(),
-    help="Hyphenate wrapped words using the provided language.",
+    help="Hyphenate wrapped words using the provided language code (en, nl, etc.)",
 )
 @click.option("-j", "--justify", is_flag=True, help="Justify text block (wrap-mode only).")
 @click.option(
@@ -61,7 +61,7 @@ def text(
     In wrap mode, the text start at (0, 0) and expends left until it reach the specified width.
     The `--align` option controls how the text is laid out within the column and behaves as
     typically expected. The `--hyphenate` options enables hyphenation using the provided
-    language code.
+    language code (en, nl, etc.)
 
     To start the text at the different location than (0, 0), use the `--position` option.
     """
