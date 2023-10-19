@@ -18,7 +18,7 @@ jobs:
       fail-fast: true
       matrix:
         python-version: [3.9, '3.10', '3.11']
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest, self-hosted]
     defaults:
       run:
         shell: bash
@@ -53,15 +53,15 @@ jobs:
     - name: Pytest (code coverage)
       run: |
         poetry run pytest --cov=./ --cov-report=xml
-      if: matrix.os == 'macos-latest' && matrix.python-version == '3.11'
+      if: (matrix.os == 'macos-latest' || matrix.os == 'self-hosted') && matrix.python-version == '3.11'
     - name: Pytest
       run: |
         poetry run pytest
-      if: matrix.os == 'macos-latest' && matrix.python-version != '3.11'
+      if: (matrix.os == 'macos-latest' || matrix.os == 'self-hosted') && matrix.python-version != '3.11'
     - name: Pytest (no image similarity check)
       run: |
         poetry run pytest --skip-image-similarity
-      if: matrix.os != 'macos-latest'
+      if: matrix.os != 'macos-latest' && matrix.os != 'self-hosted'
     - name: Upload comparison test results
       if: failure()
       uses: actions/upload-artifact@v3
