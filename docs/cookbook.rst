@@ -120,7 +120,7 @@ This recipe can be further augmented to arrange each file on a grid. This is cov
 Saving each layer as a separate file
 ------------------------------------
 
-Some plotter workflows require a different for each layer, as opposed to a single, multi-layer SVG file. For example, this is often the case for gcode input using the `vpype-gcode <https://github.com/plottertools/vpype-gcode/>`__ plug-in.
+Some plotter workflows require a different file for each layer, as opposed to a single, multi-layer SVG file. For example, this is often the case for gcode input using the `vpype-gcode <https://github.com/plottertools/vpype-gcode/>`__ plug-in.
 
 This can be achieved using the :ref:`cmd_forlayer` command::
 
