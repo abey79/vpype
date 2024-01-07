@@ -529,6 +529,10 @@ When SIZE is `tight`, the page size is set to fit the width and height of the ex
 geometries. If `--fit-to-margins` is used, the page size is increased to accommodate the
 margin. By construction, `--align` and `--valign` have no effect with `tight`.
 
+By default, `layout` considers the bounding box of the existing geometries as the area to
+fit on the page. Alternatively, the current page size can be used with the `--no-bbox` option.
+Using `--no-box` without a page size set is an error.
+
 On an empty pipeline, `layout` simply sets the page size to SIZE, unless `tight` is used. In
 this case, `layout` has no effect at all.
 
@@ -571,6 +575,13 @@ Examples:
     default="center",
     help="Vertical alignment",
 )
+@click.option(
+    "-b",
+    "--no-bbox",
+    is_flag=True,
+    default=False,
+    help="Use existing page size instead of the geometry bounding box",
+)
 @global_processor
 def layout(
     document: vp.Document,
@@ -579,11 +590,24 @@ def layout(
     margin: float | None,
     align: str,
     valign: str,
+    no_bbox: bool,
 ) -> vp.Document:
     """Layout command"""
 
     size = _normalize_page_size(size, landscape)
-    bounds = document.bounds()
+    if no_bbox:
+        page_size = document.page_size
+        if page_size is None:
+            raise click.BadParameter("no page size defined and --no-bbox used")
+        bounds: tuple[float, float, float, float] | None = (
+            0.0,
+            0.0,
+            page_size[0],
+            page_size[1],
+        )
+    else:
+        bounds = document.bounds()
+
     tight = size == vp.PAGE_SIZES["tight"]
 
     # handle empty geometry special cases
