@@ -9,11 +9,11 @@ This page explain how to install *vpype* for end-users. If you intend to develop
 
 .. note::
 
-  The recommended Python version is 3.10.2 or later. *vpype* is also compatible with Python 3.8 and 3.9.
+  The recommended Python version is 3.12.1 or later. *vpype* is also compatible with Python 3.10 and 3.11.
 
 .. warning::
 
-  *vpype* is not yet compatible with Python 3.11.
+  *vpype* is not yet compatible with Python 3.13.
 
 
 macOS
@@ -38,7 +38,7 @@ You can  ensure that the installed Python interpreter is properly installed by r
 
 It should produce an output similar to::
 
-  Python 3.10.8
+  Python 3.12.1
 
 The version number should match the installer you used.
 
@@ -59,7 +59,7 @@ After this, restart your terminal and ensure that pipx is properly installed by 
 
 It should print out the current version of pipx without error::
 
-  1.1.0
+  1.2.0
 
 
 Installing *vpype*

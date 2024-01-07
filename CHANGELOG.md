@@ -6,8 +6,9 @@ Release date: UNRELEASED
 
 ### New features and improvements
 
+* Added support for Python 3.12 and dropped support for Python 3.9 (#681)
 * Added an option to the `reverse` command to also flip the line direction (#654)
-* Added a `--hyphenate LANG` option to the `text` command (#668)
+* Added a `--hyphenate LANG` option to the `text` command (thanks to @pepijndevos) (#668)
 
 ### Bug fixes
 
