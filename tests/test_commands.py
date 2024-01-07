@@ -577,6 +577,12 @@ def test_layout_tight():
     assert doc.page_size == pytest.approx((4 * CM, 5 * CM))
 
 
+def test_layout_no_bbox():
+    doc = vpype_cli.execute("pagesize 10x10cm rect 0 0 1cm 1cm layout --no-bbox 30x30cm")
+    assert doc.page_size == pytest.approx((30 * CM, 30 * CM))
+    assert doc.bounds() == pytest.approx((10 * CM, 10 * CM, 11 * CM, 11 * CM))
+
+
 def test_layout_empty():
     """page size is set to size provided to layout, unless it's tight, in which case it is
     unchanged"""
