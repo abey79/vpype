@@ -599,7 +599,12 @@ def layout(
         page_size = document.page_size
         if page_size is None:
             raise click.BadParameter("no page size defined and --no-bbox used")
-        bounds = (0.0, 0.0, page_size[0], page_size[1])
+        bounds: tuple[float, float, float, float] | None = (
+            0.0,
+            0.0,
+            page_size[0],
+            page_size[1],
+        )
     else:
         bounds = document.bounds()
 

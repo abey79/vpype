@@ -7,7 +7,8 @@ Release date: UNRELEASED
 ### New features and improvements
 
 * Added support for Python 3.12 and dropped support for Python 3.9 (#681)
-* Added an option to the `reverse` command to also flip the line direction (#654)
+* Added a `--no-bbox` option to the `layout` command to use the pre-existing page size instead of the geometry bounding box as basis for layout (#682)
+* Added a `--flip` option to the `reverse` command to also flip the line direction (#654)
 * Added a `--hyphenate LANG` option to the `text` command (thanks to @pepijndevos) (#668)
 
 ### Bug fixes
