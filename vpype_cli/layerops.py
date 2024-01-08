@@ -269,17 +269,10 @@ def lreverse(document: vp.Document, layers) -> vp.Document:
     (to refer to every exising layers).
 
     Examples:
-        Delete layer one:
 
-            $ vpype [...] ldelete 1 [...]
+        Reverse path order in layer 1:
 
-        Delete layers 1 and 2:
-
-            $ vpype [...] ldelete 1,2 [...]
-
-        Delete all layers:
-
-            $ vpype [...] ldelete all [...]
+            $ vpype [...] lreverse 1 [...]
     """
 
     lids = set(multiple_to_layer_ids(layers, document))
