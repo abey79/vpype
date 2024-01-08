@@ -14,6 +14,7 @@ Release date: UNRELEASED
 ### Bug fixes
 
 * Fixed issue with ImageRenderer where the GL context wasn't released, ultimately causing a crash when running the test suite (which could involve many hundreds of context creation) (#616)
+* Fixed CLI help for the lreverse command (#683)
 
 ### Other changes
 
