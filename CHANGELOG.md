@@ -1,5 +1,18 @@
 # Change log
 
+## 1.15
+
+Release date: UNRELEASED
+
+### New features and improvements
+
+* ...
+
+### Bug fixes
+
+* ...
+
+
 ## 1.14
 
 Release date: 2024-01-08
