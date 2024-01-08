@@ -269,7 +269,6 @@ def lreverse(document: vp.Document, layers) -> vp.Document:
     (to refer to every exising layers).
 
     Examples:
-
         Reverse path order in layer 1:
 
             $ vpype [...] lreverse 1 [...]
