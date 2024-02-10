@@ -1,4 +1,5 @@
 """Generic viewer."""
+
 from __future__ import annotations
 
 import enum

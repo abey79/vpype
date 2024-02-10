@@ -1,4 +1,5 @@
 """Run a bunch of tests on the svg collection."""
+
 from __future__ import annotations
 
 import difflib

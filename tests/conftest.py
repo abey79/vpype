@@ -57,8 +57,7 @@ def config_file_factory(tmpdir_factory):
 class LineCollectionMaker(Protocol):
     def __call__(
         self, line_count: int | None = ..., with_metadata: bool = ...
-    ) -> vp.LineCollection:
-        ...
+    ) -> vp.LineCollection: ...
 
 
 @pytest.fixture
@@ -95,8 +94,7 @@ def make_line_collection() -> LineCollectionMaker:
 
 
 class DocumentMaker(Protocol):
-    def __call__(self, layer_count: int = ...) -> vp.Document:
-        ...
+    def __call__(self, layer_count: int = ...) -> vp.Document: ...
 
 
 @pytest.fixture

@@ -1,4 +1,5 @@
 """Hidden debug commands to help testing."""
+
 from __future__ import annotations
 
 import json
