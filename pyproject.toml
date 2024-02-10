@@ -137,6 +137,9 @@ target-version = ["py39", "py310", "py311"]
 [tool.ruff]
 line-length = 95
 target-version = "py39"
+exclude = ["examples", "scripts"]
+
+[tool.ruff.lint]
 select = [
     "D",
     "E",
@@ -145,7 +148,6 @@ select = [
     "W",
     "UP",
 ]
-exclude = ["examples", "scripts"]
 ignore = [
     "D1", # TODO: this should be applied on `vpype`
 
@@ -157,13 +159,14 @@ ignore = [
     "D415",
 ]
 
-[tool.ruff.isort]
-required-imports = ["from __future__ import annotations"]
-
-[tool.ruff.pydocstyle]
-convention = "google"
-
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401", "F402", "F403"]
 "docs/conf.py" = ["D100", "D103"]
 "tests/*.py" = ["D209"]
+
+[tool.ruff.lint.isort]
+required-imports = ["from __future__ import annotations"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
