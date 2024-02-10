@@ -1,6 +1,7 @@
 """This module implements vpype's CLI interface and the :func:`execute() <vpype_cli.execute>`
 function.
 """
+
 # register all commands
 from __future__ import annotations
 

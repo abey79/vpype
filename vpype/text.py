@@ -241,9 +241,11 @@ def text_block(
     lines = _word_wrap(paragraph, width, hyphenate, measure)
 
     lc_arr = [
-        _justify_text(line, font, width)
-        if justify and not line.endswith("\n")
-        else _text_line(line, font)
+        (
+            _justify_text(line, font, width)
+            if justify and not line.endswith("\n")
+            else _text_line(line, font)
+        )
         for line in lines
     ]
 

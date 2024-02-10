@@ -12,7 +12,8 @@ test:
 
 lint:
   mypy
-  ruff check vpype vpype_cli vpype_viewer tests
+  ruff check --output-format=full vpype vpype_cli vpype_viewer tests
+  black --check --diff vpype vpype_cli vpype_viewer tests
 
 # run previously failed tests
 test-failed:

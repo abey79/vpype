@@ -38,7 +38,7 @@ jobs:
     - name: Lint and static analysis
       if:  matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'  # no need to run that 9x
       run: |
-        poetry run ruff check --show-source vpype vpype_cli vpype_viewer tests
+        poetry run ruff check --output-format=full vpype vpype_cli vpype_viewer tests
         poetry run black --check --diff vpype vpype_cli vpype_viewer tests
         poetry run mypy
     # needed for tests to work on ubuntu (libEGL.so.1)
