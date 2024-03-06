@@ -662,12 +662,21 @@ def layout(
     is_flag=True,
     help="Rotate clockwise instead of the default counter-clockwise",
 )
+@click.option(
+    "--orientation",
+    "-o",
+    type=click.Choice(["any", "portrait", "landscape"]),
+    default="any",
+    help="Conditionally rotate only if the final orientation matches this option",
+)
 @global_processor
-def pagerotate(document: vp.Document, clockwise: bool):
+def pagerotate(document: vp.Document, clockwise: bool, orientation: str):
     """Rotate the page by 90 degrees.
 
     This command rotates the page by 90 degrees counter-clockwise. If the `--clockwise` option
-    is passed, it rotates the page clockwise instead.
+    is passed, it rotates the page clockwise instead.  If the `--orientation` option is given
+    a value of either 'portrait' or 'landscape', the page will only be rotated if the final
+    orientation would match that choice.
 
     Note: if the page size is not defined, an error is printed and the page is not rotated.
     """
@@ -676,6 +685,11 @@ def pagerotate(document: vp.Document, clockwise: bool):
         logging.warning("pagerotate: page size is not defined, page not rotated")
         return document
     w, h = page_size
+
+    # check orientation constraint, and do nothing if target orientation
+    # won't match desired result
+    if (orientation == "portrait" and h > w) or (orientation == "landscape" and w > h):
+        return document
 
     if clockwise:
         document.rotate(math.pi / 2)
