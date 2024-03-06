@@ -3,10 +3,11 @@ from __future__ import annotations
 import os
 import sys
 
-import vpype as vp
 
 # let sphinx find vpype packages
 sys.path.insert(0, os.path.abspath("../"))
+
+import vpype as vp
 
 
 project = "vpype"
