@@ -462,7 +462,7 @@ def execute(
 
     Args:
         pipeline: vpype pipeline as would be used with ``vpype`` CLI
-        document: if provided, is perloaded in the pipeline before the first command executes
+        document: if provided, is preloaded in the pipeline before the first command executes
         global_opt: global CLI option (e.g. "--verbose")
 
     Returns:
