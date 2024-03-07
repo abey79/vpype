@@ -692,6 +692,13 @@ def pagerotate(document: vp.Document, clockwise: bool, orientation: str | None):
         return document
     w, h = page_size
 
+    # sanity checks
+    if orientation is not None and orientation not in ["portrait", "landscape"]:
+        logging.warning(
+            f"pagerotate: orientation value '{orientation}' not one of 'portrait', 'landscape'"
+        )
+        return document
+
     # check orientation constraint, and do nothing if target orientation
     # won't match desired result
     if (orientation == "portrait" and h > w) or (orientation == "landscape" and w > h):
