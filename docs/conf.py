@@ -1,28 +1,6 @@
 from __future__ import annotations
 
 import os
-import sys
-
-
-# let sphinx find vpype packages
-# sys.path.insert(0, os.path.abspath("../"))
-
-
-def print_pythonpath():
-    pythonpath = os.getenv("PYTHONPATH")
-
-    if pythonpath:
-        print("PYTHONPATH:")
-        paths = pythonpath.split(os.pathsep)
-        for path in paths:
-            print(f"- {path}")
-    else:
-        print("PYTHONPATH is not set.")
-
-
-print_pythonpath()
-
-print("venv:", os.getenv("VIRTUAL_ENV"))
 
 import vpype as vp
 
