@@ -11,7 +11,14 @@ import vpype as vp
 
 from .cli import cli
 from .decorators import global_processor, layer_processor
-from .types import IntegerType, LayerType, LengthType, PageSizeType, multiple_to_layer_ids
+from .types import (
+    ChoiceType,
+    IntegerType,
+    LayerType,
+    LengthType,
+    PageSizeType,
+    multiple_to_layer_ids,
+)
 
 __all__ = (
     "crop",
@@ -665,12 +672,11 @@ def layout(
 @click.option(
     "--orientation",
     "-o",
-    type=click.Choice(["any", "portrait", "landscape"]),
-    default="any",
+    type=ChoiceType(["portrait", "landscape"]),
     help="Conditionally rotate only if the final orientation matches this option",
 )
 @global_processor
-def pagerotate(document: vp.Document, clockwise: bool, orientation: str):
+def pagerotate(document: vp.Document, clockwise: bool, orientation: str | None):
     """Rotate the page by 90 degrees.
 
     This command rotates the page by 90 degrees counter-clockwise. If the `--clockwise` option
@@ -689,7 +695,7 @@ def pagerotate(document: vp.Document, clockwise: bool, orientation: str):
     # check orientation constraint, and do nothing if target orientation
     # won't match desired result
     if (orientation == "portrait" and h > w) or (orientation == "landscape" and w > h):
-        logging.warning("pagerotate: page already in target orientation, page not rotated.")
+        logging.debug("pagerotate: page already in target orientation, page not rotated")
         return document
 
     if clockwise:
