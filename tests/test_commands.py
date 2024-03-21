@@ -728,6 +728,28 @@ def test_pagerotate_error(caplog):
     assert "page size is not defined, page not rotated" in caplog.text
 
 
+def test_pagerotate_orientation():
+    doc = vpype_cli.execute("random pagesize a4 pagerotate -o landscape")
+    assert doc.page_size == pytest.approx((1122.5196850393702, 793.7007874015749))
+
+    doc = vpype_cli.execute("random pagesize a4 pagerotate -cw -o landscape")
+    assert doc.page_size == pytest.approx((1122.5196850393702, 793.7007874015749))
+
+    doc = vpype_cli.execute("random pagesize --landscape a4 pagerotate -o portrait")
+    assert doc.page_size == pytest.approx((793.7007874015749, 1122.5196850393702))
+
+    doc = vpype_cli.execute("random pagesize --landscape a4 pagerotate -cw -o portrait")
+    assert doc.page_size == pytest.approx((793.7007874015749, 1122.5196850393702))
+
+
+def test_pagerotate_orientation_error():
+    doc = vpype_cli.execute("random pagesize a4 pagerotate -o portrait")
+    assert doc.page_size == pytest.approx((793.7007874015749, 1122.5196850393702))
+
+    doc = vpype_cli.execute("random pagesize --landscape a4 pagerotate -o landscape")
+    assert doc.page_size == pytest.approx((1122.5196850393702, 793.7007874015749))
+
+
 def test_help(runner):
     res = runner.invoke(cli, "--help")
 

@@ -11,7 +11,14 @@ import vpype as vp
 
 from .cli import cli
 from .decorators import global_processor, layer_processor
-from .types import IntegerType, LayerType, LengthType, PageSizeType, multiple_to_layer_ids
+from .types import (
+    ChoiceType,
+    IntegerType,
+    LayerType,
+    LengthType,
+    PageSizeType,
+    multiple_to_layer_ids,
+)
 
 __all__ = (
     "crop",
@@ -662,12 +669,20 @@ def layout(
     is_flag=True,
     help="Rotate clockwise instead of the default counter-clockwise",
 )
+@click.option(
+    "--orientation",
+    "-o",
+    type=ChoiceType(["portrait", "landscape"]),
+    help="Conditionally rotate only if the final orientation matches this option",
+)
 @global_processor
-def pagerotate(document: vp.Document, clockwise: bool):
+def pagerotate(document: vp.Document, clockwise: bool, orientation: str | None):
     """Rotate the page by 90 degrees.
 
     This command rotates the page by 90 degrees counter-clockwise. If the `--clockwise` option
-    is passed, it rotates the page clockwise instead.
+    is passed, it rotates the page clockwise instead.  If the `--orientation` option is given
+    a value of either 'portrait' or 'landscape', the page will only be rotated if the final
+    orientation would match that choice.
 
     Note: if the page size is not defined, an error is printed and the page is not rotated.
     """
@@ -676,6 +691,19 @@ def pagerotate(document: vp.Document, clockwise: bool):
         logging.warning("pagerotate: page size is not defined, page not rotated")
         return document
     w, h = page_size
+
+    # sanity checks
+    if orientation is not None and orientation not in ["portrait", "landscape"]:
+        logging.warning(
+            f"pagerotate: orientation value '{orientation}' not one of 'portrait', 'landscape'"
+        )
+        return document
+
+    # check orientation constraint, and do nothing if target orientation
+    # won't match desired result
+    if (orientation == "portrait" and h > w) or (orientation == "landscape" and w > h):
+        logging.debug("pagerotate: page already in target orientation, page not rotated")
+        return document
 
     if clockwise:
         document.rotate(math.pi / 2)
