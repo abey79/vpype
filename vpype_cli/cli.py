@@ -104,9 +104,8 @@ class _BrokenCommand(click.Command):  # pragma: no cover
             "\nWarning: entry point could not be loaded. Contact "
             "its author for help.\n\n\b\n" + traceback.format_exc()
         )
-        self.short_help = "\u2020 Warning: could not load plugin. See `{} {} --help`.".format(
-            util_name,
-            self.name,
+        self.short_help = (
+            f"\u2020 Warning: could not load plugin. See `{util_name} {self.name} --help`."
         )
 
     def invoke(self, ctx):

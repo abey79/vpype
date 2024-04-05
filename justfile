@@ -10,6 +10,9 @@ update-deps:
 test:
   pytest
 
+format:
+  ruff check --fix --output-format=full vpype vpype_cli vpype_viewer tests
+
 lint:
   mypy
   ruff check --output-format=full vpype vpype_cli vpype_viewer tests
