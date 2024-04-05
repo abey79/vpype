@@ -7,7 +7,7 @@ Release date: UNRELEASED
 ### New features and improvements
 
 * Added a `--orientation` option to the `pagerotate` command to conditionally rotate the page to a target orientation (thanks to @gatesphere) (#705)
-* Added a `lineshuffle` command to randomize the plotting order of lines in the current geometry (thanks to @gatesphere)
+* Added a `lineshuffle` command to randomize the plotting order of lines in the current geometry (thanks to @gatesphere) (#714)
 
 ### Bug fixes
 
