@@ -458,7 +458,6 @@ def test_linesort(runner, lines):
 )
 def test_lineshuffle(runner, lines):
     res = runner.invoke(cli, f"{lines} lineshuffle dbsample dbdump")
-    data = DebugData.load(res.output)[0]
     assert res.exit_code == 0
 
 

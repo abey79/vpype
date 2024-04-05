@@ -11,11 +11,16 @@ import numpy as np
 
 import vpype as vp
 
-from ._painters import (LineCollectionFastColorfulPainter,
-                        LineCollectionFastPainter, LineCollectionPenUpPainter,
-                        LineCollectionPointsPainter,
-                        LineCollectionPreviewPainter, Painter,
-                        PaperBoundsPainter, RulersPainter)
+from ._painters import (
+    LineCollectionFastColorfulPainter,
+    LineCollectionFastPainter,
+    LineCollectionPenUpPainter,
+    LineCollectionPointsPainter,
+    LineCollectionPreviewPainter,
+    Painter,
+    PaperBoundsPainter,
+    RulersPainter,
+)
 from ._scales import DEFAULT_SCALE_SPEC, SCALES_MAP, ScaleSpec, UnitType
 from ._utils import ColorType, orthogonal_projection_matrix
 
