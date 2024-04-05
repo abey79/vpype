@@ -53,6 +53,7 @@ MINIMAL_COMMANDS = [
     Command("skew 0 0"),
     Command("translate 0 0"),
     Command("crop 0 0 1 1"),
+    Command("lineshuffle"),
     Command("linesort"),
     Command("linesort --two-opt"),
     Command("random linesort"),  # make sure there is something sort
@@ -444,6 +445,21 @@ def test_linesort(runner, lines):
     data = DebugData.load(res.output)[0]
     assert res.exit_code == 0
     assert data.pen_up_length == 0
+
+
+@pytest.mark.parametrize(
+    "lines",
+    [
+        " ".join(s)
+        for s in itertools.permutations(
+            ["line 0 0 0 10", "line 0 10 10 10", "line 0 0 10 0", "line 10 0 10 10"]
+        )
+    ],
+)
+def test_lineshuffle(runner, lines):
+    res = runner.invoke(cli, f"{lines} lineshuffle dbsample dbdump")
+    data = DebugData.load(res.output)[0]
+    assert res.exit_code == 0
 
 
 @pytest.mark.parametrize(

@@ -10,33 +10,20 @@ import sys
 
 import moderngl as mgl
 from PySide6.QtCore import QEvent, QSettings, QSize, Qt, Signal
-from PySide6.QtGui import (
-    QAction,
-    QActionGroup,
-    QMouseEvent,
-    QNativeGestureEvent,
-    QScreen,
-    QSurfaceFormat,
-    QWheelEvent,
-)
+from PySide6.QtGui import (QAction, QActionGroup, QMouseEvent,
+                           QNativeGestureEvent, QScreen, QSurfaceFormat,
+                           QWheelEvent)
 from PySide6.QtOpenGLWidgets import QOpenGLWidget
-from PySide6.QtWidgets import (
-    QApplication,
-    QHBoxLayout,
-    QLabel,
-    QMenu,
-    QSizePolicy,
-    QToolBar,
-    QToolButton,
-    QVBoxLayout,
-    QWidget,
-)
+from PySide6.QtWidgets import (QApplication, QHBoxLayout, QLabel, QMenu,
+                               QSizePolicy, QToolBar, QToolButton, QVBoxLayout,
+                               QWidget)
 
 import vpype as vp
 
 from .._scales import UnitType
 from ..engine import Engine, ViewMode
-from .utils import PenOpacityActionGroup, PenWidthActionGroup, load_icon, set_sigint_handler
+from .utils import (PenOpacityActionGroup, PenWidthActionGroup, load_icon,
+                    set_sigint_handler)
 
 __all__ = ["QtViewerWidget", "QtViewer", "show"]
 

@@ -7,7 +7,8 @@ from contextlib import contextmanager
 from typing import Callable
 
 from PySide6 import QtNetwork
-from PySide6.QtGui import QAction, QActionGroup, QGuiApplication, QIcon, QPalette
+from PySide6.QtGui import (QAction, QActionGroup, QGuiApplication, QIcon,
+                           QPalette)
 
 
 def load_icon(path: str) -> QIcon:

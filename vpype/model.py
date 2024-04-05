@@ -12,12 +12,8 @@ from shapely.geometry import LinearRing, LineString, MultiLineString
 
 from .geometry import crop, reloop
 from .line_index import LineIndex
-from .metadata import (
-    METADATA_FIELD_PAGE_SIZE,
-    METADATA_FIELD_SOURCE,
-    METADATA_FIELD_SOURCE_LIST,
-    METADATA_SYSTEM_FIELD_TYPES,
-)
+from .metadata import (METADATA_FIELD_PAGE_SIZE, METADATA_FIELD_SOURCE,
+                       METADATA_FIELD_SOURCE_LIST, METADATA_SYSTEM_FIELD_TYPES)
 
 __all__ = [
     "LineCollection",

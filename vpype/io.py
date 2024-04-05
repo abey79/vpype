@@ -23,16 +23,11 @@ from shapely.geometry import LineString
 from svgwrite.extensions import Inkscape
 
 from .config import PaperConfig, PlotterConfig, config_manager
-from .metadata import (
-    METADATA_DEFAULT_COLOR_SCHEME,
-    METADATA_FIELD_COLOR,
-    METADATA_FIELD_NAME,
-    METADATA_FIELD_PEN_WIDTH,
-    METADATA_FIELD_SOURCE,
-    METADATA_SVG_ATTRIBUTES_WHITELIST,
-    METADATA_SVG_NAMESPACES,
-    Color,
-)
+from .metadata import (METADATA_DEFAULT_COLOR_SCHEME, METADATA_FIELD_COLOR,
+                       METADATA_FIELD_NAME, METADATA_FIELD_PEN_WIDTH,
+                       METADATA_FIELD_SOURCE,
+                       METADATA_SVG_ATTRIBUTES_WHITELIST,
+                       METADATA_SVG_NAMESPACES, Color)
 from .model import Document, LineCollection
 from .utils import UNITS
 

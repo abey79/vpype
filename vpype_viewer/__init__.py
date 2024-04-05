@@ -8,6 +8,5 @@ from __future__ import annotations
 from ._scales import DEFAULT_SCALE_SPEC, UnitType
 from .engine import *
 from .image import ImageRenderer, render_image
-
 # currently Qt is the only GUI backend so we unconditionally import from qt
 from .qtviewer import QtViewer, show
