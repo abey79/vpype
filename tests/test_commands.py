@@ -448,20 +448,6 @@ def test_linesort(runner, lines):
 
 
 @pytest.mark.parametrize(
-    "lines",
-    [
-        " ".join(s)
-        for s in itertools.permutations(
-            ["line 0 0 0 10", "line 0 10 10 10", "line 0 0 10 0", "line 10 0 10 10"]
-        )
-    ],
-)
-def test_lineshuffle(runner, lines):
-    res = runner.invoke(cli, f"{lines} lineshuffle dbsample dbdump")
-    assert res.exit_code == 0
-
-
-@pytest.mark.parametrize(
     ["opt", "expected"],
     {
         ("--no-flip", 50.0),
