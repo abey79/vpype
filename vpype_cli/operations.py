@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import math
+import random
 from typing import cast
 
 import click
@@ -25,6 +26,7 @@ __all__ = (
     "filter_command",
     "layout",
     "linemerge",
+    "lineshuffle",
     "linesimplify",
     "linesort",
     "multipass",
@@ -326,6 +328,28 @@ def linesimplify(lines: vp.LineCollection, tolerance):
     )
 
     return new_lines
+
+
+@cli.command(group="Operations")
+@layer_processor
+def lineshuffle(lines: vp.LineCollection) -> vp.LineCollection:
+    """Shuffle the plotting order of lines.
+
+    This command is not intended for general use, but may be useful
+    for very specific situations, when you wish to maintain the drawing
+    speed of the plotter, but spread out the area in which the pen is
+    drawing over time, for example, to let one line of ink dry in a
+    dense area before drawing the next.
+
+    This command is purposely naive, and simply randomizes the line
+    order with no regard to total distance.  Almost guaranteed to
+    increase plotting time.
+    """
+    new_lc = lines.clone()
+    line_list = lines.lines[:]
+    random.shuffle(line_list)
+    new_lc.extend(line_list)
+    return new_lc
 
 
 @cli.command(group="Operations")

@@ -87,6 +87,10 @@ CLI reference
 .. click:: vpype_cli:linemerge
    :prog: linemerge
 
+.. _cmd_lineshuffle:
+.. click:: vpype_cli:lineshuffle
+   :prog: lineshuffle
+
 .. _cmd_linesimplify:
 .. click:: vpype_cli:linesimplify
    :prog: linesimplify
