@@ -53,6 +53,7 @@ MINIMAL_COMMANDS = [
     Command("skew 0 0"),
     Command("translate 0 0"),
     Command("crop 0 0 1 1"),
+    Command("lineshuffle"),
     Command("linesort"),
     Command("linesort --two-opt"),
     Command("random linesort"),  # make sure there is something sort

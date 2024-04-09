@@ -4,7 +4,6 @@ import os
 
 import vpype as vp
 
-
 project = "vpype"
 # noinspection PyShadowingBuiltins
 copyright = "2020-2022, Antoine Beyeler"
