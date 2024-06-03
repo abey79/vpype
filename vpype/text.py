@@ -168,7 +168,7 @@ def _word_wrap(
             w = measure_func(x + a)
             if w > width:
                 for aa, ab in dic.iterate(a) if dic else ():  # try hyphenating
-                    xa = x + aa + "\u002D"  # our fonts don't have a true hyphen
+                    xa = x + aa + "\u002d"  # our fonts don't have a true hyphen
                     w = measure_func(xa)
                     if w <= width:
                         result.append(xa)

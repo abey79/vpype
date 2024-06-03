@@ -51,9 +51,9 @@ class PaperConfig:
     ]  #: location on paper of the (0, 0) plotter unit coordinates
 
     paper_size: tuple[float, float] | None = None  #: X/Y axis convention of the plotter
-    paper_orientation: None | (str) = (
-        None  #: orientation of the plotter coordinate system on paper
-    )
+    paper_orientation: None | (
+        str
+    ) = None  #: orientation of the plotter coordinate system on paper
     x_range: tuple[int, int] | None = None  #: admissible range of X coordinates
     y_range: tuple[int, int] | None = None  #: admissible range of Y coordinates
     origin_location_reference: str | None = "topleft"  #: reference for ``origin_location``
@@ -61,9 +61,9 @@ class PaperConfig:
     info: str = ""  #: information printed to the user when paper is used
     rotate_180: bool = False  #: if True, the geometries are rotated by 180 degrees on the page
     set_ps: int | None = None  #: if not None, call PS with corresponding value
-    final_pu_params: None | (str) = (
-        None  #: if not None, these params are added to the final PU command
-    )
+    final_pu_params: None | (
+        str
+    ) = None  #: if not None, these params are added to the final PU command
     aka_names: list[str] = dataclasses.field(
         default_factory=list
     )  #: alternative paper names (will be found by :func:`paper_config`

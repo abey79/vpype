@@ -11,12 +11,12 @@ test:
   pytest
 
 format:
-  ruff check --fix --output-format=full vpype vpype_cli vpype_viewer tests
+  ruff format vpype vpype_cli vpype_viewer tests
 
 lint:
-  mypy
   ruff check --output-format=full vpype vpype_cli vpype_viewer tests
-  black --check --diff vpype vpype_cli vpype_viewer tests
+  ruff format --check vpype vpype_cli vpype_viewer tests
+  mypy
 
 # run previously failed tests
 test-failed:
