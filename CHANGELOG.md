@@ -13,6 +13,10 @@ Release date: UNRELEASED
 
 * Fixed a crash when reading SVG with simplify active (via the `read --simplify` command or the read APIs with `simplify=True`) (thanks to @nataquinones) (#732)
 
+### Other changes
+
+* Use Ruff for code formatting (supersedes Black) (#yyy)
+
 
 ## 1.14
 

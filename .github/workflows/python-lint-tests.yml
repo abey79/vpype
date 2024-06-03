@@ -26,8 +26,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
+    - name: Install Just
+      uses: extractions/setup-just@v2
+
     - name: Install poetry
       run: pipx install poetry!=1.4.1
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
@@ -38,9 +43,7 @@ jobs:
     - name: Lint and static analysis
       if:  matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'  # no need to run that 9x
       run: |
-        poetry run ruff check --output-format=full vpype vpype_cli vpype_viewer tests
-        poetry run black --check --diff vpype vpype_cli vpype_viewer tests
-        poetry run mypy
+        poetry run just lint
     # needed for tests to work on ubuntu (libEGL.so.1)
     - name: Install EGL mesa
       if: matrix.os == 'ubuntu-latest'
