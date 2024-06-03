@@ -336,7 +336,8 @@ def _flattened_paths_to_line_collection(
                 line = seg.npoint(np.linspace(0, 1, step))
 
                 if simplify:
-                    line = np.array(LineString(line).simplify(tolerance=quantization))
+                    line = LineString(line).simplify(tolerance=quantization)
+                    line = np.array(line.coords, dtype=float)
 
                 line = line.view(dtype=complex).reshape(len(line))
 
