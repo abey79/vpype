@@ -15,7 +15,7 @@ Release date: UNRELEASED
 
 ### Other changes
 
-* Use Ruff for code formatting (supersedes Black) (#yyy)
+* Use Ruff for code formatting (supersedes Black) (#737)
 
 
 ## 1.14
