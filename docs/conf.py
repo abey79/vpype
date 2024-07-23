@@ -80,6 +80,16 @@ rst_prolog = f"""
 ENABLE_PLAUSIBLE = os.environ.get("READTHEDOCS_VERSION_TYPE", "") in ["branch", "tag"]
 html_context = {"enable_plausible": ENABLE_PLAUSIBLE}
 
+# -- Sphinx 7.4 workaround
+
+# Sphinx 7.4 introduced a warning when symbols would have the current module as prefix, which
+# autosummary does. This was meant to be fixed by 7.4.6 and 7.4.7, but apparently not in my
+# case.
+# TODO(ab): remove when fixed in Sphinx. When doing so, force sphinx to >=${FIXED_VERSION}
+suppress_warnings = [
+    "autosummary.import_cycle",
+]
+
 
 # noinspection PyUnusedLocal
 def autodoc_skip_member(app, what, name, obj, skip, options):
