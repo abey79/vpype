@@ -798,7 +798,7 @@ def write_svg(
 
         group.attribs["stroke"] = color.as_rgb_hex()
         if color.alpha < 255:
-            group.attribs["stroke-opacity"] = f"{color.alpha/255:.3f}"
+            group.attribs["stroke-opacity"] = f"{color.alpha / 255:.3f}"
         group.attribs["style"] = "display:inline"
         group.attribs["id"] = f"layer{layer_id}"
         if layer.property_exists(METADATA_FIELD_PEN_WIDTH):
@@ -840,8 +840,7 @@ def _get_hpgl_config(device: str | None, page_size: str) -> tuple[PlotterConfig,
     paper_config = plotter_config.paper_config(page_size)
     if paper_config is None:
         raise ValueError(
-            f"no configuration available for paper size '{page_size}' with plotter "
-            f"'{device}'"
+            f"no configuration available for paper size '{page_size}' with plotter '{device}'"
         )
 
     return plotter_config, paper_config

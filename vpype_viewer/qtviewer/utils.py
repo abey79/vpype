@@ -79,7 +79,7 @@ class PenOpacityActionGroup(QActionGroup):
         if current not in self.opacities:
             self.opacities.append(current)
         for w in sorted(self.opacities):
-            act = self.addAction(QAction(f"{int(w*100)}%"))
+            act = self.addAction(QAction(f"{int(w * 100)}%"))
             act.setCheckable(True)
             act.setChecked(w == current)
             act.setData(w)

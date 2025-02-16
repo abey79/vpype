@@ -26,7 +26,7 @@ implicitly set by the `read` command and can also be manually changed using the 
 command. The page size can be overridden using the `--page-size SIZE` option. `SIZE` may
 be one of:
 
-    {', '.join(vp.PAGE_SIZES.keys())}
+    {", ".join(vp.PAGE_SIZES.keys())}
 
 Alternatively, a custom size can be specified in the form of `WIDTHxHEIGHT`. `WIDTH` and
 `HEIGHT` may include units. If only one has an unit, the other is assumed to have the
@@ -73,7 +73,7 @@ When writing to HPGL, a device name must be provided with the `--device` option.
 corresponding device must be configured in the built-in or a user-provided configuration file
 (see the documentation for more details). The following devices are currently available:
 
-    {', '.join(vp.config_manager.get_plotter_list())}
+    {", ".join(vp.config_manager.get_plotter_list())}
 
 In HPGL mode, this command will try to infer the paper size to use based on the current page
 size (the current page size is set by the `read` command based on the input file and can be
