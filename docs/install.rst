@@ -9,7 +9,7 @@ This page explain how to install *vpype* for end-users. If you intend to develop
 
 .. note::
 
-  The recommended Python version is 3.12.1 or later. *vpype* is also compatible with Python 3.10 and 3.11.
+  The recommended Python version is 3.13. *vpype* is also compatible with Python 3.11 and 3.12.
 
 .. warning::
 
@@ -38,7 +38,7 @@ You can  ensure that the installed Python interpreter is properly installed by r
 
 It should produce an output similar to::
 
-  Python 3.12.1
+  Python 3.13.2
 
 The version number should match the installer you used.
 

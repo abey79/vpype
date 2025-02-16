@@ -1,18 +1,49 @@
-[tool.poetry]
+[project]
 name = "vpype"
 version = "1.15.0a0"
 description = "The Swiss Army knife of vector graphics for pen plotters"
-authors = ["Antoine Beyeler <abeyeler@ab-ware.com>"]
+authors = [
+    { name = "Antoine Beyeler", email = "abeyeler@ab-ware.com>" }
+]
 license = "MIT"
 readme = "README.md"
-homepage = "https://github.com/abey79/vpype"
-documentation = "https://vpype.readthedocs.io/en/latest/"
-classifiers = [
-    "Development Status :: 5 - Production/Stable",
-    "Environment :: Console",
-    "Topic :: Artistic Software",
-    "Topic :: Multimedia :: Graphics",
+requires-python = ">=3.11, <3.14"
+dynamic = ["classifiers"]
+
+dependencies = [
+    "asteval>=0.9.26",
+    "cachetools>=4.2.2",
+    "click>=8.0.1,<8.2.0",
+    "multiprocess>=0.70.11",
+    "numpy>=1.25,<3",
+    "pnoise>=0.2.0",
+    "pyphen>=0.14,<0.16",
+    "scipy>=1.6",
+    "Shapely>=1.8.2",
+    "svgelements>=1.6.10",
+    "svgwrite~=1.4",
+    "tomli>=2.0.0",
 ]
+
+[project.optional-dependencies]
+all = [
+    "matplotlib>=3.3.2",
+    "glcontext>=2.3.2",  # 2.3.2 needed to fix #200
+    "moderngl>=5.6.2,!=5.7.1,!=5.7.2",  # see moderngl/moderngl#525
+    "Pillow>=9.0.1",
+    "PySide6>=6.4.0.1,!=6.6.2",
+]
+
+
+[project.urls]
+documentation = "https://vpype.readthedocs.io/en/latest/"
+repository = "https://github.com/abey79/vpype"
+
+[project.scripts]
+vpype = "vpype_cli.cli:cli"
+
+
+[tool.poetry]
 packages = [
     { include = "vpype" },
     { include = "vpype_cli" },
@@ -29,31 +60,14 @@ include = [
     "vpype_viewer/qtviewer/resources/*",
 ]
 
-[tool.poetry.scripts]
-vpype = "vpype_cli.cli:cli"
+# Poetry autofills license and Python version related items.
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Topic :: Artistic Software",
+    "Topic :: Multimedia :: Graphics",
+]
 
-[tool.poetry.dependencies]
-python = ">=3.10, <3.13"
-
-asteval = ">=0.9.26"
-cachetools = ">=4.2.2"
-click = ">=8.0.1,<8.2.0"
-multiprocess = ">=0.70.11"
-numpy = ">=1.25,<3"
-pnoise = ">=0.2.0"
-pyphen = ">=0.14,<0.16"
-scipy = ">=1.6"
-Shapely = ">=1.8.2"
-svgelements = ">=1.6.10"
-svgwrite = "~1.4"
-tomli = ">=2.0.0"
-
-# additional dependencies for the viewer and the `show` command
-matplotlib = { version = ">=3.3.2", optional = true }
-glcontext = { version = ">=2.3.2", optional = true }  # 2.3.2 needed to fix #200
-moderngl = { version = ">=5.6.2,!=5.7.1,!=5.7.2", optional = true }  # see moderngl/moderngl#525
-Pillow = { version = ">=9.0.1", optional = true }
-PySide6 = { version = ">=6.4.0.1,!=6.6.2", optional = true }
 
 [tool.poetry.group.dev.dependencies]
 coverage = {extras = ["toml"], version = ">=5.4"}
@@ -82,9 +96,6 @@ sphinx-autodoc-typehints= ">=1.18.3"
 sphinx-click = ">=4.3.0"
 sphinx-copybutton = ">=0.5.0"
 
-
-[tool.poetry.extras]
-all = ["matplotlib", "glcontext", "moderngl", "Pillow", "PySide6"]
 
 [build-system]
 requires = ["poetry-core>=1.0.8"]
