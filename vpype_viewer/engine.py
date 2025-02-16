@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import enum
 from collections import defaultdict
-from typing import Callable
+from collections.abc import Callable
 
 import moderngl as mgl
 import numpy as np

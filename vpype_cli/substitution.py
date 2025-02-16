@@ -4,8 +4,8 @@ import glob
 import os
 import pathlib
 import sys
-from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Callable
+from collections.abc import Callable, Iterable
+from typing import TYPE_CHECKING, Any
 
 import asteval
 

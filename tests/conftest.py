@@ -7,7 +7,8 @@ import os
 import pathlib
 import random
 import string
-from typing import Callable, Protocol
+from collections.abc import Callable
+from typing import Protocol
 from xml.dom import minidom
 from xml.etree import ElementTree
 

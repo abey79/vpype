@@ -3,8 +3,8 @@ from __future__ import annotations
 import os
 import signal
 import socket
+from collections.abc import Callable
 from contextlib import contextmanager
-from typing import Callable
 
 from PySide6 import QtNetwork
 from PySide6.QtGui import QAction, QActionGroup, QGuiApplication, QIcon, QPalette

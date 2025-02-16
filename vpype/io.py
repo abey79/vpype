@@ -88,7 +88,7 @@ _PathType = Union[
     # for actual paths and shapes transformed into paths
     svgelements.Path,
     # for the special case of Polygon and Polylines
-    list[Union[svgelements.PathSegment, svgelements.Polygon, svgelements.Polyline]],
+    list[svgelements.PathSegment | svgelements.Polygon | svgelements.Polyline],
 ]
 _PathListType = list[_PathType]
 

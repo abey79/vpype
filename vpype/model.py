@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import math
 import pathlib
-from collections.abc import Iterable, Iterator
-from typing import Any, Callable, Optional, Union, cast
+from collections.abc import Callable, Iterable, Iterator
+from typing import Any, Optional, Union, cast
 
 import numpy as np
 from shapely.geometry import LinearRing, LineString, MultiLineString

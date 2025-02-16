@@ -140,13 +140,10 @@ exclude_lines = [
     '@(abc\.)?abstractmethod',
 ]
 
-[tool.black]
-line-length = 95
-target-version = ["py39", "py310", "py311"]
 
 [tool.ruff]
 line-length = 95
-target-version = "py39"
+target-version = "py311"
 exclude = ["examples", "scripts"]
 
 [tool.ruff.lint]
