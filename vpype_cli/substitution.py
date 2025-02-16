@@ -102,7 +102,8 @@ class _PropertyProxy:
         if prop is not None:
             return prop
         else:
-            raise AttributeError(f"property '{name}' not found")
+            # Note: this cannot be `AttributeError` because they are silenced by asteval
+            raise KeyError(f"property '{name}' not found")
 
     def __setattr__(self, name, value):
         if name.startswith("_"):
@@ -254,7 +255,7 @@ class SubstitutionHelper:
         }
         # disabling numpy as its math functions such as `ceil` do not convert to int.
         self._interpreter = asteval.Interpreter(
-            usersyms=symtable,
+            user_symbols=symtable,
             readonly_symbols=symtable.keys() - vp.UNITS.keys(),
             use_numpy=False,
         )

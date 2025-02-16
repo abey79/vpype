@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any, Union, cast
 
 import moderngl as mgl
 import numpy as np
+import numpy.typing as npt
 
 import vpype as vp
 
@@ -326,7 +327,7 @@ class LineCollectionPreviewPainter(Painter):
         last point identical to their first point.
         """
 
-        indices = []
+        indices: list[npt.NDArray] = []
         reset_index = np.array([-1])
         start_index = 0
         for i, line in enumerate(lc):

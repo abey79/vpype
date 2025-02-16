@@ -525,7 +525,7 @@ LAYOUT_HELP = f"""Layout the geometries on the provided page size.
 
 SIZE may be one of:
 
-    {', '.join(vp.PAGE_SIZES.keys())}
+    {", ".join(vp.PAGE_SIZES.keys())}
 
 Note that `tight` is special case, see below.
 
