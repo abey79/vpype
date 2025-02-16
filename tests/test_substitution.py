@@ -102,14 +102,14 @@ def test_property_proxy(state_factory):
     assert proxy["global_prop"] == proxy.global_prop == 10
     with pytest.raises(KeyError):
         assert proxy["local_prop"]
-    with pytest.raises(AttributeError):
+    with pytest.raises(KeyError):
         assert proxy.local_prop
 
     proxy = _PropertyProxy(dummy_state, False, True)
     assert proxy["layer_prop"] == proxy.layer_prop == 1.5
     with pytest.raises(KeyError):
         assert proxy["global_prop"]
-    with pytest.raises(AttributeError):
+    with pytest.raises(KeyError):
         assert proxy.global_prop
 
 
