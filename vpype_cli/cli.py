@@ -204,11 +204,7 @@ def cli(
 
         # since python 3.10, a new "selectable" API is used for entry points, see:
         # https://docs.python.org/3/library/importlib.metadata.html#entry-points
-        # Not using it yields a deprecation warning in some circumstances.
-        if sys.version_info >= (3, 10):
-            entry_points = importlib.metadata.entry_points().select(group="vpype.plugins")
-        else:  # pragma: no cover
-            entry_points = importlib.metadata.entry_points().get("vpype.plugins", [])
+        entry_points = importlib.metadata.entry_points().select(group="vpype.plugins")
         for entry_point in entry_points:
             # noinspection PyBroadException
             try:

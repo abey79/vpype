@@ -74,7 +74,7 @@ _FLOAT_WITH_UNIT_RE = re.compile(r"^([+\-0-9.e]*)([a-z]*)$", flags=re.IGNORECASE
 
 def _convert_unit(value: str | float | int, units: dict[str, float]) -> float:
     """Converts a string with unit to a value"""
-    if isinstance(value, (float, int)):
+    if isinstance(value, float | int):
         return value
 
     mo = _FLOAT_WITH_UNIT_RE.match(value.strip().lower())

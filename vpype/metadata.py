@@ -39,7 +39,7 @@ class Color:
         alpha: int | None = None,
     ):
         svgc = None
-        if isinstance(red, (svgelements.Color, Color)):
+        if isinstance(red, svgelements.Color | Color):
             svgc = red
         elif isinstance(red, str):
             svgc = svgelements.Color(red)
