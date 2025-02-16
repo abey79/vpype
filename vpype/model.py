@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import math
 import pathlib
-from collections.abc import Iterable, Iterator
-from typing import Any, Callable, Optional, Union, cast
+from collections.abc import Callable, Iterable, Iterator
+from typing import Any, Union, cast
 
 import numpy as np
 from shapely.geometry import LinearRing, LineString, MultiLineString
@@ -28,7 +28,7 @@ __all__ = [
     "_MetadataMixin",  # for documentation
 ]
 
-LineLike = Union[LineString, LinearRing, Iterable[complex]]
+LineLike = Union[LineString, LinearRing, Iterable[complex]]  # noqa: UP007
 
 # We accept LineString and LinearRing as line collection because MultiLineString are regularly
 # converted to LineString/LinearRing when operation reduce them to single-line construct.
@@ -193,7 +193,7 @@ class LineCollection(_MetadataMixin):
         Args:
             line (LineLike): line to append
         """
-        if isinstance(line, (LineString, LinearRing)):
+        if isinstance(line, LineString | LinearRing):
             # noinspection PyTypeChecker
             self._lines.append(np.array(line.coords).view(dtype=complex).reshape(-1))
         else:
@@ -222,7 +222,7 @@ class LineCollection(_MetadataMixin):
         # handle shapely objects
         if isinstance(lines, MultiLineString):
             lines = lines.geoms
-        elif isinstance(lines, (LineString, LinearRing)):
+        elif isinstance(lines, LineString | LinearRing):
             lines = [lines]
 
         for line in lines:
@@ -623,7 +623,7 @@ class Document(_MetadataMixin):
         return self.property(METADATA_FIELD_PAGE_SIZE)
 
     @page_size.setter
-    def page_size(self, page_size=Optional[tuple[float, float]]) -> None:
+    def page_size(self, page_size=tuple[float, float] | None) -> None:
         """Sets the page size to a new value."""
         self.set_property(METADATA_FIELD_PAGE_SIZE, page_size)
 

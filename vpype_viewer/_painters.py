@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any, Union, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import moderngl as mgl
 import numpy as np
@@ -14,7 +14,7 @@ from ._utils import ColorType, load_program, load_texture_array
 if TYPE_CHECKING:  # pragma: no cover
     from .engine import Engine
 
-ResourceType = Union[mgl.Buffer, mgl.Texture, mgl.TextureArray]
+ResourceType = mgl.Buffer | mgl.Texture | mgl.TextureArray
 
 
 class Painter:

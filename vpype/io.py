@@ -84,11 +84,11 @@ class _ComplexStack:
         return self._stack
 
 
-_PathType = Union[
+_PathType = Union[  # noqa: UP007
     # for actual paths and shapes transformed into paths
     svgelements.Path,
     # for the special case of Polygon and Polylines
-    list[Union[svgelements.PathSegment, svgelements.Polygon, svgelements.Polyline]],
+    list[svgelements.PathSegment | svgelements.Polygon | svgelements.Polyline],
 ]
 _PathListType = list[_PathType]
 
@@ -178,7 +178,7 @@ def _element_to_paths(elem: svgelements.SVGElement) -> _PathType | None:
     if isinstance(elem, svgelements.Path):
         if len(elem) != 0:
             return elem
-    elif isinstance(elem, (svgelements.Polyline, svgelements.Polygon)):
+    elif isinstance(elem, svgelements.Polyline | svgelements.Polygon):
         # Here we add a "fake" path containing just the Polyline/Polygon,
         # to be treated specifically by _convert_flattened_paths.
         path = [svgelements.Move(elem.points[0]), elem]
@@ -316,14 +316,14 @@ def _flattened_paths_to_line_collection(
                     point_stack = _ComplexStack()
 
                 point_stack.append(complex(seg.end))
-            elif isinstance(seg, (svgelements.Line, svgelements.Close)):
+            elif isinstance(seg, svgelements.Line | svgelements.Close):
                 start = complex(seg.start)
                 end = complex(seg.end)
                 if not point_stack.ends_with(start):
                     point_stack.append(start)
                 if end != start:
                     point_stack.append(end)
-            elif isinstance(seg, (svgelements.Polygon, svgelements.Polyline)):
+            elif isinstance(seg, svgelements.Polygon | svgelements.Polyline):
                 line = np.array(seg.points, dtype=float)
                 line = line.view(dtype=complex).reshape(len(line))
                 if point_stack.ends_with(line[0]):
