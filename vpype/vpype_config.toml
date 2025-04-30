@@ -418,3 +418,60 @@ y_axis_up = true
 rotate_180 = true
 origin_location = ["0mm", "216mm"]
 final_pu_params = "3000,8630"
+
+[device.dpx3300]
+name = "dpx3300"
+plotter_unit_length = "0.025mm"
+pen_count = 8
+
+[[device.dpx3300.paper]]
+name = "a4"
+aka_names = ["A4"]
+info = "A4 Paper should be loaded portrait orientation on the plot bed."
+paper_size = ["210mm", "297mm"]
+paper_orientation = "portrait"
+x_range = [-4680, 3720]
+y_range = [-5940, 5940]
+y_axis_up = true
+rotate_180 = false 
+origin_location = ["105mm", "148.5mm"]
+final_pu_params = "3720,5940"
+
+[[device.dpx3300.paper]]
+name = "a3"
+aka_names = ["A3"]
+info = "A3 Paper should be loaded landscape orientation on the plot bed."
+paper_size = ["420mm", "297mm"]
+paper_orientation = "landscape"
+x_range = [-8880, 7920]
+y_range = [-5940, 5940]
+y_axis_up = true
+rotate_180 = false 
+origin_location = ["210mm", "148.5mm"]
+final_pu_params = "7920,5940"
+
+[[device.dpx3300.paper]]
+name = "a2"
+aka_names = ["A2"]
+info = "A2 Paper should be loaded landscape orientation on the plot bed."
+paper_size = ["594mm", "420mm"]
+paper_orientation = "landscape"
+x_range = [-12360, 11400]
+y_range = [-8400, 8400]
+y_axis_up = true
+rotate_180 = false 
+origin_location = ["297mm", "210mm"]
+final_pu_params = "11400,8400"
+
+[[device.dpx3300.paper]]
+name = "a1"
+aka_names = ["A1"]
+info = "A1 Paper should be loaded landscape orientation on the plot bed."
+paper_size = ["841mm", "594mm"]
+paper_orientation = "landscape"
+x_range = [-17300, 16340]
+y_range = [-11880, 11880]
+y_axis_up = true
+rotate_180 = false 
+origin_location = ["420.5mm", "297mm"]
+final_pu_params = "16340,11880"
