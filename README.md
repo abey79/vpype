@@ -306,6 +306,7 @@ and much more.
  - [vpype-embroidery](https://github.com/EmbroidePy/vpype-embroidery): various embroidery-related utilities, including read from/write to most embroidery formats 
  - [vpype-vectrace](https://github.com/tatarize/vpype-vectrace): create outlines from images with vector tracing
  - [vpype-ttf](https://github.com/johnbentcope/vpype-ttf): create text outlines using TTF fonts
+ - [vpype-gscrib](https://github.com/joansalasoler/vpype-gscrib): generate G-code for CNC machines, plotters, laser cutters, 3D printers, and more using the Gscrib library
  
  
  ## Contributing
