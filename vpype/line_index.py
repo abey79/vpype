@@ -45,7 +45,7 @@ class LineIndex:
         self._make_index()
 
     def __len__(self) -> int:
-        return np.count_nonzero(self.available)
+        return int(np.count_nonzero(self.available))
 
     def __getitem__(self, item):
         return self.lines[item]

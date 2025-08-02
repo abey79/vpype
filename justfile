@@ -12,6 +12,7 @@ test:
 
 format:
   ruff format vpype vpype_cli vpype_viewer tests
+  ruff check --fix --output-format=full vpype vpype_cli vpype_viewer tests
 
 lint:
   ruff check --output-format=full vpype vpype_cli vpype_viewer tests

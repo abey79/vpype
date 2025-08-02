@@ -115,6 +115,7 @@ MINIMAL_COMMANDS = [
     Command("forlayer text '%_lid% (%_i%/%_n%): %_name%' end"),
     Command("pagerotate", keeps_page_size=False),
     Command("splitdist 1cm"),
+    Command("circlecrop 0 0 1cm"),
 ]
 
 # noinspection SpellCheckingInspection
