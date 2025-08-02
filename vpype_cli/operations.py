@@ -555,9 +555,9 @@ same unit. If none have units, both are assumed to be pixels by default. Here ar
 examples:
 
 \b
-    --page-size 11x14in     # 11in by 14in
-    --page-size 1024x768    # 1024px by 768px
-    --page-size 13.5inx4cm  # 13.5in by 4cm
+    layout 11x14in     # 11in by 14in
+    layout 1024x768    # 1024px by 768px
+    layout 13.5inx4cm  # 13.5in by 4cm
 
 Portrait orientation is enforced, unless `--landscape` is used, in which case landscape
 orientation is enforced.

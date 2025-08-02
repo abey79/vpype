@@ -14,6 +14,7 @@ Release date: UNRELEASED
 ### Bug fixes
 
 * Fixed a crash when reading SVG with simplify active (via the `read --simplify` command or the read APIs with `simplify=True`) (thanks to @nataquinones) (#732)
+* Fixed erroneous mention of `--page-size` in `layout`'s inline help
 
 ### Other changes
 
