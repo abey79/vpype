@@ -8,6 +8,7 @@ from collections.abc import Callable, Iterable, Iterator
 from typing import Any, Union, cast
 
 import numpy as np
+from shapely import GeometryCollection, MultiPoint, Point, Polygon
 from shapely.geometry import LinearRing, LineString, MultiLineString
 
 from .geometry import crop, reloop
@@ -18,6 +19,7 @@ from .metadata import (
     METADATA_FIELD_SOURCE_LIST,
     METADATA_SYSTEM_FIELD_TYPES,
 )
+from .primitives import circle
 
 __all__ = [
     "LineCollection",
@@ -220,10 +222,17 @@ class LineCollection(_MetadataMixin):
             return
 
         # handle shapely objects
-        if isinstance(lines, MultiLineString):
+        if isinstance(lines, GeometryCollection):
+            for geom in lines.geoms:
+                self.extend(geom)
+            return
+        elif isinstance(lines, MultiLineString):
             lines = lines.geoms
         elif isinstance(lines, LineString | LinearRing):
             lines = [lines]
+        elif isinstance(lines, Point | MultiPoint):
+            # We don't handle points here
+            lines = []
 
         for line in lines:
             self.append(line)
@@ -388,6 +397,25 @@ class LineCollection(_MetadataMixin):
             for line in self._lines:
                 new_lines.extend(crop(line, x1, y1, x2, y2))
             self._lines = new_lines
+
+    def circle_crop(self, x: float, y: float, r: float, quantization: float = 0.1) -> None:
+        """Crop all lines to a circular area.
+
+        Args:
+            x: x coordinate of the circle center
+            y: y coordinate of the circle center
+            r: radius of the circle
+            quantization: maximum length of linear segment for the cropping circle
+        """
+        if r <= 0:
+            self._lines = []
+        else:
+            mls = self.as_mls()
+            cropping_circle = Polygon(as_vector(circle(x, y, r, quantization)))
+            intersection = mls.intersection(cropping_circle)
+
+            self._lines = []
+            self.extend(intersection)
 
     def filter(self, key: Callable[[np.ndarray], bool]) -> None:
         """Remove lines from the :class:`LineCollection` for which key returns False.

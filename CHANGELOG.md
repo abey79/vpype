@@ -9,6 +9,7 @@ Release date: UNRELEASED
 * Added support for Python 3.13 and dropped support for Python 3.10 (#784)
 * Added a `--orientation` option to the `pagerotate` command to conditionally rotate the page to a target orientation (thanks to @gatesphere) (#705)
 * Added a `lineshuffle` command to randomize the plotting order of lines in the current geometry (thanks to @gatesphere) (#715)
+* Added a `cropcricle` command to crop the current geometry to a circle (#TODO)
 
 ### Bug fixes
 

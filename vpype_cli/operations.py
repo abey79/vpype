@@ -23,6 +23,7 @@ from .types import (
 
 __all__ = (
     "crop",
+    "circlecrop",
     "filter_command",
     "layout",
     "linemerge",
@@ -55,6 +56,25 @@ def crop(lines: vp.LineCollection, x: float, y: float, width: float, height: flo
     """
 
     lines.crop(x, y, x + width, y + height)
+    return lines
+
+
+@cli.command(group="Operations")
+@click.argument("X", type=LengthType())
+@click.argument("Y", type=LengthType())
+@click.argument("R", type=LengthType())
+@click.option(
+    "-q",
+    "--quantization",
+    type=LengthType(),
+    default="0.1mm",
+    help="Quantization used for the circular area",
+)
+@layer_processor
+def circlecrop(lines: vp.LineCollection, x: float, y: float, r: float, quantization: float):
+    """Crop to a circular area."""
+
+    lines.circle_crop(x, y, r, quantization)
     return lines
 
 

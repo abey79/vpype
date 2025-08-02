@@ -27,6 +27,10 @@ CLI reference
 .. click:: vpype_cli:circle
    :prog: circle
 
+.. _cmd_circlecrop:
+.. click:: vpype_cli:circlecrop
+   :prog: circlecrop
+
 .. _cmd_color:
 .. click:: vpype_cli:color
    :prog: color

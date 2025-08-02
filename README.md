@@ -247,6 +247,7 @@ and much more.
 - **Page rotation** command ([`pagerotate`](https://vpype.readthedocs.io/en/latest/reference.html#pagerotate)).
 - Powerful **transform** commands for scaling, translating, skewing and rotating geometries ([`scale`](https://vpype.readthedocs.io/en/latest/reference.html#scale), [`translate`](https://vpype.readthedocs.io/en/latest/reference.html#translate), [`skew`](https://vpype.readthedocs.io/en/latest/reference.html#skew), [`rotate`](https://vpype.readthedocs.io/en/latest/reference.html#rotate)).
 - Support for **scaling** and **cropping** to arbitrary dimensions ([`scaleto`](https://vpype.readthedocs.io/en/latest/reference.html#scaleto), [`crop`](https://vpype.readthedocs.io/en/latest/reference.html#crop)).
+- Support for **cropping to a circle** ([`circlecrop`](https://vpype.readthedocs.io/en/latest/reference.html#circlecrop)).
 - Support for **trimming** geometries by an arbitrary amount ([`trim`](https://vpype.readthedocs.io/en/latest/reference.html#trim)).
 - Arbitrary **page size** definition ([`pagesize`](https://vpype.readthedocs.io/en/latest/reference.html#pagesize)). 
 
