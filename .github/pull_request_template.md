@@ -5,9 +5,8 @@ _to be completed_
 #### Checklist
 
 - [ ] feature/fix implemented
-- [ ] code formatting ok (`black` and `ruff check .`)
-- [ ] `mypy` returns no error
-- [ ] tests added/updated and `pytest` succeeds
+- [ ] code formatting and`mypy` ok (`just lint`)
+- [ ] tests added/updated and `pytest` succeeds (`just test`)
 - [ ] documentation added/updated
     - [ ] command docstring and option/argument `help`
     - [ ] README.md updated (Feature Overview)
