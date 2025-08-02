@@ -50,9 +50,6 @@ packages = [
     { include = "vpype_viewer"},
 ]
 include = [
-    "README.md",
-    "CHANGELOG.md",
-    "LICENSE",
     "vpype/*.toml",
     "vpype/fonts/*.pickle",
     "vpype_viewer/shaders/*.glsl",
