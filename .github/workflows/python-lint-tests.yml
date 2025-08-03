@@ -35,14 +35,6 @@ jobs:
       with:
           python-version: ${{ matrix.python-version }}
 
-#    - name: Install uv and set the python version
-#      uses: astral-sh/setup-uv@v6
-#      with:
-#        python-version: ${{ matrix.python-version }}
-#
-#    - name: Install poetry
-#      run: uv tool install poetry
-
     - name: Install poetry
       run: pipx install --python ${{ matrix.python-version }} poetry!=1.4.1
 
@@ -66,6 +58,7 @@ jobs:
       run: |
         sudo apt-get update -y -qq
         sudo apt-get install -y -qq libegl1-mesa-dev
+
     # PYTEST STRATEGY
     # macOS is the only runner who has working ModernGL behaviour
     # macOS + 3.11 is used for code coverage
@@ -106,26 +99,33 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Install poetry
-      run: pipx install poetry!=1.4.1
-    - name: Set up Python
+    - uses: actions/checkout@v4
+
+    - name: Install Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.12'
-        cache: 'poetry'
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install poetry
+      run: pipx install --python ${{ matrix.python-version }} poetry!=1.4.1
+
+    # TODO: cache poetry env
+
     - name: Install project
       run: poetry install -E all --with docs,dev
+
     - name: Run PyInstaller
       run: | 
         VERSION="`poetry version --short`-${GITHUB_SHA}"
         echo "version=${VERSION}" >> $GITHUB_ENV
         poetry run ${GITHUB_WORKSPACE}\\scripts\\build.bat
+
     - name: Create NSIS installer
       uses: joncloud/makensis-action@v4
       with:
         script-file: scripts\\installer_win.nsi
         arguments: /V4 /DVERSION=${{ env.version }}
+
     - uses: actions/upload-artifact@v4
       with:
         name: vpype-${{ env.version }}-setup.exe
