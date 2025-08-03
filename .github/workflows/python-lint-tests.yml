@@ -25,25 +25,32 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Install Just
       uses: extractions/setup-just@v2
 
-    - name: Install poetry
-      run: pipx install poetry!=1.4.1
-
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+    - name: Install uv and set the python version
+      uses: astral-sh/setup-uv@v6
       with:
         python-version: ${{ matrix.python-version }}
-        cache: 'poetry'
+
+    - name: Install poetry
+      run: uvx install poetry>=2.1
+
+#    - name: Set up Python ${{ matrix.python-version }}
+#      uses: actions/setup-python@v5
+#      with:
+#        python-version: ${{ matrix.python-version }}
+#        cache: 'poetry'
+
     - name: Install project
       run: |
         python --version
         poetry config virtualenvs.in-project true
         poetry env use ${{ matrix.python-version }}
         poetry install -E all --with docs,dev
+
     - name: Lint and static analysis
       if:  matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'  # no need to run that 9x
       run: |
