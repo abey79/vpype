@@ -40,8 +40,8 @@ jobs:
         cache: 'poetry'
     - name: Install project
       run: |
-        python --version
-        which python
+        echo "Using Python: $(which python) (version: $(python --version))"
+        poetry env use $(which python)
         poetry install -E all --with docs,dev
     - name: Lint and static analysis
       if:  matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'  # no need to run that 9x
