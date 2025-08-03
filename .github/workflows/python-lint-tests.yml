@@ -36,7 +36,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install poetry
-      run: uvx install poetry>=2.1
+      run: uvx install poetry
 
 #    - name: Set up Python ${{ matrix.python-version }}
 #      uses: actions/setup-python@v5
