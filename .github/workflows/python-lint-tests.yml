@@ -99,7 +99,7 @@ jobs:
         python-version: '3.12'
         cache: 'poetry'
     - name: Install project
-      run: poetry install -E all
+      run: poetry install -E all --with docs,dev
     - name: Run PyInstaller
       run: | 
         VERSION="`poetry version --short`-${GITHUB_SHA}"

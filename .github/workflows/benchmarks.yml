@@ -25,7 +25,7 @@ jobs:
         python-version: '3.11'
         cache: 'poetry'
     - name: Install project
-      run: poetry install -E all
+      run: poetry install -E all --with docs,dev
     - name: Pytest (benchmark)
       run: |
         poetry run pytest tests/test_benchmarks.py --benchmark-enable --benchmark-json output.json
