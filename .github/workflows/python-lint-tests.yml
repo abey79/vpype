@@ -39,7 +39,10 @@ jobs:
         python-version: ${{ matrix.python-version }}
         cache: 'poetry'
     - name: Install project
-      run: poetry install -E all --with docs,dev
+      run: |
+        python --version
+        which python
+        poetry install -E all --with docs,dev
     - name: Lint and static analysis
       if:  matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'  # no need to run that 9x
       run: |
