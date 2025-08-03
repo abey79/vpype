@@ -13,7 +13,7 @@ dynamic = ["classifiers"]
 dependencies = [
     "asteval>=0.9.26",
     "cachetools>=4.2.2",
-    "click>=8.0.1,<8.2.0",
+    "click>=8.2",
     "multiprocess>=0.70.11",
     "numpy>=1.25,<3",
     "pnoise>=0.2.0",
@@ -77,6 +77,7 @@ pytest-benchmark = ">=4.0.0"
 pytest-cov = ">=2.11.0"
 pytest-mpl = ">=0.12"
 ruff = ">=0.0.277"
+syrupy = ">=4.9"
 types-cachetools = ">=4.2.4"
 types-pillow = ">=9.4.0.17,<11.0.0.0"
 types-setuptools = ">=57.4.17"
@@ -159,7 +160,9 @@ ignore = [
     "D203",
     "D205",
     "D213",
+    "D301",  # breaks docstring used for click help
     "D403",
+    "D412",  # force removing space between Example: and next line
     "D415",
 ]
 
@@ -173,4 +176,3 @@ required-imports = ["from __future__ import annotations"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
-

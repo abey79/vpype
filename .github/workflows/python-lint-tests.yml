@@ -25,31 +25,40 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Install Just
       uses: extractions/setup-just@v2
 
-    - name: Install poetry
-      run: pipx install poetry!=1.4.1
-
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+    - name: Install Python
+      uses: actions/setup-python@v5
       with:
-        python-version: ${{ matrix.python-version }}
-        cache: 'poetry'
+          python-version: ${{ matrix.python-version }}
+
+    - name: Install poetry
+      run: pipx install --python ${{ matrix.python-version }} poetry!=1.4.1
+
+    # TODO: cache poetry venv
+
     - name: Install project
-      run: poetry install -E all
+      run: |
+        python --version
+        poetry config virtualenvs.in-project true
+        poetry env use ${{ matrix.python-version }}
+        poetry install -E all --with docs,dev
+
     - name: Lint and static analysis
       if:  matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'  # no need to run that 9x
       run: |
         poetry run just lint
+
     # needed for tests to work on ubuntu (libEGL.so.1)
     - name: Install EGL mesa
       if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update -y -qq
         sudo apt-get install -y -qq libegl1-mesa-dev
+
     # PYTEST STRATEGY
     # macOS is the only runner who has working ModernGL behaviour
     # macOS + 3.11 is used for code coverage
@@ -90,26 +99,33 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Install poetry
-      run: pipx install poetry!=1.4.1
-    - name: Set up Python
-      uses: actions/setup-python@v4
+    - uses: actions/checkout@v4
+
+    - name: Install Python
+      uses: actions/setup-python@v5
       with:
         python-version: '3.12'
-        cache: 'poetry'
+
+    - name: Install poetry
+      run: pipx install --python '3.12' poetry!=1.4.1
+
+    # TODO: cache poetry env
+
     - name: Install project
-      run: poetry install -E all
+      run: poetry install -E all --with docs,dev
+
     - name: Run PyInstaller
       run: | 
         VERSION="`poetry version --short`-${GITHUB_SHA}"
         echo "version=${VERSION}" >> $GITHUB_ENV
         poetry run ${GITHUB_WORKSPACE}\\scripts\\build.bat
+
     - name: Create NSIS installer
       uses: joncloud/makensis-action@v4
       with:
         script-file: scripts\\installer_win.nsi
         arguments: /V4 /DVERSION=${{ env.version }}
+
     - uses: actions/upload-artifact@v4
       with:
         name: vpype-${{ env.version }}-setup.exe

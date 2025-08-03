@@ -59,6 +59,7 @@ def rect(
     The rectangle is defined by its top left corner (X, Y) and its width and height.
 
     Examples:
+
         Straight-angle rectangle:
 
             vpype rect 10cm 10cm 3cm 2cm show
