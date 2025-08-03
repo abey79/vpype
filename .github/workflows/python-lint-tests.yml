@@ -18,8 +18,7 @@ jobs:
       fail-fast: true
       matrix:
         python-version: ['3.11', '3.11', '3.13']
-        #os: [ubuntu-latest, macos-latest, windows-latest]
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
     defaults:
       run:
         shell: bash
@@ -42,7 +41,8 @@ jobs:
     - name: Install project
       run: |
         python --version
-        poetry env use python
+        poetry config virtualenvs.in-project true
+        poetry env use ${{ matrix.python-version }}
         poetry install -E all --with docs,dev
     - name: Lint and static analysis
       if:  matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'  # no need to run that 9x
