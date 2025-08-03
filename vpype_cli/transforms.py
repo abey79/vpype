@@ -50,6 +50,7 @@ def translate(lc: vp.LineCollection, offset: tuple[float, float]):
     example below).
 
     Examples:
+
         Translate layer 2 by 2cm rightward and 3cm downward:
 
             vpype [...] translate -l 2 2cm 3cm [...]
@@ -99,6 +100,7 @@ def scale_relative(
     to disambiguate the minus sign, which would normally be interpreted as a command option.
 
     Example:
+
         Double the size of the geometries in layer 1, using (0, 0) as origin:
 
             vpype [...] scale -l 1 -o 0 0 2 2 [...]
@@ -165,6 +167,7 @@ def scaleto(
     listed layers.
 
     Example:
+
         Scale an SVG to a A4 page, accounting for 1cm margin:
 
             vpype read input.svg scaleto 19cm 27.7cm write -p a4 -c output.svg

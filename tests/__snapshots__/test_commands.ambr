@@ -1,0 +1,1612 @@
+# serializer version: 1
+# name: test_command_help_string[alpha]
+  '''
+  Usage: cli alpha [OPTIONS] ALPHA
+  
+    Set the opacity of one or more layers.
+  
+    Assign the opacity ALPHA to the target layer(s) without changing its based
+    color. If the base color is undefined, it is set to black.
+  
+    By default, this commands operate on all layers. Use the `--layer` option to
+    specify one or more target layer(s)
+  
+    Examples:
+  
+        Set all layer to 50% red:
+  
+            $ vpype [...] color red alpha .5 [...]
+  
+        Set the opacity for a specific layer:
+  
+            $ vpype [...] alpha --layer 2 .5 [...]
+  
+  Options:
+    -l, --layer LID  Target layer(s) or 'all'.
+    --help           Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[arc]
+  '''
+  Usage: cli arc [OPTIONS] X Y RW RH START STOP
+  
+    Generate lines approximating a circular arc.
+  
+    The arc is centered on (X, Y) and has a radius of R and spans counter-
+    clockwise from START to STOP angles. Angular values of zero refer to east of
+    unit circle and positive values extend counter-clockwise.
+  
+    Angles are in degree by default, but alternative CSS units such as "rad" or
+    "grad" may be provided.
+  
+  Options:
+    -q, --quantization LENGTH  Maximum length of segments approximating the arc.
+    -l, --layer LID            Target layer or 'new'.
+    --help                     Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[begin]
+  '''
+  Usage: cli begin [OPTIONS]
+  
+    Marks the start of a block.
+  
+    A `begin` command must be followed by a block processor command (e.g. `grid`
+    or `repeat`), which indicates how the block is processed. Blocks must be ended
+    by a `end` command.
+  
+    Blocks can be nested.
+  
+  Options:
+    --help  Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[circle]
+  '''
+  Usage: cli circle [OPTIONS] X Y R
+  
+    Generate lines approximating a circle.
+  
+    The circle is centered on (X, Y) and has a radius of R.
+  
+  Options:
+    -q, --quantization LENGTH  Maximum length of segments approximating the
+                               circle.
+    -l, --layer LID            Target layer or 'new'.
+    --help                     Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[circlecrop]
+  '''
+  Usage: cli circlecrop [OPTIONS] X Y R
+  
+    Crop to a circular area.
+  
+  Options:
+    -q, --quantization LENGTH  Quantization used for the circular area
+    -l, --layer LID            Target layer(s) or 'all'.
+    --help                     Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[color]
+  '''
+  Usage: cli color [OPTIONS] COLOR
+  
+    Set the color for one or more layers.
+  
+    Any SVG-compatible string may be used for VALUE, including 16-bit RGB
+    (#ff0000), 16-bit RGBA (#ff0000ff), 8-bit variants (#f00 or #f00f), or color
+    names (red).
+  
+    By default, this commands sets the color for all layers. Use the `--layer`
+    option to set the color of one (or more) specific layer(s).
+  
+    Note: the opacity of a layer may be set without changing the base color with
+    the `alpha` command.
+  
+    Examples:
+  
+        Set the color for all layers:
+  
+            $ vpype [...] color red [...]
+  
+        Set the color for a specific layer:
+  
+            $ vpype [...] color --layer 2 #0f0 [...]
+  
+  Options:
+    -l, --layer LID  Target layer(s) or 'all'.
+    --help           Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[crop]
+  '''
+  Usage: cli crop [OPTIONS] X Y WIDTH HEIGHT
+  
+    Crop the geometries.
+  
+    The crop area is defined by the (X, Y) top-left corner and the WIDTH and
+    HEIGHT arguments. All arguments understand supported units.
+  
+  Options:
+    -l, --layer LID  Target layer(s) or 'all'.
+    --help           Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[ellipse]
+  '''
+  Usage: cli ellipse [OPTIONS] X Y W H
+  
+    Generate lines approximating an ellipse.
+  
+    The ellipse is centered on (X, Y), with a half-width of W and a half-height of
+    H.
+  
+  Options:
+    -q, --quantization LENGTH  Maximum length of segments approximating the
+                               ellipse.
+    -l, --layer LID            Target layer or 'new'.
+    --help                     Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[eval]
+  '''
+  Usage: cli eval [OPTIONS] EXPR
+  
+    Evaluate an expression.
+  
+    This command is a placeholder whose only purpose is to evaluate EXPR. It has
+    no effect on the geometries, nor their properties. It is typically used at the
+    beginning of a pipeline to initialise expression variables used later on.
+  
+    EXPR is interpreted as an expression in its entirety. As such, the enclosing
+    `%` expression markers may be omitted.
+  
+    Example:
+  
+        Crop the geometry to a 1-cm margin.
+  
+            $ vpype read input.svg eval "m = 1*cm; w,h = prop.vp_page_size" \
+                crop %m% %m% %w-2*m% %h-2*m% write output.svg
+  
+  Options:
+    --help  Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[filter]
+  '''
+  Usage: cli filter [OPTIONS]
+  
+    Filter paths according to specified criterion.
+  
+    When an option is provided (e.g. `--min-length 10cm`) the corresponding
+    criterion is applied and paths which do not respect the criterion (e.g. a 9cm-
+    long path) are rejected.
+  
+    If multiple options are provided, paths will be kept only if they respect
+    every corresponding criterion (i.e. logical AND operator).
+  
+  Options:
+    -m, --min-length LENGTH  keep lines whose length is no shorter than value
+    -M, --max-length LENGTH  keep lines whose length is no greater than value
+    -c, --closed             keep closed lines
+    -o, --not-closed         reject closed lines
+    -t, --tolerance LENGTH   tolerance used to determined if a line is closed or
+                             not (default: 0.05mm)
+    -l, --layer LID          Target layer(s) or 'all'.
+    --help                   Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[forfile]
+  '''
+  Usage: cli forfile [OPTIONS] FILES
+  
+    Iterate over a file list.
+  
+    The `forfile` block processor expends the FILES pattern into a file list like
+    a shell would. In particular, wildcards (`*` and `**`) are expended,
+    environmental variables are substituted (`$ENVVAR`), and the `~` expended to
+    the user directory. It then executes the nested commands once for each file.
+  
+    The nested commands are exposed to a pipeline which does not contain any
+    geometry but retains the layer structure and metadata. The properties created
+    and modified by the nested commands are applied on the pipeline. However, the
+    properties deleted by the nested commands are not deleted from the outer
+    pipeline.
+  
+    The following variables are set by `forfile` and available for expressions:
+  
+        _path (pathlib.Path): file path
+        _name (str): file name, same as _path.name (e.g. 'input.svg')
+        _parent (pathlib.Path): parent directory, same as _path.parent
+        _ext (str): file extension, same as _path.suffix (e.g. '.svg')
+        _stem (str): file name without extension, same as _path.stem (e.g. 'input')
+        _n (int): total number of files
+        _i (int): counter (0 to _n-1)
+  
+    Example:
+  
+        Process all SVGs in the current directory:
+  
+            $ vpype begin forfile \*.svg read %_path% linemerge linesort \
+                write "optimized/%basename(_path)%" end
+  
+  Options:
+    --help  Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[forlayer]
+  '''
+  Usage: cli forlayer [OPTIONS]
+  
+    Iterate over each layer.
+  
+    This block processor execute the nested pipeline once per layer. The nested
+    pipeline is exclusively exposed to the current layer. In addition, if the
+    nested commands create any other layer, they are merged as well into the outer
+    pipeline.
+  
+    The following variables are set by `forlayer` and available for expressions:
+  
+        _lid (int): the current layer ID
+        _name (str): the name of the current layer
+        _color (Color): the color of the current layer
+        _pen_width (float): the pen width of the current layer
+        _prop: properties of the current layer (accessible by item and/or attribute)
+        _i (int): counter (0 to _n-1)
+        _n (int): number of layers
+  
+    Example:
+  
+        Export one file per layer:
+  
+            vpype read input.svg forlayer write output_%_name%.svg end
+  
+  Options:
+    --help  Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[frame]
+  '''
+  Usage: cli frame [OPTIONS]
+  
+    Add a single-line frame around the geometry.
+  
+    By default, the frame shape is the current geometries' bounding box. An
+    optional offset can be provided.
+  
+  Options:
+    -o, --offset LENGTH  Offset from the geometries' bounding box. This option
+                         understands supported units.
+    -l, --layer LID      Target layer or 'new'.
+    --help               Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[grid]
+  '''
+  Usage: cli grid [OPTIONS] NX NY
+  
+    Creates a NX by NY grid of geometry
+  
+    The number of column and row must always be specified. By default, 10mm
+    offsets are used in both directions. Use the `--offset DX DY` option to
+    override these values.
+  
+    The nested commands are exposed to a pipeline which does not contain any
+    geometry but retains the layer structure and metadata. The properties created
+    and modified by the nested commands are applied on the pipeline. However, the
+    properties deleted by the nested commands are not deleted from the outer
+    pipeline.
+  
+    By default, the `grid` block changes the current page size according to its
+    geometry (e.g. it sets the page size to (NxDX, MxDY). This can be prevented
+    using the `--keep-page-size` option.
+  
+    The following variables are set by `grid` and available for expressions:
+  
+        _nx: number of columns (NX)
+        _ny: number of rows (NY)
+        _n: total number of cells (NX*NY)
+        _x: current column (0 to NX-1)
+        _y: current row (0 to NY-1)
+        _i: current cell (0 to _n-1)
+  
+    Examples:
+  
+        Create a grid of random line patches:
+  
+            $ vpype begin grid 3 4 random end show
+  
+        Create a grid of circles, each on a different layer:
+  
+            $ vpype begin grid -o 3cm 3cm 2 3 circle --layer new 0 0 1cm end show
+  
+  Options:
+    -o, --offset DX DY    Offset between columns and rows.
+    -k, --keep-page-size  Do not change the page size.
+    --help                Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[layout]
+  '''
+  Usage: cli layout [OPTIONS] SIZE
+  
+    Layout the geometries on the provided page size.
+  
+    SIZE may be one of:
+  
+        tight, a6, a5, a4, a3, a2, a1, a0, letter, legal, executive, tabloid
+  
+    Note that `tight` is special case, see below.
+  
+    Alternatively, a custom size can be specified in the form of WIDTHxHEIGHT.
+    WIDTH and HEIGHT may include units. If only one has an unit, the other is
+    assumed to have the same unit. If none have units, both are assumed to be
+    pixels by default. Here are some examples:
+  
+        layout 11x14in     # 11in by 14in
+        layout 1024x768    # 1024px by 768px
+        layout 13.5inx4cm  # 13.5in by 4cm
+  
+    Portrait orientation is enforced, unless `--landscape` is used, in which case
+    landscape orientation is enforced.
+  
+    By default, this command centers everything on the page. The horizontal and
+    vertical alignment can be adjusted using the `--align`, resp. `--valign`
+    options.
+  
+    Optionally, this command can scale the geometries to fit specified margins
+    with the `--fit-to-margins` option.
+  
+    When SIZE is `tight`, the page size is set to fit the width and height of the
+    existing geometries. If `--fit-to-margins` is used, the page size is increased
+    to accommodate the margin. By construction, `--align` and `--valign` have no
+    effect with `tight`.
+  
+    By default, `layout` considers the bounding box of the existing geometries as
+    the area to fit on the page. Alternatively, the current page size can be used
+    with the `--no-bbox` option. Using `--no-box` without a page size set is an
+    error.
+  
+    On an empty pipeline, `layout` simply sets the page size to SIZE, unless
+    `tight` is used. In this case, `layout` has no effect at all.
+  
+    Examples:
+  
+        Fit the geometries to 3cm margins with top alignment (a generally
+        pleasing arrangement for square designs on portrait-oriented pages):
+  
+            vpype read input.svg layout --fit-to-margins 3cm --valign top a4 write
+            output.svg
+  
+        Set the page size to the geometries' boundary, with a 1cm margin:
+  
+            vpype read input.svg layout --fit-to-margins 3cm tight write
+            output.svg
+  
+  Options:
+    -l, --landscape                 Landscape orientation.
+    -m, --fit-to-margins LENGTH     Fit the geometries to page size with the
+                                    specified margin.
+    -h, --align [left|center|right]
+                                    Horizontal alignment
+    -v, --valign [top|center|bottom]
+                                    Vertical alignment
+    -b, --no-bbox                   Use existing page size instead of the geometry
+                                    bounding box
+    --help                          Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[lcopy]
+  '''
+  Usage: cli lcopy [OPTIONS] SOURCES DEST
+  
+    Copy the content of one or more layer(s) to another layer.
+  
+    SOURCES can be a single layer ID, the string 'all' (to copy all non-empty
+    layers, or a coma-separated, whitespace-free list of layer IDs.
+  
+    DEST can be a layer ID or the string 'new', in which case a new layer with the
+    lowest available ID will be created.
+  
+    If a layer is both in the source and destination, its content is not
+    duplicated.
+  
+    The `--prob` option controls the probability with which each path is copied.
+    With a value lower than 1.0, some paths will not be copied to DEST, which may
+    be used to achieve random coloring effects.
+  
+    If a single source layer is specified and the `--prob` option is not used, the
+    properties of the source layer are copied to the destination layer,
+    overwriting any existing properties with the same name. This behaviour can be
+    disabled with the `--no-prop` option.
+  
+    Examples:
+  
+        Copy layer 1 to a new layer:
+  
+            vpype [...] lcopy 1 new [...]  # duplicate layer 1
+  
+        Make a new layer with a merged copy of layer 1 and 2:
+  
+            vpype [...] lcopy 1,2 new [...]  # make new layer with merged copy of
+            layer 1 and 2
+  
+        Add a merged copy of all layers to layer 1. If layer 1 previously had
+        content, this content is not duplicated:
+  
+            vpype [...] lcopy all 1 [...]
+  
+  Options:
+    -p, --prob FLOAT RANGE  Path copy probability (default: 1.0).  [0.0<=x<=1.0]
+    -m, --no-prop           Do not copy metadata.
+    --help                  Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[ldelete]
+  '''
+  Usage: cli ldelete [OPTIONS] LAYERS
+  
+    Delete one or more layers.
+  
+    LAYERS can be a single layer ID, the string 'all' (to delete all layers), or a
+    coma-separated, whitespace-free list of layer IDs.
+  
+    If the `--keep` option is used, the specified layers are kept and, instead,
+    all other layers deleted.
+  
+    The `--prob` option controls the probability with which each path is deleted.
+    With a value lower than 1.0, some paths will not be deleted.
+  
+  Options:
+    -k, --keep              Specified layers must be kept instead of deleted.
+    -p, --prob FLOAT RANGE  Path deletion probability (default: 1.0).
+                            [0.0<=x<=1.0]
+    --help                  Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[line]
+  '''
+  Usage: cli line [OPTIONS] X0 Y0 X1 Y1
+  
+    Generate a single line.
+  
+    The line starts at (X0, Y0) and ends at (X1, Y1). All arguments understand
+    supported units.
+  
+  Options:
+    -l, --layer LID  Target layer or 'new'.
+    --help           Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[linemerge]
+  '''
+  Usage: cli linemerge [OPTIONS]
+  
+    Merge lines whose endings and starts overlap or are very close.
+  
+    By default, `linemerge` considers both directions of a stroke. If there is no
+    additional start of a stroke within the provided tolerance, it also checks for
+    ending points of strokes and uses them in reverse. You can use the `--no-flip`
+    to disable this reversing behaviour and preserve the stroke direction from the
+    input.
+  
+    By default, gaps of maximum 0.05mm are considered for merging. This can be
+    controlled with the `--tolerance` option.
+  
+  Options:
+    -t, --tolerance LENGTH  Maximum distance between two line endings that should
+                            be merged.
+    -f, --no-flip           Disable reversing stroke direction for merging.
+    -l, --layer LID         Target layer(s) or 'all'.
+    --help                  Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[lineshuffle]
+  '''
+  Usage: cli lineshuffle [OPTIONS]
+  
+    Randomizes the line order within layer.
+  
+    This command may be useful for testing purposes or spreading out the area in
+    which the pen is drawing over time, for example to let ink dry. It will almost
+    always increase plotting time, sometimes considerably.
+  
+  Options:
+    -l, --layer LID  Target layer(s) or 'all'.
+    --help           Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[linesimplify]
+  '''
+  Usage: cli linesimplify [OPTIONS]
+  
+    Reduce the number of segments in the geometries.
+  
+    The resulting geometries' points will be at a maximum distance from the
+    original controlled by the `--tolerance` parameter (0.05mm by default).
+  
+  Options:
+    -t, --tolerance LENGTH  Controls how far from the original geometry simplified
+                            points may lie.
+    -l, --layer LID         Target layer(s) or 'all'.
+    --help                  Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[linesort]
+  '''
+  Usage: cli linesort [OPTIONS]
+  
+    Sort lines to minimize the pen-up travel distance.
+  
+    This command reorders the paths within layers such as to minimize the total
+    pen-up distance. By default, it will also invert the path direction if it can
+    further optimize the pen-up distance. This behavior can be disabled using the
+    `--no-flip` option.
+  
+    By default, a fast, greedy algorithm is used. Although it will dramatically
+    reduce the pen-up distance in most situation, it trades execution speed for
+    optimality. Further optimization using the two-opt algorithm can be enabled
+    using the `--two-opt` option. Since this greatly increase processing time,
+    this feature is mostly useful for special cases such as when the same design
+    must be plotted multiple times.
+  
+    When using `--two-opt`, detailed progress indication are available in the
+    debug output, which is enabled using the `-vv` global option:
+  
+        $ vpype -vv [...] linesort --two-opt [...]
+  
+    Note: to further optimize the plotting time, consider using `linemerge` before
+    `linesort`.
+  
+  Options:
+    -f, --no-flip        Disable reversing stroke direction for optimization.
+    -t, --two-opt        Use two-opt algorithm to perform additional distance
+                         minimization.
+    -p, --passes NUMBER  Number of passes the two-opt algorithm is permitted to
+                         take (default: 250)
+    -l, --layer LID      Target layer(s) or 'all'.
+    --help               Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[lmove]
+  '''
+  Usage: cli lmove [OPTIONS] SOURCES DEST
+  
+    Move the content of one or more layer(s) to another layer.
+  
+    SOURCES can be a single layer ID, the string 'all' (to copy all non-empty
+    layers, or a coma-separated, whitespace-free list of layer IDs.
+  
+    DEST can be a layer ID or the string 'new', in which case a new layer with the
+    lowest available ID will be created.
+  
+    Layer(s) left empty after the move are then discarded and may thus be reused
+    by subsequent commands using 'new' as destination layer.
+  
+    The `--prob` option controls the probability with which each path is moved.
+    With a value lower than 1.0, some paths will not be moved to DEST, which may
+    be used to achieve random coloring effects.
+  
+    If a layer is both in the source and destination, its content is not
+    duplicated.
+  
+    If a single source layer is specified and the `--prob` option is not used, the
+    properties of the source layer are moved to the destination layer, overwriting
+    any existing properties with the same name. This behaviour can be disabled
+    with the `--no-prop` option.
+  
+    Example:
+  
+        Merge layer 1 and 2 to layer 1 (the content of layer 1 is not duplicated):
+  
+            vpype [...] lmove 1,2 1 [...]  # merge layer 1 and 2 to layer 1
+  
+  Options:
+    -p, --prob FLOAT RANGE  Path move probability (default: 1.0).  [0.0<=x<=1.0]
+    -m, --no-prop           Do not move metadata.
+    --help                  Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[lreverse]
+  '''
+  Usage: cli lreverse [OPTIONS] LAYERS
+  
+    Reverse the path order within one or more layers.
+  
+    This command reverses the order in which paths are ordered within layer(s)
+    LAYERS. LAYERS may be a single layer ID, multiple layer IDs (coma-separated
+    without whitespace) or `all` (to refer to every exising layers).
+  
+    Example:
+  
+        Reverse path order in layer 1:
+  
+            $ vpype [...] lreverse 1 [...]
+  
+  Options:
+    --help  Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[lswap]
+  '''
+  Usage: cli lswap [OPTIONS] FIRST SECOND
+  
+    Swap the content between two layers
+  
+    This command swaps the content of layers FIRST and SECOND. Both FIRST and
+    SECOND must be existing layer ids.
+  
+    The `--prob` option controls the probability with which each path are swapped.
+    With a value lower than 1.0, some paths will remain in their original layer.
+  
+    If  the `--prob` option is not used, the layer properties are swapped between
+    layers as well. This behaviour can be disabled with the `--no-prop` option.
+  
+  Options:
+    -p, --prob FLOAT RANGE  Path deletion probability (default: 1.0).
+                            [0.0<=x<=1.0]
+    -m, --no-prop           Do not move metadata.
+    --help                  Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[multipass]
+  '''
+  Usage: cli multipass [OPTIONS]
+  
+    Add multiple passes to each line
+  
+    Each line is extended with a mirrored copy of itself, optionally multiple
+    times. This is useful for pens that need several passes to ensure a good
+    quality.
+  
+  Options:
+    -n, --count NUMBER  How many pass for each line (default: 2).
+    -l, --layer LID     Target layer(s) or 'all'.
+    --help              Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[name]
+  '''
+  Usage: cli name [OPTIONS] NAME
+  
+    Set the name for one or more layers.
+  
+    By default, this commands sets the name for all layers. Use the `--layer`
+    option to set the name of one (or more) specific layer(s).
+  
+    Example:
+  
+        Set the name for a specific layer:
+  
+            $ vpype [...] name --layer 4 black [...]
+  
+  Options:
+    -l, --layer LID  Target layer(s) or 'all'.
+    --help           Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[pagerotate]
+  '''
+  Usage: cli pagerotate [OPTIONS]
+  
+    Rotate the page by 90 degrees.
+  
+    This command rotates the page by 90 degrees counter-clockwise. If the
+    `--clockwise` option is passed, it rotates the page clockwise instead.  If the
+    `--orientation` option is given a value of either 'portrait' or 'landscape',
+    the page will only be rotated if the final orientation would match that
+    choice.
+  
+    Note: if the page size is not defined, an error is printed and the page is not
+    rotated.
+  
+  Options:
+    -cw, --clockwise          Rotate clockwise instead of the default counter-
+                              clockwise
+    -o, --orientation CHOICE  Conditionally rotate only if the final orientation
+                              matches this option
+    --help                    Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[pagesize]
+  '''
+  Usage: cli pagesize [OPTIONS] SIZE
+  
+    Change the current page size.
+  
+    The page size is set (or modified) by the `read` command and used by the
+    `write` command by default. This command can be used to set it to an arbitrary
+    value. See the `write` command help section for more information on valid size
+    value (`vpype write --help`).
+  
+    Note: this command only changes the current page size and has no effect on the
+    geometries. Use the `translate` and `scale` commands to change the position
+    and/or the scale of the geometries.
+  
+    Examples:
+  
+        Set the page size to A4:
+  
+            vpype [...] pagesize a4 [...]
+  
+        Set the page size to landscape A4:
+  
+            vpype [...] pagesize --landscape a4 [...]
+  
+        Set the page size to 11x15in:
+  
+            vpype [...] pagesize 11inx15in [...]
+  
+  Options:
+    -l, --landscape  Landscape orientation.
+    --help           Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[penwidth]
+  '''
+  Usage: cli penwidth [OPTIONS] WIDTH
+  
+    Set the pen width for one or more layers.
+  
+    By default, this commands sets the pen width for all layers. Use the `--layer`
+    option to set the pen width of one (or more) specific layer(s).
+  
+    Examples:
+  
+        Set the pen width for all layers:
+  
+            $ vpype [...] penwidth 0.15mm [...]
+  
+        Set the pen width for a specific layer:
+  
+            $ vpype [...] penwidth --layer 2 0.15mm [...]
+  
+  Options:
+    -l, --layer LID  Target layer(s) or 'all'.
+    --help           Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[propclear]
+  '''
+  Usage: cli propclear [OPTIONS]
+  
+    Remove all global or layer properties.
+  
+    Either the `--global` or `--layer` option must be used to specify whether
+    global or layer properties should be cleared. When using `--layer`, either a
+    single layer ID, a coma-separated list of layer ID, or `all` may be used.
+  
+    Examples:
+  
+        Remove all global properties:
+  
+            vpype [...] propclear --global [...]
+  
+        Remove all properties from layer 1 and 2:
+  
+            vpype [...] propclear --layer 1,2 [...]
+  
+  Options:
+    -g, --global     Global mode.
+    -l, --layer LID  Target layer(s).
+    --help           Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[propdel]
+  '''
+  Usage: cli propdel [OPTIONS] PROP
+  
+    Remove a global or layer property.
+  
+    Either the `--global` or `--layer` option must be used to specify whether a
+    global or layer property should be removed. When using `--layer`, either a
+    single layer ID, a coma-separated list of layer ID, or `all` may be used.
+  
+    Example:
+  
+        Remove a property from a layer:
+  
+            vpype [...] pens cmyk propdel --layer 1 vp_name [...]
+  
+  Options:
+    -g, --global     Global mode.
+    -l, --layer LID  Target layer(s).
+    --help           Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[propget]
+  '''
+  Usage: cli propget [OPTIONS] PROP
+  
+    Print the value of a global or layer property.
+  
+    Either the `--global` or `--layer` option must be used to specify whether a
+    global or layer property should be displayed. When using `--layer`, either a
+    single layer ID, a coma-separated list of layer ID, or `all` may be used.
+  
+    Example:
+  
+        Print the value of property `vp_color` for all layers:
+  
+            vpype [...] pens cmyk propget --layer all vp_color [...]
+  
+  Options:
+    -g, --global     Global mode.
+    -l, --layer LID  Target layer(s).
+    --help           Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[proplist]
+  '''
+  Usage: cli proplist [OPTIONS]
+  
+    Print a list the existing global or layer properties and their values.
+  
+    Either the `--global` or `--layer` option must be used to specify whether
+    global or layer properties should be listed. When using `--layer`, either a
+    single layer ID, a coma-separated list of layer ID, or `all` may be used.
+  
+    Example:
+  
+        Print a list of global properties:
+  
+            vpype pagesize a4 proplist -g
+  
+  Options:
+    -g, --global     Global mode.
+    -l, --layer LID  Target layer(s).
+    --help           Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[propset]
+  '''
+  Usage: cli propset [OPTIONS] PROP VALUE
+  
+    Set the value of a global or layer property.
+  
+    Either the `--global` or `--layer` option must be used to specify whether a
+    global or layer property should be set. When using `--layer`, either a single
+    layer ID, a coma-separated list of layer ID, or `all` may be used.
+  
+    By default, the value is stored as a string. Alternative types may be
+    specified with the `--type` option. The following types are available:
+  
+        str: text string
+        int: integer number
+        float: floating-point number
+        color: color
+  
+    When using the `int` and `float` types, units may be used and the value will
+    be converted to pixels.
+  
+    When using the `color` type, any SVG-compatible string may be used for VALUE,
+    including 16-bit RGB (#ff0000), 16-bit RGBA (#ff0000ff), 8-bit variants (#f00
+    or #f00f), or color names (red).
+  
+    Examples:
+  
+        Set a global property of type `int`:
+  
+            vpype [...] propset --global --type int my_prop 10 [...]
+  
+        Set the layer property of type `float` (this is equivalent to using the
+        `penwidth`     command):
+  
+            vpype [...] propset --layer 1 --type float vp_pen_width 0.5mm [...]
+  
+        Set a layer property of type `color`:
+  
+            vpype [...] propset --layer 1 --type color my_prop red [...]
+  
+  Options:
+    -g, --global                    Global mode.
+    -l, --layer LID                 Target layer(s).
+    -t, --type [str|int|float|color]
+                                    Property type.
+    --help                          Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[random]
+  '''
+  Usage: cli random [OPTIONS]
+  
+    Generate random lines.
+  
+    By default, 10 lines are randomly placed in a square with corners at (0, 0)
+    and (10mm, 10mm). Use the `--area` option to specify the destination area.
+  
+  Options:
+    -n, --count NUMBER    Number of lines to generate.
+    -a, --area LENGTH...  Dimension of the area in which lines are distributed.
+    -l, --layer LID       Target layer or 'new'.
+    --help                Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[read]
+  '''
+  Usage: cli read [OPTIONS] FILE
+  
+    Extract geometries from an SVG file.
+  
+    FILE may be a file path or a dash (-) to read from the standard input instead.
+  
+    By default, the `read` command attempts to preserve the layer structure of the
+    SVG. In this context, top-level groups (<g>) are each considered a layer. If
+    any, all non-group, top-level SVG elements are imported into layer 1.
+  
+    The following logic is used to determine in which layer each SVG top-level
+    group is imported:
+  
+        - If a `inkscape:label` attribute is present and contains digit
+        characters, the first group of contiguous digits is used as target layer.
+        If the resulting number is 0, layer 1 is used instead.
+  
+        - If the previous step fails, the same logic is applied to the `id`
+        attribute.
+  
+        - If both previous steps fail, the target layer matches the top-level
+        group's order of appearance.
+  
+    Alternatively, geometries may be sorted into layers based on their attributes,
+    such as color or stroke width. This is enabled by using the `--attr` option
+    with the attribute to be considered. Multiple `--attr` options may be passed
+    with different attributes. In this case, layers will be created for each
+    unique combination of the provided attributes.
+  
+    Using `--single-layer`, the `read` command operates in single-layer mode. In
+    this mode, all geometries are in a single layer regardless of the group
+    structure. The current target layer is used default and can be specified with
+    the `--layer` option. If the `--layer` option is used, `--single-layer` is
+    assumed even if not explicitly provided.
+  
+    This command only extracts path elements as well as primitives (rectangles,
+    ellipses, lines, polylines, polygons). Other elements such as text and bitmap
+    images are discarded, and so is all formatting.
+  
+    All curved primitives (e.g. bezier path, ellipses, etc.) are linearized and
+    approximated by polylines. The quantization length controls the maximum length
+    of individual segments.
+  
+    Optionally, a line simplification with tolerance set to quantization can be
+    applied on the SVG's curved element (e.g. circles, ellipses, arcs, bezier
+    curves, etc.). This is enabled with the `--simplify` flag. This process
+    reduces significantly the number of segments used to approximate the curve
+    while still guaranteeing an accurate conversion, but may increase the
+    execution time of this command.
+  
+    The `--parallel` option enables multiprocessing for the SVG conversion. This
+    is recommended ONLY when using `--simplify` on large SVG files with many
+    curved elements.
+  
+    By default, the geometries are cropped to the SVG boundaries defined by its
+    width and length attributes. The crop operation can be disabled with the
+    `--no-crop` option.
+  
+    In general, SVG boundaries are determined by the `width` and `height` of the
+    top-level <svg> tag. However, some SVGs may have their width and/or height
+    specified as percent value or even miss them altogether (in which case they
+    are assumed to be set to 100%). In these cases, vpype attempts to use the
+    `viewBox` attribute to determine the page size, or revert to a 1000x1000px
+    default. The options `--display-size FORMAT` and `--display-landscape` can be
+    used to specify a different format in such instances.
+  
+    When importing the SVG, the `read` commands attempts to extract the SVG
+    attributes that are common to all paths within a layer. The "stroke", "stroke-
+    width" and "inkscape:label" attributes are used to set the layer color, pen
+    width and, respectively, name. The other attributes (e.g. "stroke-dasharray",
+    etc.) are stored as layer properties with a `svg_` prefix. These properties
+    are ignored by vpype but may be used by plug-ins. Also, the `write` command
+    can optionally restore them in the exported SVG.
+  
+    Examples:
+  
+        Multi-layer SVG import:
+  
+            vpype read input_file.svg [...]
+  
+        Import SVG, sorting geometries by stroke color:
+  
+            vpype read --attr stroke input_file.svg [...]
+  
+        Import SVG, sorting geometries by stroke color and width:
+  
+            vpype read --attr stroke --attr stroke-width input_file.svg [...]
+  
+        Single-layer import:
+  
+            vpype read --single-layer input_file.svg [...]
+  
+        Single-layer import with target layer:
+  
+            vpype read --single-layer --layer 3 input_file.svg [...]
+  
+        Multi-layer import with specified quantization and line simplification
+        enabled:
+  
+            vpype read --quantization 0.01mm --simplify input_file.svg [...]
+  
+        Multi-layer import with cropping disabled:
+  
+            vpype read --no-crop input_file.svg [...]
+  
+  Options:
+    -m, --single-layer            Single layer mode.
+    -l, --layer LID               Target layer or 'new' (single layer mode only).
+    -a, --attr TEXT               Attribute by which geometries should be grouped
+    -q, --quantization LENGTH     Maximum length of segments approximating curved
+                                  elements (default: 0.1mm).
+    --no-fail                     Do not fail is the target file doesn't exist.
+    -s, --simplify                Apply simplification algorithm to curved
+                                  elements.
+    -p, --parallel                Enable multiprocessing for SVG conversion.
+    -c, --no-crop                 Do not crop the geometries to the SVG
+                                  boundaries.
+    -ds, --display-size PAGESIZE  Display size to use for SVG with width/height
+                                  expressed as percentage or missing altogether
+                                  (see `write` command for possible format).
+    -dl, --display-landscape      Use landscape orientation for display size.
+    --help                        Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[rect]
+  '''
+  Usage: cli rect [OPTIONS] X Y WIDTH HEIGHT
+  
+    Generate a rectangle, with optional rounded angles.
+  
+    The rectangle is defined by its top left corner (X, Y) and its width and
+    height.
+  
+    Examples:
+  
+        Straight-angle rectangle:
+  
+            vpype rect 10cm 10cm 3cm 2cm show
+  
+        Rounded-angle rectangle:
+  
+            vpype rect --radii 5mm 5mm 5mm 5mm 10cm 10cm 3cm 2cm show
+  
+        Rounded-angle rectangle with quantization control:
+  
+            vpype rect --quantization 0.1mm --radii 5mm 5mm 5mm 5mm 10cm 10cm 3cm
+            2cm show
+  
+  Options:
+    -r, --radii LENGTH...      Top-left, top-right, bottom-right and bottom-left
+                               corner radii.
+    -q, --quantization LENGTH  Maximum length of segments approximating the
+                               rounded angles.
+    -l, --layer LID            Target layer or 'new'.
+    --help                     Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[reloop]
+  '''
+  Usage: cli reloop [OPTIONS]
+  
+    Randomize the seam location of closed paths.
+  
+    When plotted, closed path may exhibit a visible mark at the seam, i.e. the
+    location where the pen begins and ends the stroke. This command randomizes the
+    seam location in order to help reduce visual effect of this in plots with
+    regular patterns.
+  
+    Paths are considered closed when their beginning and end points are closer
+    than some tolerance, which can be set with the `--tolerance` option.
+  
+  Options:
+    -t, --tolerance LENGTH  Controls how close the path beginning and end must be
+                            to consider it closed (default: 0.05mm).
+    -l, --layer LID         Target layer(s) or 'all'.
+    --help                  Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[reverse]
+  '''
+  Usage: cli reverse [OPTIONS]
+  
+    Reverse order of lines.
+  
+    Reverse the order of lines within their respective layers. By default,
+    individual lines are not modified (in particular, their trajectory is not
+    inverted). Only the order in which they are drawn is reversed.
+  
+    If -f/--flip is passed, the direction of each line is also reversed.
+  
+  Options:
+    -f, --flip       Also flip the path direction.
+    -l, --layer LID  Target layer(s) or 'all'.
+    --help           Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[rotate]
+  '''
+  Usage: cli rotate [OPTIONS] ANGLE
+  
+    Rotate the geometries (clockwise positive).
+  
+    The origin used is the bounding box center, unless the `--origin` option is
+    used.
+  
+    ANGLE is in degrees by default, but alternative CSS unit may be provided.
+  
+    By default, act on all layers. If one or more layer IDs are provided with the
+    `--layer` option, only these layers will be affected. In this case, the
+    bounding box is that of the listed layers.
+  
+    Note: negative angles are possible, but the end-of-options marker `--` must be
+    used to disambiguate the minus sign, which would normally be interpreted as a
+    command option.
+  
+  Options:
+    -l, --layer LID         Target layer(s).
+    -o, --origin LENGTH...  Use a specific origin.
+    --help                  Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[scale]
+  '''
+  Usage: cli scale [OPTIONS] SCALE...
+  
+    Scale the geometries by a factor.
+  
+    The origin used is the bounding box center, unless the `--origin` option is
+    used.
+  
+    By default, act on all layers. If one or more layer IDs are provided with the
+    `--layer` option, only these layers will be affected. In this case, the
+    bounding box is that of the listed layers.
+  
+    Note: negative scale factors are possible, but the end-of-options marker `--`
+    must be used to disambiguate the minus sign, which would normally be
+    interpreted as a command option.
+  
+    Example:
+  
+        Double the size of the geometries in layer 1, using (0, 0) as origin:
+  
+            vpype [...] scale -l 1 -o 0 0 2 2 [...]
+  
+  Options:
+    -l, --layer LID         Target layer(s).
+    -o, --origin LENGTH...  Use a specific origin.
+    --help                  Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[scaleto]
+  '''
+  Usage: cli scaleto [OPTIONS] DIM...
+  
+    Scale the geometries to given dimensions.
+  
+    By default, the homogeneous scaling is applied on both X and Y directions,
+    even if the geometry proportions are not the same as the target dimensions.
+    When passing `--fit-dimensions`, the geometries are scaled such as to fit
+    exactly the target dimensions, distorting them if required.
+  
+    The origin used is the bounding box center, unless the `--origin` option is
+    used.
+  
+    By default, act on all layers. If one or more layer IDs are provided with the
+    `--layer` option, only these layers will be affected. In this case, the
+    bounding box is that of the listed layers.
+  
+    Example:
+  
+        Scale an SVG to a A4 page, accounting for 1cm margin:
+  
+            vpype read input.svg scaleto 19cm 27.7cm write -p a4 -c output.svg
+  
+  Options:
+    -l, --layer LID         Target layer(s).
+    -f, --fit-dimensions    Exactly fit target dimension, distorting geometries if
+                            required.
+    -o, --origin LENGTH...  Use a specific origin.
+    --help                  Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[skew]
+  '''
+  Usage: cli skew [OPTIONS] ANGLES...
+  
+    Skew the geometries.
+  
+    The geometries are sheared by the provided angles along X and Y dimensions.
+  
+    ANGLE is in degrees by default, but alternative CSS unit may be provided.
+  
+    The origin used in the bounding box center, unless the `--centroid` or
+    `--origin` options are used.
+  
+    Note: negative angles are possible, but the end-of-options marker `--` must be
+    used to disambiguate the minus sign, which would normally be interpreted as a
+    command option.
+  
+  Options:
+    -l, --layer LID         Target layer(s).
+    -o, --origin LENGTH...  Use a specific origin.
+    --help                  Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[snap]
+  '''
+  Usage: cli snap [OPTIONS] PITCH
+  
+    Snap all points to a grid with with a spacing of PITCH.
+  
+    This command moves every point of every paths to the nearest grid point. If
+    sequential points of a segment end up on the same grid point, they are
+    deduplicated. If the resulting path contains less than 2 points, it is
+    discarded.
+  
+    Example:
+  
+        Snap all points to a grid of 3x3mm:
+  
+            vpype [...] snap 3mm [...]
+  
+  Options:
+    -l, --layer LID  Target layer(s) or 'all'.
+    --help           Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[splitall]
+  '''
+  Usage: cli splitall [OPTIONS]
+  
+    Split all paths into their constituent segments.
+  
+    This command may be used together with `linemerge` for cases such as densely-
+    connected meshes where the latter cannot optimize well enough by itself. This
+    command will filter out segments with identical end-points.
+  
+    Note that since some paths (especially curved ones) can be made of a large
+    number of segments, this command may significantly increase the processing
+    time of the pipeline.
+  
+  Options:
+    -l, --layer LID  Target layer(s) or 'all'.
+    --help           Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[splitdist]
+  '''
+  Usage: cli splitdist [OPTIONS] DIST
+  
+    Split layers by drawing distance.
+  
+    This command will keep the N first lines whose cumulated length is less than
+    DIST. The remaining lines are spread to the next available layers.
+  
+    This command works at the line level. A finer-grained result can be obtained
+    at the segment level using the `splitall splitdist linemerge` sequence of
+    commands.
+  
+  Options:
+    -l, --layer LID  Target layer(s).
+    --help           Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[squiggles]
+  '''
+  Usage: cli squiggles [OPTIONS]
+  
+    Apply a squiggle filter to the geometries.
+  
+    This filter works by first resampling the input lines, and then applying a
+    random displacement to all points. This displacement is based on a 2D Perlin
+    noise field with adjustable amplitude and period.
+  
+    The default values of amplitude and period give a "shaky-hand" style to the
+    geometries. Larger values of amplitude (~15mm) and period (~10cm) result in a
+    a smoother, liquid-like effect.
+  
+  Options:
+    -a, --amplitude LENGTH     Amplitude of the noise-based displacement (default:
+                               0.5mm).
+    -p, --period LENGTH        Period of the noise-based displacement (default:
+                               3mm).
+    -q, --quantization LENGTH  Maximum segment size used for the resampling
+                               (default: 0.05mm).
+    -l, --layer LID            Target layer(s) or 'all'.
+    --help                     Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[stat]
+  '''
+  Usage: cli stat [OPTIONS]
+  
+    Print human-readable statistics on the current geometries.
+  
+  Options:
+    --help  Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[text]
+  '''
+  Usage: cli text [OPTIONS] STRING
+  
+    Generate text using Hershey fonts.
+  
+    By default, `text` generates a single line of text. Automatic text wrapping
+    can be enabled using the the `--wrap` option.
+  
+    In normal mode, the text starts at coordinate (0, 0) and expends right. This
+    can be controlled using the `--align` option. By passing "center", the text is
+    centered around (0, 0). With "right", the text expends left of (0, 0).
+  
+    In wrap mode, the text start at (0, 0) and expends left until it reach the
+    specified width. The `--align` option controls how the text is laid out within
+    the column and behaves as typically expected. The `--hyphenate` options
+    enables hyphenation using the provided language code (en, nl, etc.)
+  
+    To start the text at the different location than (0, 0), use the `--position`
+    option.
+  
+  Options:
+    -f, --font [greek|timesib|meteorology|futuram|gothgbt|markers|music|symbolic|gothicita|rowmans|mathupp|timesr|futural|scriptc|gothitt|rowmand|timesrb|cyrilc_1|japanese|greekc|gothiceng|greeks|timesi|cyrillic|mathlow|gothgrt|astrology|gothicger|cursive|scripts|rowmant|timesg]
+                                    Font to use.
+    -s, --size LENGTH               Text size (default: 18).
+    -w, --wrap LENGTH               Wrap to provided width.
+    -h, --hyphenate TEXT            Hyphenate wrapped words using the provided
+                                    language code (en, nl, etc.)
+    -j, --justify                   Justify text block (wrap-mode only).
+    -p, --position LENGTH...        Position of the text (default: 0, 0).
+    -a, --align [left|right|center]
+                                    Text alignment with respect to position
+                                    (default: left).
+    -l, --layer LID                 Target layer or 'new'.
+    --help                          Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[translate]
+  '''
+  Usage: cli translate [OPTIONS] OFFSET...
+  
+    Translate the geometries. X and Y offsets must be provided. These arguments
+    understand supported units.
+  
+    Note: negative offsets are possible, but the end-of-options marker `--` must
+    be used to disambiguate the minus sign, which would normally be interpreted as
+    a command option (see example below).
+  
+    Examples:
+  
+        Translate layer 2 by 2cm rightward and 3cm downward:
+  
+            vpype [...] translate -l 2 2cm 3cm [...]
+  
+        The end-of-options marker must be used for negative lateral offsets:
+  
+            vpype [...] translate -- -2cm 3cm [...]
+  
+  Options:
+    -l, --layer LID  Target layer(s) or 'all'.
+    --help           Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[trim]
+  '''
+  Usage: cli trim [OPTIONS] MARGIN_X MARGIN_Y
+  
+    Trim the geometries by some margin.
+  
+    This command trims the geometries by the provided X and Y margins with respect
+    to the current bounding box.
+  
+    By default, `trim` acts on all layers. If one or more layer IDs are provided
+    with the `--layer` option, only these layers will be affected. In this case,
+    the bounding box is that of the listed layers.
+  
+  Options:
+    -l, --layer LID  Target layer(s).
+    --help           Show this message and exit.
+  
+  '''
+# ---
+# name: test_command_help_string[write]
+  '''
+  Usage: cli write [OPTIONS] OUTPUT
+  
+    Save geometries to a file.
+  
+    The `write` command support two format: SVG and HPGL. The format is determined
+    based on the file extension used for `OUTPUT` or the `--file-format` option.
+    The latter is useful when `OUTPUT` is a single dash (`-`), in which case the
+    output is printed to stdout instead of a file.
+  
+    When writing to SVG, the current page size is used if available. The current
+    page size is implicitly set by the `read` command and can also be manually
+    changed using the `pagesize` command. The page size can be overridden using
+    the `--page-size SIZE` option. `SIZE` may be one of:
+  
+        tight, a6, a5, a4, a3, a2, a1, a0, letter, legal, executive, tabloid
+  
+    Alternatively, a custom size can be specified in the form of `WIDTHxHEIGHT`.
+    `WIDTH` and `HEIGHT` may include units. If only one has an unit, the other is
+    assumed to have the same unit. If none have units, both are assumed to be
+    pixels by default. Here are some examples:
+  
+        --page-size 11x14in     # 11in by 14in
+        --page-size 1024x768    # 1024px by 768px
+        --page-size 13.5inx4cm  # 13.5in by 4cm
+  
+    When a page size is provided, it will be rotated if the `--landscape` option
+    is used.
+  
+    If the current page set has not been set (e.g. because the `read` command has
+    not been used) and the `--page-size` is not provided, the SVG will have its
+    bounds tightly fit to the geometries.
+  
+    By default, the geometries are not scaled or translated even if they lie
+    outside of the page boundaries. The `--center` option translates the
+    geometries to the center of the page.
+  
+    Layers are labelled with their numbers by default. If an alternative naming is
+    required, a template pattern can be provided using the `--layer-label` option.
+    The provided pattern must contain a C-style format specifier such as `%d`
+    which will be replaced by the layer number.
+  
+    By default, paths are colored according to the corresponding layer property
+    (as set by the `color` or `read` commands). If the color property is not set,
+    a default, per-layer color scheme is used. Alternative behaviours are
+    available with the `--color-mode` option. Setting it to "none" disables
+    coloring and black paths are generated. Setting it to "layer" applies the
+    default color scheme to each layer. Setting it to "path" gives a different
+    color to each path (with a rotation), which makes it possible to visualize
+    line optimization.
+  
+    Stroke widths are set according to the corresponding property (as et by the
+    `penwdith`, `pen`, or `read` commands). If the property is missing, a 1px
+    default is used.
+  
+    Pen-up trajectories can be generated with the `--pen-up` flag. As most
+    plotting tools will include these paths in the output, this option should be
+    used for previsualisation only. The Axidraw tools will however ignore them.
+  
+    If the `--restore-attribs` option is used, the SVG attributes extracted by the
+    `read` command are restored in the output SVG. (Note that this is an
+    experimental feature which is unable to fully recreate an input SVG in all but
+    the simplest cases.)
+  
+    When writing to HPGL, a device name must be provided with the `--device`
+    option. The corresponding device must be configured in the built-in or a user-
+    provided configuration file (see the documentation for more details). The
+    following devices are currently available:
+  
+        hp7475a, designmate, hp7440a, artisan, dmp_161, hp7550, dxy, sketchmate,
+        fake
+  
+    In HPGL mode, this command will try to infer the paper size to use based on
+    the current page size (the current page size is set by the `read` command
+    based on the input file and can be manually set or changed with the `pagesize`
+    or `layout` command). An error will be displayed if no corresponding paper
+    size if found. Use the `--page-size` option with a format defined in the
+    device's configuration to manually specify with paper size to use.
+  
+    The plotter may need to be specifically configured for the desired paper size
+    (e.g. for A4 or A3, the HP 7475a's corresponding DIP switch must be set to
+    metric mode). A note will be displayed as a reminder and can be hidden using
+    the `--quiet` option.
+  
+    The `--landscape` and `--center` options are accepted and honored in HPGL.
+  
+    By default, relative coordinates are used whenever possible in the HPGL output
+    in order to reduce file size. If `--absolute` is used, absolute coordinate are
+    used instead.
+  
+    Optionally, the HPGL-only `--velocity` can be provided, in which case a `VS`
+    command will be emitted with the provided value.
+  
+    Examples:
+  
+        Write to a SVG using the current page size as set by the `read` command:
+  
+            vpype read input.svg [...] write output.svg
+  
+        Write to a portrait A4 page:
+  
+            vpype [...] write --page-size a4 output.svg
+  
+        Write to a 13x9 inch page and center the geometries:
+  
+            vpype [...] write --page-size 13x9in --landscape --center output.svg
+  
+        Use custom layer labels:
+  
+            vpype [...] write --page-size a4 --layer-label "Pen %d" output.svg
+  
+        Write a previsualization SVG:
+  
+            vpype [...] write --pen-up --color-mode path output.svg
+  
+        Output SVG to stdout:
+  
+            vpype [...] write --format SVG -
+  
+        Write a A4 page with portrait orientation HPGL file:
+  
+            vpype [...] write --device hp7475a --page-size a4 --center
+  
+  Options:
+    -f, --format [svg|hpgl]         Output format (inferred from file extension by
+                                    default).
+    -p, --page-size TEXT            Set the bounds of the SVG to a specific page
+                                    size. If omitted, the SVG size is set to the
+                                    current page size (see `read` and `pagesize`
+                                    commands. May not be omitted for HPGL.
+    -l, --landscape                 Use landscape orientation instead of portrait.
+    -c, --center                    Center the geometries within the SVG bounds.
+    -ll, --layer-label TEXT         [SVG only] Pattern used to for naming layers.
+    -pu, --pen-up                   [SVG only] Generate pen-up trajectories.
+    -m, --color-mode [default|none|layer|path]
+                                    [SVG only] Color mode for paths (default:
+                                    default).
+    -r, --restore-attribs           [SVG only] attempt to restore SVG attributes
+                                    from properties.
+    --dont-set-date                 [SVG only] do not add date metadata (useful
+                                    for auto-generated SVG under VCS).
+    -d, --device TEXT               [HPGL only] Type of the plotter device.
+    -a, --absolute                  [HPGL only] Use absolute coordinates
+                                    exclusively.
+    -vs, --velocity NUMBER          [HPGL only] Emit a VS command with the
+                                    provided value.
+    -q, --quiet                     [HPGL only] Do not display the plotter
+                                    configuration or paper loading information.
+    --help                          Show this message and exit.
+  
+  '''
+# ---

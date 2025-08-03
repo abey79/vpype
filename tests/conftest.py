@@ -26,7 +26,7 @@ def random_line(length: int) -> np.ndarray:
 
 @pytest.fixture
 def runner():
-    return CliRunner(mix_stderr=False)
+    return CliRunner()
 
 
 @pytest.fixture

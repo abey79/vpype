@@ -524,6 +524,7 @@ def pagesize(document: vp.Document, size, landscape) -> vp.Document:
     geometries.
 
     Examples:
+
         Set the page size to A4:
 
             vpype [...] pagesize a4 [...]
@@ -763,6 +764,7 @@ def snap(line_collection: vp.LineCollection, pitch: float) -> vp.LineCollection:
     path contains less than 2 points, it is discarded.
 
     Example:
+
         Snap all points to a grid of 3x3mm:
 
             vpype [...] snap 3mm [...]

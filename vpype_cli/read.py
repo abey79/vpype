@@ -155,6 +155,7 @@ of appearance.
     `write` command can optionally restore them in the exported SVG.
 
     Examples:
+
         Multi-layer SVG import:
 
             vpype read input_file.svg [...]

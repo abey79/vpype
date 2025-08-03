@@ -217,6 +217,13 @@ def test_command_must_preserve_metadata(cmd):
     assert new_doc.layers[2].metadata == {vp.METADATA_FIELD_PEN_WIDTH: 0.15}
 
 
+@pytest.mark.parametrize("cmd_name", {cmd.command.split()[0] for cmd in MINIMAL_COMMANDS})
+def test_command_help_string(cmd_name, runner, snapshot):
+    result = runner.invoke(cli, f"{cmd_name} --help")
+
+    assert result.output == snapshot
+
+
 def test_frame(runner):
     result = runner.invoke(
         cli, "random -n 100 -a 10cm 10cm dbsample frame dbsample frame -o 1cm dbsample dbdump"

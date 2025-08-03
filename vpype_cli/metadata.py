@@ -73,7 +73,7 @@ def propset(
     value: str,
     prop_type: str,
 ):
-    r"""Set the value of a global or layer property.
+    """Set the value of a global or layer property.
 
     Either the `--global` or `--layer` option must be used to specify whether a global or
     layer property should be set. When using `--layer`, either a single layer ID, a
@@ -82,7 +82,7 @@ def propset(
     By default, the value is stored as a string. Alternative types may be specified with the
     `--type` option. The following types are available:
 
-        \b
+    \b
         str: text string
         int: integer number
         float: floating-point number
@@ -96,6 +96,7 @@ def propset(
     names (red).
 
     Examples:
+
         Set a global property of type `int`:
 
             vpype [...] propset --global --type int my_prop 10 [...]
@@ -144,7 +145,8 @@ def proplist(document: vp.Document, global_flag: bool, layer: int | list[int] | 
     layer properties should be listed. When using `--layer`, either a single layer ID, a
     coma-separated list of layer ID, or `all` may be used.
 
-    Examples:
+    Example:
+
         Print a list of global properties:
 
             vpype pagesize a4 proplist -g
@@ -179,7 +181,8 @@ def propget(
     layer property should be displayed. When using `--layer`, either a single layer ID, a
     coma-separated list of layer ID, or `all` may be used.
 
-    Examples:
+    Example:
+
         Print the value of property `vp_color` for all layers:
 
             vpype [...] pens cmyk propget --layer all vp_color [...]
@@ -212,7 +215,8 @@ def propdel(
     layer property should be removed. When using `--layer`, either a single layer ID, a
     coma-separated list of layer ID, or `all` may be used.
 
-    Examples:
+    Example:
+
         Remove a property from a layer:
 
             vpype [...] pens cmyk propdel --layer 1 vp_name [...]
@@ -240,6 +244,7 @@ def propclear(document: vp.Document, global_flag: bool, layer: int | list[int] |
     coma-separated list of layer ID, or `all` may be used.
 
     Examples:
+
         Remove all global properties:
 
             vpype [...] propclear --global [...]
@@ -269,6 +274,7 @@ def penwidth(layer: vp.LineCollection, pen_width: float) -> vp.LineCollection:
     set the pen width of one (or more) specific layer(s).
 
     Examples:
+
         Set the pen width for all layers:
 
             $ vpype [...] penwidth 0.15mm [...]
@@ -298,6 +304,7 @@ def color(layer: vp.LineCollection, color: str) -> vp.LineCollection:
     command.
 
     Examples:
+
         Set the color for all layers:
 
             $ vpype [...] color red [...]
@@ -325,6 +332,7 @@ def alpha(layer: vp.LineCollection, alpha: float) -> vp.LineCollection:
     more target layer(s)
 
     Examples:
+
         Set all layer to 50% red:
 
             $ vpype [...] color red alpha .5 [...]
@@ -352,7 +360,8 @@ def name(layer: vp.LineCollection, name: str) -> vp.LineCollection:
     By default, this commands sets the name for all layers. Use the `--layer` option to set
     the name of one (or more) specific layer(s).
 
-    Examples:
+    Example:
+
         Set the name for a specific layer:
 
             $ vpype [...] name --layer 4 black [...]
