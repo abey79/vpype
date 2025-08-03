@@ -104,10 +104,10 @@ jobs:
     - name: Install Python
       uses: actions/setup-python@v5
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: '3.12'
 
     - name: Install poetry
-      run: pipx install --python ${{ matrix.python-version }} poetry!=1.4.1
+      run: pipx install --python '3.12' poetry!=1.4.1
 
     # TODO: cache poetry env
 
