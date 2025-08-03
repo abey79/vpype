@@ -30,15 +30,14 @@ jobs:
     - name: Install Just
       uses: extractions/setup-just@v2
 
+    - name: Install poetry
+      run: pipx install poetry!=1.4.1
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
         cache: 'poetry'
-
-    - name: Install poetry
-      run: pipx install poetry!=1.4.1
-
     - name: Install project
       run: poetry install -E all
     - name: Lint and static analysis
