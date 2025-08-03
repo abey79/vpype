@@ -30,13 +30,21 @@ jobs:
     - name: Install Just
       uses: extractions/setup-just@v2
 
-    - name: Install uv and set the python version
-      uses: astral-sh/setup-uv@v6
+    - name: Install Python
+      uses: actions/setup-python@v5
       with:
-        python-version: ${{ matrix.python-version }}
+          python-version: ${{ matrix.python-version }}
+
+#    - name: Install uv and set the python version
+#      uses: astral-sh/setup-uv@v6
+#      with:
+#        python-version: ${{ matrix.python-version }}
+#
+#    - name: Install poetry
+#      run: uv tool install poetry
 
     - name: Install poetry
-      run: uv tool install poetry
+      run: pipx install poetry!=1.4.1
 
     # TODO: cache poetry venv
 
