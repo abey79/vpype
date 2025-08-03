@@ -1395,7 +1395,7 @@
     option.
   
   Options:
-    -f, --font [greek|timesib|meteorology|futuram|gothgbt|markers|music|symbolic|gothicita|rowmans|mathupp|timesr|futural|scriptc|gothitt|rowmand|timesrb|cyrilc_1|japanese|greekc|gothiceng|greeks|timesi|cyrillic|mathlow|gothgrt|astrology|gothicger|cursive|scripts|rowmant|timesg]
+    -f, --font [astrology|cursive|cyrilc_1|cyrillic|futural|futuram|gothgbt|gothgrt|gothiceng|gothicger|gothicita|gothitt|greek|greekc|greeks|japanese|markers|mathlow|mathupp|meteorology|music|rowmand|rowmans|rowmant|scriptc|scripts|symbolic|timesg|timesi|timesib|timesr|timesrb]
                                     Font to use.
     -s, --size LENGTH               Text size (default: 18).
     -w, --wrap LENGTH               Wrap to provided width.

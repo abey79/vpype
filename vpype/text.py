@@ -36,7 +36,7 @@ __all__ = ["FONT_NAMES", "text_line", "text_block"]
 
 _FONT_DIR = Path(__file__).parent / "fonts"
 
-FONT_NAMES = [p.stem for p in _FONT_DIR.glob("*.pickle")]
+FONT_NAMES = sorted([p.stem for p in _FONT_DIR.glob("*.pickle")])
 
 
 @dataclass
