@@ -44,7 +44,7 @@ jobs:
 #      run: uv tool install poetry
 
     - name: Install poetry
-      run: pipx install poetry!=1.4.1
+      run: pipx install --python ${{ matrix.python-version }} poetry!=1.4.1
 
     # TODO: cache poetry venv
 
