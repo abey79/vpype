@@ -1,6 +1,6 @@
 [project]
 name = "vpype"
-version = "1.15.0a0"
+version = "1.15.0rc1"
 description = "The Swiss Army knife of vector graphics for pen plotters"
 authors = [
     { name = "Antoine Beyeler", email = "abeyeler@ab-ware.com>" }
