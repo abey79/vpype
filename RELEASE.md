@@ -6,7 +6,7 @@
    - finalize `CHANGELOG.md` (must be clean as it is included in the release docs)
      - `git log 1.14.0..HEAD --pretty=format:"%s"`
 2. Check CI ok
-3. Tag the commit with `X.Y.Z[aW]` (e.g. `1.2.0a1`)
+3. Tag the commit with `X.Y.Z[aW]` (e.g. `1.2.0a1`) and push tag to `origin`
 4. Edit & publish GH release
 5. Check PyPI is ok
 6. Commit a version bump

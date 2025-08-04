@@ -1,5 +1,18 @@
 # Change log
 
+## 1.16.0
+
+Release date: UNRELEASED
+
+### New features and improvements
+
+* ...
+
+### Bug fixes
+
+* ...
+
+
 ## 1.15.0
 
 Release date: 2025-08-04
