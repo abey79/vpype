@@ -1,8 +1,8 @@
 # Change log
 
-## 1.15
+## 1.15.0
 
-Release date: UNRELEASED
+Release date: 2025-08-04
 
 ### New features and improvements
 
@@ -22,7 +22,7 @@ Release date: UNRELEASED
 * Use Ruff for code formatting (supersedes Black) (#737)
 
 
-## 1.14
+## 1.14.0
 
 Release date: 2024-01-08
 
@@ -43,7 +43,7 @@ Release date: 2024-01-08
 * The project now uses [Ruff](https://github.com/astral-sh/ruff) for linting (supersedes isort) (#646)
 
 
-## 1.13
+## 1.13.0
 
 Release date: 2023-03-13
 
@@ -75,7 +75,7 @@ Release date: 2022-11-12
 * Pinned ModernGL to 5.7.0 or earlier to avoid an [issue](https://github.com/moderngl/moderngl/issues/525) introduced in 5.7.1 (2ce6aef780e8a280375cb230d732d092a0635ad3)
 
 
-## 1.12
+## 1.12.0
 
 Release date: 2022-10-25
 
@@ -105,7 +105,7 @@ Release date: 2022-10-25
 * Migrated to [Plausible.io](https://plausible.io) (from Google Analytics) for [vpype.readthedocs.io](https://vpype.readthedocs.io) (#546)
 
 
-## 1.11
+## 1.11.0
 
 Release date: 2022-07-06
 
@@ -138,7 +138,7 @@ Release date: 2022-07-06
 * Removed deprecated API (#507)
 
 
-## 1.10
+## 1.10.0
 
 Release date: 2022-04-07
 
@@ -188,7 +188,7 @@ Release date: 2022-04-07
 * Updated code base with modern typing syntax (using [pyupgrade](https://github.com/asottile/pyupgrade)) (#427)
 
 
-## 1.9
+## 1.9.0
 
 Release date: 2022-03-03
 
@@ -325,7 +325,7 @@ Release date: 2022-01-13
 * Updated Pillow to 9.0.0 due to vulnerabilities in previous versions (CVE-2022-22815, CVE-2022-22817, CVE-2022-22816)
 
 
-## 1.8
+## 1.8.0
 
 Release date: 2021-11-25
 
@@ -350,7 +350,7 @@ Release date: 2021-11-25
 * Updated to Shapely 1.8 (transition release toward 2.0) and fixed deprecation warnings (#325, #342)
 
 
-## 1.7
+## 1.7.0
 
 Release date: 2021-06-10
 
@@ -385,7 +385,7 @@ pip install -U vpype[all]
 * Updated to Click 8.0.1 (#282) 
 
 
-## 1.6
+## 1.6.0
 
 Release date: 2021-03-10
 
@@ -425,7 +425,7 @@ Release date: 2021-02-19
 * Fixed UI glitches when using both non-HiDPI and HiDPI (a.k.a Retina) monitors (#211)
 
 
-## 1.5
+## 1.5.0
 
 Release date: 2021-02-16
 
@@ -455,7 +455,7 @@ Release date: 2021-02-16
 * Renamed `vpype.CONFIG_MANAGER` in favour of `vpype.config_manager` (existing name kept for compatibility) (#202)
 
 
-## 1.4
+## 1.4.0
 
 Release date: 2021-02-08
 
@@ -478,7 +478,7 @@ Release date: 2021-02-08
 * Added support for a sidebar in the viewer (#194)
 
 
-## 1.3
+## 1.3.0
 
 Release date: 2021-01-27
 
@@ -525,7 +525,7 @@ Release date: 2020-12-26
 * Fixed systematic crash with `read` command due to bad dependency version (#140)
 
 
-## 1.2
+## 1.2.0
 
 Release date: 2020-12-17
 
@@ -541,7 +541,7 @@ Release date: 2020-12-17
 * Fixed an issue where output HPGL file could be empty (#132)
 
 
-## 1.1
+## 1.1.0
   
 Release date: 2020-12-10
 
@@ -563,7 +563,7 @@ Release date: 2020-12-10
 * Added `vpype.convert_angle()` and `vpype.AngleType` (#111)
 
 
-## 1.0
+## 1.0.0
 
 Release date: 2020-11-29
 
