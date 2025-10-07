@@ -5,6 +5,10 @@
 # Required
 version: 2
 
+formats:
+  - htmlzip
+  - pdf
+
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
   configuration: docs/conf.py
