@@ -575,7 +575,7 @@ margin. By construction, `--align` and `--valign` have no effect with `tight`.
 
 By default, `layout` considers the bounding box of the existing geometries as the area to
 fit on the page. Alternatively, the current page size can be used with the `--no-bbox` option.
-Using `--no-box` without a page size set is an error.
+Using `--no-bbox` without a page size set is an error.
 
 On an empty pipeline, `layout` simply sets the page size to SIZE, unless `tight` is used. In
 this case, `layout` has no effect at all.
