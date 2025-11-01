@@ -23,10 +23,7 @@ Download and install
 
 .. highlight:: bash
 
-For Windows, an installer is available `here <https://github.com/abey79/vpype/releases>`_ (note: plug-ins cannot be installed
-when using this installation method).
-
-For other platforms, and when plug-ins are required, *vpype* can be installed from the `Python Package Index <https://pypi.org>`_
+*vpype* can be installed from the `Python Package Index <https://pypi.org>`_
 using pipx::
 
   $ pipx install "vpype[all]"

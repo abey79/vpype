@@ -80,10 +80,6 @@ Windows
 
 .. highlight:: bat
 
-Installing using the installer
-------------------------------
-
-A Windows installer for *vpype* is `available here <https://github.com/abey79/vpype/releases>`__. Although this installation method is the easiest, it **does not** allow :doc:`plug-ins <plugins>` to be installed. If plug-ins are required, installing using pipx is recommended.
 
 Installing using pipx
 ---------------------
