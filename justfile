@@ -7,8 +7,8 @@ update-deps:
   poetry update
 
 # run all tests
-test:
-  pytest
+test *args='':
+  pytest {{args}}
 
 format:
   ruff format vpype vpype_cli vpype_viewer tests
