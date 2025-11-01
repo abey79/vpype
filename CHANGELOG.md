@@ -12,6 +12,10 @@ Release date: UNRELEASED
 
 * ...
 
+### Other changes
+
+* No longer generate a Windows installer (#822) 
+
 
 ## 1.15.0
 
