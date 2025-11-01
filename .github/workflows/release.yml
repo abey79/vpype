@@ -6,49 +6,9 @@ on:
       - '*.*.*'
 
 jobs:
-
-  # ----------------------------------------
-  gh-release-installer:
-    defaults:
-      run:
-        shell: bash
-    runs-on: windows-latest
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Install Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
-
-    - name: Install poetry
-      run: pipx install --python 3.12 poetry!=1.4.1
-
-    - name: Install project
-      run: poetry install -E all --with docs,dev
-
-    - name: Run PyInstaller
-      run: |
-        VERSION="`poetry version --short`"
-        echo "version=${VERSION}" >> $GITHUB_ENV
-        poetry run ${GITHUB_WORKSPACE}\\scripts\\build.bat
-    - name: Create NSIS installer
-      uses: joncloud/makensis-action@v4
-      with:
-        script-file: scripts\\installer_win.nsi
-        arguments: /V4 /DVERSION=${{ env.version }}
-    - name: Make GH Release
-      uses: ncipollo/release-action@v1
-      with:
-        draft: true
-        artifacts: dist/vpype-${{ env.version }}-setup.exe
-
-
   # ----------------------------------------
   pypi-upload:
     runs-on: ubuntu-latest
-    needs: [gh-release-installer]
     steps:
       - uses: actions/checkout@v4
 

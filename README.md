@@ -194,8 +194,6 @@ TL;DR:
   ```bash
   pipx install "vpype[all]"
   ```
-- A Windows installer is available [here](https://github.com/abey79/vpype/releases), but plug-ins cannot be installed
-when using this method).
 - A CLI-only version of *vpype* can be installed using the following command:
   ```bash
   pipx install vpype
