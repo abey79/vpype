@@ -307,6 +307,7 @@ and much more.
  - [vpype-ttf](https://github.com/johnbentcope/vpype-ttf): create text outlines using TTF fonts
  - [vpype-gscrib](https://github.com/joansalasoler/vpype-gscrib): generate G-code for CNC machines, plotters, laser cutters, 3D printers, and more using the Gscrib library
  - [vpype-cfill](https://github.com/map-blasterson/vpype-cfill): generate concentric fill.
+ - [vpype-watercolor](https://github.com/piebro/vpype-watercolor): utility for watercolor plotting
  
  
  ## Contributing
