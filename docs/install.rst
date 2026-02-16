@@ -9,11 +9,7 @@ This page explain how to install *vpype* for end-users. If you intend to develop
 
 .. note::
 
-  The recommended Python version is 3.13. *vpype* is also compatible with Python 3.11 and 3.12.
-
-.. warning::
-
-  *vpype* is not yet compatible with Python 3.13.
+  The recommended Python version is 3.13. *vpype* is also compatible with Python 3.11, 3.12 and 3.14.
 
 
 macOS

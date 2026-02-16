@@ -15,6 +15,7 @@ Release date: UNRELEASED
 ### Other changes
 
 * No longer generate a Windows installer (#822) 
+* No longer restricting upper Python version (#834)
 
 
 ## 1.15.0

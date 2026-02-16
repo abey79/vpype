@@ -189,7 +189,7 @@ curvy (circles, bezier curves, etc.) to lines made of small segments. _vpype_ do
 Detailed installation instructions are available in the [latest documentation](https://vpype.readthedocs.io/en/latest/install.html).
 
 TL;DR:
-- Python 3.13 is recommended, but *vpype* is also compatible with Python 3.11 and 3.12. 
+- Python 3.13 is recommended, but *vpype* is also compatible with Python 3.11, 3.12 and 3.14. 
 - *vpype* is published on the [Python Package Index](https://pypi.org) and can be installed using [pipx](https://pypa.github.io/pipx/):
   ```bash
   pipx install "vpype[all]"
