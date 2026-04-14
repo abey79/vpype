@@ -70,7 +70,7 @@ classifiers = [
 coverage = {extras = ["toml"], version = ">=5.4"}
 mypy = ">=0.901"
 packaging = ">=20.8"
-pytest = ">=6.2.3"
+pytest = ">=9.0.3"
 pytest-benchmark = ">=4.0.0"
 pytest-cov = ">=2.11.0"
 pytest-mpl = ">=0.12"
