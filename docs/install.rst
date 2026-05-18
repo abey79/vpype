@@ -45,10 +45,6 @@ Once ``uv`` is installed, use ``uv tool install`` to install *vpype*. The packag
 
   In zsh and bash (the default shells on macOS and Linux), the square brackets in ``vpype[all]`` are interpreted as shell glob characters and **must be quoted**. On Windows ``cmd.exe`` they are not special, but on PowerShell they are — so quoting everywhere on Windows is the safer default.
 
-.. important::
-
-  The commands below pass ``--python 3.13`` explicitly. Without it, ``uv`` will pick the newest Python interpreter available, and at least one of the viewer dependencies (ModernGL) does not yet publish wheels for Python 3.14, which causes the install to fail trying to build from source. Python 3.13 is the latest version for which all viewer dependencies ship pre-built wheels.
-
 
 macOS and Linux (bash, zsh)
 ---------------------------
@@ -89,16 +85,6 @@ Verifying the installation
 
   vpype --version
   vpype random show
-
-
-Why ``--python 3.13``?
-======================
-
-By default, ``uv tool install`` selects the most recent Python interpreter compatible with *vpype*'s ``requires-python`` constraint and downloads a managed, pre-built standalone Python build if needed. As long as every dependency publishes wheels for that interpreter, the install completes without any compilation.
-
-The problem is that wheel coverage for the very latest Python release tends to lag. At the time of writing, ModernGL (a viewer dependency) does not yet ship wheels for Python 3.14, so letting ``uv`` pick 3.14 results in a build-from-source attempt that fails on most machines. Pinning ``--python 3.13`` sidesteps this by targeting the latest interpreter for which all viewer dependencies have pre-built wheels.
-
-Once ModernGL (and any other lagging dependency) publishes 3.14 wheels, you can drop the flag — or bump it to a newer version — and ``uv`` will resolve normally.
 
 
 Raspberry Pi
