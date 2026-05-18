@@ -45,6 +45,10 @@ Once ``uv`` is installed, use ``uv tool install`` to install *vpype*. The packag
 
   In zsh and bash (the default shells on macOS and Linux), the square brackets in ``vpype[all]`` are interpreted as shell glob characters and **must be quoted**. On Windows ``cmd.exe`` they are not special, but on PowerShell they are — so quoting everywhere on Windows is the safer default.
 
+.. important::
+
+  The commands below pass ``--python 3.13`` explicitly. Without it, ``uv`` will pick the newest Python interpreter available, and at least one of the viewer dependencies (ModernGL) does not yet publish wheels for Python 3.14, which causes the install to fail trying to build from source. Python 3.13 is the latest version for which all viewer dependencies ship pre-built wheels.
+
 
 macOS and Linux (bash, zsh)
 ---------------------------
@@ -53,7 +57,7 @@ macOS and Linux (bash, zsh)
 
 ::
 
-  uv tool install "vpype[all]"
+  uv tool install --python 3.13 "vpype[all]"
 
 
 Windows (cmd.exe)
@@ -63,7 +67,7 @@ Windows (cmd.exe)
 
 ::
 
-  uv tool install vpype[all]
+  uv tool install --python 3.13 vpype[all]
 
 
 Windows (PowerShell)
@@ -73,7 +77,7 @@ Windows (PowerShell)
 
 ::
 
-  uv tool install "vpype[all]"
+  uv tool install --python 3.13 "vpype[all]"
 
 
 Verifying the installation
@@ -87,16 +91,14 @@ Verifying the installation
   vpype random show
 
 
-Picking a Python version
-========================
+Why ``--python 3.13``?
+======================
 
-By default, ``uv tool install`` selects the most recent Python interpreter compatible with *vpype*'s ``requires-python`` constraint and downloads a managed, pre-built standalone Python build if needed. Because these managed builds match the platforms that most projects publish wheels for, you should generally not need to build any dependency from source.
+By default, ``uv tool install`` selects the most recent Python interpreter compatible with *vpype*'s ``requires-python`` constraint and downloads a managed, pre-built standalone Python build if needed. As long as every dependency publishes wheels for that interpreter, the install completes without any compilation.
 
-If you do run into a dependency that fails to build (for example because no wheel is available for the chosen Python version), you can pin a specific Python version with the ``--python`` flag. For example::
+The problem is that wheel coverage for the very latest Python release tends to lag. At the time of writing, ModernGL (a viewer dependency) does not yet ship wheels for Python 3.14, so letting ``uv`` pick 3.14 results in a build-from-source attempt that fails on most machines. Pinning ``--python 3.13`` sidesteps this by targeting the latest interpreter for which all viewer dependencies have pre-built wheels.
 
-  uv tool install --python 3.13 "vpype[all]"
-
-Replace ``3.13`` with the version you want to target.
+Once ModernGL (and any other lagging dependency) publishes 3.14 wheels, you can drop the flag — or bump it to a newer version — and ``uv`` will resolve normally.
 
 
 Raspberry Pi
@@ -104,7 +106,7 @@ Raspberry Pi
 
 .. highlight:: bash
 
-Full installation including the viewer on the Raspberry Pi is no longer supported. Expert users may succeed with ``uv tool install "vpype[all]"``. Also, the new viewer requires OpenGL 3.3, which the Raspberry Pi does not support. The classic viewer should work correctly::
+Full installation including the viewer on the Raspberry Pi is no longer supported. Expert users may succeed with ``uv tool install --python 3.13 "vpype[all]"``. Also, the new viewer requires OpenGL 3.3, which the Raspberry Pi does not support. The classic viewer should work correctly::
 
   vpype [...] show --classic
 

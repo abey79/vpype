@@ -192,24 +192,25 @@ TL;DR:
 - *vpype* is compatible with Python 3.11, 3.12, and 3.13.
 - *vpype* is published on the [Python Package Index](https://pypi.org) and can be installed with [`uv tool`](https://docs.astral.sh/uv/guides/tools/) (install `uv` itself by following the [official `uv` installation instructions](https://docs.astral.sh/uv/getting-started/installation/)).
 - `uv` will download a suitable managed Python interpreter automatically, so you do not need to install Python first.
+- The commands below pass `--python 3.13` explicitly. Without it, `uv` will pick Python 3.14, which currently fails because [ModernGL](https://pypi.org/project/moderngl/) (a viewer dependency) does not yet publish 3.14 wheels. Python 3.13 is the latest version for which all viewer dependencies ship pre-built wheels.
 - The package name to install is `vpype[all]`. Quoting rules depend on the shell:
   - **macOS / Linux (bash, zsh):**
     ```bash
-    uv tool install "vpype[all]"
+    uv tool install --python 3.13 "vpype[all]"
     ```
   - **Windows (cmd.exe):**
     ```bat
-    uv tool install vpype[all]
+    uv tool install --python 3.13 vpype[all]
     ```
   - **Windows (PowerShell):**
     ```powershell
-    uv tool install "vpype[all]"
+    uv tool install --python 3.13 "vpype[all]"
     ```
 - A CLI-only version of *vpype* can be installed using the following command (no quoting needed since there are no square brackets):
   ```bash
   uv tool install vpype
   ```
-  This version does not include the [`show`](https://vpype.readthedocs.io/en/latest/reference.html#show) command but does not require some of the dependencies which are more difficult or impossible to install on some platforms (such as matplotlib, PySide6, and ModernGL).
+  This version does not include the [`show`](https://vpype.readthedocs.io/en/latest/reference.html#show) command but does not require some of the dependencies which are more difficult or impossible to install on some platforms (such as matplotlib, PySide6, and ModernGL). Because none of the lagging-wheel dependencies are involved, the `--python 3.13` flag is not needed.
 
 
 ## Documentation

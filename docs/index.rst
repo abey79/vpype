@@ -26,9 +26,9 @@ Download and install
 *vpype* can be installed from the `Python Package Index <https://pypi.org>`_
 using `uv <https://docs.astral.sh/uv/>`_::
 
-  $ uv tool install "vpype[all]"
+  $ uv tool install --python 3.13 "vpype[all]"
 
-(On Windows ``cmd.exe``, omit the quotes.) Check the :ref:`installation instruction <install>` for step-by-step explanations, including how to install ``uv`` itself.
+(On Windows ``cmd.exe``, omit the quotes. The ``--python 3.13`` flag is needed because one viewer dependency, ModernGL, does not yet publish wheels for Python 3.14.) Check the :ref:`installation instruction <install>` for step-by-step explanations, including how to install ``uv`` itself.
 
 Using this documentation
 ------------------------
