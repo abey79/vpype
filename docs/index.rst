@@ -24,11 +24,11 @@ Download and install
 .. highlight:: bash
 
 *vpype* can be installed from the `Python Package Index <https://pypi.org>`_
-using pipx::
+using `uv <https://docs.astral.sh/uv/>`_::
 
-  $ pipx install "vpype[all]"
+  $ uv tool install "vpype[all]"
 
-Check the :ref:`installation instruction <install>` for step-by-step explanations.
+(On Windows ``cmd.exe``, omit the quotes.) Check the :ref:`installation instruction <install>` for step-by-step explanations, including how to install ``uv`` itself.
 
 Using this documentation
 ------------------------
