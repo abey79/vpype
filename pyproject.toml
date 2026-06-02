@@ -31,7 +31,7 @@ all = [
     "glcontext>=2.3.2",  # 2.3.2 needed to fix #200
     "moderngl>=5.6.2,!=5.7.1,!=5.7.2",  # see moderngl/moderngl#525
     "Pillow>=9.0.1",
-    "PySide6>=6.4.0.1,!=6.6.2",
+    "PySide6>=6.11.1,!=6.6.2",
 ]
 
 
@@ -67,25 +67,25 @@ classifiers = [
 
 
 [tool.poetry.group.dev.dependencies]
-coverage = {extras = ["toml"], version = ">=5.4"}
-mypy = ">=1.20.2"
+coverage = {extras = ["toml"], version = ">=7.14.1"}
+mypy = ">=2.1.0"
 packaging = ">=26.2"
 pytest = ">=9.0.3"
 pytest-benchmark = ">=4.0.0"
 pytest-cov = ">=2.11.0"
 pytest-mpl = ">=0.12"
-ruff = ">=0.15.12"
-syrupy = ">=4.9"
-types-cachetools = ">=6.2.0.20260408"
+ruff = ">=0.15.15"
+syrupy = ">=5.3.1"
+types-cachetools = ">=7.0.0.20260518"
 types-pillow = ">=9.4.0.17,<11.0.0.0"
-types-setuptools = ">=82.0.0.20260408"
+types-setuptools = ">=82.0.0.20260518"
 
 [tool.poetry.group.docs]
 optional = true
 
 [tool.poetry.group.docs.dependencies]
 furo = ">=2022.12.7"
-myst_parser = ">=0.18.0"
+myst_parser = ">=5.1.0"
 sphinx = ">=5.0.2"
 sphinx-autobuild = ">=2021.3.14"
 sphinx-autodoc-typehints= ">=1.18.3"
