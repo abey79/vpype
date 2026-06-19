@@ -189,14 +189,25 @@ curvy (circles, bezier curves, etc.) to lines made of small segments. _vpype_ do
 Detailed installation instructions are available in the [latest documentation](https://vpype.readthedocs.io/en/latest/install.html).
 
 TL;DR:
-- Python 3.13 is recommended, but *vpype* is also compatible with Python 3.11 and 3.12. 
-- *vpype* is published on the [Python Package Index](https://pypi.org) and can be installed using [pipx](https://pypa.github.io/pipx/):
+- *vpype* is compatible with Python 3.11, 3.12, and 3.13.
+- *vpype* is published on the [Python Package Index](https://pypi.org) and can be installed with [`uv tool`](https://docs.astral.sh/uv/guides/tools/) (install `uv` itself by following the [official `uv` installation instructions](https://docs.astral.sh/uv/getting-started/installation/)).
+- `uv` will download a suitable managed Python interpreter automatically, so you do not need to install Python first.
+- The package name to install is `vpype[all]`. Quoting rules depend on the shell:
+  - **macOS / Linux (bash, zsh):**
+    ```bash
+    uv tool install --python 3.13 "vpype[all]"
+    ```
+  - **Windows (cmd.exe):**
+    ```bat
+    uv tool install --python 3.13 vpype[all]
+    ```
+  - **Windows (PowerShell):**
+    ```powershell
+    uv tool install --python 3.13 "vpype[all]"
+    ```
+- A CLI-only version of *vpype* can be installed using the following command (no quoting needed since there are no square brackets):
   ```bash
-  pipx install "vpype[all]"
-  ```
-- A CLI-only version of *vpype* can be installed using the following command:
-  ```bash
-  pipx install vpype
+  uv tool install vpype
   ```
   This version does not include the [`show`](https://vpype.readthedocs.io/en/latest/reference.html#show) command but does not require some of the dependencies which are more difficult or impossible to install on some platforms (such as matplotlib, PySide6, and ModernGL).
 
