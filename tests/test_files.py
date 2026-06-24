@@ -651,3 +651,54 @@ def test_read_layer_id_from_svg(attr, exp):
     doc = vp.read_multilayer_svg(io.StringIO(svg), 0.1)
     assert doc.layers.keys() == {exp}
     assert len(doc.layers[exp]) == 1
+
+
+def test_read_layer_id_colliding_labels_fall_back_to_id():
+    # Several groups sharing the same `inkscape:label` (e.g. as produced by the `splitdist`
+    # command) must not be merged into a single layer. As the label does not yield a distinct
+    # ID per group, the (distinct) `id` attribute is used instead.
+    svg = """<?xml version="1.0"?><svg width="500" height="300"
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">
+        <g inkscape:label="2" id="layer2">
+                <line x1="0" y1="0" x2="10" y2="10" />
+        </g>
+        <g inkscape:label="2" id="layer4">
+                <line x1="0" y1="0" x2="20" y2="20" />
+        </g>
+        <g inkscape:label="2" id="layer5">
+                <line x1="0" y1="0" x2="30" y2="30" />
+        </g>
+    </svg>"""
+
+    doc = vp.read_multilayer_svg(io.StringIO(svg), 0.1)
+    assert doc.layers.keys() == {2, 4, 5}
+
+
+def test_read_layer_id_distinct_labels_take_priority():
+    # When the labels yield a distinct ID for every group, they take priority over the `id`
+    # attribute (here deliberately off-by-one, as Inkscape produces).
+    svg = """<?xml version="1.0"?><svg width="500" height="300"
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">
+        <g inkscape:label="1" id="layer0">
+                <line x1="0" y1="0" x2="10" y2="10" />
+        </g>
+        <g inkscape:label="2" id="layer1">
+                <line x1="0" y1="0" x2="20" y2="20" />
+        </g>
+    </svg>"""
+
+    doc = vp.read_multilayer_svg(io.StringIO(svg), 0.1)
+    assert doc.layers.keys() == {1, 2}
+
+
+def test_splitdist_write_read_roundtrip(tmp_path):
+    # Regression test: `splitdist` spreads a layer over several new layers that all inherit its
+    # name. When that name contains a digit (e.g. "2", as obtained by reading a layer labelled
+    # "2"), writing and reading back must preserve the layers as distinct rather than merging
+    # them via their (colliding) `inkscape:label`.
+    path = str(tmp_path / "split.svg")
+    before = vpype_cli.execute(f"random -n 100 -a 10cm 10cm name 2 splitdist 1cm write {path}")
+    assert len(before.layers) > 1
+
+    after = vpype_cli.execute(f"read {path}")
+    assert len(after.layers) == len(before.layers)

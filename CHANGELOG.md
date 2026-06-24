@@ -10,7 +10,7 @@ Release date: UNRELEASED
 
 ### Bug fixes
 
-* ...
+* Fixed layers being merged when reading a SVG whose groups share the same `inkscape:label` (e.g. as produced by `splitdist` followed by `write`); the label is now only used to determine layer IDs when it yields a distinct ID for every group, otherwise the `id` attribute is used instead
 
 ### Other changes
 
