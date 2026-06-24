@@ -459,8 +459,11 @@ def read_multilayer_svg(
 
     Groups are matched to layer ID according their `inkscape:label` attribute, their `id`
     attribute or their appearing order, in that order of priority. The first contiguous group
-    of digits in the label is used as layer ID. Lacking numeric characters, the appearing order
-    is used. If the label is 0, it is changed to 1.
+    of digits in the corresponding attribute is used as layer ID (if it is 0, it is changed to
+    1). The `inkscape:label` attribute is only used when it yields a distinct ID for every
+    group, so that groups sharing the same label (e.g. as produced by the `splitdist` command)
+    are not inadvertently merged into a single layer; the `id` attribute is used instead in
+    that case. Lacking numeric characters altogether, the appearing order is used.
 
     All curved geometries are chopped in segments no longer than the value of *quantization*.
     Optionally, the geometries are simplified using Shapely, using the value of *quantization*
@@ -503,20 +506,19 @@ def read_multilayer_svg(
             if isinstance(elem, svgelements.Group):
                 yield elem
 
-    for i, g in enumerate(_find_groups(svg)):
+    def _parse_lid(text: str | None) -> int | None:
+        """Extract a layer ID from a label or id attribute, or None if it has no digits."""
+        digits = _extract_digit_group(text or "")
+        if digits is None:
+            return None
+        lid = int(digits)
+        return 1 if lid == 0 else lid
+
+    # gather all non-empty groups along with their candidate layer IDs
+    groups = []  # list of (layer_name, label_lid, id_lid, lc)
+    for g in _find_groups(svg):
         # noinspection HttpUrlsUsage
         layer_name = g.values.get("{http://www.inkscape.org/namespaces/inkscape}label", None)
-
-        # compute a decent layer ID
-        lid_str = _extract_digit_group(layer_name or "")
-        if not lid_str:
-            lid_str = _extract_digit_group(g.values.get("id") or "")
-        if lid_str:
-            lid = int(lid_str)
-            if lid == 0:
-                lid = 1
-        else:
-            lid = i + 1
 
         paths, metadata = _extract_paths(g, True)
         lc = _flattened_paths_to_line_collection(
@@ -524,16 +526,38 @@ def read_multilayer_svg(
         )
 
         if not lc.is_empty():
-            # deal with the case of layer 1, which may already be initialized with top-level
-            # paths
-            if lid in document.layers:
-                metadata = _intersect_dict(document.layers[lid].metadata, lc.metadata)
-            else:
-                metadata = lc.metadata
+            groups.append(
+                (layer_name, _parse_lid(layer_name), _parse_lid(g.values.get("id")), lc)
+            )
 
-            document.add(lc, lid)
-            document.layers[lid].metadata = metadata
-            document.layers[lid].set_property(METADATA_FIELD_NAME, layer_name)
+    # Compute the layer ID for each group. The `inkscape:label` is the preferred source as it
+    # reflects the user-visible layer name (e.g. as set in Inkscape). However, using it would
+    # silently merge unrelated layers should two of them yield the same ID (for example several
+    # layers sharing the same name, as produced by the `splitdist` command). It is therefore
+    # only used when it provides a distinct ID for every group. The `id` attribute (which vpype
+    # writes as `layer{N}`) and, finally, the group order are used as fallbacks.
+    def _all_distinct(ids: list[int | None]) -> bool:
+        return None not in ids and len(set(ids)) == len(ids)
+
+    label_ids = [label_lid for _, label_lid, _, _ in groups]
+    id_ids = [id_lid for _, _, id_lid, _ in groups]
+    if _all_distinct(label_ids):
+        layer_ids: list[int] = cast(list[int], label_ids)
+    elif _all_distinct(id_ids):
+        layer_ids = cast(list[int], id_ids)
+    else:
+        layer_ids = list(range(1, len(groups) + 1))
+
+    for (layer_name, _, _, lc), lid in zip(groups, layer_ids):
+        # deal with the case of layer 1, which may already be initialized with top-level paths
+        if lid in document.layers:
+            metadata = _intersect_dict(document.layers[lid].metadata, lc.metadata)
+        else:
+            metadata = lc.metadata
+
+        document.add(lc, lid)
+        document.layers[lid].metadata = metadata
+        document.layers[lid].set_property(METADATA_FIELD_NAME, layer_name)
 
     document.page_size = (svg.width, svg.height)
 
