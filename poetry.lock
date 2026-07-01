@@ -37,7 +37,7 @@ version = "4.9.0"
 description = "High level compatibility layer for multiple asynchronous event loop implementations"
 optional = false
 python-versions = ">=3.9"
-groups = ["dev", "docs"]
+groups = ["docs"]
 files = [
     {file = "anyio-4.9.0-py3-none-any.whl", hash = "sha256:9f76d541cad6e36af7beb62e978876f3b41e3e04f2c1fbf0884604c0a9c4d93c"},
     {file = "anyio-4.9.0.tar.gz", hash = "sha256:673c0c244e15788651a4ff38710fea9675823028a6f08a5eda409e0c9840a028"},
@@ -98,14 +98,14 @@ files = [
 
 [[package]]
 name = "asteval"
-version = "1.0.8"
+version = "1.0.9"
 description = "Safe, minimalistic evaluator of python expression using ast module"
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "asteval-1.0.8-py3-none-any.whl", hash = "sha256:6c64385c6ff859a474953c124987c7ee8354d781c76509b2c598741c4d1d28e9"},
-    {file = "asteval-1.0.8.tar.gz", hash = "sha256:7175134331726df0e1569f4ab5fa59266192cf1b365db0ff463c978842075cbb"},
+    {file = "asteval-1.0.9-py3-none-any.whl", hash = "sha256:60513ea5d608d27bdb0cf3785dc993a6c3adeaee45f1bded0953a09e904e461f"},
+    {file = "asteval-1.0.9.tar.gz", hash = "sha256:4f7323d63d9fbf89d7e1d5f8bb59b6c093970c15bb5926e6e67d0195858aa230"},
 ]
 
 [package.extras]
@@ -280,14 +280,14 @@ files = [
 
 [[package]]
 name = "click"
-version = "8.4.1"
+version = "8.4.2"
 description = "Composable command line interface toolkit"
 optional = false
 python-versions = ">=3.10"
 groups = ["main", "docs"]
 files = [
-    {file = "click-8.4.1-py3-none-any.whl", hash = "sha256:482be17c6991b8c19c5429a1e995d9b0efdbb63172824c41f99965dc0ade8ec2"},
-    {file = "click-8.4.1.tar.gz", hash = "sha256:918b5633eddf6b41c32d4f454bf0de810065c74e3f7dbf8ee5452f8be88d3e96"},
+    {file = "click-8.4.2-py3-none-any.whl", hash = "sha256:e6f9f66136c816745b9d65817da91d61d957fb16e02e4dcd0552553c5a197b76"},
+    {file = "click-8.4.2.tar.gz", hash = "sha256:9a6cea6e60b17ebe0a44c5cc636d94f09bd66142c1cd7d8b4cd731c4917a15f6"},
 ]
 
 [package.dependencies]
@@ -749,7 +749,7 @@ version = "3.15"
 description = "Internationalized Domain Names in Applications (IDNA)"
 optional = false
 python-versions = ">=3.8"
-groups = ["dev", "docs"]
+groups = ["docs"]
 files = [
     {file = "idna-3.15-py3-none-any.whl", hash = "sha256:048adeaf8c2d788c40fee287673ccaa74c24ffd8dcf09ffa555a2fbb59f10ac8"},
     {file = "idna-3.15.tar.gz", hash = "sha256:ca962446ea538f7092a95e057da437618e886f4d349216d2b1e294abfdb65fdc"},
@@ -2190,7 +2190,7 @@ version = "1.3.1"
 description = "Sniff out which async library your code is running under"
 optional = false
 python-versions = ">=3.7"
-groups = ["dev", "docs"]
+groups = ["docs"]
 files = [
     {file = "sniffio-1.3.1-py3-none-any.whl", hash = "sha256:2f6da418d1f1e0fddd844478f41680e794e6051915791a034ff65e5f100525a2"},
     {file = "sniffio-1.3.1.tar.gz", hash = "sha256:f4324edc670a0f49750a81b895f35c3adb843cca46f0530f79fc1babb23789dc"},
@@ -2457,7 +2457,7 @@ version = "1.3.1"
 description = "The little ASGI library that shines."
 optional = false
 python-versions = ">=3.10"
-groups = ["dev", "docs"]
+groups = ["docs"]
 files = [
     {file = "starlette-1.3.1-py3-none-any.whl", hash = "sha256:c7372aae11c3c3f26a42df7bd626cec2f47d03483d261d369516a615a53714c6"},
     {file = "starlette-1.3.1.tar.gz", hash = "sha256:05d0213193f2fbaae60e2ecb593b4add4262ad4e46536b54abe36f11a71724e0"},
@@ -2855,4 +2855,4 @@ all = ["Pillow", "PySide6", "glcontext", "matplotlib", "moderngl"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11, <3.14"
-content-hash = "ec86e4993459d6e795bf852c09bb18c0f9dd2544ad7a1d3313663f46817ad0c3"
+content-hash = "3d468a7aba22c1daf43f0754679e07b04834f4757a740ee1890eb7d28a4a54db"
