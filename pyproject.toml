@@ -11,9 +11,9 @@ requires-python = ">=3.11, <3.14"
 dynamic = ["classifiers"]
 
 dependencies = [
-    "asteval>=0.9.26",
+    "asteval>=1.0.9",
     "cachetools>=7.1.4",
-    "click>=8.4.1",
+    "click>=8.4.2",
     "multiprocess>=0.70.11",
     "numpy>=2.4.6,<3",
     "pnoise>=0.2.0",
