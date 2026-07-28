@@ -459,11 +459,14 @@ def read_multilayer_svg(
 
     Groups are matched to layer ID according their `inkscape:label` attribute, their `id`
     attribute or their appearing order, in that order of priority. The first contiguous group
-    of digits in the corresponding attribute is used as layer ID (if it is 0, it is changed to
-    1). The `inkscape:label` attribute is only used when it yields a distinct ID for every
-    group, so that groups sharing the same label (e.g. as produced by the `splitdist` command)
-    are not inadvertently merged into a single layer; the `id` attribute is used instead in
-    that case. Lacking numeric characters altogether, the appearing order is used.
+    of digits in the corresponding attribute is used as layer ID. Lacking numeric characters,
+    the appearing order is used. If the label is 0, it is changed to 1.
+
+    Since two groups may share the same `inkscape:label` (this is the case, for example, of the
+    layers created by the `splitdist` command, which all inherit the source layer's name),
+    relying on it could silently merge unrelated layers. The `inkscape:label` attribute is
+    therefore ignored for the entire document whenever it would assign the same ID to two
+    groups. Should the IDs still not be distinct, the appearing order is used for every group.
 
     All curved geometries are chopped in segments no longer than the value of *quantization*.
     Optionally, the geometries are simplified using Shapely, using the value of *quantization*
@@ -514,9 +517,17 @@ def read_multilayer_svg(
         lid = int(digits)
         return 1 if lid == 0 else lid
 
-    # gather all non-empty groups along with their candidate layer IDs
-    groups = []  # list of (layer_name, label_lid, id_lid, lc)
-    for g in _find_groups(svg):
+    @dataclasses.dataclass(frozen=True)
+    class _GroupDesc:
+        layer_name: str | None
+        label_lid: int | None  # layer ID candidate from the `inkscape:label` attribute
+        id_lid: int | None  # layer ID candidate from the `id` attribute
+        order_lid: int  # layer ID candidate from the group's appearing order
+        lc: LineCollection
+
+    # gather the non-empty groups, along with their layer ID candidates
+    groups: list[_GroupDesc] = []
+    for i, g in enumerate(_find_groups(svg)):
         # noinspection HttpUrlsUsage
         layer_name = g.values.get("{http://www.inkscape.org/namespaces/inkscape}label", None)
 
@@ -527,37 +538,50 @@ def read_multilayer_svg(
 
         if not lc.is_empty():
             groups.append(
-                (layer_name, _parse_lid(layer_name), _parse_lid(g.values.get("id")), lc)
+                _GroupDesc(
+                    layer_name=layer_name,
+                    label_lid=_parse_lid(layer_name),
+                    id_lid=_parse_lid(g.values.get("id")),
+                    order_lid=i + 1,
+                    lc=lc,
+                )
             )
 
-    # Compute the layer ID for each group. The `inkscape:label` is the preferred source as it
-    # reflects the user-visible layer name (e.g. as set in Inkscape). However, using it would
-    # silently merge unrelated layers should two of them yield the same ID (for example several
-    # layers sharing the same name, as produced by the `splitdist` command). It is therefore
-    # only used when it provides a distinct ID for every group. The `id` attribute (which vpype
-    # writes as `layer{N}`) and, finally, the group order are used as fallbacks.
-    def _all_distinct(ids: list[int | None]) -> bool:
-        return None not in ids and len(set(ids)) == len(ids)
+    def _assign_layer_ids(use_labels: bool) -> list[int] | None:
+        """Assign a layer ID to every group, or None if the result isn't distinct."""
+        layer_ids = []
+        for group in groups:
+            candidates = (
+                group.label_lid if use_labels else None,
+                group.id_lid,
+                group.order_lid,  # never None, so a candidate is always found
+            )
+            layer_ids.append(next(lid for lid in candidates if lid is not None))
+        return layer_ids if len(set(layer_ids)) == len(layer_ids) else None
 
-    label_ids = [label_lid for _, label_lid, _, _ in groups]
-    id_ids = [id_lid for _, _, id_lid, _ in groups]
-    if _all_distinct(label_ids):
-        layer_ids: list[int] = cast(list[int], label_ids)
-    elif _all_distinct(id_ids):
-        layer_ids = cast(list[int], id_ids)
-    else:
-        layer_ids = list(range(1, len(groups) + 1))
+    # The `inkscape:label` attribute is the preferred layer ID source, as it reflects the
+    # user-visible layer name (e.g. as set in Inkscape). Since several groups may share the
+    # same label, using it may however assign the same ID to unrelated groups and thus
+    # silently merge them. In such a case, the label is skipped for the whole document (rather
+    # than for the colliding groups only, which would renumber layers depending on unrelated
+    # ones) and the `id` attribute is used instead. The appearing order is the last-resort
+    # fallback.
+    layer_ids = _assign_layer_ids(use_labels=True)
+    if layer_ids is None:
+        layer_ids = _assign_layer_ids(use_labels=False)
+    if layer_ids is None:
+        layer_ids = [group.order_lid for group in groups]
 
-    for (layer_name, _, _, lc), lid in zip(groups, layer_ids):
+    for group, lid in zip(groups, layer_ids, strict=True):
         # deal with the case of layer 1, which may already be initialized with top-level paths
         if lid in document.layers:
-            metadata = _intersect_dict(document.layers[lid].metadata, lc.metadata)
+            metadata = _intersect_dict(document.layers[lid].metadata, group.lc.metadata)
         else:
-            metadata = lc.metadata
+            metadata = group.lc.metadata
 
-        document.add(lc, lid)
+        document.add(group.lc, lid)
         document.layers[lid].metadata = metadata
-        document.layers[lid].set_property(METADATA_FIELD_NAME, layer_name)
+        document.layers[lid].set_property(METADATA_FIELD_NAME, group.layer_name)
 
     document.page_size = (svg.width, svg.height)
 

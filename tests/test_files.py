@@ -653,42 +653,113 @@ def test_read_layer_id_from_svg(attr, exp):
     assert len(doc.layers[exp]) == 1
 
 
-def test_read_layer_id_colliding_labels_fall_back_to_id():
-    # Several groups sharing the same `inkscape:label` (e.g. as produced by the `splitdist`
-    # command) must not be merged into a single layer. As the label does not yield a distinct
-    # ID per group, the (distinct) `id` attribute is used instead.
+def _multi_group_svg(attrs: list[str]) -> str:
+    """Build a SVG with one single-line group per item in *attrs*."""
+    groups = "\n".join(
+        f'<g {attr}><line x1="0" y1="0" x2="{10 + 10 * i}" y2="10" /></g>'
+        for i, attr in enumerate(attrs)
+    )
+    return f"""<?xml version="1.0"?><svg width="500" height="300"
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">{groups}</svg>"""
+
+
+@pytest.mark.parametrize(
+    ("attrs", "exp"),
+    [
+        # distinct labels take priority over the `id` attribute (here deliberately off-by-one,
+        # as Inkscape numbers it)
+        (['inkscape:label="1" id="layer0"', 'inkscape:label="2" id="layer1"'], {1, 2}),
+        # groups sharing the same label (e.g. as produced by the `splitdist` command) must not
+        # be merged: the label is ignored and the (distinct) `id` attribute used instead
+        (
+            [
+                'inkscape:label="2" id="layer2"',
+                'inkscape:label="2" id="layer4"',
+                'inkscape:label="2" id="layer5"',
+            ],
+            {2, 4, 5},
+        ),
+        # ditto, for labels colliding only because 0 is remapped to 1
+        (['inkscape:label="0" id="layer7"', 'inkscape:label="1" id="layer9"'], {7, 9}),
+        # a group whose label has no digits falls back on its own `id` attribute, without
+        # discarding the (non-colliding) labels of the other groups
+        (['inkscape:label="Pen 3" id="g5"', 'inkscape:label="hello" id="g8"'], {3, 8}),
+        # ditto for a group with no label at all, as found in Inkscape files whose top-level
+        # groups are not all layers
+        (
+            [
+                'inkscape:groupmode="layer" inkscape:label="Pen 1" id="layer1"',
+                'inkscape:groupmode="layer" inkscape:label="Pen 3" id="layer2"',
+                'inkscape:groupmode="layer" inkscape:label="Pen 5" id="layer3"',
+                'id="g100"',
+            ],
+            {1, 3, 5, 100},
+        ),
+        # when neither the labels nor the `id`s are distinct, the appearing order is used
+        (['inkscape:label="a" id="layer2"', 'inkscape:label="a" id="layer2"'], {1, 2}),
+        # the `id` attribute is used even when it is not of the `layer{N}` form written by
+        # vpype, so colliding labels may yield surprising (though distinct) layer IDs
+        (
+            ['inkscape:label="Pen 2" id="layer1"', 'inkscape:label="Pen 2" id="g8472"'],
+            {1, 8472},
+        ),
+        # lacking digits altogether, the appearing order is used
+        (["", 'id="foo"'], {1, 2}),
+    ],
+)
+def test_read_layer_id_multiple_groups(attrs, exp):
+    doc = vp.read_multilayer_svg(io.StringIO(_multi_group_svg(attrs)), 0.1)
+
+    assert doc.layers.keys() == exp
+    assert all(len(lc) == 1 for lc in doc.layers.values())
+
+
+def test_read_layer_id_colliding_labels_preserve_layer_names():
+    # Falling back on the `id` attribute must not affect the layer names, which are still taken
+    # from the `inkscape:label` attribute.
+    doc = vp.read_multilayer_svg(
+        io.StringIO(
+            _multi_group_svg(
+                ['inkscape:label="2" id="layer4"', 'inkscape:label="2" id="layer5"']
+            )
+        ),
+        0.1,
+    )
+
+    assert {lid: lc.property(vp.METADATA_FIELD_NAME) for lid, lc in doc.layers.items()} == {
+        4: "2",
+        5: "2",
+    }
+
+
+def test_read_layer_id_empty_group_consumes_appearing_order():
+    # An empty group is not imported, but still counts towards the appearing order used as
+    # last-resort layer ID.
     svg = """<?xml version="1.0"?><svg width="500" height="300"
     xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">
-        <g inkscape:label="2" id="layer2">
-                <line x1="0" y1="0" x2="10" y2="10" />
-        </g>
-        <g inkscape:label="2" id="layer4">
-                <line x1="0" y1="0" x2="20" y2="20" />
-        </g>
-        <g inkscape:label="2" id="layer5">
-                <line x1="0" y1="0" x2="30" y2="30" />
-        </g>
+        <g id="a"></g>
+        <g id="b"><line x1="0" y1="0" x2="10" y2="10" /></g>
+        <g id="c"><line x1="0" y1="0" x2="20" y2="20" /></g>
     </svg>"""
 
     doc = vp.read_multilayer_svg(io.StringIO(svg), 0.1)
-    assert doc.layers.keys() == {2, 4, 5}
+    assert doc.layers.keys() == {2, 3}
 
 
-def test_read_layer_id_distinct_labels_take_priority():
-    # When the labels yield a distinct ID for every group, they take priority over the `id`
-    # attribute (here deliberately off-by-one, as Inkscape produces).
+def test_read_layer_id_colliding_labels_merge_with_top_level_paths():
+    # Top-level paths are imported in layer 1. A group falling back on an `id` attribute which
+    # resolves to layer 1 must be merged into it, as it would be with any other ID source.
     svg = """<?xml version="1.0"?><svg width="500" height="300"
     xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">
-        <g inkscape:label="1" id="layer0">
-                <line x1="0" y1="0" x2="10" y2="10" />
-        </g>
-        <g inkscape:label="2" id="layer1">
-                <line x1="0" y1="0" x2="20" y2="20" />
-        </g>
+        <line x1="0" y1="0" x2="5" y2="5" />
+        <g inkscape:label="2" id="layer1"><line x1="0" y1="0" x2="10" y2="10" /></g>
+        <g inkscape:label="2" id="layer3"><line x1="0" y1="0" x2="20" y2="20" /></g>
     </svg>"""
 
     doc = vp.read_multilayer_svg(io.StringIO(svg), 0.1)
-    assert doc.layers.keys() == {1, 2}
+    assert doc.layers.keys() == {1, 3}
+    assert len(doc.layers[1]) == 2
+    assert len(doc.layers[3]) == 1
 
 
 def test_splitdist_write_read_roundtrip(tmp_path):
@@ -697,8 +768,14 @@ def test_splitdist_write_read_roundtrip(tmp_path):
     # "2"), writing and reading back must preserve the layers as distinct rather than merging
     # them via their (colliding) `inkscape:label`.
     path = str(tmp_path / "split.svg")
-    before = vpype_cli.execute(f"random -n 100 -a 10cm 10cm name 2 splitdist 1cm write {path}")
+    before = vpype_cli.execute(
+        f"random -n 100 -a 10cm 10cm name 2 splitdist 1cm write {path}", global_opt="--seed 0"
+    )
     assert len(before.layers) > 1
 
     after = vpype_cli.execute(f"read {path}")
     assert len(after.layers) == len(before.layers)
+    assert sum(len(lc) for lc in after.layers.values()) == sum(
+        len(lc) for lc in before.layers.values()
+    )
+    assert after.length() == pytest.approx(before.length())
