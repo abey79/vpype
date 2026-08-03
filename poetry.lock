@@ -154,14 +154,14 @@ lxml = ["lxml"]
 
 [[package]]
 name = "cachetools"
-version = "7.1.4"
+version = "7.1.6"
 description = "Extensible memoizing collections and decorators"
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "cachetools-7.1.4-py3-none-any.whl", hash = "sha256:323dc4127934744db5b54eb4924482d7edafbf9554e820d1531c2e08c0e4ef54"},
-    {file = "cachetools-7.1.4.tar.gz", hash = "sha256:437f55a4e0c1b01a4f3077cc470e6991d47430970e36fbcb77e2be0df4fc1cd6"},
+    {file = "cachetools-7.1.6-py3-none-any.whl", hash = "sha256:2c12e255780330af28b91bb7fb96cce4c766f04e38396b9a24510190a5827096"},
+    {file = "cachetools-7.1.6.tar.gz", hash = "sha256:c7a79e7f30ba9943c1cefd08cc36f006aaae086e017af9166f1d59d6170c47e1"},
 ]
 
 [[package]]
@@ -2851,4 +2851,4 @@ all = ["Pillow", "PySide6", "glcontext", "matplotlib", "moderngl"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11, <3.14"
-content-hash = "8fbc249b260e8cf7dbad4aab62b37285db70e27dd78bc0f53503b947502c27d3"
+content-hash = "35b51b1284f3a21ad7e60346241801fdb69e706e4d85578deacfcf26254a6256"
