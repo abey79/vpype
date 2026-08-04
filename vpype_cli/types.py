@@ -222,7 +222,7 @@ class _DelegatedDeferredEvaluatorType(click.ParamType):
         else:
             return super().convert(value, param, ctx)
 
-    _delegate_class: ClassVar = click.ParamType
+    _delegate_class: ClassVar[type[click.ParamType]] = click.ParamType
 
 
 class PathType(_DelegatedDeferredEvaluatorType):
