@@ -27,11 +27,11 @@ dependencies = [
 
 [project.optional-dependencies]
 all = [
-    "matplotlib>=3.10.9",
+    "matplotlib>=3.11.1",
     "glcontext>=2.3.2",  # 2.3.2 needed to fix #200
     "moderngl>=5.6.2,!=5.7.1,!=5.7.2",  # see moderngl/moderngl#525
     "Pillow>=12.3.0",
-    "PySide6>=6.11.1,!=6.6.2",
+    "PySide6>=6.11.2,!=6.6.2",
 ]
 
 
@@ -67,18 +67,18 @@ classifiers = [
 
 
 [tool.poetry.group.dev.dependencies]
-coverage = {extras = ["toml"], version = ">=7.14.1"}
-mypy = ">=2.1.0"
-packaging = ">=26.2"
-pytest = ">=9.0.3"
-pytest-benchmark = ">=4.0.0"
+coverage = {extras = ["toml"], version = ">=7.16.0"}
+mypy = ">=2.3.1"
+packaging = ">=26.3"
+pytest = ">=9.1.1"
+pytest-benchmark = ">=5.3.0"
 pytest-cov = ">=2.11.0"
 pytest-mpl = ">=0.12"
-ruff = ">=0.15.15"
-syrupy = ">=5.3.1"
-types-cachetools = ">=7.0.0.20260518"
+ruff = ">=0.16.5"
+syrupy = ">=6.0.0"
+types-cachetools = ">=7.0.0.20260713"
 types-pillow = ">=9.4.0.17,<11.0.0.0"
-types-setuptools = ">=82.0.0.20260518"
+types-setuptools = ">=84.0.0.20260812"
 
 [tool.poetry.group.docs]
 optional = true
