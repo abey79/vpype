@@ -3,7 +3,7 @@ name = "vpype"
 version = "1.16.0a0"
 description = "The Swiss Army knife of vector graphics for pen plotters"
 authors = [
-    { name = "Antoine Beyeler", email = "abeyeler@ab-ware.com>" }
+    { name = "Antoine Beyeler", email = "abeyeler@ab-ware.com" }
 ]
 license = "MIT"
 readme = "README.md"

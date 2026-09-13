@@ -10,6 +10,11 @@ on:
       - master
       - release/*
 
+# The version used for the single-job steps (lint, static analysis, code coverage). Must be one
+# of the versions listed in the matrix below, otherwise those steps silently never run.
+env:
+  PRIMARY_PYTHON: '3.13'
+
 jobs:
 
   # ----------------------------------------
@@ -17,7 +22,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        python-version: ['3.11', '3.11', '3.13']
+        python-version: ['3.11', '3.12', '3.13']
         os: [ubuntu-latest, macos-latest, windows-latest]
     defaults:
       run:
@@ -25,18 +30,18 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Install Just
-      uses: extractions/setup-just@v2
+      uses: extractions/setup-just@v4
 
     - name: Install Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v7
       with:
           python-version: ${{ matrix.python-version }}
 
     - name: Install poetry
-      run: pipx install --python ${{ matrix.python-version }} poetry!=1.4.1
+      run: pipx install --python ${{ matrix.python-version }} poetry
 
     # TODO: cache poetry venv
 
@@ -48,7 +53,7 @@ jobs:
         poetry install -E all --with docs,dev
 
     - name: Lint and static analysis
-      if:  matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'  # no need to run that 9x
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == env.PRIMARY_PYTHON  # no need to run that 9x
       run: |
         poetry run just lint
 
@@ -61,22 +66,22 @@ jobs:
 
     # PYTEST STRATEGY
     # macOS is the only runner who has working ModernGL behaviour
-    # macOS + 3.11 is used for code coverage
+    # macOS + PRIMARY_PYTHON is used for code coverage
     - name: Pytest (code coverage)
       run: |
         poetry run pytest --cov=./ --cov-report=xml
-      if: matrix.os == 'macos-latest' && matrix.python-version == '3.12'
+      if: matrix.os == 'macos-latest' && matrix.python-version == env.PRIMARY_PYTHON
     - name: Pytest
       run: |
         poetry run pytest
-      if: matrix.os == 'macos-latest' && matrix.python-version != '3.12'
+      if: matrix.os == 'macos-latest' && matrix.python-version != env.PRIMARY_PYTHON
     - name: Pytest (no image similarity check)
       run: |
         poetry run pytest --skip-image-similarity
       if: matrix.os != 'macos-latest'
     - name: Upload comparison test results
       if: failure()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: test_report_${{ runner.os }}_${{ matrix.python-version }}
         path: |
@@ -84,8 +89,8 @@ jobs:
           test_report_reference_svg/**/*
         if-no-files-found: ignore
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        file: ./coverage.xml
-      if: matrix.os == 'macos-latest' && matrix.python-version == '3.12'
+        files: ./coverage.xml
+      if: matrix.os == 'macos-latest' && matrix.python-version == env.PRIMARY_PYTHON
