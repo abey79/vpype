@@ -33,6 +33,7 @@ Here are a few existing plug-ins to illustrate the possibilities:
      :height: 400px
 
 * `deduplicate <https://github.com/LoicGoulefert/deduplicate>`__: remove overlapping lines
+* `deoverlap <https://github.com/piLeoni/deoverlap>`__: keep one stroke where several run side by side within a pen width and trim the rest
 * `vpype-flow-imager <https://github.com/serycjon/vpype-flow-imager>`__: convert image to flow field line art
 
   .. image:: https://raw.githubusercontent.com/serycjon/vpype-flow-imager/master/examples/coffee.jpg
