@@ -12,7 +12,7 @@ dynamic = ["classifiers"]
 
 dependencies = [
     "asteval>=1.0.10",
-    "cachetools>=7.1.8",
+    "cachetools>=7.2.0",
     "click>=8.5.0",
     "multiprocess>=0.70.11",
     "numpy>=2.4.6,<3",
