@@ -44,4 +44,7 @@ def squiggles(lines: vp.LineCollection, amplitude: float, period: float, quantiz
     effect.
     """
 
+    if period <= 0 or quantization <= 0:
+        raise click.BadParameter("period and quantization must be greater than zero")
+
     return vp.squiggles(lines, amplitude, period, quantization)

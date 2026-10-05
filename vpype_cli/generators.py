@@ -32,6 +32,9 @@ def random(n: int, area: tuple[float, float]):
     (10mm, 10mm). Use the `--area` option to specify the destination area.
     """
 
+    if n < 0:
+        raise click.BadParameter("count must not be negative")
+
     lines = np.random.rand(n, 2) + 1j * np.random.rand(n, 2)
     lines.real *= area[0]
     lines.imag *= area[1]
