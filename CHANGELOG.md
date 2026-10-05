@@ -10,6 +10,7 @@ Release date: UNRELEASED
 
 ### Bug fixes
 
+* Fixed the `stat` command printing bounds as `np.float64(...)` instead of plain numbers
 * Fixed layers being merged when reading a SVG whose groups share the same `inkscape:label` (e.g. as produced by `splitdist` followed by `write`); the `inkscape:label` attribute is now ignored when it would assign the same layer ID to two groups, in which case the `id` attribute (or, lacking digits, the group's appearing order) is used instead (#855)
 
 ### Other changes

@@ -819,3 +819,10 @@ def test_splitdist_preserves_metadata():
         assert layer.metadata[vp.METADATA_FIELD_PEN_WIDTH] == pytest.approx(
             vp.convert_length("5mm")
         )
+
+
+def test_stat_bounds_are_plain_floats(runner):
+    result = runner.invoke(cli, "line 0 0 10 20 stat", catch_exceptions=False)
+    assert result.exit_code == 0
+    assert "Bounds: (0.0, 0.0, 10.0, 20.0)" in result.output
+    assert "np.float64" not in result.output
