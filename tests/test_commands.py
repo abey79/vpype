@@ -826,3 +826,20 @@ def test_stat_bounds_are_plain_floats(runner):
     assert result.exit_code == 0
     assert "Bounds: (0.0, 0.0, 10.0, 20.0)" in result.output
     assert "np.float64" not in result.output
+
+
+@pytest.mark.parametrize(
+    ["cmd", "message"],
+    [
+        ("random -n 3 snap 0", "pitch must be greater than zero"),
+        ("random -n 3 squiggles -p 0", "period and quantization must be greater than zero"),
+        ("random -n 3 squiggles -q 0", "period and quantization must be greater than zero"),
+        ("random -n 3 linesimplify -t -1", "tolerance must not be negative"),
+        ("random -n -1", "count must not be negative"),
+    ],
+)
+def test_invalid_numeric_values_report_clean_error(runner, cmd, message):
+    result = runner.invoke(cli, cmd)
+    assert result.exit_code != 0
+    assert message in result.output
+    assert not isinstance(result.exception, (ZeroDivisionError, ValueError))

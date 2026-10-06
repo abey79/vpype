@@ -334,6 +334,9 @@ def linesimplify(lines: vp.LineCollection, tolerance):
     The resulting geometries' points will be at a maximum distance from the original controlled
     by the `--tolerance` parameter (0.05mm by default).
     """
+    if tolerance < 0:
+        raise click.BadParameter("tolerance must not be negative")
+
     if len(lines) < 1:
         return lines
 
@@ -769,6 +772,9 @@ def snap(line_collection: vp.LineCollection, pitch: float) -> vp.LineCollection:
 
             vpype [...] snap 3mm [...]
     """
+
+    if pitch <= 0:
+        raise click.BadParameter("pitch must be greater than zero")
 
     line_collection.scale(1 / pitch)
 
