@@ -123,6 +123,13 @@ class DebugData:
         return self.has_layers(lids) and len(self.layers.keys()) == len(lids)
 
 
+def _format_bounds(bounds) -> str:
+    """Format bounds as a plain tuple of floats (no NumPy scalar repr)."""
+    if bounds is None:
+        return "None"
+    return str(tuple(float(v) for v in bounds))
+
+
 @cli.command(group="Output")
 @global_processor
 def stat(document: vp.Document):
@@ -150,7 +157,7 @@ def stat(document: vp.Document):
             "  Mean segment length:",
             str(length / layer.segment_count() if layer.segment_count() else "n/a"),
         )
-        print(f"  Bounds: {layer.bounds()}")
+        print(f"  Bounds: {_format_bounds(layer.bounds())}")
         print("  Properties:")
         for key, value in layer.metadata.items():
             print(f"    {key}: {value!r}")
@@ -165,7 +172,7 @@ def stat(document: vp.Document):
         "  Mean segment length:",
         str(length_tot / document.segment_count() if document.segment_count() else "n/a"),
     )
-    print(f"  Bounds: {document.bounds()}")
+    print(f"  Bounds: {_format_bounds(document.bounds())}")
     print("  Global properties:")
     for key, value in document.metadata.items():
         print(f"    {key}: {value!r}")
