@@ -302,6 +302,15 @@ def test_hpgl_paper_config(simple_printer_config):
     assert vp.config_manager.get_plotter_config("simple").paper_config("DOESNTEXIST") is None
 
 
+@pytest.mark.parametrize(
+    ("device", "units_per_inch"),
+    [("hp7475a", 1021), ("hp7550", 1016)],
+)
+def test_hpgl_builtin_plotter_unit_length(device, units_per_inch):
+    pc = vp.config_manager.get_plotter_config(device)
+    assert pc.plotter_unit_length * units_per_inch == pytest.approx(96, rel=1e-4)
+
+
 def test_hpgl_paper_size_inference(runner):
     res = runner.invoke(
         cli, "rect 5cm 5cm 5cm 5cm pagesize a4 write --absolute -f hpgl -d hp7475a -"

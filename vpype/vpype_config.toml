@@ -266,7 +266,7 @@ info = "The paper is loaded in portrait. All scaling turned off."
 
 [device.hp7550]
 name = "HP 7550a"
-plotter_unit_length = "0.02488mm"
+plotter_unit_length = "0.025mm"
 pen_count = 8
 
 [[device.hp7550.paper]]
