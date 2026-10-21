@@ -390,6 +390,27 @@ def test_read_by_attribute():
     assert sorted(_prop_set(doc, "vp_pen_width")) == pytest.approx([1, 4])
 
 
+@pytest.mark.parametrize(
+    ("stroke", "expected_color"),
+    [
+        (
+            "rgb(93.333% 92.941% 91.373% / 0.39216)",
+            vp.Color(238, 237, 233, 100),
+        ),
+        ("rgb(100% 0% 0%)", vp.Color(255, 0, 0)),
+        ("rgba(0% 100% 0% / 50%)", vp.Color(0, 255, 0, 128)),
+    ],
+)
+def test_read_css_color_4_stroke(stroke: str, expected_color: vp.Color):
+    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
+        <path d="M0,0 L10,10" style="fill:none;stroke:{stroke}" />
+    </svg>"""
+    doc = vp.read_svg_by_attributes(io.StringIO(svg), ["stroke"], 0.1, crop=False)
+
+    assert len(doc.layers) == 1
+    assert doc.layers[1].property(vp.METADATA_FIELD_COLOR) == expected_color
+
+
 def test_read_layer_assumes_single_layer(caplog):
     test_file = TEST_FILE_DIRECTORY / "misc" / "multilayer.svg"
     doc = vpype_cli.execute(f"read --layer 2 '{test_file}'", global_opt="-vv")

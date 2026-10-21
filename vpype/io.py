@@ -94,6 +94,35 @@ _PathListType = list[_PathType]
 
 
 _NAMESPACED_PROPERTY_RE = re.compile(r"{([-a-zA-Z0-9@:%._+~#=/]+)}([a-zA-Z_][a-zA-Z0-9\-_.]*)")
+_CSS4_RGB_COLOR_RE = re.compile(
+    r"rgba?\(\s*"
+    r"(?P<red>[+-]?(?:\d+(?:\.\d*)?|\.\d+)%)\s+"
+    r"(?P<green>[+-]?(?:\d+(?:\.\d*)?|\.\d+)%)\s+"
+    r"(?P<blue>[+-]?(?:\d+(?:\.\d*)?|\.\d+)%)"
+    r"(?:\s*/\s*(?P<alpha>[+-]?(?:\d+(?:\.\d*)?|\.\d+)%?))?"
+    r"\s*\)",
+    re.IGNORECASE,
+)
+
+
+def _extract_svg_stroke_color(elem: svgelements.Shape) -> Color:
+    """Convert an SVG stroke color, including CSS Color 4 percentage syntax."""
+
+    raw_color = elem.values.get("stroke")
+    if isinstance(raw_color, str):
+        match = _CSS4_RGB_COLOR_RE.fullmatch(raw_color.strip())
+        if match:
+            channels = [match.group(name) for name in ("red", "green", "blue")]
+            alpha = match.group("alpha")
+            if alpha is not None:
+                if alpha.endswith("%"):
+                    alpha = str(float(alpha[:-1]) / 100)
+                return Color(f"rgba({', '.join(channels)}, {alpha})")
+            return Color(f"rgb({', '.join(channels)})")
+
+    # svgelements treats CSS Color 4 slash syntax as black; normalize it to the equivalent
+    # comma syntax supported by its Color parser.
+    return Color(elem.stroke)
 
 
 def _extract_metadata_from_element(
@@ -122,7 +151,7 @@ def _extract_metadata_from_element(
     if layer_system_props:
         metadata.update(
             {
-                METADATA_FIELD_COLOR: Color(elem.stroke),
+                METADATA_FIELD_COLOR: _extract_svg_stroke_color(elem),
                 METADATA_FIELD_PEN_WIDTH: elem.stroke_width,
             }
         )
