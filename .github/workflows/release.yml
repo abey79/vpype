@@ -9,16 +9,19 @@ jobs:
   # ----------------------------------------
   pypi-upload:
     runs-on: ubuntu-latest
+    permissions:
+      # required for PyPI trusted publishing (OIDC) — no API token needed
+      id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
 
       - name: Install poetry
-        run: pipx install --python 3.12 poetry!=1.4.1
+        run: pipx install --python 3.12 poetry
 
       - name: Build artifacts
         run: poetry build
@@ -26,7 +29,4 @@ jobs:
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          # repository_url: https://test.pypi.org/legacy/
-          # password: ${{ secrets.TEST_PYPI_TOKEN }}
-          password: ${{ secrets.PYPI_TOKEN }}
           verbose: true
