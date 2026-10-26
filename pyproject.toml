@@ -12,17 +12,17 @@ dynamic = ["classifiers"]
 
 dependencies = [
     "asteval>=1.0.10",
-    "cachetools>=7.1.8",
+    "cachetools>=7.2.5",
     "click>=8.5.0",
     "multiprocess>=0.70.11",
     "numpy>=2.4.6,<3",
     "pnoise>=0.2.0",
     "pyphen>=0.14,<0.16",
     "scipy>=1.6",
-    "Shapely>=1.8.2",
+    "Shapely>=2.2.0",
     "svgelements>=1.6.10",
     "svgwrite~=1.4",
-    "tomli>=2.0.0",
+    "tomli>=2.5.0",
 ]
 
 [project.optional-dependencies]
