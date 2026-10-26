@@ -41,7 +41,8 @@ LineCollectionLike = Union[
 
 def as_vector(a: np.ndarray):
     """Return a view of a complex line array that behaves as an Nx2 real array"""
-    return a.view(dtype=float).reshape(len(a), 2)
+    # Split complex values on a singleton axis so strided lines remain views.
+    return a[:, None].view(dtype=float).reshape(len(a), 2)
 
 
 class _MetadataMixin:

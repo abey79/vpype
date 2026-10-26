@@ -45,6 +45,42 @@ def _line_set_oriented(lc: Iterable[Sequence[complex]]) -> set[tuple[complex, ..
     return {tuple(line) for line in lc}
 
 
+@pytest.mark.parametrize(
+    "line_slice",
+    [
+        slice(None),
+        slice(None, None, -1),
+        slice(None, None, 2),
+        slice(None, None, -2),
+        slice(1, 2),
+        slice(0, 0),
+    ],
+)
+@pytest.mark.parametrize("writeable", [True, False])
+def test_as_vector(line_slice, writeable):
+    line = np.array([1 + 2j, 3 + 5j, 7 + 11j, 13 + 17j])[line_slice]
+    line.flags.writeable = writeable
+
+    vector = vp.as_vector(line)
+
+    assert vector.shape == (len(line), 2)
+    assert vector.flags.writeable == writeable
+    np.testing.assert_array_equal(vector, np.column_stack((line.real, line.imag)))
+    if len(line):
+        assert np.shares_memory(line, vector)
+        if writeable:
+            vector[0] = [17, 19]
+            assert line[0] == 17 + 19j
+            line[-1] = 23 + 29j
+            np.testing.assert_array_equal(vector[-1], [23, 29])
+
+
+@pytest.mark.parametrize("dtype", [np.complex64, np.float64])
+def test_as_vector_unsupported_dtype(dtype):
+    with pytest.raises(ValueError):
+        vp.as_vector(np.array([1, 2], dtype=dtype))
+
+
 @pytest.mark.parametrize("lines", LINE_COLLECTION_TWO_LINES)
 def test_line_collection_creation_two_lines(lines):
     lc = LineCollection(lines)

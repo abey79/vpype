@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import os
 
+import numpy as np
 import pytest
 
 import vpype as vp
+from vpype_cli import execute
 from vpype_viewer import (
     DEFAULT_SCALE_SPEC,
     Engine,
@@ -12,6 +14,12 @@ from vpype_viewer import (
     UnitType,
     ViewMode,
     render_image,
+)
+from vpype_viewer._painters import (
+    LineCollectionFastColorfulPainter,
+    LineCollectionFastPainter,
+    LineCollectionPointsPainter,
+    LineCollectionPreviewPainter,
 )
 
 from .utils import TEST_FILE_DIRECTORY
@@ -76,6 +84,42 @@ RENDER_KWARGS = [
         id="preview_imperial_override_pen_width_opacity",
     ),
 ]
+
+
+@pytest.mark.parametrize(
+    "painter",
+    [
+        LineCollectionFastPainter,
+        LineCollectionFastColorfulPainter,
+        LineCollectionPointsPainter,
+        LineCollectionPreviewPainter,
+    ],
+)
+def test_viewer_buffers_with_flipped_lines(painter):
+    doc = execute("circle 20 20 10 line 5 5 10 15 reverse --flip")
+    lines = doc[1]
+    reference = vp.LineCollection([line.copy() for line in lines])
+
+    buffers = painter._build_buffers(lines)
+    expected = painter._build_buffers(reference)
+
+    if isinstance(buffers, tuple):
+        for buffer, expected_buffer in zip(buffers, expected):
+            np.testing.assert_array_equal(buffer, expected_buffer)
+    else:
+        np.testing.assert_array_equal(buffers, expected)
+
+
+@pytest.mark.parametrize("render_kwargs", RENDER_KWARGS)
+def test_viewer_flipped_lines(assert_image_similarity, render_kwargs):
+    doc = execute("circle 20 20 10 line 5 5 10 15 reverse --flip")
+    reference = vp.Document(vp.LineCollection([line.copy() for line in doc[1]]))
+
+    image = np.asarray(render_image(doc, (256, 256), **render_kwargs))
+    expected = np.asarray(render_image(reference, (256, 256), **render_kwargs))
+
+    assert np.ptp(expected) > 0
+    np.testing.assert_array_equal(image, expected)
 
 
 # assert_image_similarity fixture added for automated exclusion on unsupported runner
