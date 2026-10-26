@@ -37,7 +37,7 @@ version = "4.14.2"
 description = "High-level concurrency and networking framework on top of asyncio or Trio"
 optional = false
 python-versions = ">=3.10"
-groups = ["dev", "docs"]
+groups = ["docs"]
 files = [
     {file = "anyio-4.14.2-py3-none-any.whl", hash = "sha256:9f505dda5ac9f0c8309b5e8bd445a8c2bf7246f3ce950121e45ea15bc41d1494"},
     {file = "anyio-4.14.2.tar.gz", hash = "sha256:cfa139f3ed1a23ee8f88a145ddb5ac7605b8bbfd8592baacd7ce3d8bb4313c7f"},
@@ -743,7 +743,7 @@ version = "3.15"
 description = "Internationalized Domain Names in Applications (IDNA)"
 optional = false
 python-versions = ">=3.8"
-groups = ["dev", "docs"]
+groups = ["docs"]
 files = [
     {file = "idna-3.15-py3-none-any.whl", hash = "sha256:048adeaf8c2d788c40fee287673ccaa74c24ffd8dcf09ffa555a2fbb59f10ac8"},
     {file = "idna-3.15.tar.gz", hash = "sha256:ca962446ea538f7092a95e057da437618e886f4d349216d2b1e294abfdb65fdc"},
@@ -2188,7 +2188,7 @@ version = "2.9"
 description = "A modern CSS selector implementation for Beautiful Soup."
 optional = false
 python-versions = ">=3.10"
-groups = ["dev", "docs"]
+groups = ["docs"]
 files = [
     {file = "soupsieve-2.9-py3-none-any.whl", hash = "sha256:a2b2c76d67df2382d245409fd71e321a571717e58463efa32ace87dcadac2c12"},
     {file = "soupsieve-2.9.tar.gz", hash = "sha256:acee8417325c5653e1377dc31eccad59eb82cbc65942afe6174c53b3aaad63fc"},
@@ -2590,14 +2590,14 @@ files = [
 
 [[package]]
 name = "urllib3"
-version = "2.7.0"
+version = "2.8.0"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 optional = false
 python-versions = ">=3.10"
-groups = ["docs"]
+groups = ["dev", "docs"]
 files = [
-    {file = "urllib3-2.7.0-py3-none-any.whl", hash = "sha256:9fb4c81ebbb1ce9531cce37674bbc6f1360472bc18ca9a553ede278ef7276897"},
-    {file = "urllib3-2.7.0.tar.gz", hash = "sha256:231e0ec3b63ceb14667c67be60f2f2c40a518cb38b03af60abc813da26505f4c"},
+    {file = "urllib3-2.8.0-py3-none-any.whl", hash = "sha256:0cf3cae568d36aa9576b28dfb35f11328f1cb974ca7647d9475ebb86c75ac6e3"},
+    {file = "urllib3-2.8.0.tar.gz", hash = "sha256:63bf2ead4c879426ebf22ef2a781eeb4aa3b4ae798a0435506f8687fd5bb9b63"},
 ]
 
 [package.extras]
