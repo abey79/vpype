@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import io
 
+import click
 import pytest
 
 from vpype_cli import DebugData, cli
 
 # noinspection PyProtectedMember
-from vpype_cli.cli import extract_arguments
+from vpype_cli.cli import extract_arguments, preprocess_argument_list
 
 from .utils import TESTS_DIRECTORY
 
@@ -38,3 +39,15 @@ def test_include(runner):
     # expecting 4x 100 random lines
     assert result.exit_code == 0
     assert data.count == 400
+
+
+def test_include_missing_file_reports_clean_error():
+    with pytest.raises(click.ClickException, match="does_not_exist_12345"):
+        preprocess_argument_list(["--include", "does_not_exist_12345.vpy"])
+
+
+def test_include_missing_file_end_to_end(runner):
+    result = runner.invoke(cli, "-I 'does_not_exist_12345.vpy' dbsample dbdump")
+    assert result.exit_code == 1
+    assert "does_not_exist_12345" in result.stderr
+    assert "Traceback" not in result.stderr

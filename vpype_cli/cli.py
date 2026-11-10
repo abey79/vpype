@@ -84,7 +84,14 @@ class GroupedGroup(click.Group):
         """Let's get a chance to pre-process the argument list for include options."""
         if args is None:
             args = sys.argv[1:]
-        return super().main(args=preprocess_argument_list(args), **extra)
+        try:
+            args = preprocess_argument_list(args)
+        except click.ClickException as exc:
+            # preprocess_argument_list() runs before click's own error handling,
+            # so report its errors the same way instead of a traceback.
+            exc.show()
+            sys.exit(exc.exit_code)
+        return super().main(args=args, **extra)
 
 
 class _BrokenCommand(click.Command):  # pragma: no cover
@@ -422,8 +429,16 @@ def preprocess_argument_list(args: list[str], cwd: str | None = None) -> list[st
                     file_path = os.path.join(cwd, file_path)
                 dir_path = os.path.dirname(file_path)
 
-                with open(file_path) as f:
-                    result.extend(preprocess_argument_list(extract_arguments(f), dir_path))
+                try:
+                    with open(file_path) as f:
+                        result.extend(
+                            preprocess_argument_list(extract_arguments(f), dir_path)
+                        )
+                except OSError as exc:
+                    raise click.ClickException(
+                        f"include file {file_path!r} cannot be read: "
+                        f"{exc.strerror or exc}"
+                    ) from exc
         else:
             result.append(arg)
 
